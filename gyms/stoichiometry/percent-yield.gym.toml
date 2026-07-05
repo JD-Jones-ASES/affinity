@@ -1,8 +1,9 @@
 # A procedural gym (Phase 1 item 4, ADR-0024/0029). Each problem gives a reactant mass and a (smaller) actual
 # product mass; the learner computes the THEORETICAL yield by mass stoichiometry, then percent yield =
 # actual ÷ theoretical × 100. ChemKernel balances the equation, computes the theoretical yield exactly, and
-# picks a clean percent so the actual mass is exact too. Wrong options are named mistakes: the ratio inverted,
-# the ×100 forgotten, or the reactant mass used as the denominator.
+# picks a clean percent so the actual mass is exact too. The learner TYPES the percent; a wrong entry matching
+# a named mistake (the ratio inverted, the ×100 forgotten, the reactant mass as the denominator) is diagnosed
+# rather than offered as a menu option to rule out on sight (ADR-0032).
 
 id = "stoichiometry-percent-yield"
 title = "Percent yield: actual vs. theoretical"
@@ -11,6 +12,6 @@ topic = "stoichiometry"
 family = "percent_yield_v1"
 seed = 3141592
 count = 10
-blurb = "Given how much reactant went in and how much product actually came out, find the percent yield: work out the theoretical yield by mass stoichiometry, then take actual ÷ theoretical × 100. The theoretical yield is machine-computed from a sourced, balanced equation; each wrong option is a specific mistake — the ratio inverted, the ×100 dropped, or the reactant mass used instead of the theoretical yield."
+blurb = "Given how much reactant went in and how much product actually came out, find the percent yield: work out the theoretical yield by mass stoichiometry, then take actual ÷ theoretical × 100. The theoretical yield is machine-computed from a sourced, balanced equation. Type the percent — a common wrong answer (the ratio inverted, the ×100 dropped, or the reactant mass used as the denominator) is named when you enter it, never handed to you as an option to rule out."
 skills = ["theoretical yield by mass stoichiometry", "percent yield = actual ÷ theoretical × 100", "the denominator is the theoretical product mass, not the reactant mass", "a percent, not a bare fraction"]
 reference_links = ["percent-yield", "stoichiometry", "molar-mass"]

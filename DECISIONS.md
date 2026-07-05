@@ -690,3 +690,42 @@ adding rows + (for a genuinely new property) an optional field. Deferred: transi
 (spin-state pass); ionic radii (a per-ion, coordination-dependent property — belongs on the ion table, not
 the element); densities and further NIST properties (until a lesson needs them). `mendeleev` (+ `pandas`) join
 `chempy`/`periodictable` as dev-only oracles.
+
+## ADR-0032 — Generated practice must not be answerable by recognition: numeric answers are free entry (2026-07-05)
+
+**Context.** The owner observed that the percent-yield gym was trivially gameable: a problem's choices were
+`55 %`, `0.55 %`, and a third value, and *the correct answer was always the plausible two-digit percent* — the
+`0.55 %` (forgot ×100) and the >100 % (inverted) options are eliminable on sight, and the third "never needs
+checking." A human learns the pattern in seconds and answers with zero chemistry. This is not a percent-yield
+bug; it is structural to putting a **numeric** answer in a multiple-choice menu. The named-mistake distractors
+that make good *pedagogy* (forgot ×100, skipped mL→L, sized the yield from the excess reagent) produce answers
+a different order of magnitude or format from the truth — which is exactly what makes them eliminable as menu
+options. Audit: the four numeric gym families (conversions, mass-stoichiometry, percent-yield, limiting-mass)
+all had this; the two categorical families (nomenclature, balancing) did not — their distractors are plausible
+same-form names/formulas/coefficient-sets that genuinely require checking.
+
+**Decision.** One principle, enforced end to end: **generated practice must not be answerable by recognition.**
+
+1. **Numeric answers are FREE ENTRY, not a menu.** The learner types the number. The producer no longer emits
+   `choices` for a numeric problem; it emits a **`diagnostics`** catalogue — each named mistake's *value* +
+   its misconception. The player checks the entry against the answer (relative tolerance 1 %, so ordinary
+   rounding is accepted) and, if wrong, against the diagnostics — naming the specific mistake the learner
+   actually made. The values that were bad *distractors* (0.55 %, a 1000×-too-large mass) become good
+   *diagnostics*: precise feedback if and only if the learner produces them. There is nothing to eliminate.
+2. **Categorical answers stay multiple choice** (names, formulas, coefficient sets) — a menu is honest because
+   every distractor is a plausible, same-form answer a specific misconception produces, with no magnitude or
+   format tell. The producer marks each problem's `mode` (`numeric` | `choice`).
+3. **The gate enforces the split** (`validate-gyms.mjs`, ADR-0024): a numeric problem must carry `diagnostics`
+   and **no** `choices` (a menu would be gameable); a categorical problem must carry a one-correct `choices`
+   menu and no diagnostics; and every diagnostic value must sit **≥ 3 %** from the answer, so the 1 % entry
+   tolerance can never mis-flag a correct entry as a mistake (the producer drops any mistake within 3.5 %).
+
+**Consequences.** The gym drills computation, not test-taking; the owner's exact complaint is closed and the
+whole numeric-gym family is ungameable by construction. Named-mistake feedback is *strengthened* — a mistake is
+now caught when the learner commits to it, not merely offered for recognition. Schema grew `mode` +
+`diagnostics` (`choices` now optional); the `DimensionalGym` island gained a numeric-entry path (input +
+tolerance check + diagnostic lookup + a "Show answer" reveal) beside the existing menu. **The same principle
+applies to the lesson Practice tab** (`chemkernel.practice` + `PracticeQuestion.svelte`), whose numeric
+mass/leftover questions are still multiple-choice — converting it is the immediate follow-up. Free entry suits
+numeric answers; a menu remains right for genuinely categorical ones (which limiting reagent, classify the
+reaction) where every option is plausible.

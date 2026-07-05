@@ -1,8 +1,13 @@
 <script>
-  // The generic gym drill (Phase 1, ADR-0024): steps producer-generated, machine-verified problems from any
-  // family. Pick an answer → the reveal shows the worked reasoning (the CANCELLATION CHAIN for conversion
-  // gyms, when present) and, for a wrong pick, exactly which named mistake it was. Computes nothing; every
-  // value and every distractor came from the producer and was re-derived by validate-gyms.mjs.
+  // The generic gym drill (Phase 1, ADR-0024). Two response modes (ADR-0032):
+  //   • "choice"  — a categorical answer (a name, a formula, a coefficient set). A multiple-choice menu whose
+  //                 every distractor is a plausible, same-form answer a named misconception produces.
+  //   • "numeric" — a numeric answer. NO menu: a menu of a number and its wrong-by-magnitude cousins (0.55 %
+  //                 vs 55 %) is gameable on sight, so the learner TYPES the number and the producer's named
+  //                 mistakes become a diagnostic — enter a mistake's value and it is named.
+  // The reveal shows the worked reasoning (the cancellation chain, the balancing tally). This island computes
+  // no chemistry: every value, distractor, and diagnostic came from the producer and was re-derived by
+  // validate-gyms.mjs. Numeric checking is arithmetic on the producer's own answer (a 1% entry tolerance).
   let { gym } = $props();
   const problems = gym.problems;
 
@@ -17,12 +22,18 @@
   const chainLabel = CHAIN_LABELS[gym.family] ?? "Work through it, step by step:";
 
   let idx = $state(0);
-  let picked = $state(null);
   let score = $state(0);
   let answered = $state(0);
+  // choice mode
+  let picked = $state(null);
+  // numeric mode
+  let entry = $state("");
+  let submitted = $state(false);
+  let outcome = $state(null); // { correct } | { correct:false, diag } | { gaveUp:true }
 
   const q = $derived(problems[idx]);
   const finished = $derived(idx >= problems.length);
+  const revealed = $derived(finished ? false : (q.mode === "numeric" ? submitted : picked !== null));
 
   function pick(i) {
     if (picked !== null) return;
@@ -30,8 +41,44 @@
     answered += 1;
     if (q.choices[i].correct) score += 1;
   }
-  function next() { picked = null; idx += 1; }
-  function restart() { idx = 0; picked = null; score = 0; answered = 0; }
+
+  // Accept the numbers a learner actually types: a plain or scientific decimal, optional sign, stray spaces or
+  // commas, and a trailing "%" when the unit is percent. Anything else is treated as no-entry (submit ignored).
+  function parseNum(s) {
+    let t = String(s).trim().replace(/,/g, "").replace(/\s+/g, "").replace(/%$/, "");
+    if (!/^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(t)) return NaN;
+    return Number(t);
+  }
+  const relClose = (a, b) =>
+    Number.isFinite(a) && Number.isFinite(b) && Math.abs(a - b) <= 0.01 * Math.max(Math.abs(b), 1e-9) + 1e-9;
+
+  function submitNumeric() {
+    if (submitted) return;
+    const val = parseNum(entry);
+    if (!Number.isFinite(val)) return;                      // ignore an empty / non-numeric submit
+    submitted = true;
+    answered += 1;
+    if (relClose(val, Number(q.answer.value))) {
+      outcome = { correct: true };
+      score += 1;
+    } else {
+      const diag = (q.diagnostics ?? []).find((d) => relClose(val, Number(d.value)));
+      outcome = { correct: false, diag: diag ?? null };
+    }
+  }
+  function giveUp() {
+    if (submitted) return;
+    submitted = true;
+    answered += 1;
+    outcome = { correct: false, gaveUp: true };
+  }
+
+  function next() {
+    picked = null; entry = ""; submitted = false; outcome = null; idx += 1;
+  }
+  function restart() {
+    idx = 0; picked = null; entry = ""; submitted = false; outcome = null; score = 0; answered = 0;
+  }
 
   const choiceClass = (i) => {
     if (picked === null) return "idle";
@@ -55,7 +102,7 @@
     for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
     return a;
   }
-  const order = $derived(finished ? [] : seededOrder(q.id, q.choices.length));
+  const order = $derived(finished || q.mode !== "choice" ? [] : seededOrder(q.id, q.choices.length));
 
   // Balancing gyms (ADR-0028) carry the conservation matrix; tally every element (and charge) with the correct
   // coefficients to show both sides come out equal. Pure integer addition over producer-emitted data — the
@@ -84,22 +131,50 @@
 
     <p class="prompt">{q.prompt}</p>
 
-    <ul class="choices" role="list">
-      {#each order as i (i)}
-        {@const c = q.choices[i]}
-        <li>
-          <button class={`choice ${choiceClass(i)}`} onclick={() => pick(i)} disabled={picked !== null}>
-            <span class="mark" aria-hidden="true">{picked !== null && c.correct ? "✓" : picked === i && !c.correct ? "✗" : ""}</span>
-            <span class="txt">{c.display}</span>
-          </button>
-          {#if picked !== null && i === picked && !c.correct && c.misconception}
-            <p class="mis">{c.misconception}</p>
-          {/if}
-        </li>
-      {/each}
-    </ul>
+    {#if q.mode === "choice"}
+      <ul class="choices" role="list">
+        {#each order as i (i)}
+          {@const c = q.choices[i]}
+          <li>
+            <button class={`choice ${choiceClass(i)}`} onclick={() => pick(i)} disabled={picked !== null}>
+              <span class="mark" aria-hidden="true">{picked !== null && c.correct ? "✓" : picked === i && !c.correct ? "✗" : ""}</span>
+              <span class="txt">{c.display}</span>
+            </button>
+            {#if picked !== null && i === picked && !c.correct && c.misconception}
+              <p class="mis">{c.misconception}</p>
+            {/if}
+          </li>
+        {/each}
+      </ul>
+    {:else}
+      <div class="entry">
+        <input
+          class="num" type="text" inputmode="decimal" autocomplete="off" spellcheck="false"
+          bind:value={entry} disabled={submitted} placeholder="type your answer"
+          aria-label="Your numeric answer"
+          onkeydown={(e) => { if (e.key === "Enter") submitNumeric(); }} />
+        <span class="unit">{q.answer.unit}</span>
+        <button class="check" onclick={submitNumeric} disabled={submitted || entry.trim() === ""}>Check</button>
+        <button class="giveup" onclick={giveUp} disabled={submitted}>Show answer</button>
+      </div>
 
-    {#if picked !== null}
+      {#if submitted}
+        <div class={`verdict ${outcome.correct ? "ok" : "no"}`}>
+          {#if outcome.correct}
+            <span class="mark" aria-hidden="true">✓</span> Correct — <strong>{q.answer.display}</strong>
+          {:else if outcome.gaveUp}
+            The answer is <strong>{q.answer.display}</strong>.
+          {:else}
+            <span class="mark" aria-hidden="true">✗</span> Not quite — you entered <span class="you">{entry.trim()}</span>; the answer is <strong>{q.answer.display}</strong>.
+          {/if}
+        </div>
+        {#if outcome.diag}
+          <p class="mis">{outcome.diag.misconception}</p>
+        {/if}
+      {/if}
+    {/if}
+
+    {#if revealed}
       <div class="reveal">
         {#if q.chain}
           <div class="chain-label">{chainLabel}</div>
@@ -162,6 +237,28 @@
   .mark { width: 1rem; font-weight: 700; }
   .txt { font-family: var(--font-mono); }
   .mis { margin: 0.3rem 0 0.2rem 1.5rem; font-size: 0.86rem; color: var(--warn); }
+
+  /* numeric free entry (ADR-0032) */
+  .entry { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .num {
+    font: inherit; font-family: var(--font-mono); width: 11rem; max-width: 60vw; padding: 0.5rem 0.7rem;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--paper-2); color: var(--ink);
+  }
+  .num:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .num:disabled { opacity: 0.75; }
+  .entry .unit { font-family: var(--font-mono); color: var(--accent); font-weight: 600; margin-left: -0.15rem; }
+  .check { font: inherit; cursor: pointer; background: var(--accent); color: white; border: none; border-radius: 8px; padding: 0.5rem 0.95rem; font-weight: 600; }
+  .check:hover:enabled { filter: brightness(1.05); }
+  .check:disabled { opacity: 0.5; cursor: default; }
+  .giveup { font: inherit; cursor: pointer; background: transparent; color: var(--ink-faint); border: 1px solid var(--line); border-radius: 8px; padding: 0.5rem 0.8rem; }
+  .giveup:hover:enabled { border-color: var(--accent); color: var(--ink-2); }
+  .giveup:disabled { opacity: 0.4; cursor: default; }
+
+  .verdict { font-size: 0.98rem; display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+  .verdict.ok { color: var(--accent); font-weight: 600; }
+  .verdict.no { color: var(--ink-2); }
+  .verdict .you { font-family: var(--font-mono); color: var(--warn); }
+  .verdict .mark { width: auto; }
 
   .reveal { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem; display: grid; gap: 0.7rem; }
   .chain-label { font-size: 0.82rem; color: var(--ink-faint); }

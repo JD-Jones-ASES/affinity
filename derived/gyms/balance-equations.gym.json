@@ -22,6 +22,7 @@
   "problems": [
     {
       "kind": "balancing",
+      "mode": "choice",
       "prompt": "Balance:  H2 + O2 → H2O",
       "answer": {
         "value": "2,1,2",
@@ -95,6 +96,7 @@
     },
     {
       "kind": "balancing",
+      "mode": "choice",
       "prompt": "Balance:  C + O2 → CO",
       "answer": {
         "value": "2,1,2",
@@ -166,6 +168,7 @@
     },
     {
       "kind": "balancing",
+      "mode": "choice",
       "prompt": "Balance:  C3H8 + O2 → CO2 + H2O",
       "answer": {
         "value": "1,5,3,4",
@@ -251,6 +254,7 @@
     },
     {
       "kind": "balancing",
+      "mode": "choice",
       "prompt": "Balance:  CaCl2 + Na3PO4 → Ca3(PO4)2 + NaCl",
       "answer": {
         "value": "3,2,1,6",
@@ -340,6 +344,7 @@
     },
     {
       "kind": "balancing",
+      "mode": "choice",
       "prompt": "Balance:  Al + O2 → Al2O3",
       "answer": {
         "value": "4,3,2",
@@ -411,6 +416,7 @@
     },
     {
       "kind": "balancing",
+      "mode": "choice",
       "prompt": "Balance:  NaOH + H2SO4 → Na2SO4 + H2O",
       "answer": {
         "value": "2,1,1,2",
@@ -500,6 +506,7 @@
     },
     {
       "kind": "balancing",
+      "mode": "choice",
       "prompt": "Balance:  Ca^2+ + PO4^3- → Ca3(PO4)2",
       "answer": {
         "value": "3,2,1",
@@ -575,6 +582,7 @@
     },
     {
       "kind": "balancing",
+      "mode": "choice",
       "prompt": "Balance:  Ca^2+ + CO3^2- → CaCO3",
       "answer": {
         "value": "1,1,1",
@@ -650,6 +658,7 @@
     },
     {
       "kind": "balancing",
+      "mode": "choice",
       "prompt": "Balance:  C2H6 + O2 → CO2 + H2O",
       "answer": {
         "value": "2,7,4,6",
@@ -735,6 +744,7 @@
     },
     {
       "kind": "balancing",
+      "mode": "choice",
       "prompt": "Balance:  Fe + O2 → Fe2O3",
       "answer": {
         "value": "4,3,2",

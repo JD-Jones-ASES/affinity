@@ -3,6 +3,27 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 1 — 2026-07-05 — practice must not be gameable: numeric gyms go free-entry (ADR-0032)
+
+- **The problem (owner-caught).** The percent-yield gym offered `55 %`, `0.55 %`, and a third value as multiple
+  choice — the correct answer was always the plausible two-digit percent, so a human picked it with no chemistry.
+  This is structural to putting a **numeric** answer in a menu: the named-mistake distractors (forgot ×100,
+  skipped mL→L, sized from the excess reagent) land a different order of magnitude, hence eliminable on sight.
+- **The fix.** The four numeric gym families (conversions, mass-stoichiometry, percent-yield, limiting-reagent)
+  are now **free entry** — you type the number. The producer emits the named mistakes as a **`diagnostics`**
+  catalogue (value → misconception) instead of a `choices` menu; the player checks your entry (1% tolerance) and,
+  if wrong, names the specific mistake you made. `0.55 %` went from a giveaway distractor to precise feedback for
+  the learner who actually forgets the ×100.
+- **Categorical stays multiple choice.** Nomenclature and balancing keep a menu — a name / formula / coefficient
+  set has no magnitude to give it away, and every distractor is a plausible, same-form answer.
+- **Enforced.** Each problem carries a `mode` (`numeric` | `choice`); `validate-gyms.mjs` fails a numeric problem
+  that ships a (gameable) menu, a categorical one that ships diagnostics, or any diagnostic within 3% of the
+  answer (which the 1% entry tolerance could misread as correct). Schema grew `mode` + `diagnostics`.
+- **155 producer tests** (+7: numeric-is-free-entry + categorical-is-a-menu + the percent-yield regression) +
+  **7 gates** + **astro build (15 pages)** green. In-browser: the percent-yield gym takes a typed answer — `55`
+  → ✓ Correct; `0.55` → "✗ … the answer is 55 %" + "That's the fraction, not the percent — multiply by 100."; the
+  balancing gym still shows a 3-option menu. **Next:** the lesson Practice tab (same pattern).
+
 ## Phase 1 — 2026-07-05 — item 5a: element-property data curation (Valence-Table flagship)
 
 - **Element set widened to 23** (ADR-0031): the first twenty elements (H…Ca — periods 1–3 complete, period 4

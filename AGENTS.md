@@ -239,11 +239,12 @@ exact datum (`data/constants.toml`, `bipm-si-2019`). A `percent-yield` Atlas con
 island's chain caption is family-aware. **Deferred to Phase 2:** the *particle-count* drills (moles↔particles
 — the datum is in place, but they need sci-notation display and pair with gas/molar-volume work).
 **Counters: 3 lessons (2 precipitation + 1 percent-yield) + 6 gyms (dimensional analysis + ionic nomenclature
-+ balancing + mass stoichiometry + percent yield + limiting reagent; 60 verified problems), 1 Valence Table
++ balancing + mass stoichiometry + percent yield + limiting reagent; 60 verified problems — the four numeric
+families are **free-entry with a diagnostics catalogue**, not gameable menus, ADR-0032), 1 Valence Table
 (23 elements — the first 20 + Fe/Cu/Zn — with sourced electronegativity/covalent-radius/first-ionization-energy,
 ADR-0031) + 16 cross-linked concept entries (3 rule-sourced, cited), 7 Node gates (validate-reference now
-resolves every emitted source id to SOURCES.md) + CI + live Pages, 148 producer tests green; astro build = 15
-pages.**
+resolves every emitted source id to SOURCES.md; validate-gyms enforces the free-entry/menu split) + CI + live
+Pages, 155 producer tests green; astro build = 15 pages.**
 **Phase 0 remains complete end to end**; Phase 1 is filling depth-first — **item 5a (the Valence-Table
 element-property data) landed (ADR-0031); item 5b (the trend/bonding/practice lenses) and item 6 (reaction
 families) remain**, each with full scope blocks, plus the 8-session map and a **Phase-1 definition of done**

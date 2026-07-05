@@ -21,6 +21,7 @@
   "problems": [
     {
       "kind": "ionic_formula_to_name",
+      "mode": "choice",
       "prompt": "What is the name of Mg(HCO3)2?",
       "answer": {
         "value": "magnesium hydrogen carbonate",
@@ -70,6 +71,7 @@
     },
     {
       "kind": "ionic_name_to_formula",
+      "mode": "choice",
       "prompt": "Write the formula for potassium nitride.",
       "answer": {
         "value": "K3N",
@@ -121,6 +123,7 @@
     },
     {
       "kind": "ionic_formula_to_name",
+      "mode": "choice",
       "prompt": "What is the name of Ca(OH)2?",
       "answer": {
         "value": "calcium hydroxide",
@@ -170,6 +173,7 @@
     },
     {
       "kind": "ionic_name_to_formula",
+      "mode": "choice",
       "prompt": "Write the formula for iron(II) acetate.",
       "answer": {
         "value": "Fe(C2H3O2)2",
@@ -221,6 +225,7 @@
     },
     {
       "kind": "ionic_formula_to_name",
+      "mode": "choice",
       "prompt": "What is the name of KNO3?",
       "answer": {
         "value": "potassium nitrate",
@@ -270,6 +275,7 @@
     },
     {
       "kind": "ionic_name_to_formula",
+      "mode": "choice",
       "prompt": "Write the formula for iron(II) chloride.",
       "answer": {
         "value": "FeCl2",
@@ -321,6 +327,7 @@
     },
     {
       "kind": "ionic_formula_to_name",
+      "mode": "choice",
       "prompt": "What is the name of Al(NO3)3?",
       "answer": {
         "value": "aluminum nitrate",
@@ -370,6 +377,7 @@
     },
     {
       "kind": "ionic_name_to_formula",
+      "mode": "choice",
       "prompt": "Write the formula for potassium phosphate.",
       "answer": {
         "value": "K3PO4",
@@ -421,6 +429,7 @@
     },
     {
       "kind": "ionic_formula_to_name",
+      "mode": "choice",
       "prompt": "What is the name of ZnO?",
       "answer": {
         "value": "zinc oxide",
@@ -470,6 +479,7 @@
     },
     {
       "kind": "ionic_name_to_formula",
+      "mode": "choice",
       "prompt": "Write the formula for potassium carbonate.",
       "answer": {
         "value": "K2CO3",

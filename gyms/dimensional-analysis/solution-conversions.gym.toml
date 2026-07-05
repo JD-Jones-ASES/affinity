@@ -11,6 +11,6 @@ topic = "dimensional-analysis"
 family = "solution_conversions_v1"
 seed = 4242043
 count = 10
-blurb = "Endless generated quantity-algebra where the units do the bookkeeping. Convert between volume, molarity, moles, and mass — one conversion factor at a time — and watch the units cancel down the chain. Every answer is machine-computed and every wrong option is a specific cancellation mistake."
+blurb = "Endless generated quantity-algebra where the units do the bookkeeping. Convert between volume, molarity, moles, and mass — one conversion factor at a time — and watch the units cancel down the chain. Type your answer: every value is machine-computed, and if your entry matches a known cancellation mistake it is named, not just marked wrong."
 skills = ["mL → L (÷ 1000)", "volume × molarity → moles", "moles ÷ molarity → volume", "mass ↔ moles via molar mass", "volume + molarity + molar mass → grams"]
 reference_links = ["dimensional-analysis", "molarity", "molar-mass"]

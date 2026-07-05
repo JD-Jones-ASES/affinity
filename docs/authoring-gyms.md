@@ -63,7 +63,7 @@ A `family` selects the generator in `chemkernel.gym.generate_gym`. Today:
   equation (grams → moles → cross the mole ratio → moles → grams). Generated forward from a clean mole amount
   so every value is exact; drawn over the balancing corpus's neutral reactions. The `derivation` carries the
   whole balanced equation (`species` + `coefficients`) plus `given`/`target` (formula, coeff, molar mass, and
-  the given mass). Wrong choices are named ratio/conversion mistakes.
+  the given mass). A free-entry answer; a wrong entry is diagnosed against named ratio/conversion mistakes.
 - **`percent_yield_v1`** (ADR-0029) — given a reactant mass and the actual product mass, find percent yield:
   theoretical yield by mass stoichiometry, then actual ÷ theoretical × 100. The `derivation` adds
   `actual_mass_g` + `theoretical_mass_g`.
@@ -78,6 +78,25 @@ Adding a new procedural skill (limiting-reagent-from-mass, periodic trends, …)
 `generate_gym` and, if it introduces a new answer shape, a per-kind branch to `validate-gyms.mjs` so the gate
 can re-derive it. It does **not** mean new plumbing.
 
+## Response mode (ADR-0032)
+
+Each problem is answered in one of two modes; the **family decides**, you never author it:
+
+- **Numeric** (conversions, stoichiometry, percent yield, limiting reagent) — **free entry**. The learner
+  types the number. A menu of a number and its wrong-by-magnitude cousins (`0.55 %` beside `55 %`, a
+  1000×-too-large mass) is answerable on sight, so it drills nothing. Instead the producer emits a
+  **`diagnostics`** catalogue — each named mistake's *value* — and the player names the mistake only if the
+  learner's entry matches one (within ~1 %). The very values that made lazy distractors (forgot ×100, skipped
+  mL→L) become precise feedback. Diagnostics are held ≥ 3 % from the answer (gate-enforced) so a correct entry
+  is never mis-flagged.
+- **Categorical** (nomenclature, balancing) — **multiple choice**. A name, formula, or coefficient set has no
+  "magnitude" to give it away, so a menu is honest *iff* every distractor is a plausible, same-form answer a
+  specific misconception produces. The producer emits **`choices`** (exactly one correct); the player shuffles
+  them per problem.
+
+`validate-gyms.mjs` enforces the split: a numeric problem carries `diagnostics` and **no** `choices` (a menu
+would be gameable); a categorical problem carries a one-correct `choices` menu and no diagnostics.
+
 ## What ChemKernel guarantees (so you don't author it)
 
 - **Exact values.** Every amount is an exact `Fraction`; a candidate whose answer would not terminate as a
@@ -85,8 +104,9 @@ can re-derive it. It does **not** mean new plumbing.
 - **Machine-checked dimensions.** Each generated conversion is re-run through the units engine (`Quantity`),
   so the emitted cancellation chain is certified dimensionally homogeneous — `L × mol/L = mol` is proven, not
   asserted.
-- **Named mistakes.** Every wrong choice is a specific cancellation error (skipped mL→L, inverted a factor,
-  stopped at moles), never a random number.
+- **Named mistakes.** Every distractor (a categorical `choice`) or diagnostic (a numeric `diagnostics` value)
+  is a specific named error (skipped mL→L, inverted a factor, forgot ×100), never a random number — see
+  **Response mode** above.
 - **Re-derivable answers.** Each problem carries a raw `derivation` block; `validate-gyms.mjs` re-computes
   every answer in pure Node from those inputs, so CI re-proves the whole set without Python.
 

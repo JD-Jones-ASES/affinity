@@ -8,8 +8,11 @@ The honesty model, applied to a *generated* problem set:
     (like the practice reject-list), so nothing is silently rounded (ADR-0013);
   - every conversion's dimensions are re-checked by the **units engine** (`Quantity`), so the emitted chain is
     guaranteed dimensionally homogeneous — the machine, not the author, certifies that L × mol/L = mol;
-  - every wrong choice is a **named cancellation mistake** (skipped mL→L, inverted a factor, stopped early),
-    never a random number;
+  - **numeric answers are free-entry, not multiple choice** (ADR-0032): a menu of a number and its
+    wrong-by-magnitude cousins (0.55 % vs 55 %) is gameable on sight, so the learner types the number and the
+    **named mistakes become a diagnostic** of what they entered (skipped mL→L, inverted a factor, stopped
+    early). Categorical answers (names, formulas, coefficient sets) stay multiple choice — every distractor is
+    a plausible, same-form answer a specific misconception produces, so recognition can't shortcut them;
   - each problem carries a raw `derivation` block so `validate-gyms.mjs` re-derives the answer in pure Node.
 
 Deterministic: a spec's seed always yields byte-identical problems (ADR-0008), so committed `derived/` is
@@ -206,23 +209,19 @@ def _problem(kind, sub, molar_mass, rng, ctx):
         deriv = {"substance": sub, "v_mL": _trim(str(v)), "c_M": _trim(str(c)),
                  "molar_mass_g_per_mol": _trim(str(molar_mass))}
 
-    # assemble choices: the EXACT answer + the two named-mistake distractors (rounded — they're wrong anyway)
-    correct_disp = _disp(answer, target)
-    choices = [{"display": correct_disp, "correct": True, "misconception": None}]
-    for val, why in wrongs:
-        choices.append({"display": f"{_sig(val)} {target}", "correct": False, "misconception": why})
-    displays = [ch["display"] for ch in choices]
-    if len(set(displays)) != len(displays):        # a distractor collided with the answer at display precision
-        return None
+    # a numeric answer is a FREE-ENTRY drill (ADR-0032): the learner types the number and the named cancellation
+    # mistakes become a diagnostic of what they entered, not a menu that hands away the answer by magnitude.
+    correct_disp, diagnostics = _numeric_response(answer, target, wrongs)
 
     return {
         "kind": kind,
+        "mode": "numeric",
         "prompt": prompt,
         "chain": chain,
         "target_unit": target,
         "answer": {"value": _exact(answer), "unit": target, "display": correct_disp},
         "derivation": {"kind": kind, "inputs": deriv},
-        "choices": choices,
+        "diagnostics": diagnostics,
         "explain": explain,
     }
 
@@ -318,6 +317,7 @@ def _nomenclature_problem(direction, cation, anion, data, ctx):
 
     return {
         "kind": f"ionic_{direction}",
+        "mode": "choice",              # a name/formula is categorical — a plausible same-form menu (ADR-0032)
         "prompt": prompt,
         "answer": {"value": answer, "display": answer},
         "derivation": {
@@ -512,6 +512,7 @@ def _balancing_problem(reaction, rng, ctx):
 
     return {
         "kind": "balancing",
+        "mode": "choice",              # coefficient sets are categorical — a plausible same-form menu (ADR-0032)
         "prompt": prompt,
         "answer": {"value": ",".join(str(c) for c in coeffs), "display": answer_display},
         "derivation": {
@@ -585,20 +586,35 @@ def _stoich_forward(species, coeffs, gi, ti, moles_given, data):
             "mass_given": mass_given, "mass_target": mass_target}
 
 
-def _numeric_choices(answer, unit, wrongs):
-    """Correct (exact) + up to two distinct named-wrong choices (rounded display). None if it can't fill 3."""
+def _rel_close(a: float, b: float, tol: float) -> bool:
+    return abs(a - b) <= tol * max(abs(b), 1e-9) + 1e-12
+
+
+def _numeric_response(answer, unit, wrongs):
+    """Free-entry diagnostics for a numeric answer (ADR-0032). A numeric answer is NOT offered as a menu — a
+    human eliminates a distractor like 0.55 % or a 1000×-too-large mass on sight, so the menu drills nothing.
+    Instead the learner PRODUCES the number, and these named-mistake *values* diagnose what they typed: if the
+    entry matches a mistake, the mistake is named. That turns the very values that made lazy distractors —
+    forgot ×100, skipped mL→L — into precise feedback. Drops any candidate within 0.5 % of the answer (so a
+    correct entry is never mis-flagged as a mistake) and any duplicate display.
+
+    Returns (display, diagnostics): the exact answer display + a list of {value, unit, misconception}."""
     correct = _disp(answer, unit)
-    choices = [{"display": correct, "correct": True, "misconception": None}]
-    seen = {correct}
+    ans = float(answer)
+    diags, seen = [], set()
     for val, why in wrongs:
-        if sum(1 for c in choices if not c["correct"]) >= 2:
-            break
-        disp = f"{_sig(val)} {unit}"
-        if disp in seen:
+        try:
+            fval = float(val)
+        except (ZeroDivisionError, ValueError):
             continue
-        seen.add(disp)
-        choices.append({"display": disp, "correct": False, "misconception": why})
-    return (choices, correct) if len(choices) == 3 else None
+        if fval != fval or _rel_close(fval, ans, 0.035):    # NaN, or too near the answer to diagnose safely
+            continue
+        key = _sig(val, 4)
+        if key in seen:
+            continue
+        seen.add(key)
+        diags.append({"value": _sig(val, 6), "unit": unit, "misconception": why})
+    return correct, diags
 
 
 def _stoich_derivation(kind, species, coeffs, gi, ti, s, extra=None):
@@ -654,18 +670,15 @@ def _mass_stoich_problem(reaction, rng, data, ctx):
         (s["moles_target"],
          f"Stopped at moles — multiply by {target_f}'s molar mass to get grams."),
     ]
-    made = _numeric_choices(s["mass_target"], "g", wrongs)
-    if made is None:
-        return None
-    choices, correct = made
+    correct, diagnostics = _numeric_response(s["mass_target"], "g", wrongs)
     explain = (f"Divide by molar mass, cross the mole ratio, multiply back: {mg} g {given_f} ÷ "
                f"{_trim(str(s['Mg']))} g/mol × ({ct}/{cg}) × {_trim(str(s['Mt']))} g/mol = "
                f"{_trim(_exact(s['mass_target']))} g {target_f}. The recipe is the coefficients of {eq}.")
     return {
-        "kind": "mass_stoichiometry", "prompt": prompt, "chain": chain, "target_unit": "g",
+        "kind": "mass_stoichiometry", "mode": "numeric", "prompt": prompt, "chain": chain, "target_unit": "g",
         "answer": {"value": _exact(s["mass_target"]), "unit": "g", "display": correct},
         "derivation": _stoich_derivation("mass_stoichiometry", species, coeffs, gi, ti, s),
-        "choices": choices, "explain": explain,
+        "diagnostics": diagnostics, "explain": explain,
         "subscript_tokens": sorted({sp["formula"] for sp in species if any(c.isdigit() for c in sp["formula"])}),
     }
 
@@ -703,19 +716,16 @@ def _percent_yield_problem(reaction, rng, data, ctx):
         (actual / s["mass_given"] * 100,
          f"Compared to the {given_f} mass — percent yield uses the *theoretical* {target_f} yield as the denominator."),
     ]
-    made = _numeric_choices(pct, "%", wrongs)
-    if made is None:
-        return None
-    choices, correct = made
+    correct, diagnostics = _numeric_response(pct, "%", wrongs)
     explain = (f"Theoretical yield first: {mg} g {given_f} gives {theo} g {target_f} by stoichiometry. "
                f"Then percent yield = actual ÷ theoretical × 100 = {act} ÷ {theo} × 100 = {_trim(_exact(pct))}%.")
     return {
-        "kind": "percent_yield", "prompt": prompt, "chain": chain, "target_unit": "%",
+        "kind": "percent_yield", "mode": "numeric", "prompt": prompt, "chain": chain, "target_unit": "%",
         "answer": {"value": _exact(pct), "unit": "%", "display": correct},
         "derivation": _stoich_derivation("percent_yield", species, coeffs, gi, ti, s,
                                          {"actual_mass_g": _exact(actual),
                                           "theoretical_mass_g": _exact(s["mass_target"])}),
-        "choices": choices, "explain": explain,
+        "diagnostics": diagnostics, "explain": explain,
         "subscript_tokens": sorted({sp["formula"] for sp in species if any(c.isdigit() for c in sp["formula"])}),
     }
 
@@ -766,15 +776,12 @@ def _limiting_mass_problem(reaction, rng, data, ctx):
         ((xa + xb) * coeffs[ti] * _fr(Mt),
          "Added both reactants' capacities — only the limiting reagent's extent counts, not the sum."),
     ]
-    made = _numeric_choices(prod_mass, "g", wrongs)
-    if made is None:
-        return None
-    choices, correct = made
+    correct, diagnostics = _numeric_response(prod_mass, "g", wrongs)
     explain = (f"Compare reaction extents: {species[ia]['formula']} gives {_trim(_exact(xa))} mol, "
                f"{species[ib]['formula']} gives {_trim(_exact(xb))} mol — {lim_f} is smaller, so it limits. "
                f"Its extent × {coeffs[ti]} × {_trim(str(Mt))} g/mol = {_trim(_exact(prod_mass))} g {tgt_f}.")
     return {
-        "kind": "limiting_mass", "prompt": prompt, "chain": chain, "target_unit": "g",
+        "kind": "limiting_mass", "mode": "numeric", "prompt": prompt, "chain": chain, "target_unit": "g",
         "answer": {"value": _exact(prod_mass), "unit": "g", "display": correct},
         "derivation": {
             "kind": "limiting_mass", "species": species, "coefficients": list(coeffs),
@@ -787,7 +794,7 @@ def _limiting_mass_problem(reaction, rng, data, ctx):
             "target": {"index": ti, "formula": tgt_f, "coeff": coeffs[ti], "molar_mass_g_per_mol": _trim(str(Mt))},
             "limiting_index": li,
         },
-        "choices": choices, "explain": explain,
+        "diagnostics": diagnostics, "explain": explain,
         "subscript_tokens": sorted({s["formula"] for s in species if any(c.isdigit() for c in s["formula"])}),
     }
 

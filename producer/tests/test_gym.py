@@ -28,6 +28,31 @@ _TARGET = {
 }
 
 
+def _assert_numeric_response(p):
+    """A numeric answer is free-entry (ADR-0032): a diagnostics catalogue, never a gameable menu. Each
+    diagnostic names a mistake, shares the answer's unit, and is genuinely distinct from the answer (>3%,
+    matching the gate) so it can never mis-flag a correct entry."""
+    assert p["mode"] == "numeric"
+    assert "choices" not in p                                    # no multiple-choice menu to eliminate
+    ans = float(p["answer"]["value"])
+    for dgn in p["diagnostics"]:
+        assert dgn["misconception"]
+        assert dgn["unit"] == p["answer"]["unit"]
+        assert abs(float(dgn["value"]) - ans) > 0.03 * max(abs(ans), 1e-9)
+
+
+def _assert_choice_menu(p):
+    """A categorical answer is multiple choice: exactly one correct, distinct plausible same-form options,
+    every wrong one names a mistake, and the correct one is the answer."""
+    assert p["mode"] == "choice"
+    assert "diagnostics" not in p
+    assert sum(1 for c in p["choices"] if c["correct"]) == 1
+    assert len({c["display"] for c in p["choices"]}) == len(p["choices"])
+    for c in p["choices"]:
+        assert c["correct"] or c["misconception"]
+    assert p["answer"]["display"] == next(c["display"] for c in p["choices"] if c["correct"])
+
+
 def _spec():
     return tomllib.loads(SPEC.read_text(encoding="utf-8"))
 
@@ -64,10 +89,7 @@ def test_shape_and_kind_coverage():
         assert p["id"].startswith("q") and p["prompt"] and p["explain"]
         assert len(p["chain"]) >= 2
         assert p["chain"][-1]["unit"] == p["target_unit"] == p["answer"]["unit"] == _TARGET[p["kind"]]
-        assert sum(1 for c in p["choices"] if c["correct"]) == 1
-        assert len({c["display"] for c in p["choices"]}) == len(p["choices"])   # distinct displays
-        for c in p["choices"]:
-            assert c["correct"] or c["misconception"]                     # every wrong choice names a mistake
+        _assert_numeric_response(p)                                        # free entry + a diagnostics catalogue
 
 
 def test_answers_rederive_exactly_from_inputs():
@@ -76,7 +98,6 @@ def test_answers_rederive_exactly_from_inputs():
         want = _rederive(p["derivation"]["kind"], p["derivation"]["inputs"])
         assert Fraction(Decimal(p["answer"]["value"])) == want            # engine value == independent re-derivation
         assert Fraction(Decimal(p["chain"][-1]["value"])) == want         # the chain ends exactly at the answer
-        assert p["answer"]["display"] == next(c["display"] for c in p["choices"] if c["correct"])
 
 
 def test_answers_are_terminating_decimals():
@@ -115,10 +136,7 @@ def test_nomenclature_shape_and_both_directions():
     for p in g["problems"]:
         assert "chain" not in p and "unit" not in p["answer"]          # nomenclature carries no numeric chain
         assert p["subscript_tokens"]                                    # tokens for view-side subscripting
-        assert sum(1 for c in p["choices"] if c["correct"]) == 1
-        assert len({c["display"] for c in p["choices"]}) == len(p["choices"])
-        for c in p["choices"]:
-            assert c["correct"] or c["misconception"]
+        _assert_choice_menu(p)                                          # categorical → a plausible same-form menu
 
 
 def test_nomenclature_answers_match_engine():
@@ -167,11 +185,7 @@ def test_balancing_shape_and_engine():
         assert p["subscript_tokens"]                                  # formula tokens for view-side subscripting
         assert len(d["coefficients"]) == len(d["species"]) >= 2
         assert p["answer"]["value"] == ",".join(str(c) for c in d["coefficients"])
-        assert sum(1 for c in p["choices"] if c["correct"]) == 1
-        assert len({c["display"] for c in p["choices"]}) == len(p["choices"])
-        assert p["answer"]["display"] == next(c["display"] for c in p["choices"] if c["correct"])
-        for c in p["choices"]:
-            assert c["correct"] or c["misconception"]                 # every wrong choice names a mistake
+        _assert_choice_menu(p)                                        # coefficient sets → a plausible same-form menu
 
 
 def test_balancing_coefficients_conserve_every_element_and_charge():
@@ -237,10 +251,7 @@ def test_mass_stoichiometry_shape_and_rederive():
         # the answer re-derives exactly, and the chain ends at it
         assert Fraction(Decimal(p["answer"]["value"])) == _rederive_theoretical(d)
         assert Fraction(Decimal(p["chain"][-1]["value"])) == _rederive_theoretical(d)
-        assert sum(1 for c in p["choices"] if c["correct"]) == 1
-        assert len({c["display"] for c in p["choices"]}) == 3
-        for c in p["choices"]:
-            assert c["correct"] or c["misconception"]
+        _assert_numeric_response(p)
 
 
 def test_percent_yield_shape_and_rederive():
@@ -256,7 +267,7 @@ def test_percent_yield_shape_and_rederive():
         percent = Fraction(Decimal(d["actual_mass_g"])) / theoretical * 100
         assert Fraction(Decimal(p["answer"]["value"])) == percent
         assert 0 < percent <= 100                                                 # a physical yield
-        assert sum(1 for c in p["choices"] if c["correct"]) == 1
+        _assert_numeric_response(p)
 
 
 def test_limiting_mass_shape_and_rederive():
@@ -278,8 +289,7 @@ def test_limiting_mass_shape_and_rederive():
         theoretical = extents[lim] * t["coeff"] * Fraction(Decimal(t["molar_mass_g_per_mol"]))
         assert Fraction(Decimal(p["answer"]["value"])) == theoretical
         assert Fraction(Decimal(p["chain"][-1]["value"])) == theoretical
-        assert sum(1 for c in p["choices"] if c["correct"]) == 1
-        assert len({c["display"] for c in p["choices"]}) == 3
+        _assert_numeric_response(p)
 
 
 @pytest.mark.parametrize("spec", [SPEC_MASS_STOICH, SPEC_PERCENT_YIELD, SPEC_LIMITING_MASS])
@@ -297,3 +307,38 @@ def test_stoichiometry_equations_balance_and_terminate(spec):
 def test_stoichiometry_deterministic(spec):
     assert _gym_from(spec) == _gym_from(spec)
     assert _gym_from(spec, seed=13)["problems"] != _gym_from(spec)["problems"]
+
+
+# ------------------------------ ADR-0032: practice must not be answerable by recognition ------------------------------
+
+_NUMERIC_SPECS = [SPEC, SPEC_MASS_STOICH, SPEC_PERCENT_YIELD, SPEC_LIMITING_MASS]
+_CHOICE_SPECS = [SPEC_NOMENCLATURE, SPEC_BALANCING]
+
+
+@pytest.mark.parametrize("spec", _NUMERIC_SPECS, ids=lambda p: p.stem)
+def test_numeric_gyms_are_free_entry_not_a_menu(spec):
+    """No numeric gym offers a multiple-choice menu — a human eliminates 0.55 % or a 1000×-too-large answer on
+    sight, so a menu drills nothing. Every problem is free entry with a diagnostics catalogue (ADR-0032)."""
+    for p in _gym_from(spec)["problems"]:
+        _assert_numeric_response(p)
+
+
+@pytest.mark.parametrize("spec", _CHOICE_SPECS, ids=lambda p: p.stem)
+def test_categorical_gyms_stay_plausible_menus(spec):
+    """Names, formulas, and coefficient sets are categorical — a menu is fine because every distractor is a
+    plausible, same-form answer a specific misconception produces."""
+    for p in _gym_from(spec)["problems"]:
+        _assert_choice_menu(p)
+
+
+def test_percent_yield_diagnostics_replace_the_giveaway_menu():
+    """The regression the owner caught: the percent-yield answer sat in a menu beside 0.55 % (forgot ×100) and
+    a >100 % value (inverted) — both eliminable on sight, so the two-digit answer was always the pick. Those
+    values are now diagnostics that name the mistake only if the learner actually enters one, and none sits
+    within the entry tolerance of the answer."""
+    for p in _gym_from(SPEC_PERCENT_YIELD)["problems"]:
+        assert p["mode"] == "numeric" and "choices" not in p
+        assert p["diagnostics"]                                                  # the mistakes are still captured
+        ans = float(p["answer"]["value"])
+        for dgn in p["diagnostics"]:
+            assert abs(float(dgn["value"]) - ans) > 0.03 * max(abs(ans), 1e-9)

@@ -6,7 +6,7 @@
   "topic": "stoichiometry",
   "family": "mass_stoichiometry_v1",
   "seed": 7180020,
-  "blurb": "Convert a mass of one species to a mass of another across a balanced equation: grams → moles → (cross the mole ratio) → moles → grams. The equation is balanced by ChemKernel, the molar masses are sourced, and every value is exact. Each wrong option is a specific mistake — the mole ratio flipped, ignored, or the grams→moles conversion skipped — never a random number.",
+  "blurb": "Convert a mass of one species to a mass of another across a balanced equation: grams → moles → (cross the mole ratio) → moles → grams. The equation is balanced by ChemKernel, the molar masses are sourced, and every value is exact. Type the mass you get — enter a known mistake (the mole ratio flipped, ignored, or the grams→moles step skipped) and it is named for you, not offered as a giveaway to eliminate.",
   "skills": [
     "grams → moles (÷ molar mass)",
     "the mole ratio comes from the balanced equation's coefficients",
@@ -21,6 +21,7 @@
   "problems": [
     {
       "kind": "mass_stoichiometry",
+      "mode": "numeric",
       "prompt": "For Zn + 2 HCl → ZnCl2 + H2: how many grams of H2 are produced from 7.2916 g of HCl?",
       "chain": [
         {
@@ -108,21 +109,26 @@
           "molar_mass_g_per_mol": "2.016"
         }
       },
-      "choices": [
+      "diagnostics": [
         {
-          "display": "0.2016 g",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "0.8064 g",
-          "correct": false,
+          "value": "0.8064",
+          "unit": "g",
           "misconception": "Flipped the mole ratio — read it from given to target: × (1 mol H2 / 2 mol HCl)."
         },
         {
-          "display": "0.4032 g",
-          "correct": false,
+          "value": "0.4032",
+          "unit": "g",
           "misconception": "Skipped the mole ratio — the equation says 2 mol HCl : 1 mol H2, not 1 : 1."
+        },
+        {
+          "value": "7.34993",
+          "unit": "g",
+          "misconception": "Skipped grams → moles — divide by the molar mass of HCl before the mole ratio."
+        },
+        {
+          "value": "0.1",
+          "unit": "g",
+          "misconception": "Stopped at moles — multiply by H2's molar mass to get grams."
         }
       ],
       "explain": "Divide by molar mass, cross the mole ratio, multiply back: 7.2916 g HCl ÷ 36.458 g/mol × (1/2) × 2.016 g/mol = 0.2016 g H2. The recipe is the coefficients of Zn + 2 HCl → ZnCl2 + H2.",
@@ -134,6 +140,7 @@
     },
     {
       "kind": "mass_stoichiometry",
+      "mode": "numeric",
       "prompt": "For 2 C + O2 → 2 CO: how many grams of CO are produced from 31.998 g of O2?",
       "chain": [
         {
@@ -211,21 +218,26 @@
           "molar_mass_g_per_mol": "28.01"
         }
       },
-      "choices": [
+      "diagnostics": [
         {
-          "display": "56.02 g",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "14.01 g",
-          "correct": false,
+          "value": "14.005",
+          "unit": "g",
           "misconception": "Flipped the mole ratio — read it from given to target: × (2 mol CO / 1 mol O2)."
         },
         {
-          "display": "28.01 g",
-          "correct": false,
+          "value": "28.01",
+          "unit": "g",
           "misconception": "Skipped the mole ratio — the equation says 1 mol O2 : 2 mol CO, not 1 : 1."
+        },
+        {
+          "value": "1792.53",
+          "unit": "g",
+          "misconception": "Skipped grams → moles — divide by the molar mass of O2 before the mole ratio."
+        },
+        {
+          "value": "2",
+          "unit": "g",
+          "misconception": "Stopped at moles — multiply by CO's molar mass to get grams."
         }
       ],
       "explain": "Divide by molar mass, cross the mole ratio, multiply back: 31.998 g O2 ÷ 31.998 g/mol × (2/1) × 28.01 g/mol = 56.02 g CO. The recipe is the coefficients of 2 C + O2 → 2 CO.",
@@ -236,6 +248,7 @@
     },
     {
       "kind": "mass_stoichiometry",
+      "mode": "numeric",
       "prompt": "For N2 + 3 H2 → 2 NH3: how many grams of NH3 are produced from 28.014 g of N2?",
       "chain": [
         {
@@ -313,21 +326,26 @@
           "molar_mass_g_per_mol": "17.031"
         }
       },
-      "choices": [
+      "diagnostics": [
         {
-          "display": "34.062 g",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "8.516 g",
-          "correct": false,
+          "value": "8.5155",
+          "unit": "g",
           "misconception": "Flipped the mole ratio — read it from given to target: × (2 mol NH3 / 1 mol N2)."
         },
         {
-          "display": "17.03 g",
-          "correct": false,
+          "value": "17.031",
+          "unit": "g",
           "misconception": "Skipped the mole ratio — the equation says 1 mol N2 : 2 mol NH3, not 1 : 1."
+        },
+        {
+          "value": "954.213",
+          "unit": "g",
+          "misconception": "Skipped grams → moles — divide by the molar mass of N2 before the mole ratio."
+        },
+        {
+          "value": "2",
+          "unit": "g",
+          "misconception": "Stopped at moles — multiply by NH3's molar mass to get grams."
         }
       ],
       "explain": "Divide by molar mass, cross the mole ratio, multiply back: 28.014 g N2 ÷ 28.014 g/mol × (2/1) × 17.031 g/mol = 34.062 g NH3. The recipe is the coefficients of N2 + 3 H2 → 2 NH3.",
@@ -340,6 +358,7 @@
     },
     {
       "kind": "mass_stoichiometry",
+      "mode": "numeric",
       "prompt": "For C3H8 + 5 O2 → 3 CO2 + 4 H2O: how many grams of H2O are produced from 8.8194 g of C3H8?",
       "chain": [
         {
@@ -428,21 +447,26 @@
           "molar_mass_g_per_mol": "18.015"
         }
       },
-      "choices": [
+      "diagnostics": [
         {
-          "display": "14.412 g",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "0.9008 g",
-          "correct": false,
+          "value": "0.90075",
+          "unit": "g",
           "misconception": "Flipped the mole ratio — read it from given to target: × (4 mol H2O / 1 mol C3H8)."
         },
         {
-          "display": "3.603 g",
-          "correct": false,
+          "value": "3.603",
+          "unit": "g",
           "misconception": "Skipped the mole ratio — the equation says 1 mol C3H8 : 4 mol H2O, not 1 : 1."
+        },
+        {
+          "value": "635.526",
+          "unit": "g",
+          "misconception": "Skipped grams → moles — divide by the molar mass of C3H8 before the mole ratio."
+        },
+        {
+          "value": "0.8",
+          "unit": "g",
+          "misconception": "Stopped at moles — multiply by H2O's molar mass to get grams."
         }
       ],
       "explain": "Divide by molar mass, cross the mole ratio, multiply back: 8.8194 g C3H8 ÷ 44.097 g/mol × (4/1) × 18.015 g/mol = 14.412 g H2O. The recipe is the coefficients of C3H8 + 5 O2 → 3 CO2 + 4 H2O.",
@@ -456,6 +480,7 @@
     },
     {
       "kind": "mass_stoichiometry",
+      "mode": "numeric",
       "prompt": "For 2 H2 + O2 → 2 H2O: how many grams of H2 react with 15.999 g of O2?",
       "chain": [
         {
@@ -533,21 +558,26 @@
           "molar_mass_g_per_mol": "2.016"
         }
       },
-      "choices": [
+      "diagnostics": [
         {
-          "display": "2.016 g",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "0.504 g",
-          "correct": false,
+          "value": "0.504",
+          "unit": "g",
           "misconception": "Flipped the mole ratio — read it from given to target: × (2 mol H2 / 1 mol O2)."
         },
         {
-          "display": "1.008 g",
-          "correct": false,
+          "value": "1.008",
+          "unit": "g",
           "misconception": "Skipped the mole ratio — the equation says 1 mol O2 : 2 mol H2, not 1 : 1."
+        },
+        {
+          "value": "64.508",
+          "unit": "g",
+          "misconception": "Skipped grams → moles — divide by the molar mass of O2 before the mole ratio."
+        },
+        {
+          "value": "1",
+          "unit": "g",
+          "misconception": "Stopped at moles — multiply by H2's molar mass to get grams."
         }
       ],
       "explain": "Divide by molar mass, cross the mole ratio, multiply back: 15.999 g O2 ÷ 31.998 g/mol × (2/1) × 2.016 g/mol = 2.016 g H2. The recipe is the coefficients of 2 H2 + O2 → 2 H2O.",
@@ -560,6 +590,7 @@
     },
     {
       "kind": "mass_stoichiometry",
+      "mode": "numeric",
       "prompt": "For 2 NaOH + H2SO4 → Na2SO4 + 2 H2O: how many grams of Na2SO4 are produced from 98.072 g of H2SO4?",
       "chain": [
         {
@@ -652,21 +683,16 @@
           "molar_mass_g_per_mol": "142.036"
         }
       },
-      "choices": [
+      "diagnostics": [
         {
-          "display": "142.036 g",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "142 g",
-          "correct": false,
-          "misconception": "Flipped the mole ratio — read it from given to target: × (1 mol Na2SO4 / 1 mol H2SO4)."
-        },
-        {
-          "display": "13930 g",
-          "correct": false,
+          "value": "13929.8",
+          "unit": "g",
           "misconception": "Skipped grams → moles — divide by the molar mass of H2SO4 before the mole ratio."
+        },
+        {
+          "value": "1",
+          "unit": "g",
+          "misconception": "Stopped at moles — multiply by Na2SO4's molar mass to get grams."
         }
       ],
       "explain": "Divide by molar mass, cross the mole ratio, multiply back: 98.072 g H2SO4 ÷ 98.072 g/mol × (1/1) × 142.036 g/mol = 142.036 g Na2SO4. The recipe is the coefficients of 2 NaOH + H2SO4 → Na2SO4 + 2 H2O.",
@@ -679,6 +705,7 @@
     },
     {
       "kind": "mass_stoichiometry",
+      "mode": "numeric",
       "prompt": "For Zn + 2 HCl → ZnCl2 + H2: how many grams of H2 are produced from 32.69 g of Zn?",
       "chain": [
         {
@@ -766,20 +793,15 @@
           "molar_mass_g_per_mol": "2.016"
         }
       },
-      "choices": [
+      "diagnostics": [
         {
-          "display": "1.008 g",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "65.9 g",
-          "correct": false,
+          "value": "65.903",
+          "unit": "g",
           "misconception": "Skipped grams → moles — divide by the molar mass of Zn before the mole ratio."
         },
         {
-          "display": "0.5 g",
-          "correct": false,
+          "value": "0.5",
+          "unit": "g",
           "misconception": "Stopped at moles — multiply by H2's molar mass to get grams."
         }
       ],
@@ -792,6 +814,7 @@
     },
     {
       "kind": "mass_stoichiometry",
+      "mode": "numeric",
       "prompt": "For 4 Al + 3 O2 → 2 Al2O3: how many grams of Al2O3 are produced from 6.7455 g of Al?",
       "chain": [
         {
@@ -869,21 +892,26 @@
           "molar_mass_g_per_mol": "101.961"
         }
       },
-      "choices": [
+      "diagnostics": [
         {
-          "display": "12.745125 g",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "50.98 g",
-          "correct": false,
+          "value": "50.9805",
+          "unit": "g",
           "misconception": "Flipped the mole ratio — read it from given to target: × (2 mol Al2O3 / 4 mol Al)."
         },
         {
-          "display": "25.49 g",
-          "correct": false,
+          "value": "25.4903",
+          "unit": "g",
           "misconception": "Skipped the mole ratio — the equation says 4 mol Al : 2 mol Al2O3, not 1 : 1."
+        },
+        {
+          "value": "343.889",
+          "unit": "g",
+          "misconception": "Skipped grams → moles — divide by the molar mass of Al before the mole ratio."
+        },
+        {
+          "value": "0.125",
+          "unit": "g",
+          "misconception": "Stopped at moles — multiply by Al2O3's molar mass to get grams."
         }
       ],
       "explain": "Divide by molar mass, cross the mole ratio, multiply back: 6.7455 g Al ÷ 26.982 g/mol × (2/4) × 101.961 g/mol = 12.745125 g Al2O3. The recipe is the coefficients of 4 Al + 3 O2 → 2 Al2O3.",
@@ -895,6 +923,7 @@
     },
     {
       "kind": "mass_stoichiometry",
+      "mode": "numeric",
       "prompt": "For 2 C2H6 + 7 O2 → 4 CO2 + 6 H2O: how many grams of O2 react with 60.14 g of C2H6?",
       "chain": [
         {
@@ -983,21 +1012,26 @@
           "molar_mass_g_per_mol": "31.998"
         }
       },
-      "choices": [
+      "diagnostics": [
         {
-          "display": "223.986 g",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "18.28 g",
-          "correct": false,
+          "value": "18.2846",
+          "unit": "g",
           "misconception": "Flipped the mole ratio — read it from given to target: × (7 mol O2 / 2 mol C2H6)."
         },
         {
-          "display": "64 g",
-          "correct": false,
+          "value": "63.996",
+          "unit": "g",
           "misconception": "Skipped the mole ratio — the equation says 2 mol C2H6 : 7 mol O2, not 1 : 1."
+        },
+        {
+          "value": "6735.26",
+          "unit": "g",
+          "misconception": "Skipped grams → moles — divide by the molar mass of C2H6 before the mole ratio."
+        },
+        {
+          "value": "7",
+          "unit": "g",
+          "misconception": "Stopped at moles — multiply by O2's molar mass to get grams."
         }
       ],
       "explain": "Divide by molar mass, cross the mole ratio, multiply back: 60.14 g C2H6 ÷ 30.07 g/mol × (7/2) × 31.998 g/mol = 223.986 g O2. The recipe is the coefficients of 2 C2H6 + 7 O2 → 4 CO2 + 6 H2O.",
@@ -1011,6 +1045,7 @@
     },
     {
       "kind": "mass_stoichiometry",
+      "mode": "numeric",
       "prompt": "For 2 C + O2 → 2 CO: how many grams of CO are produced from 1.5999 g of O2?",
       "chain": [
         {
@@ -1088,21 +1123,26 @@
           "molar_mass_g_per_mol": "28.01"
         }
       },
-      "choices": [
+      "diagnostics": [
         {
-          "display": "2.801 g",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "0.7003 g",
-          "correct": false,
+          "value": "0.70025",
+          "unit": "g",
           "misconception": "Flipped the mole ratio — read it from given to target: × (2 mol CO / 1 mol O2)."
         },
         {
-          "display": "1.401 g",
-          "correct": false,
+          "value": "1.4005",
+          "unit": "g",
           "misconception": "Skipped the mole ratio — the equation says 1 mol O2 : 2 mol CO, not 1 : 1."
+        },
+        {
+          "value": "89.6264",
+          "unit": "g",
+          "misconception": "Skipped grams → moles — divide by the molar mass of O2 before the mole ratio."
+        },
+        {
+          "value": "0.1",
+          "unit": "g",
+          "misconception": "Stopped at moles — multiply by CO's molar mass to get grams."
         }
       ],
       "explain": "Divide by molar mass, cross the mole ratio, multiply back: 1.5999 g O2 ÷ 31.998 g/mol × (2/1) × 28.01 g/mol = 2.801 g CO. The recipe is the coefficients of 2 C + O2 → 2 CO.",

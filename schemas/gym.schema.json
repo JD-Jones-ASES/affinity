@@ -23,11 +23,12 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "$comment": "chain/target_unit are required for conversion problems, absent for nomenclature; the per-kind shape is enforced by validate-gyms.mjs.",
-        "required": ["id", "kind", "prompt", "answer", "derivation", "choices", "explain"],
+        "$comment": "mode discriminates the response: 'choice' carries `choices` (categorical answers), 'numeric' carries `diagnostics` (free-entry answers, ADR-0032). chain/target_unit are present for conversion/stoichiometry, absent for nomenclature; the per-mode/per-kind shape is enforced by validate-gyms.mjs.",
+        "required": ["id", "kind", "mode", "prompt", "answer", "derivation", "explain"],
         "properties": {
           "id": { "type": "string", "pattern": "^q[0-9]+$" },
           "kind": { "type": "string", "minLength": 1 },
+          "mode": { "enum": ["choice", "numeric"] },
           "prompt": { "type": "string", "minLength": 1 },
           "subscript_tokens": { "type": "array", "items": { "type": "string" } },
           "chain": {
@@ -104,6 +105,20 @@
                 "display": { "type": "string", "minLength": 1 },
                 "correct": { "type": "boolean" },
                 "misconception": { "type": ["string", "null"] }
+              }
+            }
+          },
+          "diagnostics": {
+            "type": "array",
+            "$comment": "free-entry mistake catalogue (ADR-0032): a wrong VALUE a named mistake produces, used to diagnose what the learner typed. May be empty when every mistake collides with the answer (e.g. a 1:1 ratio).",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["value", "unit", "misconception"],
+              "properties": {
+                "value": { "type": "string" },
+                "unit": { "type": "string" },
+                "misconception": { "type": "string", "minLength": 1 }
               }
             }
           },

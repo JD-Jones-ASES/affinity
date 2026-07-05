@@ -1,9 +1,10 @@
 // validate-gyms.mjs — gate for the Phase-1 procedural gyms (ADR-0024). Ajv-validates every
 // derived/gyms/*.gym.json against the schema, then RE-DERIVES every problem's answer in pure Node from its
 // raw derivation inputs (the honesty check: the committed answer must reproduce from V/M/mass/molar-mass,
-// independent of Python) and checks the choice invariants (exactly one correct, distinct displays, the correct
-// choice equals the answer, the chain ends at the answer). CI re-proves the whole set with no Python. Fails
-// loud (exit 1).
+// independent of Python) and checks the response invariants per mode (ADR-0032): a categorical answer is a
+// multiple-choice menu (exactly one correct, distinct, equals the answer); a numeric answer is free entry, so
+// it carries a diagnostics catalogue (each value distinct from the answer) and NO gameable menu. CI re-proves
+// the whole set with no Python. Fails loud (exit 1).
 
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -26,6 +27,12 @@ const fail = (file, msg) => { console.error(`GYM GATE FAILED — ${file}: ${msg}
 
 const ATOL = 1e-9, RTOL = 1e-9;
 const close = (got, want) => Math.abs(got - want) <= ATOL + RTOL * Math.abs(want);
+
+// numeric-answer kinds are free-entry drills (ADR-0032): they carry a diagnostics catalogue, not a choice menu.
+const NUMERIC_KINDS = new Set([
+  "volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass",
+  "volume_molarity_to_mass", "mass_stoichiometry", "percent_yield", "limiting_mass",
+]);
 
 // re-derive an answer purely from the raw inputs — the same arithmetic a student does, unit by unit
 function rederive(kind, i, rel, id) {
@@ -233,13 +240,40 @@ for (const name of files) {
       if (!close(Number(last.value), Number(p.answer.value))) fail(rel, `${p.id}: chain end ${last.value} != answer ${p.answer.value}`);
     }
 
-    // 2. choices: exactly one correct, distinct displays, the correct one is the answer, wrong ones name a mistake
-    const correct = p.choices.filter((c) => c.correct);
-    if (correct.length !== 1) fail(rel, `${p.id}: ${correct.length} correct choices (want exactly 1)`);
-    if (correct[0].display !== p.answer.display) fail(rel, `${p.id}: correct choice '${correct[0].display}' != answer.display '${p.answer.display}'`);
-    const displays = p.choices.map((c) => c.display);
-    if (new Set(displays).size !== displays.length) fail(rel, `${p.id}: choice displays are not distinct`);
-    for (const c of p.choices) if (!c.correct && !c.misconception) fail(rel, `${p.id}: a wrong choice has no named misconception`);
+    // 2. response, mode-aware (ADR-0032). A categorical answer is a multiple-choice menu (exactly one correct,
+    //    distinct displays, the correct one equals the answer, every wrong choice names a mistake). A numeric
+    //    answer is FREE-ENTRY — there is deliberately no menu to game — so it carries a diagnostic catalogue
+    //    instead, whose values must each be genuinely distinct from the answer (else a correct entry would be
+    //    mislabelled a mistake) and name a misconception.
+    const expectedMode = NUMERIC_KINDS.has(p.kind) ? "numeric" : "choice";
+    if (p.mode !== expectedMode) fail(rel, `${p.id}: mode '${p.mode}' but kind '${p.kind}' expects '${expectedMode}'`);
+
+    if (p.mode === "choice") {
+      if (p.diagnostics) fail(rel, `${p.id}: a choice problem must not carry diagnostics`);
+      if (!Array.isArray(p.choices)) fail(rel, `${p.id}: choice problem missing choices`);
+      const correct = p.choices.filter((c) => c.correct);
+      if (correct.length !== 1) fail(rel, `${p.id}: ${correct.length} correct choices (want exactly 1)`);
+      if (correct[0].display !== p.answer.display) fail(rel, `${p.id}: correct choice '${correct[0].display}' != answer.display '${p.answer.display}'`);
+      const displays = p.choices.map((c) => c.display);
+      if (new Set(displays).size !== displays.length) fail(rel, `${p.id}: choice displays are not distinct`);
+      for (const c of p.choices) if (!c.correct && !c.misconception) fail(rel, `${p.id}: a wrong choice has no named misconception`);
+    } else {
+      if (p.choices) fail(rel, `${p.id}: a numeric answer must not be a multiple-choice menu — it is gameable by magnitude (ADR-0032)`);
+      if (!Array.isArray(p.diagnostics)) fail(rel, `${p.id}: numeric problem missing diagnostics`);
+      const ans = Number(p.answer.value);
+      if (!Number.isFinite(ans)) fail(rel, `${p.id}: numeric answer.value '${p.answer.value}' is not a number`);
+      const seen = new Set();
+      for (const d of p.diagnostics) {
+        if (!d.misconception) fail(rel, `${p.id}: a diagnostic has no named misconception`);
+        const dv = Number(d.value);
+        if (!Number.isFinite(dv)) fail(rel, `${p.id}: diagnostic value '${d.value}' is not a number`);
+        if (Math.abs(dv - ans) <= 0.03 * Math.max(Math.abs(ans), 1e-9))
+          fail(rel, `${p.id}: diagnostic ${d.value} is within 3% of the answer ${p.answer.value} — the 1% entry tolerance could mis-flag a correct entry`);
+        if (d.unit !== p.answer.unit) fail(rel, `${p.id}: diagnostic unit '${d.unit}' != answer unit '${p.answer.unit}'`);
+        if (seen.has(d.value)) fail(rel, `${p.id}: duplicate diagnostic value ${d.value}`);
+        seen.add(d.value);
+      }
+    }
 
     // 3. molar mass is consistent per substance across the WHOLE corpus (conversions ∪ stoichiometry): the
     // same species must carry the same sourced molar mass everywhere it appears.

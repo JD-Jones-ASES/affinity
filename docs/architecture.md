@@ -47,9 +47,9 @@ tab (`PracticeQuestion.svelte`); `gym/[slug].astro` + `DimensionalGym.svelte` ru
 `/affinity`). Independent **test oracles** (ADR-0026: `chempy`, `periodictable` as dev-deps) cross-check the
 molar masses and balancer in pytest. **Current counters: 3 lessons (2 precipitation + 1 percent-yield) + 6
 gyms (conversions + ionic nomenclature + balancing + mass stoichiometry + percent yield + limiting reagent;
-60 drills), 1 Valence Table (23 elements with sourced electronegativity/covalent-radius/first-ionization-energy,
-ADR-0031) + 16 concept entries, 148 producer tests + 7 Node gates + `astro build` (15 pages) + live CI/Pages
-green.**
+60 drills — numeric families free-entry, ADR-0032), 1 Valence Table (23 elements with sourced
+electronegativity/covalent-radius/first-ionization-energy, ADR-0031) + 16 concept entries, 155 producer tests +
+7 Node gates + `astro build` (15 pages) + live CI/Pages green.**
 
 ## ChemKernel module map (brief §6)
 
@@ -117,7 +117,7 @@ reject-list.
 |---|---|
 | validate-solutions | **built** (ADR-0020): Ajv schema; every `checks.*` true; path matches topic/slug; unique ids; rule-sourced regime needs a cited `solubility_basis.source`; ledger integrity (limiting rows final_mol 0, extent > 0, ν signs); precipitate is a solid ledger row; provenance sources non-empty |
 | validate-reference | **built** (+ADR-0031): each `derived/reference/*.json` schema-valid by `kind` (`valence-table`/`concept`); unique ids; concept `related` edges + `lessons` slugs resolve; every charge-balance salt's ions come from the table; and **every emitted `source` id (concept or Valence-Table facet) resolves to a `docs/SOURCES.md` register row** |
-| validate-gyms | **built** (ADR-0024/0027/0028/0029): each `derived/gyms/*.gym.json` Ajv-valid; every answer **re-derived in pure Node** per kind — conversions from raw `derivation.inputs`; nomenclature by name-concatenation + gcd charge-crossover; balancing by re-parsing each formula (`formula.mjs`) and re-proving the coefficients zero every element + charge row; **stoichiometry** (mass→mass, percent yield, limiting reagent) by re-verifying the equation balances (`verifyBalance`) **and** re-deriving the mass/percent/limiting reagent from the given/target molar masses + the coefficient ratio; plus the shared choice invariants and molar-mass consistency across the **whole** corpus (conversions ∪ stoichiometry) |
+| validate-gyms | **built** (ADR-0024/0027/0028/0029): each `derived/gyms/*.gym.json` Ajv-valid; every answer **re-derived in pure Node** per kind — conversions from raw `derivation.inputs`; nomenclature by name-concatenation + gcd charge-crossover; balancing by re-parsing each formula (`formula.mjs`) and re-proving the coefficients zero every element + charge row; **stoichiometry** (mass→mass, percent yield, limiting reagent) by re-verifying the equation balances (`verifyBalance`) **and** re-deriving the mass/percent/limiting reagent from the given/target molar masses + the coefficient ratio; plus the **response-mode split** (ADR-0032: numeric → a `diagnostics` catalogue each ≥ 3 % from the answer, no gameable menu; categorical → a one-correct `choices` menu) and molar-mass consistency across the **whole** corpus (conversions ∪ stoichiometry) |
 | check-ledger | **built** (ADR-0023): re-derives every row's final amount as n = n₀ + ν·ξ from the committed initial/coefficient/extent (independent of Python), checks role/sign consistency, matches the reported result (precipitate moles, leftovers), and **re-derives percent yield** (ADR-0030: theoretical = precipitate mass, percent = actual ÷ theoretical × 100, actual physical). A JS formula parser now exists (`formula.mjs`, ADR-0028) for a future atom/charge re-check by element counts |
 | check-parity | **built** (ADR-0023, ADR-0022): recompiles the exported JS closed forms and re-evaluates them at the embedded engine-computed sample points within tolerance; cross-checks the default slider setting against the committed static answer; **re-derives every practice answer** in Node from those closed forms (mass/leftover numerically, limiting by capacity) and asserts exactly-one-correct + distinct choices |
 | check-katex | **built** (ADR-0023): every LaTeX string renders through KaTeX with `throwOnError:true` |

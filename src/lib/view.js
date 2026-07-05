@@ -130,10 +130,16 @@ export function renderGym(gym) {
       // chain step notes can name species (e.g. "× (1 mol H2 / 2 mol HCl)") — subscript them too; the
       // numeric values and units carry no formula tokens, so they pass through untouched.
       chain: p.chain && p.chain.map((st) => ({ ...st, note: prettyText(st.note, tokens) })),
-      choices: p.choices.map((c) => ({
+      // choice problems (categorical) carry a menu; numeric problems (ADR-0032) carry a diagnostics catalogue
+      // instead — prettify whichever is present.
+      choices: p.choices && p.choices.map((c) => ({
         ...c,
         display: prettyText(c.display, tokens),
         misconception: prettyText(c.misconception, tokens),
+      })),
+      diagnostics: p.diagnostics && p.diagnostics.map((d) => ({
+        ...d,
+        misconception: prettyText(d.misconception, tokens),
       })),
     };
   });

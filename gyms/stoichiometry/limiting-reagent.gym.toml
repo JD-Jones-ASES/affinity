@@ -1,7 +1,8 @@
 # A procedural gym (Phase 1 item 4, ADR-0029). Two reactant masses go in; the learner finds which reagent runs
 # out first (the smaller reaction extent = moles ÷ coefficient) and the maximum product mass it allows.
 # ChemKernel balances the equation and generates forward from clean mole amounts so every value is exact. The
-# star wrong option computes the yield from the EXCESS reagent — the classic limiting-reagent mistake.
+# learner TYPES the product mass; the star mistake — sizing it from the EXCESS reagent — is named on entry,
+# not offered as a menu option (ADR-0032).
 
 id = "stoichiometry-limiting-mass"
 title = "Limiting reagent: which runs out first?"
@@ -10,6 +11,6 @@ topic = "stoichiometry"
 family = "limiting_mass_v1"
 seed = 2718281
 count = 10
-blurb = "Two reactants are mixed by mass — which one limits the reaction, and how much product can form? Convert each mass to moles, divide by its coefficient to get the reaction extent it can reach, and the smaller one wins: it runs out first and sets the theoretical yield. Every value is exact and machine-verified; the tempting wrong answer sizes the yield from the reagent that is actually in excess."
+blurb = "Two reactants are mixed by mass — which one limits the reaction, and how much product can form? Convert each mass to moles, divide by its coefficient to get the reaction extent it can reach, and the smaller one wins: it runs out first and sets the theoretical yield. Every value is exact and machine-verified. Type the maximum product mass — sizing it from the reagent that is actually in excess is the classic mistake, named when you enter it."
 skills = ["reaction extent = moles ÷ coefficient, for each reactant", "the SMALLER extent is the limiting reagent", "theoretical yield comes from the limiting reagent only", "the reagent with more grams is not always the one that limits"]
 reference_links = ["limiting-reagent", "stoichiometry", "molar-mass"]
