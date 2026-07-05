@@ -1,0 +1,18 @@
+{
+  "kind": "concept",
+  "id": "extent-of-reaction",
+  "title": "Extent of reaction (ξ)",
+  "term": "extent of reaction",
+  "definition": "One number, $\\xi$ (in moles), that says how far a reaction has run. Every species' amount is a straight line in it: $n_i = n_{i,0} + \\nu_i\\,\\xi$, with $\\nu_i$ negative for reactants and positive for products. Stoichiometry, limiting reagents, leftovers, ICE tables, and reaction rates ($d\\xi/dt$) are all just views of this single ledger.",
+  "related": [
+    {
+      "to": "limiting-reagent",
+      "type": "supports"
+    }
+  ],
+  "lessons": [
+    "calcium-carbonate-limiting"
+  ],
+  "regime": "ledger-exact",
+  "latex": "n_i = n_{i,0} + \\nu_i\\,\\xi"
+}

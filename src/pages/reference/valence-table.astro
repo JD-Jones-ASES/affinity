@@ -1,0 +1,26 @@
+---
+import Base from "../../layouts/Base.astro";
+import ValenceTable from "../../islands/ValenceTable.svelte";
+import { withBase } from "../../lib/withBase.js";
+import { renderValenceTable } from "../../lib/view.js";
+import table from "../../../derived/reference/valence-table.json";
+
+const view = renderValenceTable(table);
+---
+
+<Base title="The Valence Table — Affinity" description="The periodic table as a charge machine: click an element for its common ion, click a polyatomic ion to see how neutral formulas follow from charge balance.">
+  <p class="crumb faint"><a href={withBase("/reference/")}>Reference</a> · Valence Table</p>
+  <h1>{table.title}</h1>
+  <p class="muted intro">{table.blurb} Charges are sourced (OpenStax); the salts are assembled by charge
+    crossover and machine-verified neutral. <strong>Calcium</strong> and <strong>sodium</strong> are
+    highlighted — the ions of the <a href={withBase("/lessons/calcium-carbonate-limiting/")}>precipitation
+    lesson</a>. Click any element or ion.</p>
+
+  <ValenceTable table={view} client:load />
+
+  <style>
+    h1 { font-size: 1.9rem; }
+    .crumb { margin-bottom: 0.3rem; }
+    .intro { max-width: 48rem; margin-bottom: 1.2rem; }
+  </style>
+</Base>

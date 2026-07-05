@@ -1,0 +1,71 @@
+---
+import Base from "../../layouts/Base.astro";
+import { withBase } from "../../lib/withBase.js";
+import { renderConcept } from "../../lib/view.js";
+
+const refs = import.meta.glob("../../../derived/reference/*.json", { eager: true });
+const all = Object.values(refs).map((m) => m.default);
+const table = all.find((r) => r.kind === "valence-table");
+const concepts = all.filter((r) => r.kind === "concept").map(renderConcept).sort((a, b) => a.title.localeCompare(b.title));
+
+const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
+const lessonTitle = Object.fromEntries(Object.values(sols).map((m) => [m.default.slug, m.default.title]));
+const conceptTitle = Object.fromEntries(concepts.map((c) => [c.id, c.title]));
+---
+
+<Base title="Chemical Atlas — Affinity" description="The reference corpus: concept entries and the Valence Table periodic lens, each linked into the machine-verified lessons.">
+  <h1>Chemical Atlas</h1>
+  <p class="muted lede">The reference corpus — concepts and the periodic lens. Lessons go deep; the Atlas goes
+    broad. Every entry links back to the lessons that use it. (Breadth-fills alongside the lessons; this is the
+    beginning.)</p>
+
+  <a class="tablecard" href={withBase("/reference/valence-table/")}>
+    <div class="tc-head"><h2>The Valence Table →</h2></div>
+    <p class="muted">{table?.blurb} — {table?.elements.length} elements, {table?.polyatomic.length} polyatomic ions,
+      with charge-balance salts derived and verified.</p>
+  </a>
+
+  <h2 class="sec">Concepts</h2>
+  <div class="concepts">
+    {concepts.map((c) => (
+      <article class="concept" id={c.id}>
+        <div class="c-head">
+          <h3>{c.title}</h3>
+          {c.regime && <span class="badge regime">{c.regime}</span>}
+        </div>
+        <p class="def" set:html={c.definitionHtml} />
+        {c.latexHtml && <div class="c-math" set:html={c.latexHtml} />}
+        <div class="c-links">
+          {c.related.length > 0 && (
+            <span class="ln">Related: {c.related.map((e, i) => (
+              <>{i > 0 && ", "}<a href={`#${e.to}`}>{conceptTitle[e.to] ?? e.to}</a> <span class="etype">({e.type})</span></>
+            ))}</span>
+          )}
+          {c.lessons.length > 0 && (
+            <span class="ln">Used in: {c.lessons.map((s, i) => (
+              <>{i > 0 && ", "}<a href={withBase(`/lessons/${s}/`)}>{lessonTitle[s] ?? s}</a></>
+            ))}</span>
+          )}
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <style>
+    h1 { font-size: 1.9rem; }
+    .lede { max-width: 48rem; }
+    .tablecard { display: block; background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.2rem; margin: 1.2rem 0; color: inherit; }
+    .tablecard:hover { text-decoration: none; border-color: var(--accent); }
+    .tc-head h2 { margin: 0; font-size: 1.2rem; color: var(--accent); }
+    .tablecard p { margin: 0.4rem 0 0; font-size: 0.92rem; }
+    .sec { font-size: 1.25rem; border-bottom: 1px solid var(--line); padding-bottom: 0.3rem; margin-top: 2rem; }
+    .concepts { display: grid; gap: 0.9rem; margin-top: 0.9rem; }
+    .concept { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.2rem; scroll-margin-top: 5rem; }
+    .c-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+    .c-head h3 { margin: 0; font-size: 1.1rem; }
+    .def { color: var(--ink-2); margin: 0.5rem 0; }
+    .c-math { overflow-x: auto; margin: 0.4rem 0; }
+    .c-links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; font-size: 0.86rem; color: var(--ink-faint); margin-top: 0.5rem; }
+    .etype { color: var(--ink-faint); font-style: italic; }
+  </style>
+</Base>

@@ -29,6 +29,7 @@ from .formula import Formula, parse_formula
 from .interactive import build_interactive
 from .practice import generate_practice
 from .reaction import complete_ionic, net_ionic
+from .reference import build_reference_entry, build_valence_table
 from .solubility import Solubility
 from .units import Quantity
 
@@ -240,6 +241,37 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
         solution["practice"] = practice
 
     return solution, f"{spec['topic']}/{spec['slug']}.solution.json"
+
+
+def build_reference_main(argv: list[str] | None = None) -> int:
+    """Build the Chemical Atlas: the Valence Table (from data/) + authored concept entries (reference/**)."""
+    root = Path.cwd()
+    data = ChemData.load(root)
+
+    try:
+        table = build_valence_table(data)
+    except BuildError as e:
+        print(f"BUILD FAILED — {e}", file=sys.stderr)
+        return 1
+    _write_json(root / "derived" / "reference" / "valence-table.json", table)
+    print(f"  built valence-table -> derived/reference/valence-table.json")
+
+    ids = {table["id"]}
+    for path in sorted((root / "reference").glob("**/*.toml")):
+        spec = tomllib.loads(path.read_text(encoding="utf-8"))
+        ctx = spec.get("id", path.stem)
+        try:
+            entry = build_reference_entry(spec, ctx)
+        except BuildError as e:
+            print(f"BUILD FAILED — {e}", file=sys.stderr)
+            return 1
+        if entry["id"] in ids:
+            print(f"BUILD FAILED — duplicate reference id {entry['id']}", file=sys.stderr)
+            return 1
+        ids.add(entry["id"])
+        _write_json(root / "derived" / "reference" / f"{entry['id']}.json", entry)
+        print(f"  built {path.relative_to(root).as_posix()} -> derived/reference/{entry['id']}.json")
+    return 0
 
 
 def build_problems_main(argv: list[str] | None = None) -> int:

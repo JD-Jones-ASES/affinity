@@ -1,0 +1,12 @@
+# Chemical Atlas concept entry (ADR-0005). The pivot the whole portal turns on (ADR-0002).
+id = "extent-of-reaction"
+kind = "concept"
+title = "Extent of reaction (ξ)"
+term = "extent of reaction"
+regime = "ledger-exact"
+definition = "One number, $\\xi$ (in moles), that says how far a reaction has run. Every species' amount is a straight line in it: $n_i = n_{i,0} + \\nu_i\\,\\xi$, with $\\nu_i$ negative for reactants and positive for products. Stoichiometry, limiting reagents, leftovers, ICE tables, and reaction rates ($d\\xi/dt$) are all just views of this single ledger."
+latex = "n_i = n_{i,0} + \\nu_i\\,\\xi"
+related = [
+  { to = "limiting-reagent", type = "supports" },
+]
+lessons = ["calcium-carbonate-limiting"]

@@ -1,0 +1,225 @@
+{
+  "kind": "valence-table",
+  "id": "valence-table",
+  "title": "The Valence Table",
+  "blurb": "The periodic table as a charge machine: an element's group sets its common ion charge, and a cation and anion combine in whatever ratio makes the compound neutral.",
+  "group_charge_note": "Main-group metals lose electrons to a full shell (group 1 → +1, group 2 → +2); nonmetals gain them (group 16 → −2, group 17 → −1). Charges below are sourced, not inferred — the pattern is a guide, the data is the authority.",
+  "highlight": [
+    "Ca",
+    "Na"
+  ],
+  "elements": [
+    {
+      "symbol": "H",
+      "Z": 1,
+      "name": "hydrogen",
+      "atomic_weight": "1.0080",
+      "group": 1,
+      "period": 1,
+      "block": "s",
+      "common_ion": {
+        "id": "H^+",
+        "charge": 1,
+        "name": "hydrogen ion",
+        "latex": "H^{+}"
+      }
+    },
+    {
+      "symbol": "C",
+      "Z": 6,
+      "name": "carbon",
+      "atomic_weight": "12.011",
+      "group": 14,
+      "period": 2,
+      "block": "p"
+    },
+    {
+      "symbol": "N",
+      "Z": 7,
+      "name": "nitrogen",
+      "atomic_weight": "14.007",
+      "group": 15,
+      "period": 2,
+      "block": "p"
+    },
+    {
+      "symbol": "O",
+      "Z": 8,
+      "name": "oxygen",
+      "atomic_weight": "15.999",
+      "group": 16,
+      "period": 2,
+      "block": "p",
+      "common_ion": {
+        "id": "O^2-",
+        "charge": -2,
+        "name": "oxide",
+        "latex": "O^{2-}"
+      }
+    },
+    {
+      "symbol": "Na",
+      "Z": 11,
+      "name": "sodium",
+      "atomic_weight": "22.990",
+      "group": 1,
+      "period": 3,
+      "block": "s",
+      "common_ion": {
+        "id": "Na^+",
+        "charge": 1,
+        "name": "sodium ion",
+        "latex": "Na^{+}"
+      }
+    },
+    {
+      "symbol": "P",
+      "Z": 15,
+      "name": "phosphorus",
+      "atomic_weight": "30.974",
+      "group": 15,
+      "period": 3,
+      "block": "p"
+    },
+    {
+      "symbol": "S",
+      "Z": 16,
+      "name": "sulfur",
+      "atomic_weight": "32.06",
+      "group": 16,
+      "period": 3,
+      "block": "p"
+    },
+    {
+      "symbol": "Cl",
+      "Z": 17,
+      "name": "chlorine",
+      "atomic_weight": "35.45",
+      "group": 17,
+      "period": 3,
+      "block": "p",
+      "common_ion": {
+        "id": "Cl^-",
+        "charge": -1,
+        "name": "chloride",
+        "latex": "Cl^{-}"
+      }
+    },
+    {
+      "symbol": "Ca",
+      "Z": 20,
+      "name": "calcium",
+      "atomic_weight": "40.078",
+      "group": 2,
+      "period": 4,
+      "block": "s",
+      "common_ion": {
+        "id": "Ca^2+",
+        "charge": 2,
+        "name": "calcium ion",
+        "latex": "Ca^{2+}"
+      }
+    }
+  ],
+  "polyatomic": [
+    {
+      "id": "OH^-",
+      "formula": "OH",
+      "charge": -1,
+      "name": "hydroxide",
+      "latex": "OH^{-}"
+    },
+    {
+      "id": "NH4^+",
+      "formula": "NH4",
+      "charge": 1,
+      "name": "ammonium",
+      "latex": "NH_{4}^{+}"
+    },
+    {
+      "id": "NO3^-",
+      "formula": "NO3",
+      "charge": -1,
+      "name": "nitrate",
+      "latex": "NO_{3}^{-}"
+    },
+    {
+      "id": "CO3^2-",
+      "formula": "CO3",
+      "charge": -2,
+      "name": "carbonate",
+      "latex": "CO_{3}^{2-}"
+    },
+    {
+      "id": "HCO3^-",
+      "formula": "HCO3",
+      "charge": -1,
+      "name": "hydrogen carbonate",
+      "latex": "HCO_{3}^{-}"
+    },
+    {
+      "id": "SO4^2-",
+      "formula": "SO4",
+      "charge": -2,
+      "name": "sulfate",
+      "latex": "SO_{4}^{2-}"
+    },
+    {
+      "id": "PO4^3-",
+      "formula": "PO4",
+      "charge": -3,
+      "name": "phosphate",
+      "latex": "PO_{4}^{3-}"
+    },
+    {
+      "id": "C2H3O2^-",
+      "formula": "C2H3O2",
+      "charge": -1,
+      "name": "acetate",
+      "latex": "C_{2}H_{3}O_{2}^{-}"
+    }
+  ],
+  "charge_balance": [
+    {
+      "cation": "Ca^2+",
+      "anion": "CO3^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "formula": "CaCO3",
+      "latex": "CaCO_{3}",
+      "note": "1×(+2) + 1×(−2) = 0"
+    },
+    {
+      "cation": "Na^+",
+      "anion": "CO3^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "formula": "Na2CO3",
+      "latex": "Na_{2}CO_{3}",
+      "note": "2×(+1) + 1×(−2) = 0"
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "formula": "CaCl2",
+      "latex": "CaCl_{2}",
+      "note": "1×(+2) + 2×(−1) = 0"
+    },
+    {
+      "cation": "Na^+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "formula": "NaCl",
+      "latex": "NaCl",
+      "note": "1×(+1) + 1×(−1) = 0"
+    }
+  ],
+  "sources": {
+    "atomic_weight": "ciaaw-2021-atomic-weights",
+    "position": "iupac-periodic-table",
+    "ion_charge": "openstax-chemistry-2e"
+  }
+}

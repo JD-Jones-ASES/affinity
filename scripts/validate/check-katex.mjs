@@ -19,6 +19,16 @@ function walk(dir) {
   return out;
 }
 
+// Inline $...$ math segments inside an authored prose string (definitions, notes).
+function inlineMath(prefix, s) {
+  const out = [];
+  const parts = String(s ?? "").split(/(\$[^$]+\$)/g);
+  parts.forEach((p, i) => {
+    if (p.length > 2 && p.startsWith("$") && p.endsWith("$")) out.push([`${prefix}[$${i}]`, p.slice(1, -1)]);
+  });
+  return out;
+}
+
 // Collect every LaTeX-bearing string in a solution, with a path for error reporting.
 function latexStrings(sol) {
   const out = [];
@@ -31,6 +41,20 @@ function latexStrings(sol) {
   return out;
 }
 
+// Collect LaTeX in a reference object (concept entry or valence table).
+function referenceLatex(ref) {
+  const out = [];
+  if (ref.kind === "concept") {
+    if (ref.latex) out.push(["latex", ref.latex]);
+    out.push(...inlineMath("definition", ref.definition));
+  } else if (ref.kind === "valence-table") {
+    (ref.elements ?? []).forEach((e, i) => e.common_ion?.latex && out.push([`elements[${i}].common_ion.latex`, e.common_ion.latex]));
+    (ref.polyatomic ?? []).forEach((p, i) => p.latex && out.push([`polyatomic[${i}].latex`, p.latex]));
+    (ref.charge_balance ?? []).forEach((c, i) => c.latex && out.push([`charge_balance[${i}].latex`, c.latex]));
+  }
+  return out;
+}
+
 const derived = join(ROOT, "derived");
 let files = [];
 try {
@@ -39,6 +63,12 @@ try {
   console.error("no derived/ directory — run `npm run produce` first");
   process.exit(1);
 }
+// reference objects live under derived/reference/*.json (not *.solution.json)
+let refFiles = [];
+try {
+  const rd = join(derived, "reference");
+  refFiles = readdirSync(rd).filter((n) => n.endsWith(".json")).map((n) => join(rd, n));
+} catch { /* no reference yet */ }
 
 const fail = (file, where, msg) => {
   console.error(`KATEX FAILED — ${file} ${where}: ${msg}`);
@@ -46,17 +76,24 @@ const fail = (file, where, msg) => {
 };
 
 let count = 0;
+const render = (rel, where, latex) => {
+  try {
+    katex.renderToString(latex, { throwOnError: true, displayMode: true });
+    count++;
+  } catch (e) {
+    fail(rel, where, `${e.message} — '${latex}'`);
+  }
+};
+
 for (const file of files) {
   const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
   const sol = JSON.parse(readFileSync(file, "utf8"));
-  for (const [where, latex] of latexStrings(sol)) {
-    try {
-      katex.renderToString(latex, { throwOnError: true, displayMode: true });
-      count++;
-    } catch (e) {
-      fail(rel, where, `${e.message} — '${latex}'`);
-    }
-  }
+  for (const [where, latex] of latexStrings(sol)) render(rel, where, latex);
+}
+for (const file of refFiles) {
+  const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
+  const ref = JSON.parse(readFileSync(file, "utf8"));
+  for (const [where, latex] of referenceLatex(ref)) render(rel, where, latex);
 }
 
 console.log(`check-katex: ${count} LaTeX string(s) render.`);

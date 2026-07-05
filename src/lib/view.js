@@ -65,3 +65,27 @@ export function renderSolution(sol) {
 
   return s;
 }
+
+// Deep-render the Valence Table's LaTeX to HTML (build-time) so the ValenceTable island ships no KaTeX.
+export function renderValenceTable(t) {
+  const v = structuredClone(t);
+  v.elements = v.elements.map((e) => ({
+    ...e,
+    ...(e.common_ion ? { common_ion: { ...e.common_ion, latexHtml: tex(e.common_ion.latex, false), pretty: prettyIon(e.common_ion.id) } } : {}),
+  }));
+  v.polyatomic = v.polyatomic.map((p) => ({ ...p, latexHtml: tex(p.latex, false), pretty: prettyIon(p.id) }));
+  v.charge_balance = v.charge_balance.map((c) => ({
+    ...c, latexHtml: tex(c.latex, false), cationPretty: prettyIon(c.cation), anionPretty: prettyIon(c.anion),
+  }));
+  return v;
+}
+
+// Render a concept entry (definition may carry inline $…$; latex is a standalone display formula).
+export function renderConcept(c) {
+  return {
+    ...c,
+    definitionHtml: inline(c.definition),
+    latexHtml: c.latex ? tex(c.latex) : null,
+    termPretty: prettyIon(c.term),
+  };
+}

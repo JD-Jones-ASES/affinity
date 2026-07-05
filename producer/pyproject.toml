@@ -9,6 +9,7 @@ dependencies = [
 
 [project.scripts]
 build-problems = "chemkernel.build:build_problems_main"
+build-reference = "chemkernel.build:build_reference_main"
 
 [dependency-groups]
 dev = ["pytest>=8.0"]

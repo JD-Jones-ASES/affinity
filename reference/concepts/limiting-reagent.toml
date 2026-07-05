@@ -1,0 +1,12 @@
+# Chemical Atlas concept entry (ADR-0005). Authored human layer; the producer emits the linked JSON.
+id = "limiting-reagent"
+kind = "concept"
+title = "Limiting reagent via extent"
+term = "limiting reagent"
+regime = "ledger-exact"
+definition = "The reactant that runs out first, capping how far a reaction can proceed. Read it off the species ledger $n_i = n_{i,0} + \\nu_i\\,\\xi$: the limiting reagent is the one whose available amount, divided by its stoichiometric coefficient, is smallest — it hits zero at the maximum extent $\\xi_{\\max}$. Volume or mass alone never decides it; moles relative to the coefficients do."
+latex = "\\xi_{\\max} = \\min_i \\frac{n_{i,0}}{\\lvert\\nu_i\\rvert}"
+related = [
+  { to = "extent-of-reaction", type = "built-on" },
+]
+lessons = ["calcium-carbonate-limiting"]
