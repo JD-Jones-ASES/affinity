@@ -1,0 +1,33 @@
+# Dependencies & build output
+node_modules/
+dist/
+.astro/
+.vite/
+*.log
+
+# Secrets & personal context — never published
+.env
+JD.md
+PROJECT_BRIEF.md
+
+# Local agent / editor state
+.claude/
+.codex-screenshots/
+
+# Python producer: virtualenv & caches (the package itself IS committed)
+producer/.venv/
+**/__pycache__/
+**/.pytest_cache/
+*.pyc
+
+# Google Drive sync temp dirs (verify `git ls-files --cached` before first commit)
+.tmp.driveupload/
+.tmp.drivedownload/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# NOTE: derived/ is NOT ignored. Once ChemKernel exists, the verified solution/reference JSON and
+# build-time SVGs are committed so CI runs the Node gates + a pure `astro build` with no Python.
+# See AGENTS.md.
