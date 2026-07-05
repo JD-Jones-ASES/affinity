@@ -102,10 +102,15 @@ export function renderSolution(sol) {
       ...q,
       prompt: prettyText(q.prompt, tokens),
       explain: prettyText(q.explain, tokens),
-      choices: q.choices.map((c) => ({
+      // categorical questions carry a `choices` menu; numeric ones (ADR-0032) a `diagnostics` catalogue
+      choices: q.choices && q.choices.map((c) => ({
         ...c,
         display: prettyText(c.display, tokens),
         misconception: prettyText(c.misconception, tokens),
+      })),
+      diagnostics: q.diagnostics && q.diagnostics.map((d) => ({
+        ...d,
+        misconception: prettyText(d.misconception, tokens),
       })),
     }));
   }

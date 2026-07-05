@@ -66,8 +66,10 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   catalogue (value → misconception) instead of a menu, and the player names the mistake only when the learner
   *types* it (the `0.55 %` giveaway became precise feedback). The categorical families (nomenclature, balancing)
   keep a menu — every distractor is a plausible, same-form answer. The gate enforces the split (numeric →
-  diagnostics + no menu, each ≥ 3 % from the answer so a 1 % entry tolerance can't mis-flag). **155 producer
-  tests + 7 gates + astro build (15 pages).** The lesson Practice tab gets the same treatment next.
+  diagnostics + no menu, each ≥ 3 % from the answer so a 1 % entry tolerance can't mis-flag). The **lesson
+  Practice tab** was converted the same session — its **mass/leftover** questions are free entry too (the
+  `0 mmol` leftover throwaway became a diagnostic), while the categorical **which reagent limits** stays a menu;
+  `check-parity` enforces the split. **156 producer tests + 7 gates + astro build (15 pages).**
 - **Session 2026-07-05 (cont.) — Phase-1 item 5a: element-property data curation.** Landed the Valence-Table
   flagship's data foundation (ADR-0031): **widened the element set to 23** (the first twenty H…Ca + the
   transition metals Fe/Cu/Zn) and curated three **primary-sourced periodic properties** — **electronegativity**

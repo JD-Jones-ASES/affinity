@@ -22,7 +22,13 @@ plan in [`ROADMAP.md`](./ROADMAP.md).
 - **155 producer tests** (+7: numeric-is-free-entry + categorical-is-a-menu + the percent-yield regression) +
   **7 gates** + **astro build (15 pages)** green. In-browser: the percent-yield gym takes a typed answer — `55`
   → ✓ Correct; `0.55` → "✗ … the answer is 55 %" + "That's the fraction, not the percent — multiply by 100."; the
-  balancing gym still shows a 3-option menu. **Next:** the lesson Practice tab (same pattern).
+  balancing gym still shows a 3-option menu.
+- **The lesson Practice tab too** (same session). Its **mass** and **leftover** questions are now free entry —
+  the producer emits a `diagnostics` catalogue (the `0 mmol` leftover throwaway became a diagnostic that names
+  the mistake), the schema's practice block grew `mode` + `diagnostics`, `check-parity.mjs` enforces the split,
+  and `PracticeQuestion.svelte` gained the numeric-entry path. The categorical **which reagent limits** stays a
+  menu. In-browser: entering `0` mmol on a leftover question → "the answer is 8.5 mmol · Only the limiting
+  reagent reaches 0…". **156 producer tests** total; 7 gates + astro build green.
 
 ## Phase 1 — 2026-07-05 — item 5a: element-property data curation (Valence-Table flagship)
 

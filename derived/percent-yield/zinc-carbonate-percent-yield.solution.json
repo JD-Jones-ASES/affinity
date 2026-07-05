@@ -540,6 +540,7 @@
       {
         "id": "q1",
         "kind": "limiting",
+        "mode": "choice",
         "prompt": "25.0 mL of 0.250 M ZnCl2 is mixed with 10.0 mL of 0.050 M Na2CO3. Which reactant is the limiting reagent?",
         "given": [
           {
@@ -585,6 +586,7 @@
       {
         "id": "q2",
         "kind": "mass",
+        "mode": "numeric",
         "prompt": "50.0 mL of 0.150 M ZnCl2 is mixed with 10.0 mL of 0.150 M Na2CO3. What mass of ZnCO3 precipitate forms?",
         "given": [
           {
@@ -606,22 +608,18 @@
         },
         "answer": {
           "display": "0.188 g",
-          "value": "0.188"
+          "value": "0.188",
+          "unit": "g"
         },
-        "choices": [
+        "diagnostics": [
           {
-            "display": "0.188 g",
-            "correct": true,
-            "misconception": null
-          },
-          {
-            "display": "0.940 g",
-            "correct": false,
+            "value": "0.940",
+            "unit": "g",
             "misconception": "Used ZnCl2, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
           },
           {
-            "display": "1.128 g",
-            "correct": false,
+            "value": "1.128",
+            "unit": "g",
             "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
           }
         ],
@@ -630,6 +628,7 @@
       {
         "id": "q3",
         "kind": "leftover",
+        "mode": "numeric",
         "prompt": "25.0 mL of 0.200 M ZnCl2 is mixed with 50.0 mL of 0.150 M Na2CO3. After the reaction, how many mmol of the excess reactant remain?",
         "given": [
           {
@@ -651,22 +650,18 @@
         },
         "answer": {
           "display": "2.5 mmol",
-          "value": "2.5"
+          "value": "2.5",
+          "unit": "mmol"
         },
-        "choices": [
+        "diagnostics": [
           {
-            "display": "2.5 mmol",
-            "correct": true,
-            "misconception": null
-          },
-          {
-            "display": "7.5 mmol",
-            "correct": false,
+            "value": "7.5",
+            "unit": "mmol",
             "misconception": "That is all the Na2CO3 you started with — some of it reacts; only the surplus over the limiting reagent remains."
           },
           {
-            "display": "0 mmol",
-            "correct": false,
+            "value": "0",
+            "unit": "mmol",
             "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
           }
         ],
@@ -675,6 +670,7 @@
       {
         "id": "q4",
         "kind": "limiting",
+        "mode": "choice",
         "prompt": "15.0 mL of 0.200 M ZnCl2 is mixed with 35.0 mL of 0.250 M Na2CO3. Which reactant is the limiting reagent?",
         "given": [
           {
@@ -720,6 +716,7 @@
       {
         "id": "q5",
         "kind": "mass",
+        "mode": "numeric",
         "prompt": "10.0 mL of 0.200 M ZnCl2 is mixed with 50.0 mL of 0.050 M Na2CO3. What mass of ZnCO3 precipitate forms?",
         "given": [
           {
@@ -741,22 +738,18 @@
         },
         "answer": {
           "display": "0.251 g",
-          "value": "0.251"
+          "value": "0.251",
+          "unit": "g"
         },
-        "choices": [
+        "diagnostics": [
           {
-            "display": "0.251 g",
-            "correct": true,
-            "misconception": null
-          },
-          {
-            "display": "0.313 g",
-            "correct": false,
+            "value": "0.313",
+            "unit": "g",
             "misconception": "Used Na2CO3, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
           },
           {
-            "display": "0.564 g",
-            "correct": false,
+            "value": "0.564",
+            "unit": "g",
             "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
           }
         ],
@@ -765,6 +758,7 @@
       {
         "id": "q6",
         "kind": "leftover",
+        "mode": "numeric",
         "prompt": "10.0 mL of 0.150 M ZnCl2 is mixed with 10.0 mL of 0.100 M Na2CO3. After the reaction, how many mmol of the excess reactant remain?",
         "given": [
           {
@@ -786,22 +780,18 @@
         },
         "answer": {
           "display": "0.5 mmol",
-          "value": "0.5"
+          "value": "0.5",
+          "unit": "mmol"
         },
-        "choices": [
+        "diagnostics": [
           {
-            "display": "0.5 mmol",
-            "correct": true,
-            "misconception": null
-          },
-          {
-            "display": "1.5 mmol",
-            "correct": false,
+            "value": "1.5",
+            "unit": "mmol",
             "misconception": "That is all the ZnCl2 you started with — some of it reacts; only the surplus over the limiting reagent remains."
           },
           {
-            "display": "0 mmol",
-            "correct": false,
+            "value": "0",
+            "unit": "mmol",
             "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
           }
         ],

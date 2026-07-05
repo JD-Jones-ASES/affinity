@@ -105,13 +105,31 @@ for (const file of files) {
         if (!(p in q.args)) fail(rel, `practice ${q.id}: missing arg '${p}'`);
         return Number(q.args[p]);
       });
-      const correct = q.choices.filter((c) => c.correct);
-      if (correct.length !== 1) fail(rel, `practice ${q.id}: ${correct.length} correct choices (want exactly 1)`);
-      if (correct[0].display !== q.answer.display)
-        fail(rel, `practice ${q.id}: correct choice '${correct[0].display}' != answer '${q.answer.display}'`);
-      const displays = q.choices.map((c) => c.display);
-      if (new Set(displays).size !== displays.length)
-        fail(rel, `practice ${q.id}: choice displays are not distinct`);
+      // response mode (ADR-0032): a categorical question (which reagent limits) is a menu; the numeric ones
+      // (mass, leftover) are free entry, so they carry a diagnostics catalogue instead of a gameable menu.
+      const expectedMode = (q.kind === "mass" || q.kind === "leftover") ? "numeric" : "choice";
+      if (q.mode !== expectedMode) fail(rel, `practice ${q.id}: mode '${q.mode}' but kind '${q.kind}' expects '${expectedMode}'`);
+      if (q.mode === "choice") {
+        if (q.diagnostics) fail(rel, `practice ${q.id}: a choice question must not carry diagnostics`);
+        const correct = q.choices.filter((c) => c.correct);
+        if (correct.length !== 1) fail(rel, `practice ${q.id}: ${correct.length} correct choices (want exactly 1)`);
+        if (correct[0].display !== q.answer.display)
+          fail(rel, `practice ${q.id}: correct choice '${correct[0].display}' != answer '${q.answer.display}'`);
+        const displays = q.choices.map((c) => c.display);
+        if (new Set(displays).size !== displays.length)
+          fail(rel, `practice ${q.id}: choice displays are not distinct`);
+      } else {
+        if (q.choices) fail(rel, `practice ${q.id}: a numeric answer must not be a multiple-choice menu (gameable — ADR-0032)`);
+        if (!Array.isArray(q.diagnostics)) fail(rel, `practice ${q.id}: numeric question missing diagnostics`);
+        const ans = Number(q.answer.value);
+        for (const d of q.diagnostics) {
+          if (!d.misconception) fail(rel, `practice ${q.id}: a diagnostic has no misconception`);
+          const dv = Number(d.value);
+          if (!Number.isFinite(dv)) fail(rel, `practice ${q.id}: diagnostic value '${d.value}' is not a number`);
+          if (Math.abs(dv - ans) <= 0.03 * Math.max(Math.abs(ans), 1e-9))
+            fail(rel, `practice ${q.id}: diagnostic ${d.value} within 3% of the answer ${q.answer.value} — could mis-flag a correct entry`);
+        }
+      }
 
       if (q.kind === "mass") {
         if (!close(Number(q.answer.value), fns.mass(...qa), DTOL, DTOL))

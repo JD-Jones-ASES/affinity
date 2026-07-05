@@ -48,8 +48,9 @@ tab (`PracticeQuestion.svelte`); `gym/[slug].astro` + `DimensionalGym.svelte` ru
 molar masses and balancer in pytest. **Current counters: 3 lessons (2 precipitation + 1 percent-yield) + 6
 gyms (conversions + ionic nomenclature + balancing + mass stoichiometry + percent yield + limiting reagent;
 60 drills — numeric families free-entry, ADR-0032), 1 Valence Table (23 elements with sourced
-electronegativity/covalent-radius/first-ionization-energy, ADR-0031) + 16 concept entries, 155 producer tests +
-7 Node gates + `astro build` (15 pages) + live CI/Pages green.**
+electronegativity/covalent-radius/first-ionization-energy, ADR-0031) + 16 concept entries, 156 producer tests +
+7 Node gates + `astro build` (15 pages) + live CI/Pages green. Lesson practice mass/leftover questions are
+free-entry too (ADR-0032).**
 
 ## ChemKernel module map (brief §6)
 

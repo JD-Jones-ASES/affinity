@@ -4,9 +4,12 @@ The `precipitation_limiting_reagent_v1` family generates limiting-reagent questi
 lesson teaches. Generation is **deterministic** (seeded, ADR-0008 / architecture practice-generation policy):
 the same spec seed always yields byte-identical questions, so committed `derived/` stays reviewable. Every
 answer is computed from the reaction model (the same multiplicities the interactive block derives from the
-real chemistry) — never hand-authored — and each wrong choice is a **named misconception**, not a random
-number. A **reject-list** drops variants that are ambiguous or ugly: near-ties (no clear limiting reagent),
-no leftover, or choices that collide at display precision (ambiguous rounding).
+real chemistry) — never hand-authored. Response mode follows ADR-0032: the **numeric** questions (mass,
+leftover) are **free entry** — the learner types the number, and the named mistakes become a `diagnostics`
+catalogue that names what they entered, never a menu whose wrong values (a `0 mmol` leftover, a plausible-but-
+excess mass) could be eliminated or guessed; the **categorical** question (which reagent limits) stays a
+multiple-choice menu, since both reagents are plausible. A **reject-list** still drops ambiguous variants:
+near-ties (no clear limiting reagent) and no-leftover cases.
 
 The emitted questions carry `args` (v1,c1,v2,c2) so `check-parity.mjs` re-derives every answer in pure Node
 from the parity-verified closed forms — the practice answers are verified twice, like everything else.
@@ -36,6 +39,31 @@ def _mmol(frac: Fraction) -> str:
 
 def _grams(frac: Fraction) -> str:
     return format(to_decimal(frac, 3), "f")
+
+
+def _rel_close(a: float, b: float, tol: float) -> bool:
+    return abs(a - b) <= tol * max(abs(b), 1e-9) + 1e-12
+
+
+def _practice_diagnostics(answer_disp: str, unit: str, wrongs: list[tuple[str, str]]) -> list[dict]:
+    """Free-entry diagnostics for a numeric practice answer (ADR-0032). A numeric answer is not a menu — a
+    plausible wrong mass or a `0 mmol` leftover is still eliminable/guessable — so the learner types the number
+    and these named-mistake VALUES diagnose what they entered. Drops any candidate within 3.5% of the answer
+    (so a correct entry is never mis-flagged) and any duplicate display."""
+    ans = float(answer_disp)
+    diags, seen = [], set()
+    for disp, why in wrongs:
+        try:
+            fval = float(disp)
+        except ValueError:
+            continue
+        if fval != fval or _rel_close(fval, ans, 0.035):
+            continue
+        if disp in seen:
+            continue
+        seen.add(disp)
+        diags.append({"value": disp, "unit": unit, "misconception": why})
+    return diags
 
 
 def generate_practice(interactive: dict, seed: int, count: int, ctx: str = "") -> dict | None:
@@ -85,7 +113,7 @@ def generate_practice(interactive: dict, seed: int, count: int, ctx: str = "") -
 
         if kind == "limiting":
             q = {
-                "id": f"q{len(questions) + 1}", "kind": "limiting",
+                "id": f"q{len(questions) + 1}", "kind": "limiting", "mode": "choice",  # categorical (ADR-0032)
                 "prompt": f"{stem} Which reactant is the limiting reagent?",
                 "given": given, "args": args,
                 "answer": {"display": limiting_src, "value": limiting_src},
@@ -107,39 +135,29 @@ def generate_practice(interactive: dict, seed: int, count: int, ctx: str = "") -
             m_correct = mass
             m_excess = p * hi * molar_mass                    # used the reactant in excess as if it were limiting
             m_sum = p * (cap_cat + cap_an) * molar_mass        # ignored the limiting reagent — added both
-            if len({_grams(m_correct), _grams(m_excess), _grams(m_sum)}) != 3:
-                continue                                       # choices collide at display precision — reject
             q = {
-                "id": f"q{len(questions) + 1}", "kind": "mass",
+                "id": f"q{len(questions) + 1}", "kind": "mass", "mode": "numeric",  # free entry (ADR-0032)
                 "prompt": f"{stem} What mass of {prod['id']} precipitate forms?",
                 "given": given, "args": args,
-                "answer": {"display": f"{_grams(m_correct)} g", "value": format(to_decimal(m_correct, 3), 'f')},
-                "choices": [
-                    {"display": f"{_grams(m_correct)} g", "correct": True, "misconception": None},
-                    {"display": f"{_grams(m_excess)} g", "correct": False,
-                     "misconception": f"Used {excess_src}, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."},
-                    {"display": f"{_grams(m_sum)} g", "correct": False,
-                     "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."},
-                ],
+                "answer": {"display": f"{_grams(m_correct)} g", "value": format(to_decimal(m_correct, 3), 'f'), "unit": "g"},
+                "diagnostics": _practice_diagnostics(_grams(m_correct), "g", [
+                    (_grams(m_excess), f"Used {excess_src}, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."),
+                    (_grams(m_sum), "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."),
+                ]),
                 "explain": (f"ξ = {_mmol(xi)} mmol (set by {limiting_src}); "
                             f"mass = {p} × {_mmol(xi)} mmol × {prod['molar_mass']} g/mol = {_grams(m_correct)} g."),
             }
         else:  # leftover
             full_excess = n_an if cat_limits else n_cat
-            if len({_mmol(excess_left), _mmol(full_excess), "0"}) != 3:
-                continue
             q = {
-                "id": f"q{len(questions) + 1}", "kind": "leftover",
+                "id": f"q{len(questions) + 1}", "kind": "leftover", "mode": "numeric",  # free entry (ADR-0032)
                 "prompt": f"{stem} After the reaction, how many mmol of the excess reactant remain?",
                 "given": given, "args": args,
-                "answer": {"display": f"{_mmol(excess_left)} mmol", "value": _mmol(excess_left)},
-                "choices": [
-                    {"display": f"{_mmol(excess_left)} mmol", "correct": True, "misconception": None},
-                    {"display": f"{_mmol(full_excess)} mmol", "correct": False,
-                     "misconception": f"That is all the {excess_src} you started with — some of it reacts; only the surplus over the limiting reagent remains."},
-                    {"display": "0 mmol", "correct": False,
-                     "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."},
-                ],
+                "answer": {"display": f"{_mmol(excess_left)} mmol", "value": _mmol(excess_left), "unit": "mmol"},
+                "diagnostics": _practice_diagnostics(_mmol(excess_left), "mmol", [
+                    (_mmol(full_excess), f"That is all the {excess_src} you started with — some of it reacts; only the surplus over the limiting reagent remains."),
+                    ("0", "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."),
+                ]),
                 "explain": (f"{excess_src} started at {_mmol(full_excess)} mmol and "
                             f"{_mmol(full_excess - excess_left)} mmol reacted, leaving {_mmol(excess_left)} mmol."),
             }

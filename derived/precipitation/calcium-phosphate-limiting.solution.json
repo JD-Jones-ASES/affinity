@@ -537,6 +537,7 @@
       {
         "id": "q1",
         "kind": "limiting",
+        "mode": "choice",
         "prompt": "50.0 mL of 0.100 M CaCl2 is mixed with 35.0 mL of 0.250 M Na3PO4. Which reactant is the limiting reagent?",
         "given": [
           {
@@ -582,6 +583,7 @@
       {
         "id": "q2",
         "kind": "mass",
+        "mode": "numeric",
         "prompt": "30.0 mL of 0.050 M CaCl2 is mixed with 35.0 mL of 0.100 M Na3PO4. What mass of Ca3(PO4)2 precipitate forms?",
         "given": [
           {
@@ -603,22 +605,18 @@
         },
         "answer": {
           "display": "0.155 g",
-          "value": "0.155"
+          "value": "0.155",
+          "unit": "g"
         },
-        "choices": [
+        "diagnostics": [
           {
-            "display": "0.155 g",
-            "correct": true,
-            "misconception": null
-          },
-          {
-            "display": "0.543 g",
-            "correct": false,
+            "value": "0.543",
+            "unit": "g",
             "misconception": "Used Na3PO4, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
           },
           {
-            "display": "0.698 g",
-            "correct": false,
+            "value": "0.698",
+            "unit": "g",
             "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
           }
         ],
@@ -627,6 +625,7 @@
       {
         "id": "q3",
         "kind": "leftover",
+        "mode": "numeric",
         "prompt": "20.0 mL of 0.250 M CaCl2 is mixed with 40.0 mL of 0.150 M Na3PO4. After the reaction, how many mmol of the excess reactant remain?",
         "given": [
           {
@@ -648,22 +647,18 @@
         },
         "answer": {
           "display": "2.6667 mmol",
-          "value": "2.6667"
+          "value": "2.6667",
+          "unit": "mmol"
         },
-        "choices": [
+        "diagnostics": [
           {
-            "display": "2.6667 mmol",
-            "correct": true,
-            "misconception": null
-          },
-          {
-            "display": "6 mmol",
-            "correct": false,
+            "value": "6",
+            "unit": "mmol",
             "misconception": "That is all the Na3PO4 you started with — some of it reacts; only the surplus over the limiting reagent remains."
           },
           {
-            "display": "0 mmol",
-            "correct": false,
+            "value": "0",
+            "unit": "mmol",
             "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
           }
         ],
@@ -672,6 +667,7 @@
       {
         "id": "q4",
         "kind": "limiting",
+        "mode": "choice",
         "prompt": "40.0 mL of 0.250 M CaCl2 is mixed with 45.0 mL of 0.100 M Na3PO4. Which reactant is the limiting reagent?",
         "given": [
           {
@@ -717,6 +713,7 @@
       {
         "id": "q5",
         "kind": "mass",
+        "mode": "numeric",
         "prompt": "20.0 mL of 0.200 M CaCl2 is mixed with 30.0 mL of 0.200 M Na3PO4. What mass of Ca3(PO4)2 precipitate forms?",
         "given": [
           {
@@ -738,22 +735,18 @@
         },
         "answer": {
           "display": "0.414 g",
-          "value": "0.414"
+          "value": "0.414",
+          "unit": "g"
         },
-        "choices": [
+        "diagnostics": [
           {
-            "display": "0.414 g",
-            "correct": true,
-            "misconception": null
-          },
-          {
-            "display": "0.931 g",
-            "correct": false,
+            "value": "0.931",
+            "unit": "g",
             "misconception": "Used Na3PO4, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
           },
           {
-            "display": "1.344 g",
-            "correct": false,
+            "value": "1.344",
+            "unit": "g",
             "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
           }
         ],
@@ -762,6 +755,7 @@
       {
         "id": "q6",
         "kind": "leftover",
+        "mode": "numeric",
         "prompt": "10.0 mL of 0.100 M CaCl2 is mixed with 25.0 mL of 0.250 M Na3PO4. After the reaction, how many mmol of the excess reactant remain?",
         "given": [
           {
@@ -783,22 +777,18 @@
         },
         "answer": {
           "display": "5.5833 mmol",
-          "value": "5.5833"
+          "value": "5.5833",
+          "unit": "mmol"
         },
-        "choices": [
+        "diagnostics": [
           {
-            "display": "5.5833 mmol",
-            "correct": true,
-            "misconception": null
-          },
-          {
-            "display": "6.25 mmol",
-            "correct": false,
+            "value": "6.25",
+            "unit": "mmol",
             "misconception": "That is all the Na3PO4 you started with — some of it reacts; only the surplus over the limiting reagent remains."
           },
           {
-            "display": "0 mmol",
-            "correct": false,
+            "value": "0",
+            "unit": "mmol",
             "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
           }
         ],

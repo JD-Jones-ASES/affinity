@@ -724,8 +724,10 @@ same-form names/formulas/coefficient-sets that genuinely require checking.
 whole numeric-gym family is ungameable by construction. Named-mistake feedback is *strengthened* — a mistake is
 now caught when the learner commits to it, not merely offered for recognition. Schema grew `mode` +
 `diagnostics` (`choices` now optional); the `DimensionalGym` island gained a numeric-entry path (input +
-tolerance check + diagnostic lookup + a "Show answer" reveal) beside the existing menu. **The same principle
-applies to the lesson Practice tab** (`chemkernel.practice` + `PracticeQuestion.svelte`), whose numeric
-mass/leftover questions are still multiple-choice — converting it is the immediate follow-up. Free entry suits
-numeric answers; a menu remains right for genuinely categorical ones (which limiting reagent, classify the
-reaction) where every option is plausible.
+tolerance check + diagnostic lookup + a "Show answer" reveal) beside the existing menu. **The lesson Practice
+tab was converted the same way in the same session** (`chemkernel.practice` + `PracticeQuestion.svelte` +
+`check-parity.mjs` + the solution schema's practice block): its **mass** and **leftover** questions are now
+free entry with a `diagnostics` catalogue (the `0 mmol` leftover throwaway became a diagnostic), while the
+categorical **which reagent limits** stays a menu (both reagents are plausible). Free entry suits numeric
+answers; a menu remains right for genuinely categorical ones (which limiting reagent, classify the reaction)
+where every option is plausible.

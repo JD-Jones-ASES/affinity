@@ -40,13 +40,32 @@ def test_generates_requested_count_and_shape():
     assert len(p["questions"]) == 6
     for q in p["questions"]:
         assert q["kind"] in ("limiting", "mass", "leftover")
-        assert sum(1 for c in q["choices"] if c["correct"]) == 1          # exactly one correct
-        assert len({c["display"] for c in q["choices"]}) == len(q["choices"])  # distinct displays
-        correct = next(c for c in q["choices"] if c["correct"])
-        assert correct["display"] == q["answer"]["display"]
-        for c in q["choices"]:                                            # every wrong choice names a misconception
-            assert c["correct"] or c["misconception"]
         assert set(q["args"]) == {"v1", "c1", "v2", "c2"}
+        if q["mode"] == "choice":                                         # categorical (which reagent limits) → a menu
+            assert q["kind"] == "limiting" and "diagnostics" not in q
+            assert sum(1 for c in q["choices"] if c["correct"]) == 1      # exactly one correct
+            assert len({c["display"] for c in q["choices"]}) == len(q["choices"])  # distinct displays
+            assert next(c for c in q["choices"] if c["correct"])["display"] == q["answer"]["display"]
+            for c in q["choices"]:                                        # every wrong choice names a misconception
+                assert c["correct"] or c["misconception"]
+        else:                                                             # numeric (mass, leftover) → free entry (ADR-0032)
+            assert q["kind"] in ("mass", "leftover") and "choices" not in q
+            ans = float(q["answer"]["value"])
+            for d in q["diagnostics"]:                                    # each diagnostic names a mistake, distinct from the answer
+                assert d["misconception"] and d["unit"] == q["answer"]["unit"]
+                assert abs(float(d["value"]) - ans) > 0.03 * max(abs(ans), 1e-9)
+
+
+def test_numeric_practice_is_free_entry_not_a_menu():
+    """The numeric practice questions (mass, leftover) carry a diagnostics catalogue and no gameable menu; only
+    the categorical 'which reagent limits' keeps a menu (ADR-0032)."""
+    for spec in (SPEC, SPEC_PHOSPHATE):
+        p = generate_practice(_interactive_for(spec), seed=20260705, count=6)
+        for q in p["questions"]:
+            if q["kind"] in ("mass", "leftover"):
+                assert q["mode"] == "numeric" and "choices" not in q and isinstance(q["diagnostics"], list)
+            else:
+                assert q["mode"] == "choice" and "diagnostics" not in q
 
 
 def test_answers_are_solver_correct():

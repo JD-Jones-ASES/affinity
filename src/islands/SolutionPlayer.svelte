@@ -184,8 +184,9 @@
     </div>
   {:else if tab === "practice" && hasPractice}
     <div class="panel practicepanel" role="tabpanel" aria-label="Practice">
-      <p class="practice-lede muted">Generated variants of this reaction, each solver-verified. Wrong options are
-        common misconceptions, not random numbers — pick one to see why. ({s.practice.questions.length} questions.)</p>
+      <p class="practice-lede muted">Generated variants of this reaction, each solver-verified. Type the numeric
+        answers — a wrong entry that matches a common mistake is named for you; the "which reagent limits?"
+        questions offer only plausible choices. ({s.practice.questions.length} questions.)</p>
       {#each s.practice.questions as q (q.id)}
         <PracticeQuestion question={q} />
       {/each}
