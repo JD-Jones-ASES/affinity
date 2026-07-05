@@ -21,218 +21,67 @@
   "problems": [
     {
       "kind": "ionic_formula_to_name",
-      "prompt": "What is the name of NaNO3?",
+      "prompt": "What is the name of Mg(HCO3)2?",
       "answer": {
-        "value": "sodium nitrate",
-        "display": "sodium nitrate"
+        "value": "magnesium hydrogen carbonate",
+        "display": "magnesium hydrogen carbonate"
       },
       "derivation": {
         "kind": "ionic_formula_to_name",
         "cation": {
-          "id": "Na^+",
-          "formula_part": "Na",
-          "charge": 1,
-          "compound_name": "sodium"
+          "id": "Mg^2+",
+          "formula_part": "Mg",
+          "charge": 2,
+          "compound_name": "magnesium"
         },
         "anion": {
-          "id": "NO3^-",
-          "formula_part": "NO3",
+          "id": "HCO3^-",
+          "formula_part": "HCO3",
           "charge": -1,
-          "compound_name": "nitrate"
+          "compound_name": "hydrogen carbonate"
         },
-        "formula": "NaNO3",
-        "name": "sodium nitrate"
+        "formula": "Mg(HCO3)2",
+        "name": "magnesium hydrogen carbonate"
       },
       "choices": [
         {
-          "display": "sodium nitrate",
+          "display": "magnesium hydrogen carbonate",
           "correct": true,
           "misconception": null
         },
         {
-          "display": "sodium(I) nitrate",
+          "display": "magnesium(II) hydrogen carbonate",
           "correct": false,
           "misconception": "Added a Roman numeral to a fixed-charge metal — only variable-charge metals take one."
         },
         {
-          "display": "monosodium mononitrate",
+          "display": "monomagnesium dihydrogen carbonate",
           "correct": false,
           "misconception": "Used Greek prefixes (mono-, di-, tri-) — those name covalent molecules, not ionic compounds."
         }
       ],
-      "explain": "Na^+ is the cation and NO3^- the anion; a fixed-charge metal needs no numeral, so NaNO3 is sodium nitrate.",
+      "explain": "Mg^2+ is the cation and HCO3^- the anion; a fixed-charge metal needs no numeral, so Mg(HCO3)2 is magnesium hydrogen carbonate.",
       "subscript_tokens": [
-        "NaNO3",
-        "Na^+",
-        "NO3^-"
+        "Mg(HCO3)2",
+        "Mg^2+",
+        "HCO3^-"
       ],
       "id": "q1"
     },
     {
       "kind": "ionic_name_to_formula",
-      "prompt": "Write the formula for magnesium hydroxide.",
+      "prompt": "Write the formula for potassium nitride.",
       "answer": {
-        "value": "Mg(OH)2",
-        "display": "Mg(OH)2"
+        "value": "K3N",
+        "display": "K3N"
       },
       "derivation": {
         "kind": "ionic_name_to_formula",
         "cation": {
-          "id": "Mg^2+",
-          "formula_part": "Mg",
-          "charge": 2,
-          "compound_name": "magnesium"
-        },
-        "anion": {
-          "id": "OH^-",
-          "formula_part": "OH",
-          "charge": -1,
-          "compound_name": "hydroxide"
-        },
-        "formula": "Mg(OH)2",
-        "name": "magnesium hydroxide"
-      },
-      "choices": [
-        {
-          "display": "Mg(OH)2",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "Mg2OH",
-          "correct": false,
-          "misconception": "Used each ion's own charge as its subscript — you CROSS the charges (each subscript is the other ion's charge)."
-        },
-        {
-          "display": "MgOH",
-          "correct": false,
-          "misconception": "Combined one-to-one — the charges (+2, −1) don't cancel one-for-one; balance them."
-        }
-      ],
-      "explain": "Mg^2+ and OH^- cross their charges: 1×Mg to 2×(hydroxide) gives the neutral Mg(OH)2.",
-      "subscript_tokens": [
-        "Mg(OH)2",
-        "Mg2OH",
-        "MgOH",
-        "Mg^2+",
-        "OH^-"
-      ],
-      "id": "q2"
-    },
-    {
-      "kind": "ionic_formula_to_name",
-      "prompt": "What is the name of Cu2O?",
-      "answer": {
-        "value": "copper(I) oxide",
-        "display": "copper(I) oxide"
-      },
-      "derivation": {
-        "kind": "ionic_formula_to_name",
-        "cation": {
-          "id": "Cu^+",
-          "formula_part": "Cu",
+          "id": "K^+",
+          "formula_part": "K",
           "charge": 1,
-          "compound_name": "copper(I)"
-        },
-        "anion": {
-          "id": "O^2-",
-          "formula_part": "O",
-          "charge": -2,
-          "compound_name": "oxide"
-        },
-        "formula": "Cu2O",
-        "name": "copper(I) oxide"
-      },
-      "choices": [
-        {
-          "display": "copper(I) oxide",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "copper(II) oxide",
-          "correct": false,
-          "misconception": "Wrong oxidation state — the anion fixes the metal's charge here; check which Stock numeral balances it."
-        },
-        {
-          "display": "copper oxide",
-          "correct": false,
-          "misconception": "Dropped the Roman numeral — a variable-charge metal must state its charge (the Stock system)."
-        }
-      ],
-      "explain": "Charge balance sets the metal: 1×oxide gives 2− total, matched by 2×Cu^+ — so Cu2O is copper(I) oxide.",
-      "subscript_tokens": [
-        "Cu2O",
-        "Cu^+",
-        "O^2-"
-      ],
-      "id": "q3"
-    },
-    {
-      "kind": "ionic_name_to_formula",
-      "prompt": "Write the formula for iron(III) acetate.",
-      "answer": {
-        "value": "Fe(C2H3O2)3",
-        "display": "Fe(C2H3O2)3"
-      },
-      "derivation": {
-        "kind": "ionic_name_to_formula",
-        "cation": {
-          "id": "Fe^3+",
-          "formula_part": "Fe",
-          "charge": 3,
-          "compound_name": "iron(III)"
-        },
-        "anion": {
-          "id": "C2H3O2^-",
-          "formula_part": "C2H3O2",
-          "charge": -1,
-          "compound_name": "acetate"
-        },
-        "formula": "Fe(C2H3O2)3",
-        "name": "iron(III) acetate"
-      },
-      "choices": [
-        {
-          "display": "Fe(C2H3O2)3",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "Fe3C2H3O2",
-          "correct": false,
-          "misconception": "Used each ion's own charge as its subscript — you CROSS the charges (each subscript is the other ion's charge)."
-        },
-        {
-          "display": "FeC2H3O2",
-          "correct": false,
-          "misconception": "Combined one-to-one — the charges (+3, −1) don't cancel one-for-one; balance them."
-        }
-      ],
-      "explain": "Fe^3+ and C2H3O2^- cross their charges: 1×Fe to 3×(acetate) gives the neutral Fe(C2H3O2)3.",
-      "subscript_tokens": [
-        "Fe(C2H3O2)3",
-        "Fe3C2H3O2",
-        "FeC2H3O2",
-        "Fe^3+",
-        "C2H3O2^-"
-      ],
-      "id": "q4"
-    },
-    {
-      "kind": "ionic_formula_to_name",
-      "prompt": "What is the name of Mg3N2?",
-      "answer": {
-        "value": "magnesium nitride",
-        "display": "magnesium nitride"
-      },
-      "derivation": {
-        "kind": "ionic_formula_to_name",
-        "cation": {
-          "id": "Mg^2+",
-          "formula_part": "Mg",
-          "charge": 2,
-          "compound_name": "magnesium"
+          "compound_name": "potassium"
         },
         "anion": {
           "id": "N^3-",
@@ -240,48 +89,199 @@
           "charge": -3,
           "compound_name": "nitride"
         },
-        "formula": "Mg3N2",
-        "name": "magnesium nitride"
+        "formula": "K3N",
+        "name": "potassium nitride"
       },
       "choices": [
         {
-          "display": "magnesium nitride",
+          "display": "K3N",
           "correct": true,
           "misconception": null
         },
         {
-          "display": "magnesium(II) nitride",
+          "display": "KN3",
+          "correct": false,
+          "misconception": "Used each ion's own charge as its subscript — you CROSS the charges (each subscript is the other ion's charge)."
+        },
+        {
+          "display": "KN",
+          "correct": false,
+          "misconception": "Combined one-to-one — the charges (+1, −3) don't cancel one-for-one; balance them."
+        }
+      ],
+      "explain": "K^+ and N^3- cross their charges: 3×K to 1×(nitride) gives the neutral K3N.",
+      "subscript_tokens": [
+        "K3N",
+        "KN3",
+        "KN",
+        "K^+",
+        "N^3-"
+      ],
+      "id": "q2"
+    },
+    {
+      "kind": "ionic_formula_to_name",
+      "prompt": "What is the name of Ca(OH)2?",
+      "answer": {
+        "value": "calcium hydroxide",
+        "display": "calcium hydroxide"
+      },
+      "derivation": {
+        "kind": "ionic_formula_to_name",
+        "cation": {
+          "id": "Ca^2+",
+          "formula_part": "Ca",
+          "charge": 2,
+          "compound_name": "calcium"
+        },
+        "anion": {
+          "id": "OH^-",
+          "formula_part": "OH",
+          "charge": -1,
+          "compound_name": "hydroxide"
+        },
+        "formula": "Ca(OH)2",
+        "name": "calcium hydroxide"
+      },
+      "choices": [
+        {
+          "display": "calcium hydroxide",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "calcium(II) hydroxide",
           "correct": false,
           "misconception": "Added a Roman numeral to a fixed-charge metal — only variable-charge metals take one."
         },
         {
-          "display": "trimagnesium dinitride",
+          "display": "monocalcium dihydroxide",
           "correct": false,
           "misconception": "Used Greek prefixes (mono-, di-, tri-) — those name covalent molecules, not ionic compounds."
         }
       ],
-      "explain": "Mg^2+ is the cation and N^3- the anion; a fixed-charge metal needs no numeral, so Mg3N2 is magnesium nitride.",
+      "explain": "Ca^2+ is the cation and OH^- the anion; a fixed-charge metal needs no numeral, so Ca(OH)2 is calcium hydroxide.",
       "subscript_tokens": [
-        "Mg3N2",
-        "Mg^2+",
-        "N^3-"
+        "Ca(OH)2",
+        "Ca^2+",
+        "OH^-"
+      ],
+      "id": "q3"
+    },
+    {
+      "kind": "ionic_name_to_formula",
+      "prompt": "Write the formula for iron(II) acetate.",
+      "answer": {
+        "value": "Fe(C2H3O2)2",
+        "display": "Fe(C2H3O2)2"
+      },
+      "derivation": {
+        "kind": "ionic_name_to_formula",
+        "cation": {
+          "id": "Fe^2+",
+          "formula_part": "Fe",
+          "charge": 2,
+          "compound_name": "iron(II)"
+        },
+        "anion": {
+          "id": "C2H3O2^-",
+          "formula_part": "C2H3O2",
+          "charge": -1,
+          "compound_name": "acetate"
+        },
+        "formula": "Fe(C2H3O2)2",
+        "name": "iron(II) acetate"
+      },
+      "choices": [
+        {
+          "display": "Fe(C2H3O2)2",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Fe2C2H3O2",
+          "correct": false,
+          "misconception": "Used each ion's own charge as its subscript — you CROSS the charges (each subscript is the other ion's charge)."
+        },
+        {
+          "display": "FeC2H3O2",
+          "correct": false,
+          "misconception": "Combined one-to-one — the charges (+2, −1) don't cancel one-for-one; balance them."
+        }
+      ],
+      "explain": "Fe^2+ and C2H3O2^- cross their charges: 1×Fe to 2×(acetate) gives the neutral Fe(C2H3O2)2.",
+      "subscript_tokens": [
+        "Fe(C2H3O2)2",
+        "Fe2C2H3O2",
+        "FeC2H3O2",
+        "Fe^2+",
+        "C2H3O2^-"
+      ],
+      "id": "q4"
+    },
+    {
+      "kind": "ionic_formula_to_name",
+      "prompt": "What is the name of KNO3?",
+      "answer": {
+        "value": "potassium nitrate",
+        "display": "potassium nitrate"
+      },
+      "derivation": {
+        "kind": "ionic_formula_to_name",
+        "cation": {
+          "id": "K^+",
+          "formula_part": "K",
+          "charge": 1,
+          "compound_name": "potassium"
+        },
+        "anion": {
+          "id": "NO3^-",
+          "formula_part": "NO3",
+          "charge": -1,
+          "compound_name": "nitrate"
+        },
+        "formula": "KNO3",
+        "name": "potassium nitrate"
+      },
+      "choices": [
+        {
+          "display": "potassium nitrate",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "potassium(I) nitrate",
+          "correct": false,
+          "misconception": "Added a Roman numeral to a fixed-charge metal — only variable-charge metals take one."
+        },
+        {
+          "display": "monopotassium mononitrate",
+          "correct": false,
+          "misconception": "Used Greek prefixes (mono-, di-, tri-) — those name covalent molecules, not ionic compounds."
+        }
+      ],
+      "explain": "K^+ is the cation and NO3^- the anion; a fixed-charge metal needs no numeral, so KNO3 is potassium nitrate.",
+      "subscript_tokens": [
+        "KNO3",
+        "K^+",
+        "NO3^-"
       ],
       "id": "q5"
     },
     {
       "kind": "ionic_name_to_formula",
-      "prompt": "Write the formula for iron(III) chloride.",
+      "prompt": "Write the formula for iron(II) chloride.",
       "answer": {
-        "value": "FeCl3",
-        "display": "FeCl3"
+        "value": "FeCl2",
+        "display": "FeCl2"
       },
       "derivation": {
         "kind": "ionic_name_to_formula",
         "cation": {
-          "id": "Fe^3+",
+          "id": "Fe^2+",
           "formula_part": "Fe",
-          "charge": 3,
-          "compound_name": "iron(III)"
+          "charge": 2,
+          "compound_name": "iron(II)"
         },
         "anion": {
           "id": "Cl^-",
@@ -289,42 +289,42 @@
           "charge": -1,
           "compound_name": "chloride"
         },
-        "formula": "FeCl3",
-        "name": "iron(III) chloride"
+        "formula": "FeCl2",
+        "name": "iron(II) chloride"
       },
       "choices": [
         {
-          "display": "FeCl3",
+          "display": "FeCl2",
           "correct": true,
           "misconception": null
         },
         {
-          "display": "Fe3Cl",
+          "display": "Fe2Cl",
           "correct": false,
           "misconception": "Used each ion's own charge as its subscript — you CROSS the charges (each subscript is the other ion's charge)."
         },
         {
           "display": "FeCl",
           "correct": false,
-          "misconception": "Combined one-to-one — the charges (+3, −1) don't cancel one-for-one; balance them."
+          "misconception": "Combined one-to-one — the charges (+2, −1) don't cancel one-for-one; balance them."
         }
       ],
-      "explain": "Fe^3+ and Cl^- cross their charges: 1×Fe to 3×(chloride) gives the neutral FeCl3.",
+      "explain": "Fe^2+ and Cl^- cross their charges: 1×Fe to 2×(chloride) gives the neutral FeCl2.",
       "subscript_tokens": [
-        "FeCl3",
-        "Fe3Cl",
+        "FeCl2",
+        "Fe2Cl",
         "FeCl",
-        "Fe^3+",
+        "Fe^2+",
         "Cl^-"
       ],
       "id": "q6"
     },
     {
       "kind": "ionic_formula_to_name",
-      "prompt": "What is the name of AlN?",
+      "prompt": "What is the name of Al(NO3)3?",
       "answer": {
-        "value": "aluminum nitride",
-        "display": "aluminum nitride"
+        "value": "aluminum nitrate",
+        "display": "aluminum nitrate"
       },
       "derivation": {
         "kind": "ionic_formula_to_name",
@@ -335,53 +335,53 @@
           "compound_name": "aluminum"
         },
         "anion": {
-          "id": "N^3-",
-          "formula_part": "N",
-          "charge": -3,
-          "compound_name": "nitride"
+          "id": "NO3^-",
+          "formula_part": "NO3",
+          "charge": -1,
+          "compound_name": "nitrate"
         },
-        "formula": "AlN",
-        "name": "aluminum nitride"
+        "formula": "Al(NO3)3",
+        "name": "aluminum nitrate"
       },
       "choices": [
         {
-          "display": "aluminum nitride",
+          "display": "aluminum nitrate",
           "correct": true,
           "misconception": null
         },
         {
-          "display": "aluminum(III) nitride",
+          "display": "aluminum(III) nitrate",
           "correct": false,
           "misconception": "Added a Roman numeral to a fixed-charge metal — only variable-charge metals take one."
         },
         {
-          "display": "monoaluminum mononitride",
+          "display": "monoaluminum trinitrate",
           "correct": false,
           "misconception": "Used Greek prefixes (mono-, di-, tri-) — those name covalent molecules, not ionic compounds."
         }
       ],
-      "explain": "Al^3+ is the cation and N^3- the anion; a fixed-charge metal needs no numeral, so AlN is aluminum nitride.",
+      "explain": "Al^3+ is the cation and NO3^- the anion; a fixed-charge metal needs no numeral, so Al(NO3)3 is aluminum nitrate.",
       "subscript_tokens": [
-        "AlN",
+        "Al(NO3)3",
         "Al^3+",
-        "N^3-"
+        "NO3^-"
       ],
       "id": "q7"
     },
     {
       "kind": "ionic_name_to_formula",
-      "prompt": "Write the formula for calcium phosphate.",
+      "prompt": "Write the formula for potassium phosphate.",
       "answer": {
-        "value": "Ca3(PO4)2",
-        "display": "Ca3(PO4)2"
+        "value": "K3PO4",
+        "display": "K3PO4"
       },
       "derivation": {
         "kind": "ionic_name_to_formula",
         "cation": {
-          "id": "Ca^2+",
-          "formula_part": "Ca",
-          "charge": 2,
-          "compound_name": "calcium"
+          "id": "K^+",
+          "formula_part": "K",
+          "charge": 1,
+          "compound_name": "potassium"
         },
         "anion": {
           "id": "PO4^3-",
@@ -389,50 +389,50 @@
           "charge": -3,
           "compound_name": "phosphate"
         },
-        "formula": "Ca3(PO4)2",
-        "name": "calcium phosphate"
+        "formula": "K3PO4",
+        "name": "potassium phosphate"
       },
       "choices": [
         {
-          "display": "Ca3(PO4)2",
+          "display": "K3PO4",
           "correct": true,
           "misconception": null
         },
         {
-          "display": "Ca2(PO4)3",
+          "display": "K(PO4)3",
           "correct": false,
           "misconception": "Used each ion's own charge as its subscript — you CROSS the charges (each subscript is the other ion's charge)."
         },
         {
-          "display": "CaPO4",
+          "display": "KPO4",
           "correct": false,
-          "misconception": "Combined one-to-one — the charges (+2, −3) don't cancel one-for-one; balance them."
+          "misconception": "Combined one-to-one — the charges (+1, −3) don't cancel one-for-one; balance them."
         }
       ],
-      "explain": "Ca^2+ and PO4^3- cross their charges: 3×Ca to 2×(phosphate) gives the neutral Ca3(PO4)2.",
+      "explain": "K^+ and PO4^3- cross their charges: 3×K to 1×(phosphate) gives the neutral K3PO4.",
       "subscript_tokens": [
-        "Ca3(PO4)2",
-        "Ca2(PO4)3",
-        "CaPO4",
-        "Ca^2+",
+        "K3PO4",
+        "K(PO4)3",
+        "KPO4",
+        "K^+",
         "PO4^3-"
       ],
       "id": "q8"
     },
     {
       "kind": "ionic_formula_to_name",
-      "prompt": "What is the name of FeO?",
+      "prompt": "What is the name of ZnO?",
       "answer": {
-        "value": "iron(II) oxide",
-        "display": "iron(II) oxide"
+        "value": "zinc oxide",
+        "display": "zinc oxide"
       },
       "derivation": {
         "kind": "ionic_formula_to_name",
         "cation": {
-          "id": "Fe^2+",
-          "formula_part": "Fe",
+          "id": "Zn^2+",
+          "formula_part": "Zn",
           "charge": 2,
-          "compound_name": "iron(II)"
+          "compound_name": "zinc"
         },
         "anion": {
           "id": "O^2-",
@@ -440,82 +440,82 @@
           "charge": -2,
           "compound_name": "oxide"
         },
-        "formula": "FeO",
-        "name": "iron(II) oxide"
+        "formula": "ZnO",
+        "name": "zinc oxide"
       },
       "choices": [
         {
-          "display": "iron(II) oxide",
+          "display": "zinc oxide",
           "correct": true,
           "misconception": null
         },
         {
-          "display": "iron(III) oxide",
+          "display": "zinc(II) oxide",
           "correct": false,
-          "misconception": "Wrong oxidation state — the anion fixes the metal's charge here; check which Stock numeral balances it."
+          "misconception": "Added a Roman numeral to a fixed-charge metal — only variable-charge metals take one."
         },
         {
-          "display": "iron oxide",
+          "display": "monozinc monooxide",
           "correct": false,
-          "misconception": "Dropped the Roman numeral — a variable-charge metal must state its charge (the Stock system)."
+          "misconception": "Used Greek prefixes (mono-, di-, tri-) — those name covalent molecules, not ionic compounds."
         }
       ],
-      "explain": "Charge balance sets the metal: 1×oxide gives 2− total, matched by 1×Fe^2+ — so FeO is iron(II) oxide.",
+      "explain": "Zn^2+ is the cation and O^2- the anion; a fixed-charge metal needs no numeral, so ZnO is zinc oxide.",
       "subscript_tokens": [
-        "FeO",
-        "Fe^2+",
+        "ZnO",
+        "Zn^2+",
         "O^2-"
       ],
       "id": "q9"
     },
     {
       "kind": "ionic_name_to_formula",
-      "prompt": "Write the formula for calcium chloride.",
+      "prompt": "Write the formula for potassium carbonate.",
       "answer": {
-        "value": "CaCl2",
-        "display": "CaCl2"
+        "value": "K2CO3",
+        "display": "K2CO3"
       },
       "derivation": {
         "kind": "ionic_name_to_formula",
         "cation": {
-          "id": "Ca^2+",
-          "formula_part": "Ca",
-          "charge": 2,
-          "compound_name": "calcium"
+          "id": "K^+",
+          "formula_part": "K",
+          "charge": 1,
+          "compound_name": "potassium"
         },
         "anion": {
-          "id": "Cl^-",
-          "formula_part": "Cl",
-          "charge": -1,
-          "compound_name": "chloride"
+          "id": "CO3^2-",
+          "formula_part": "CO3",
+          "charge": -2,
+          "compound_name": "carbonate"
         },
-        "formula": "CaCl2",
-        "name": "calcium chloride"
+        "formula": "K2CO3",
+        "name": "potassium carbonate"
       },
       "choices": [
         {
-          "display": "CaCl2",
+          "display": "K2CO3",
           "correct": true,
           "misconception": null
         },
         {
-          "display": "Ca2Cl",
+          "display": "K(CO3)2",
           "correct": false,
           "misconception": "Used each ion's own charge as its subscript — you CROSS the charges (each subscript is the other ion's charge)."
         },
         {
-          "display": "CaCl",
+          "display": "KCO3",
           "correct": false,
-          "misconception": "Combined one-to-one — the charges (+2, −1) don't cancel one-for-one; balance them."
+          "misconception": "Combined one-to-one — the charges (+1, −2) don't cancel one-for-one; balance them."
         }
       ],
-      "explain": "Ca^2+ and Cl^- cross their charges: 1×Ca to 2×(chloride) gives the neutral CaCl2.",
+      "explain": "K^+ and CO3^2- cross their charges: 2×K to 1×(carbonate) gives the neutral K2CO3.",
       "subscript_tokens": [
-        "CaCl2",
-        "Ca2Cl",
-        "CaCl",
-        "Ca^2+",
-        "Cl^-"
+        "K2CO3",
+        "K(CO3)2",
+        "KCO3",
+        "K^+",
+        "CO3^2-"
       ],
       "id": "q10"
     }

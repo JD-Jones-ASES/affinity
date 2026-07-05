@@ -644,3 +644,49 @@ display plumbing the gym's decimal-chain rendering doesn't have, and they pair n
 (molar volume). The `result.percent_yield` block is the template for any future actual-vs-theoretical lesson;
 generalising `build.py` past single-precipitate double-displacement (for a non-precipitation yield lesson)
 remains future work.
+
+## ADR-0031 — Element-property curation for the Valence-Table flagship: sourced properties + oracle-checked widening (2026-07-05)
+
+**Context.** Phase-1 item 5 (the Valence-Table flagship) opens with a data-curation session (ROADMAP; ADR-0012
+deferred "electronegativity, radii, and ionization energies … until a lesson needs them" to a NIST-class
+source; ADR-0026 anticipated cross-checking that curation with the `mendeleev` oracle). The trend lenses
+(item 5b) need per-element properties, and the current nine-plus-six element set is too narrow to show the
+period/group trends cleanly. The honesty model (ADR-0003/0006) requires every property to carry a resolvable
+source id.
+
+**Decision.**
+1. **Widen the element set to the first twenty elements (H…Ca) plus the three transition metals the
+   nomenclature engine introduced (Fe, Cu, Zn)** — 23 total. This completes periods 1–3 and opens period 4, so
+   period 2 (Li→Ne) / period 3 (Na→Ar) left-to-right and groups 1/2/17/18 top-to-bottom all read as clean
+   trends. Atomic weights/positions of the eight new elements use the already-registered CIAAW/IUPAC sources
+   (no code change — ADR-0012's "extending the table = adding rows"). Added the group-1/2/17 common ions
+   Li⁺, Be²⁺, F⁻ (OpenStax charges; composition machine-checked on load).
+2. **Curate three periodic properties, each from a primary source, as optional Decimal fields** (`Element`
+   grows `electronegativity`, `covalent_radius_pm`, `first_ionization_kj_mol`; never float — ADR-0013):
+   - **electronegativity** — Pauling scale, folded into `openstax-chemistry-2e` (Fig 7.2/7.6). *Omitted* for
+     the noble gases (Pauling undefined) — never written as 0.
+   - **covalent radius (pm)** — Cordero et al., *Dalton Trans.* 2008 (`cordero-2008-covalent-radii`), the
+     modern single-source compilation. Main-group Z ≤ 20 only; the transition-metal radii are spin-state-
+     dependent and *deferred* to a later pass rather than pick a spin state silently.
+   - **first ionization energy (kJ/mol)** — NIST atomic data (`nist-ionization-energies`, public domain).
+   The two new sources are registered in `docs/SOURCES.md` before use. OpenStax figures are images (not
+   machine-readable), so the exact values were transcribed from the primary compilations and cross-checked
+   against the **independent `mendeleev` oracle** (dev-only, ADR-0026) in `tests/test_oracle.py` — the failure
+   mode oracles exist to catch. Tolerances are keyed to the definition gap (EN 0.05; radius 5 pm — carbon's
+   sp²/sp³ Cordero value differs 3 pm; IE 2 kJ/mol for the eV→kJ/mol conversion).
+3. **Emit the widened set + properties into `valence-table.json` and gate them now.** The producer threads
+   each curated property (as a string, only where present) and the three property source ids into the emitted
+   table; the schema declares them (`additionalProperties:false` preserved); the lens surfaces them in the
+   element-detail panel with a data-sourced badge. The interpretive **trend/bonding/practice lenses stay in
+   item 5b** — this increment is data + gating + minimal surfacing.
+4. **Make SOURCES.md's promised enforcement real.** SOURCES.md claims "the validate-reference gate fails on
+   any source id that does not resolve to a row below," but no gate implemented it. `validate-reference.mjs`
+   now parses the register and **fails on any emitted `source` (concept or Valence-Table facet) that is not a
+   registered id** — closing a doc-vs-code drift and machine-enforcing this session's two new registrations.
+
+**Consequences.** The Valence Table now carries every input the item-5b trend/bonding/practice lenses need,
+each machine-tied to a registered primary source and independently oracle-verified; extending it further is
+adding rows + (for a genuinely new property) an optional field. Deferred: transition-metal covalent radii
+(spin-state pass); ionic radii (a per-ion, coordination-dependent property — belongs on the ion table, not
+the element); densities and further NIST properties (until a lesson needs them). `mendeleev` (+ `pandas`) join
+`chempy`/`periodictable` as dev-only oracles.

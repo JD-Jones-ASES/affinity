@@ -13,7 +13,7 @@ dashboard; phases are defined in [`ROADMAP.md`](../ROADMAP.md).
 | mole concept & molar mass | 1, 3 | 1 | atlas (molar-mass concept) |
 | ions & formula writing | 1, 3 | 1 | **gym** (nomenclature, both directions) + atlas (Valence Table; polyatomic-ion) |
 | nomenclature (ionic, covalent, acids) | 1, 3 | **1** | **gym** (ionic, both directions — Stock system) + atlas (nomenclature concept) |
-| periodic table & periodic trends | 3, 4 | 1 | atlas (Valence Table lens — positions + ion charges) |
+| periodic table & periodic trends | 3, 4 | 1 | atlas (Valence Table — positions + ion charges + sourced electronegativity/covalent-radius/first-ionization-energy over 23 elements; ADR-0031) — trend/bonding lenses next (item 5b) |
 | balancing equations | 1 | **1** | **gym** (balancing, conservation-matrix + charge tally) + atlas (balancing-equations concept) |
 | reaction classes | 3, 4 | 1 | atlas (precipitation, net-ionic, solubility-rules, dissociation, spectator-ion concepts) |
 | stoichiometry (mass/volume/solution/particle) | 1 | **1** | **2 gyms** (mass → mass; limiting reagent from masses) + atlas (stoichiometry, conservation-of-mass concepts) — particle stoich (Avogadro) → Phase 2 |

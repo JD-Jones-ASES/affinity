@@ -17,6 +17,9 @@
       "group": 1,
       "period": 1,
       "block": "s",
+      "electronegativity": "2.20",
+      "covalent_radius_pm": "31",
+      "first_ionization_kj_mol": "1312.0",
       "common_ion": {
         "id": "H^+",
         "charge": 1,
@@ -25,13 +28,75 @@
       }
     },
     {
+      "symbol": "He",
+      "Z": 2,
+      "name": "helium",
+      "atomic_weight": "4.0026",
+      "group": 18,
+      "period": 1,
+      "block": "s",
+      "covalent_radius_pm": "28",
+      "first_ionization_kj_mol": "2372.3"
+    },
+    {
+      "symbol": "Li",
+      "Z": 3,
+      "name": "lithium",
+      "atomic_weight": "6.94",
+      "group": 1,
+      "period": 2,
+      "block": "s",
+      "electronegativity": "0.98",
+      "covalent_radius_pm": "128",
+      "first_ionization_kj_mol": "520.2",
+      "common_ion": {
+        "id": "Li^+",
+        "charge": 1,
+        "name": "lithium ion",
+        "latex": "\\mathrm{Li}^{+}"
+      }
+    },
+    {
+      "symbol": "Be",
+      "Z": 4,
+      "name": "beryllium",
+      "atomic_weight": "9.0122",
+      "group": 2,
+      "period": 2,
+      "block": "s",
+      "electronegativity": "1.57",
+      "covalent_radius_pm": "96",
+      "first_ionization_kj_mol": "899.5",
+      "common_ion": {
+        "id": "Be^2+",
+        "charge": 2,
+        "name": "beryllium ion",
+        "latex": "\\mathrm{Be}^{2+}"
+      }
+    },
+    {
+      "symbol": "B",
+      "Z": 5,
+      "name": "boron",
+      "atomic_weight": "10.81",
+      "group": 13,
+      "period": 2,
+      "block": "p",
+      "electronegativity": "2.04",
+      "covalent_radius_pm": "84",
+      "first_ionization_kj_mol": "800.6"
+    },
+    {
       "symbol": "C",
       "Z": 6,
       "name": "carbon",
       "atomic_weight": "12.011",
       "group": 14,
       "period": 2,
-      "block": "p"
+      "block": "p",
+      "electronegativity": "2.55",
+      "covalent_radius_pm": "76",
+      "first_ionization_kj_mol": "1086.5"
     },
     {
       "symbol": "N",
@@ -41,6 +106,9 @@
       "group": 15,
       "period": 2,
       "block": "p",
+      "electronegativity": "3.04",
+      "covalent_radius_pm": "71",
+      "first_ionization_kj_mol": "1402.3",
       "common_ion": {
         "id": "N^3-",
         "charge": -3,
@@ -56,12 +124,44 @@
       "group": 16,
       "period": 2,
       "block": "p",
+      "electronegativity": "3.44",
+      "covalent_radius_pm": "66",
+      "first_ionization_kj_mol": "1313.9",
       "common_ion": {
         "id": "O^2-",
         "charge": -2,
         "name": "oxide",
         "latex": "\\mathrm{O}^{2-}"
       }
+    },
+    {
+      "symbol": "F",
+      "Z": 9,
+      "name": "fluorine",
+      "atomic_weight": "18.998",
+      "group": 17,
+      "period": 2,
+      "block": "p",
+      "electronegativity": "3.98",
+      "covalent_radius_pm": "57",
+      "first_ionization_kj_mol": "1681.0",
+      "common_ion": {
+        "id": "F^-",
+        "charge": -1,
+        "name": "fluoride",
+        "latex": "\\mathrm{F}^{-}"
+      }
+    },
+    {
+      "symbol": "Ne",
+      "Z": 10,
+      "name": "neon",
+      "atomic_weight": "20.180",
+      "group": 18,
+      "period": 2,
+      "block": "p",
+      "covalent_radius_pm": "58",
+      "first_ionization_kj_mol": "2080.7"
     },
     {
       "symbol": "Na",
@@ -71,6 +171,9 @@
       "group": 1,
       "period": 3,
       "block": "s",
+      "electronegativity": "0.93",
+      "covalent_radius_pm": "166",
+      "first_ionization_kj_mol": "495.8",
       "common_ion": {
         "id": "Na^+",
         "charge": 1,
@@ -86,6 +189,9 @@
       "group": 2,
       "period": 3,
       "block": "s",
+      "electronegativity": "1.31",
+      "covalent_radius_pm": "141",
+      "first_ionization_kj_mol": "737.7",
       "common_ion": {
         "id": "Mg^2+",
         "charge": 2,
@@ -101,6 +207,9 @@
       "group": 13,
       "period": 3,
       "block": "p",
+      "electronegativity": "1.61",
+      "covalent_radius_pm": "121",
+      "first_ionization_kj_mol": "577.5",
       "common_ion": {
         "id": "Al^3+",
         "charge": 3,
@@ -109,13 +218,28 @@
       }
     },
     {
+      "symbol": "Si",
+      "Z": 14,
+      "name": "silicon",
+      "atomic_weight": "28.085",
+      "group": 14,
+      "period": 3,
+      "block": "p",
+      "electronegativity": "1.90",
+      "covalent_radius_pm": "111",
+      "first_ionization_kj_mol": "786.5"
+    },
+    {
       "symbol": "P",
       "Z": 15,
       "name": "phosphorus",
       "atomic_weight": "30.974",
       "group": 15,
       "period": 3,
-      "block": "p"
+      "block": "p",
+      "electronegativity": "2.19",
+      "covalent_radius_pm": "107",
+      "first_ionization_kj_mol": "1011.8"
     },
     {
       "symbol": "S",
@@ -125,6 +249,9 @@
       "group": 16,
       "period": 3,
       "block": "p",
+      "electronegativity": "2.58",
+      "covalent_radius_pm": "105",
+      "first_ionization_kj_mol": "999.6",
       "common_ion": {
         "id": "S^2-",
         "charge": -2,
@@ -140,12 +267,26 @@
       "group": 17,
       "period": 3,
       "block": "p",
+      "electronegativity": "3.16",
+      "covalent_radius_pm": "102",
+      "first_ionization_kj_mol": "1251.2",
       "common_ion": {
         "id": "Cl^-",
         "charge": -1,
         "name": "chloride",
         "latex": "\\mathrm{Cl}^{-}"
       }
+    },
+    {
+      "symbol": "Ar",
+      "Z": 18,
+      "name": "argon",
+      "atomic_weight": "39.95",
+      "group": 18,
+      "period": 3,
+      "block": "p",
+      "covalent_radius_pm": "106",
+      "first_ionization_kj_mol": "1520.6"
     },
     {
       "symbol": "K",
@@ -155,6 +296,9 @@
       "group": 1,
       "period": 4,
       "block": "s",
+      "electronegativity": "0.82",
+      "covalent_radius_pm": "203",
+      "first_ionization_kj_mol": "418.8",
       "common_ion": {
         "id": "K^+",
         "charge": 1,
@@ -170,6 +314,9 @@
       "group": 2,
       "period": 4,
       "block": "s",
+      "electronegativity": "1.00",
+      "covalent_radius_pm": "176",
+      "first_ionization_kj_mol": "589.8",
       "common_ion": {
         "id": "Ca^2+",
         "charge": 2,
@@ -185,6 +332,8 @@
       "group": 8,
       "period": 4,
       "block": "d",
+      "electronegativity": "1.83",
+      "first_ionization_kj_mol": "762.5",
       "common_ion": {
         "id": "Fe^2+",
         "charge": 2,
@@ -200,6 +349,8 @@
       "group": 11,
       "period": 4,
       "block": "d",
+      "electronegativity": "1.90",
+      "first_ionization_kj_mol": "745.5",
       "common_ion": {
         "id": "Cu^+",
         "charge": 1,
@@ -215,6 +366,8 @@
       "group": 12,
       "period": 4,
       "block": "d",
+      "electronegativity": "1.65",
+      "first_ionization_kj_mol": "906.4",
       "common_ion": {
         "id": "Zn^2+",
         "charge": 2,
@@ -340,6 +493,9 @@
   "sources": {
     "atomic_weight": "ciaaw-2021-atomic-weights",
     "position": "iupac-periodic-table",
-    "ion_charge": "openstax-chemistry-2e"
+    "ion_charge": "openstax-chemistry-2e",
+    "electronegativity": "openstax-chemistry-2e",
+    "covalent_radius": "cordero-2008-covalent-radii",
+    "ionization_energy": "nist-ionization-energies"
   }
 }

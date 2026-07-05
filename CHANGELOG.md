@@ -3,6 +3,37 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 1 — 2026-07-05 — item 5a: element-property data curation (Valence-Table flagship)
+
+- **Element set widened to 23** (ADR-0031): the first twenty elements (H…Ca — periods 1–3 complete, period 4
+  open) plus the transition metals Fe/Cu/Zn, so the clean periodic trends read across periods 2–3 and down
+  groups 1/2/17/18. Added the group-1/2/17 common ions Li⁺, Be²⁺, F⁻ (OpenStax charges, composition
+  machine-checked). New atomic weights use the already-registered CIAAW/IUPAC sources.
+- **Three primary-sourced periodic properties**, optional Decimal fields on every element where defined (never
+  float): **electronegativity** (Pauling scale — folded into `openstax-chemistry-2e`; omitted for the noble
+  gases, where Pauling is undefined), **covalent radius** in pm (**Cordero et al., *Dalton Trans.* 2008** —
+  new source `cordero-2008-covalent-radii`; main-group Z ≤ 20 only, transition-metal radii deferred as
+  spin-state-dependent), and **first ionization energy** in kJ/mol (**NIST** — new source
+  `nist-ionization-energies`, public domain).
+- **Independent oracle cross-check** (ADR-0026): `mendeleev` (+ `pandas`) added as dev-only oracles;
+  `tests/test_oracle.py` re-checks every curated electronegativity, covalent radius, and ionization energy
+  against mendeleev's separate data pipeline — the transcription guard oracles exist for. OpenStax's property
+  figures are images (not machine-readable), so values were transcribed from the primary compilations and the
+  oracle is the transcription check.
+- **Emitted + gated + surfaced.** The producer threads the properties + their source ids into
+  `valence-table.json` (schema declares them, `additionalProperties:false` preserved); the Valence-Table lens
+  shows a **Periodic properties** panel per element with a per-source badge (and the honest "electronegativity
+  undefined for the noble gases" note). `validate-reference.mjs` **now enforces that every emitted `source` id
+  resolves to a `docs/SOURCES.md` register row** — a check SOURCES.md promised but no gate implemented.
+- **The interpretive trend/bonding/practice lenses are item 5b** — this increment is data + gating + minimal
+  surfacing.
+- **148 producer tests** (+9: 3 mendeleev oracle checks + 5 data/widening + 1 valence-table-properties) +
+  **7 gates** (validate-reference = **17 objects**, now source-resolving) + **astro build (15 pages)** green.
+  In-browser: the Valence Table renders all 23 elements; Ca shows EN 1.00 / covalent radius 176 pm / first
+  ionization energy 589.8 kJ/mol with source badges; Ar shows no EN (+ the note) but keeps its ionization
+  energy; Fe shows EN + ionization energy but no covalent radius. No console errors. Gates proven non-vacuous
+  (tampered EN fails the oracle; an unregistered source id fails the reference gate).
+
 ## Phase 1 — 2026-07-05 — item 4 FINISHED: limiting-reagent gym, percent-yield lesson, Avogadro datum
 
 - **Limiting-reagent gym, `limiting_mass_v1`** (ADR-0029). Two reactant masses in → which runs out first (the

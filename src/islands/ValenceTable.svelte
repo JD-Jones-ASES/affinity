@@ -65,6 +65,24 @@
       {:else}
         <p class="d-ion muted">No simple monatomic ion in this dataset — {selElement.symbol} appears in polyatomic ions and covalent compounds instead.</p>
       {/if}
+
+      {#if selElement.first_ionization_kj_mol || selElement.electronegativity || selElement.covalent_radius_pm}
+        <div class="props">
+          <p class="props-label">Periodic properties <span class="badge sourced tiny"><span class="dot"></span>data-sourced</span></p>
+          <div class="prop-grid">
+            {#if selElement.electronegativity}
+              <div class="prop"><span class="pk">Electronegativity</span><span class="pv">{selElement.electronegativity}</span><span class="ps">Pauling · {t.sources.electronegativity}</span></div>
+            {/if}
+            {#if selElement.covalent_radius_pm}
+              <div class="prop"><span class="pk">Covalent radius</span><span class="pv">{selElement.covalent_radius_pm} pm</span><span class="ps">{t.sources.covalent_radius}</span></div>
+            {/if}
+            {#if selElement.first_ionization_kj_mol}
+              <div class="prop"><span class="pk">First ionization energy</span><span class="pv">{selElement.first_ionization_kj_mol} kJ/mol</span><span class="ps">{t.sources.ionization_energy}</span></div>
+            {/if}
+          </div>
+          {#if !selElement.electronegativity}<p class="prop-note faint">Electronegativity is undefined for the noble gases on the Pauling scale.</p>{/if}
+        </div>
+      {/if}
     {:else if selPoly}
       <div class="d-head">
         <span class="d-sym poly-sym">{@html selPoly.latexHtml}</span>
@@ -133,6 +151,15 @@
   .d-ion { margin: 0.7rem 0 0; }
   .d-why { margin: 0.4rem 0 0; font-size: 0.88rem; }
   .badge.tiny { font-size: 0.66rem; padding: 0.04rem 0.4rem; }
+
+  .props { margin-top: 0.9rem; border-top: 1px solid var(--line); padding-top: 0.7rem; }
+  .props-label { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--ink-faint); display: flex; align-items: center; gap: 0.5rem; }
+  .prop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.5rem; }
+  .prop { display: flex; flex-direction: column; gap: 0.1rem; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 0.45rem 0.6rem; }
+  .prop .pk { font-size: 0.72rem; color: var(--ink-faint); }
+  .prop .pv { font-weight: 700; font-family: var(--font-mono); color: var(--ink); }
+  .prop .ps { font-size: 0.6rem; color: var(--ink-faint); font-family: var(--font-mono); }
+  .prop-note { margin: 0.5rem 0 0; font-size: 0.8rem; }
 
   .salts { margin-top: 0.9rem; border-top: 1px solid var(--line); padding-top: 0.7rem; display: grid; gap: 0.4rem; }
   .salts-label { margin: 0; font-size: 0.85rem; color: var(--ink-faint); display: flex; align-items: center; gap: 0.5rem; }

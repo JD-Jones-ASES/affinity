@@ -1,19 +1,40 @@
-# Curated element dataset (ADR-0006, ADR-0012). ChemKernel reads empirical constants ONLY from here.
+# Curated element dataset (ADR-0006, ADR-0012, ADR-0031). ChemKernel reads empirical constants ONLY from here.
 #
-# Atomic weights are the IUPAC/CIAAW *abridged* standard atomic weights (Atomic Weights 2021 report,
-# table revised 2024) — see docs/SOURCES.md id `ciaaw-2021-atomic-weights`. The values are scientific
-# facts (not copyrightable); CIAAW is cited as the authority + access date. Stored as strings and read as
-# Decimal so precision/sig-figs survive and no float ever enters the pipeline (ADR-0013).
+# ── Atomic weights ────────────────────────────────────────────────────────────────────────────────────
+# IUPAC/CIAAW *abridged* standard atomic weights (Atomic Weights 2021 report, table rev. 2024) — SOURCES id
+# `ciaaw-2021-atomic-weights`. The values are scientific facts (not copyrightable); CIAAW is cited as the
+# authority + access date. Stored as strings, read as Decimal so precision/sig-figs survive and no float ever
+# enters the pipeline (ADR-0013). Interval elements (Li, B, Si, S, Ar, …) carry the abridged single value with
+# no conventional uncertainty — `uncertainty` is omitted, exactly as for N/P before.
 #
-# Group/period/block are the definitional IUPAC periodic-table positions — source `iupac-periodic-table`.
+# ── Positions ─────────────────────────────────────────────────────────────────────────────────────────
+# group/period/block are the definitional IUPAC periodic-table positions — source `iupac-periodic-table`.
 #
-# N, S, P are included beyond the six Phase-0 elements so every ion in ions.toml is composed of known
-# elements (the load-time self-check in data.py depends on this). K, Mg, Al, Fe, Cu, Zn were added for the
-# nomenclature engine (Phase 1 item 2) — Fe and Cu carry variable charges (the Stock system). Every added
-# weight is cross-checked against the `periodictable` oracle in tests/test_oracle.py (ADR-0026).
+# ── Periodic properties (ADR-0031, Phase 1 item 5a) ─────────────────────────────────────────────────────
+# electronegativity        Pauling scale — source `openstax-chemistry-2e` (Fig 7.6). Undefined for the noble
+#                          gases (He, Ne, Ar): omitted, never written as 0.
+# covalent_radius_pm       single-bond covalent radius (Cordero et al., Dalton Trans. 2008) — source
+#                          `cordero-2008-covalent-radii`. Main-group Z ≤ 20 only; the transition metals
+#                          (Fe, Cu, Zn) have spin-state-dependent radii and are omitted this pass (a later
+#                          transition-metal radius session curates them with the spin state disclosed).
+# first_ionization_kj_mol  first ionization energy (NIST atomic data, public domain) — source
+#                          `nist-ionization-energies`.
+# All three are OPTIONAL per element, stored as strings → Decimal (never float, ADR-0013), and cross-checked
+# against the independent `mendeleev` oracle in tests/test_oracle.py (ADR-0026). Every source id resolves in
+# docs/SOURCES.md; the validate-reference gate fails on any that does not.
+#
+# ── Element set ─────────────────────────────────────────────────────────────────────────────────────────
+# The first twenty elements (H…Ca — periods 1–3 complete, period 4 opened) plus the three transition metals
+# the nomenclature engine introduced (Fe, Cu, Zn). This spans the clean periodic trends the Valence-Table
+# flagship teaches: period 2 (Li→Ne) and period 3 (Na→Ar) left-to-right, and groups 1 (H/Li/Na/K),
+# 2 (Be/Mg/Ca), 17 (F/Cl), 18 (He/Ne/Ar) top-to-bottom. Every ion in ions.toml stays composed of elements
+# present here (the load-time self-check in data.py depends on it).
 
 source = "ciaaw-2021-atomic-weights"
 position_source = "iupac-periodic-table"
+electronegativity_source = "openstax-chemistry-2e"
+covalent_radius_source = "cordero-2008-covalent-radii"
+ionization_energy_source = "nist-ionization-energies"
 
 [elements.H]
 Z = 1
@@ -23,6 +44,54 @@ uncertainty = "0.0002"
 group = 1
 period = 1
 block = "s"
+electronegativity = "2.20"
+covalent_radius_pm = "31"
+first_ionization_kj_mol = "1312.0"
+
+[elements.He]
+Z = 2
+name = "helium"
+atomic_weight = "4.0026"
+uncertainty = "0.0001"
+group = 18
+period = 1
+block = "s"
+covalent_radius_pm = "28"
+first_ionization_kj_mol = "2372.3"
+
+[elements.Li]
+Z = 3
+name = "lithium"
+atomic_weight = "6.94"
+group = 1
+period = 2
+block = "s"
+electronegativity = "0.98"
+covalent_radius_pm = "128"
+first_ionization_kj_mol = "520.2"
+
+[elements.Be]
+Z = 4
+name = "beryllium"
+atomic_weight = "9.0122"
+uncertainty = "0.0001"
+group = 2
+period = 2
+block = "s"
+electronegativity = "1.57"
+covalent_radius_pm = "96"
+first_ionization_kj_mol = "899.5"
+
+[elements.B]
+Z = 5
+name = "boron"
+atomic_weight = "10.81"
+group = 13
+period = 2
+block = "p"
+electronegativity = "2.04"
+covalent_radius_pm = "84"
+first_ionization_kj_mol = "800.6"
 
 [elements.C]
 Z = 6
@@ -32,6 +101,9 @@ uncertainty = "0.002"
 group = 14
 period = 2
 block = "p"
+electronegativity = "2.55"
+covalent_radius_pm = "76"
+first_ionization_kj_mol = "1086.5"
 
 [elements.N]
 Z = 7
@@ -40,6 +112,9 @@ atomic_weight = "14.007"
 group = 15
 period = 2
 block = "p"
+electronegativity = "3.04"
+covalent_radius_pm = "71"
+first_ionization_kj_mol = "1402.3"
 
 [elements.O]
 Z = 8
@@ -49,6 +124,32 @@ uncertainty = "0.001"
 group = 16
 period = 2
 block = "p"
+electronegativity = "3.44"
+covalent_radius_pm = "66"
+first_ionization_kj_mol = "1313.9"
+
+[elements.F]
+Z = 9
+name = "fluorine"
+atomic_weight = "18.998"
+uncertainty = "0.001"
+group = 17
+period = 2
+block = "p"
+electronegativity = "3.98"
+covalent_radius_pm = "57"
+first_ionization_kj_mol = "1681.0"
+
+[elements.Ne]
+Z = 10
+name = "neon"
+atomic_weight = "20.180"
+uncertainty = "0.001"
+group = 18
+period = 2
+block = "p"
+covalent_radius_pm = "58"
+first_ionization_kj_mol = "2080.7"
 
 [elements.Na]
 Z = 11
@@ -58,42 +159,9 @@ uncertainty = "0.001"
 group = 1
 period = 3
 block = "s"
-
-[elements.P]
-Z = 15
-name = "phosphorus"
-atomic_weight = "30.974"
-group = 15
-period = 3
-block = "p"
-
-[elements.S]
-Z = 16
-name = "sulfur"
-atomic_weight = "32.06"
-group = 16
-period = 3
-block = "p"
-
-[elements.Cl]
-Z = 17
-name = "chlorine"
-atomic_weight = "35.45"
-uncertainty = "0.01"
-group = 17
-period = 3
-block = "p"
-
-[elements.Ca]
-Z = 20
-name = "calcium"
-atomic_weight = "40.078"
-uncertainty = "0.004"
-group = 2
-period = 4
-block = "s"
-
-# --- added for the nomenclature engine (Phase 1 item 2) ---
+electronegativity = "0.93"
+covalent_radius_pm = "166"
+first_ionization_kj_mol = "495.8"
 
 [elements.Mg]
 Z = 12
@@ -103,6 +171,9 @@ uncertainty = "0.002"
 group = 2
 period = 3
 block = "s"
+electronegativity = "1.31"
+covalent_radius_pm = "141"
+first_ionization_kj_mol = "737.7"
 
 [elements.Al]
 Z = 13
@@ -112,6 +183,64 @@ uncertainty = "0.001"
 group = 13
 period = 3
 block = "p"
+electronegativity = "1.61"
+covalent_radius_pm = "121"
+first_ionization_kj_mol = "577.5"
+
+[elements.Si]
+Z = 14
+name = "silicon"
+atomic_weight = "28.085"
+group = 14
+period = 3
+block = "p"
+electronegativity = "1.90"
+covalent_radius_pm = "111"
+first_ionization_kj_mol = "786.5"
+
+[elements.P]
+Z = 15
+name = "phosphorus"
+atomic_weight = "30.974"
+group = 15
+period = 3
+block = "p"
+electronegativity = "2.19"
+covalent_radius_pm = "107"
+first_ionization_kj_mol = "1011.8"
+
+[elements.S]
+Z = 16
+name = "sulfur"
+atomic_weight = "32.06"
+group = 16
+period = 3
+block = "p"
+electronegativity = "2.58"
+covalent_radius_pm = "105"
+first_ionization_kj_mol = "999.6"
+
+[elements.Cl]
+Z = 17
+name = "chlorine"
+atomic_weight = "35.45"
+uncertainty = "0.01"
+group = 17
+period = 3
+block = "p"
+electronegativity = "3.16"
+covalent_radius_pm = "102"
+first_ionization_kj_mol = "1251.2"
+
+[elements.Ar]
+Z = 18
+name = "argon"
+atomic_weight = "39.95"
+group = 18
+period = 3
+block = "p"
+covalent_radius_pm = "106"
+first_ionization_kj_mol = "1520.6"
 
 [elements.K]
 Z = 19
@@ -121,6 +250,24 @@ uncertainty = "0.001"
 group = 1
 period = 4
 block = "s"
+electronegativity = "0.82"
+covalent_radius_pm = "203"
+first_ionization_kj_mol = "418.8"
+
+[elements.Ca]
+Z = 20
+name = "calcium"
+atomic_weight = "40.078"
+uncertainty = "0.004"
+group = 2
+period = 4
+block = "s"
+electronegativity = "1.00"
+covalent_radius_pm = "176"
+first_ionization_kj_mol = "589.8"
+
+# --- transition metals introduced by the nomenclature engine (Phase 1 item 2); Fe and Cu are variable-charge
+#     (the Stock system). Covalent radii omitted (spin-state-dependent — deferred, see header). ---
 
 [elements.Fe]
 Z = 26
@@ -130,6 +277,8 @@ uncertainty = "0.002"
 group = 8
 period = 4
 block = "d"
+electronegativity = "1.83"
+first_ionization_kj_mol = "762.5"
 
 [elements.Cu]
 Z = 29
@@ -139,6 +288,8 @@ uncertainty = "0.003"
 group = 11
 period = 4
 block = "d"
+electronegativity = "1.90"
+first_ionization_kj_mol = "745.5"
 
 [elements.Zn]
 Z = 30
@@ -148,3 +299,5 @@ uncertainty = "0.02"
 group = 12
 period = 4
 block = "d"
+electronegativity = "1.65"
+first_ionization_kj_mol = "906.4"

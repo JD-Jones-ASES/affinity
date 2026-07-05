@@ -65,3 +65,62 @@ def test_every_ion_composition_is_known():
     for ion in d.ions.values():
         for el in parse_formula(ion.formula).counts:
             assert el in d.elements
+
+
+# --- periodic properties + widened element set (ADR-0031, Phase 1 item 5a) ---
+
+_WIDENED_SET = ["H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg",
+                "Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca", "Fe", "Cu", "Zn"]
+
+
+def test_element_set_widened_to_first_twenty_plus_transition_metals():
+    d = data()
+    for sym in _WIDENED_SET:
+        assert sym in d.elements, f"{sym} missing from the widened element set"
+    assert d.elements["Ne"].Z == 10 and d.elements["Ne"].group == 18
+    assert d.elements["Li"].group == 1 and d.elements["F"].group == 17
+
+
+def test_periodic_properties_load_as_decimal():
+    d = data()
+    ca = d.elements["Ca"]  # spot-check exact curated values (never float — ADR-0013)
+    assert ca.electronegativity == Decimal("1.00")
+    assert ca.covalent_radius_pm == Decimal("176")
+    assert ca.first_ionization_kj_mol == Decimal("589.8")
+    assert d.elements["F"].electronegativity == Decimal("3.98")
+    assert d.elements["H"].first_ionization_kj_mol == Decimal("1312.0")
+    for el in d.elements.values():
+        for v in (el.electronegativity, el.covalent_radius_pm, el.first_ionization_kj_mol):
+            assert v is None or isinstance(v, Decimal)
+
+
+def test_property_optionality_matches_where_defined():
+    d = data()
+    # electronegativity is undefined for the noble gases (Pauling) — omitted, never written as zero
+    for ng in ["He", "Ne", "Ar"]:
+        assert d.elements[ng].electronegativity is None
+    for sym, el in d.elements.items():
+        if sym not in ("He", "Ne", "Ar"):
+            assert el.electronegativity is not None, f"{sym} should carry an electronegativity"
+    # covalent radius: shipped for main-group Z≤20, deferred (omitted) for the transition metals
+    for tm in ["Fe", "Cu", "Zn"]:
+        assert d.elements[tm].covalent_radius_pm is None
+    assert d.elements["Cl"].covalent_radius_pm == Decimal("102")
+    # every element carries a first ionization energy
+    for el in d.elements.values():
+        assert el.first_ionization_kj_mol is not None
+
+
+def test_property_sources_registered():
+    d = data()
+    assert d.sources["electronegativity"] == "openstax-chemistry-2e"
+    assert d.sources["covalent_radius"] == "cordero-2008-covalent-radii"
+    assert d.sources["ionization_energy"] == "nist-ionization-energies"
+
+
+def test_new_group_1_2_17_common_ions_present():
+    d = data()
+    for iid, el, ch in [("Li^+", "Li", 1), ("Be^2+", "Be", 2), ("F^-", "F", -1)]:
+        assert d.ions[iid].charge == ch
+        assert d.ions[iid].element == el
+        assert el in d.elements  # composition machine-checked by validate() on load

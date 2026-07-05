@@ -42,6 +42,14 @@ compound_name = "potassium"
 kind = "monatomic"
 element = "K"
 
+[ions."Li^+"]
+formula = "Li"
+charge = 1
+name = "lithium ion"
+compound_name = "lithium"
+kind = "monatomic"
+element = "Li"
+
 [ions."Mg^2+"]
 formula = "Mg"
 charge = 2
@@ -57,6 +65,14 @@ name = "calcium ion"
 compound_name = "calcium"
 kind = "monatomic"
 element = "Ca"
+
+[ions."Be^2+"]
+formula = "Be"
+charge = 2
+name = "beryllium ion"
+compound_name = "beryllium"
+kind = "monatomic"
+element = "Be"
 
 [ions."Zn^2+"]
 formula = "Zn"
@@ -117,6 +133,14 @@ name = "chloride"
 compound_name = "chloride"
 kind = "monatomic"
 element = "Cl"
+
+[ions."F^-"]
+formula = "F"
+charge = -1
+name = "fluoride"
+compound_name = "fluoride"
+kind = "monatomic"
+element = "F"
 
 [ions."O^2-"]
 formula = "O"

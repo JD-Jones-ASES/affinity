@@ -4,8 +4,9 @@
 
 **Status:** Phase 0 complete and Phase 1 well underway — three machine-verified lessons, six procedural gyms
 (dimensional analysis, nomenclature, balancing, and the full stoichiometry suite), the Chemical Atlas
-(Valence Table + concept graph), and generated practice are live. Phase-1 items 1–4 are done; items 5 (the
-Valence Table flagship) and 6 (reaction families) remain (see [`ROADMAP.md`](./ROADMAP.md)). See
+(Valence Table over 23 sourced elements + concept graph), and generated practice are live. Phase-1 items 1–4
+and the Valence Table's element-property data (item 5a) are done; its trend/bonding lenses (5b) and item 6
+(reaction families) remain (see [`ROADMAP.md`](./ROADMAP.md)). See
 [`AGENTS.md`](./AGENTS.md) to work the repo.
 
 ## The idea in three lines

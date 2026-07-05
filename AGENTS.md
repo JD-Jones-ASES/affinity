@@ -195,7 +195,8 @@ variants with misconception distractors, brief §6.8), the spec format is docume
 (`docs/authoring-problems.md`), **CI deploys to GitHub Pages** (live), and the **Chemical Atlas** exists —
 the **Valence Table** periodic lens (click an element for its common ion; click a polyatomic to see neutral
 formulas fall out of charge balance; the two lessons' salts — incl. Ca₃(PO₄)₂/Na₃PO₄ — assembled by crossover
-+ machine-verified) plus **13 cross-linked concept entries**, gated by `validate-reference`. Molecular →
++ machine-verified; 23 elements now carry sourced electronegativity/covalent-radius/first-ionization-energy,
+ADR-0031) plus **16 cross-linked concept entries**, gated by `validate-reference`. Molecular →
 complete ionic → net ionic (spectators Na⁺/Cl⁻), carbonate rule cited, ledger, Ca²⁺ limiting, 0.250 g CaCO₃.
 A **second lesson** (`calcium-phosphate-limiting`, post-Phase-0 within settled contracts) adds the first
 **non-1:1** reaction (`3 Ca²⁺ + 2 PO₄³⁻ → Ca₃(PO₄)₂`, 0.310 g): the `interactive`/`practice` emitters
@@ -239,11 +240,14 @@ island's chain caption is family-aware. **Deferred to Phase 2:** the *particle-c
 — the datum is in place, but they need sci-notation display and pair with gas/molar-volume work).
 **Counters: 3 lessons (2 precipitation + 1 percent-yield) + 6 gyms (dimensional analysis + ionic nomenclature
 + balancing + mass stoichiometry + percent yield + limiting reagent; 60 verified problems), 1 Valence Table
-(15 elements) + 16 cross-linked concept entries (3 rule-sourced, cited), 7 Node gates + CI + live Pages, 139
-producer tests green; astro build = 15 pages.**
-**Phase 0 remains complete end to end**; Phase 1 is filling depth-first — **items 5 (Valence Table flagship)
-and 6 (reaction families) remain**, each with full scope blocks, plus the 8-session map and a **Phase-1
-definition of done** in the ROADMAP, with a review gate before Phase 2. See
+(23 elements — the first 20 + Fe/Cu/Zn — with sourced electronegativity/covalent-radius/first-ionization-energy,
+ADR-0031) + 16 cross-linked concept entries (3 rule-sourced, cited), 7 Node gates (validate-reference now
+resolves every emitted source id to SOURCES.md) + CI + live Pages, 148 producer tests green; astro build = 15
+pages.**
+**Phase 0 remains complete end to end**; Phase 1 is filling depth-first — **item 5a (the Valence-Table
+element-property data) landed (ADR-0031); item 5b (the trend/bonding/practice lenses) and item 6 (reaction
+families) remain**, each with full scope blocks, plus the 8-session map and a **Phase-1 definition of done**
+in the ROADMAP, with a review gate before Phase 2. See
 [`ROADMAP.md`](./ROADMAP.md) and [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
 
 ## Where this might go next (paths for a future session)
@@ -260,7 +264,8 @@ items landed and verified. Phase 0 is complete.**
 
 **Phase 1 is open and filling depth-first** (ADR-0024). Item 1 (the dimensional-analysis gym) landed; the
 remaining procedural-core items each inherit the gym instrument — **item 2 formula/nomenclature engine**,
-**item 3 balancing engine**, **item 4 stoichiometry suite**, **item 5 the Valence Table flagship**, **item 6
+**item 3 balancing engine**, **item 4 stoichiometry suite**, **item 5 the Valence Table flagship** (5a data
+landed, ADR-0031; 5b lenses next), **item 6
 reaction families** (brief §17; each adds a `family` to `chemkernel.gym` and, for a new answer shape, a
 per-kind branch to `validate-gyms` — not new plumbing). The **Atlas breadth-fill** (more species/reactions/
 concept-graph edges, `docs/regime-map.md` is the coverage dashboard) runs in parallel, as does another lesson.

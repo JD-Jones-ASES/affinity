@@ -19,7 +19,7 @@ def _data():
 def test_valence_table_shape():
     t = build_valence_table(_data())
     assert t["kind"] == "valence-table" and t["id"] == "valence-table"
-    assert len(t["elements"]) == 15                          # 9 Phase-0 + K,Mg,Al,Fe,Cu,Zn (item 2)
+    assert len(t["elements"]) == 23           # first-20 (H…Ca) + Fe,Cu,Zn (ADR-0031, item 5a)
     assert t["highlight"] == ["Ca", "Na"]
     ca = next(e for e in t["elements"] if e["symbol"] == "Ca")
     assert ca["common_ion"]["id"] == "Ca^2+" and ca["common_ion"]["charge"] == 2
@@ -31,6 +31,23 @@ def test_valence_table_shape():
     assert "common_ion" not in carbon
     assert {p["id"] for p in t["polyatomic"]} >= {"CO3^2-", "SO4^2-", "NO3^-"}
     assert t["sources"]["ion_charge"] == "openstax-chemistry-2e"
+
+
+def test_valence_table_carries_sourced_periodic_properties():
+    t = build_valence_table(_data())
+    by = {e["symbol"]: e for e in t["elements"]}
+    # curated properties are emitted as strings (ADR-0031)
+    assert by["Ca"]["electronegativity"] == "1.00"
+    assert by["Ca"]["covalent_radius_pm"] == "176"
+    assert by["Ca"]["first_ionization_kj_mol"] == "589.8"
+    # optionality: noble gases omit electronegativity, transition metals omit covalent radius
+    assert "electronegativity" not in by["Ar"]
+    assert "covalent_radius_pm" not in by["Fe"]
+    assert by["Ar"]["first_ionization_kj_mol"] == "1520.6"   # every element keeps its ionization energy
+    # every property source is threaded through for the badges
+    assert t["sources"]["electronegativity"] == "openstax-chemistry-2e"
+    assert t["sources"]["covalent_radius"] == "cordero-2008-covalent-radii"
+    assert t["sources"]["ionization_energy"] == "nist-ionization-energies"
 
 
 def test_charge_balance_salts_are_the_lesson_salts():

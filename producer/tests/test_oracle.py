@@ -24,8 +24,11 @@ from chemkernel.gym import _REACTIONS
 
 chempy = pytest.importorskip("chempy")
 periodictable = pytest.importorskip("periodictable")
+mendeleev = pytest.importorskip("mendeleev")
 
 ROOT = Path(__file__).resolve().parents[2]
+
+_EV_TO_KJMOL = 96.485  # 1 eV in kJ/mol (see docs/SOURCES.md `nist-ionization-energies`)
 
 # the balancing gym's neutral corpus (ADR-0028) — chempy parses element formulas, not caret-charge net-ionic
 _NEUTRAL_REACTIONS = [r for r in _REACTIONS
@@ -89,3 +92,48 @@ def test_gym_balancing_corpus_matches_chempy(reaction):
     r_or, p_or = chempy.balance_stoichiometry(set(reactants), set(products))
     oracle = [int(r_or[s]) for s in reactants] + [int(p_or[s]) for s in products]
     assert ours == oracle
+
+
+# --- element-property oracle (ADR-0031): mendeleev independently re-checks the periodic-property curation.
+# mendeleev's data pipeline is entirely separate from our cited sources (OpenStax/NIST/Cordero), so agreement
+# is redundant proof and disagreement flags a transcription slip — exactly the failure mode ADR-0026 targets.
+
+def test_electronegativity_matches_mendeleev():
+    """Every curated Pauling electronegativity agrees with mendeleev; we omit EN exactly where it's undefined."""
+    data = _data()
+    for sym, el in data.elements.items():
+        oracle = mendeleev.element(sym).en_pauling
+        if el.electronegativity is None:
+            # EN is omitted only for the noble gases (Pauling undefined) — mendeleev agrees it has none
+            assert oracle is None, f"{sym}: we omit EN but mendeleev has en_pauling={oracle}"
+        else:
+            assert oracle is not None, f"{sym}: we ship EN {el.electronegativity} but mendeleev has none"
+            assert abs(float(el.electronegativity) - oracle) <= 0.05, (
+                f"{sym}: ours {el.electronegativity} vs mendeleev en_pauling {oracle}")
+
+
+def test_covalent_radius_matches_mendeleev():
+    """Every curated covalent radius agrees with mendeleev's Cordero column (loose tol: C sp2/sp3 differ 3 pm)."""
+    data = _data()
+    shipped = 0
+    for sym, el in data.elements.items():
+        if el.covalent_radius_pm is None:
+            continue
+        oracle = mendeleev.element(sym).covalent_radius_cordero
+        assert oracle is not None, f"{sym}: we ship a radius but mendeleev has no Cordero radius"
+        assert abs(float(el.covalent_radius_pm) - oracle) <= 5.0, (
+            f"{sym}: ours {el.covalent_radius_pm} vs mendeleev covalent_radius_cordero {oracle}")
+        shipped += 1
+    assert shipped >= 20, f"expected a covalent radius for every main-group Z≤20 element, got {shipped}"
+
+
+def test_first_ionization_energy_matches_mendeleev():
+    """Every curated first ionization energy agrees with mendeleev's NIST-derived value (eV → kJ/mol)."""
+    data = _data()
+    for sym, el in data.elements.items():
+        assert el.first_ionization_kj_mol is not None, f"{sym}: missing first ionization energy"
+        oracle_ev = mendeleev.element(sym).ionenergies.get(1)
+        assert oracle_ev is not None, f"{sym}: mendeleev has no first ionization energy for {sym}"
+        oracle_kj = oracle_ev * _EV_TO_KJMOL
+        assert abs(float(el.first_ionization_kj_mol) - oracle_kj) <= 2.0, (
+            f"{sym}: ours {el.first_ionization_kj_mol} vs mendeleev {oracle_kj:.1f} kJ/mol")

@@ -30,6 +30,11 @@ class Element:
     period: int
     block: str
     uncertainty: Decimal | None = None
+    # periodic properties (ADR-0031); optional — omitted where the property is undefined (noble-gas
+    # electronegativity) or deferred (transition-metal covalent radius). Decimal, never float (ADR-0013).
+    electronegativity: Decimal | None = None        # Pauling scale (openstax-chemistry-2e)
+    covalent_radius_pm: Decimal | None = None        # single-bond covalent radius, pm (cordero-2008)
+    first_ionization_kj_mol: Decimal | None = None   # first ionization energy, kJ/mol (nist)
 
 
 @dataclass(frozen=True)
@@ -66,6 +71,7 @@ class ChemData:
 
         elements: dict[str, Element] = {}
         for symbol, e in el_doc.get("elements", {}).items():
+            opt = lambda key: Decimal(e[key]) if key in e else None  # optional Decimal, never float (ADR-0013)
             try:
                 elements[symbol] = Element(
                     symbol=symbol,
@@ -75,7 +81,10 @@ class ChemData:
                     group=int(e["group"]),
                     period=int(e["period"]),
                     block=e["block"],
-                    uncertainty=Decimal(e["uncertainty"]) if "uncertainty" in e else None,
+                    uncertainty=opt("uncertainty"),
+                    electronegativity=opt("electronegativity"),
+                    covalent_radius_pm=opt("covalent_radius_pm"),
+                    first_ionization_kj_mol=opt("first_ionization_kj_mol"),
                 )
             except (KeyError, ArithmeticError) as exc:
                 raise BuildError(f"data/elements.toml: bad entry for '{symbol}': {exc}") from exc
@@ -112,6 +121,9 @@ class ChemData:
         sources = {
             "atomic_weight": el_doc.get("source", ""),
             "position": el_doc.get("position_source", ""),
+            "electronegativity": el_doc.get("electronegativity_source", ""),
+            "covalent_radius": el_doc.get("covalent_radius_source", ""),
+            "ionization_energy": el_doc.get("ionization_energy_source", ""),
             "ion_charge": ion_doc.get("charge_source", ""),
             "constants": const_source,
         }

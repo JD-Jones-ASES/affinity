@@ -28,6 +28,9 @@
           "group": { "type": "integer" },
           "period": { "type": "integer" },
           "block": { "type": "string" },
+          "electronegativity": { "type": "string" },
+          "covalent_radius_pm": { "type": "string" },
+          "first_ionization_kj_mol": { "type": "string" },
           "common_ion": {
             "type": "object",
             "additionalProperties": false,
@@ -77,11 +80,14 @@
     "sources": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["atomic_weight", "position", "ion_charge"],
+      "required": ["atomic_weight", "position", "ion_charge", "electronegativity", "covalent_radius", "ionization_energy"],
       "properties": {
         "atomic_weight": { "type": "string", "minLength": 1 },
         "position": { "type": "string", "minLength": 1 },
-        "ion_charge": { "type": "string", "minLength": 1 }
+        "ion_charge": { "type": "string", "minLength": 1 },
+        "electronegativity": { "type": "string", "minLength": 1 },
+        "covalent_radius": { "type": "string", "minLength": 1 },
+        "ionization_energy": { "type": "string", "minLength": 1 }
       }
     }
   }

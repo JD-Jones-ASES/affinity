@@ -29,17 +29,23 @@ the **model-assumed** badge.
 |---|---|---|---|---|
 | `ciaaw-2021-atomic-weights` | `data/elements.toml` atomic weights | `cited` | IUPAC/CIAAW abridged standard atomic weights, Atomic Weights 2021 report (table rev. 2024). Values are scientific facts (not copyrightable, Feist); © CIAAW 2007–2024 covers presentation only | accessed 2026-07-05 · https://www.ciaaw.org/abridged-atomic-weights.htm |
 | `iupac-periodic-table` | `data/elements.toml` group/period/block | `cited` | IUPAC periodic table (definitional element positions) | structural facts; used to place elements on the Valence Table |
-| `openstax-chemistry-2e` | `data/ions.toml` ion charges; `data/solubility.toml` rules | `cited` | OpenStax *Chemistry 2e*, CC BY 4.0 (ion charges; solubility rules from Table 4.1, §4.2) | common ion charges + solubility rules (universal teaching facts); ion *composition* is separately machine-checked in `data.py`; accessed 2026-07-05 |
+| `openstax-chemistry-2e` | `data/ions.toml` ion charges; `data/solubility.toml` rules; `data/elements.toml` electronegativity | `cited` | OpenStax *Chemistry 2e*, CC BY 4.0 (ion charges; solubility rules from Table 4.1, §4.2; Pauling electronegativities from Fig 7.6, §7.2) | common ion charges + solubility rules + Pauling electronegativities (universal teaching facts; the Allred-revised Pauling scale); ion *composition* is separately machine-checked in `data.py`; accessed 2026-07-05 |
 | `bipm-si-2019` | `data/constants.toml` Avogadro constant | `cited` | BIPM *SI Brochure* 9th ed. (2019); 26th CGPM (2018) redefinition, in force 20 May 2019 | N_A = 6.02214076×10²³ mol⁻¹, **exact by definition** (a defined SI value, no uncertainty); accessed 2026-07-05 · https://www.bipm.org/en/publications/si-brochure |
+| `nist-ionization-energies` | `data/elements.toml` first ionization energy | `cited` | NIST Atomic Spectra Database / *Ground Levels and Ionization Energies for the Neutral Atoms* — US-government data, **public domain**. Values (kJ/mol) are scientific facts (Feist) | first ionization energies for Z 1–20 + Fe/Cu/Zn; NIST reports in eV, converted to kJ/mol (1 eV = 96.485 kJ/mol); cross-checked against the `mendeleev` oracle; accessed 2026-07-05 · https://physics.nist.gov/PhysRefData/ASD/ionEnergy.html |
+| `cordero-2008-covalent-radii` | `data/elements.toml` covalent radius | `cited` | Cordero, Gómez, Platero-Prats, Revés, Echeverría, Cremades, Barragán, Alvarez, "Covalent radii revisited," *Dalton Trans.* 2008, 2832–2838 (doi:10.1039/b801115j). Radii (pm) are scientific facts (Feist) | single-bond covalent radii, main-group Z ≤ 20 (the modern standard compilation); transition-metal radii are spin-state-dependent and deferred; cross-checked against the `mendeleev` oracle; accessed 2026-07-05 |
 
 ## Element-dataset decision (RESOLVED — ADR-0012)
 
 Atomic weights come from **IUPAC/CIAAW** (abridged standard values, using the abridged single value rather
 than the published interval), positions from the **IUPAC periodic table**, ion charges from **OpenStax
-Chemistry 2e** (CC BY 4.0). All three registered above. Still deferred until a lesson needs them:
+Chemistry 2e** (CC BY 4.0). All three registered above. Physical properties landed with the Valence-Table
+flagship data session (ADR-0031, Phase 1 item 5a):
 
-- **NIST** — physical properties (ionization energies, radii, densities, electronegativity); US-government
-  data, public domain. Register when the periodic-trends lens or bonding content lands.
+- ~~**NIST** — physical properties (ionization energies, radii, densities, electronegativity)~~ — landing:
+  first **ionization energies** from NIST (`nist-ionization-energies`, public domain); **covalent radii** from
+  Cordero et al. 2008 (`cordero-2008-covalent-radii`) — a cleaner single-source compilation than NIST for
+  radii; **electronegativity** from OpenStax's Pauling table (folded into `openstax-chemistry-2e`). Densities
+  and further NIST properties remain deferred until a lesson needs them.
 - ~~The **solubility ruleset**~~ — done (ADR-0017): `data/solubility.toml` from OpenStax Table 4.1,
   registered above.
 

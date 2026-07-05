@@ -69,6 +69,14 @@ def build_valence_table(data) -> dict:
             "symbol": sym, "Z": el.Z, "name": el.name, "atomic_weight": str(el.atomic_weight),
             "group": el.group, "period": el.period, "block": el.block,
         }
+        # periodic properties (ADR-0031); emitted as strings only where curated (optional — the noble gases
+        # carry no electronegativity, the transition metals no covalent radius). The lens badges each source.
+        if el.electronegativity is not None:
+            entry["electronegativity"] = str(el.electronegativity)
+        if el.covalent_radius_pm is not None:
+            entry["covalent_radius_pm"] = str(el.covalent_radius_pm)
+        if el.first_ionization_kj_mol is not None:
+            entry["first_ionization_kj_mol"] = str(el.first_ionization_kj_mol)
         ion = monatomic_by_element.get(sym)
         if ion is not None:
             entry["common_ion"] = {"id": ion.id, "charge": ion.charge, "name": ion.name,
@@ -114,6 +122,9 @@ def build_valence_table(data) -> dict:
             "atomic_weight": data.sources.get("atomic_weight", ""),
             "position": data.sources.get("position", ""),
             "ion_charge": data.sources.get("ion_charge", ""),
+            "electronegativity": data.sources.get("electronegativity", ""),
+            "covalent_radius": data.sources.get("covalent_radius", ""),
+            "ionization_energy": data.sources.get("ionization_energy", ""),
         },
     }
 

@@ -16,6 +16,8 @@ build-gyms = "chemkernel.build:build_gyms_main"
 dev = [
     "chempy>=0.10.1",
     "periodictable>=2.1.0",
+    "mendeleev>=0.15",
+    "pandas>=2.0",
     "pytest>=8.0",
 ]
 

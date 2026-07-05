@@ -57,6 +57,19 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   each answer re-derived in pure Node, each wrong choice a named cancellation mistake. **70 producer tests +
   7 gates + astro build (9 pages) + live Pages.** Items 2–6 (nomenclature, balancing, stoichiometry, the
   Valence Table flagship, reaction families) inherit the instrument.
+- **Session 2026-07-05 (cont.) — Phase-1 item 5a: element-property data curation.** Landed the Valence-Table
+  flagship's data foundation (ADR-0031): **widened the element set to 23** (the first twenty H…Ca + the
+  transition metals Fe/Cu/Zn) and curated three **primary-sourced periodic properties** — **electronegativity**
+  (Pauling scale, OpenStax), **covalent radius** (Cordero et al. 2008, main-group Z ≤ 20 — TM radii are
+  spin-state-dependent, deferred), **first ionization energy** (NIST) — as optional Decimal fields (never
+  float), each **cross-checked against the independent `mendeleev` oracle** (ADR-0026; `mendeleev` + `pandas`
+  added as dev-only oracles). Registered `nist-ionization-energies` + `cordero-2008-covalent-radii`; folded
+  Pauling EN into `openstax-chemistry-2e`; added the Li⁺/Be²⁺/F⁻ common ions. Properties are **emitted into
+  `valence-table.json`** (schema + surfaced in the lens's element-detail panel with per-source badges, and the
+  noble-gas "EN undefined" case shown honestly) and **gated**; **`validate-reference` now enforces that every
+  emitted source id resolves to a SOURCES.md register row** — a check SOURCES.md promised but no gate ran. The
+  interpretive **trend/bonding/practice lenses are item 5b**. **148 producer tests + 7 gates (validate-reference
+  = 17 objects, now source-resolving) + astro build (15 pages).**
 - **Session 2026-07-05 (cont.) — rendering + oracles + planning overhaul.** Formula typography settled
   (ADR-0025): producer LaTeX now upright (`\mathrm`), generated practice/gym/scenario prose gets Unicode
   sub/superscripts view-side (brief §6.1), display sig-figs finalized (closes architecture Q7). Independent
@@ -235,10 +248,13 @@ past single-precipitate double-displacement for a non-precipitation yield lesson
 lands once its display plumbing exists — the Avogadro constant is now registered (SOURCES +
 `data/`). Sequential reactions and mixture analysis deferred to Phase 2 unless trivial.
 
-**Item 5 — Valence Table flagship (brief §8).** Opens with a **data-curation session** (ADR-0006):
-electronegativity (Pauling), atomic/ionic radii, first ionization energy — primary-sourced (NIST/CIAAW),
-registered in SOURCES, cross-checked against the `mendeleev` oracle (ADR-0026); likely widen the element
-set beyond the current 9 (target: main-group Z ≤ 20 + the transition metals item 2 introduced). Then the
+**Item 5 — Valence Table flagship (brief §8).** **Sub-item 5a — data curation — LANDED (2026-07-05, ADR-0031):**
+the element set widened to **23** (first-20 H…Ca + Fe/Cu/Zn) and **electronegativity** (Pauling/OpenStax),
+**covalent radius** (Cordero 2008, main-group Z ≤ 20), and **first ionization energy** (NIST) curated as
+optional Decimal fields — primary-sourced, registered in SOURCES, cross-checked against the `mendeleev` oracle
+(ADR-0026), emitted into the Valence Table and gated (SOURCES-resolution now enforced in `validate-reference`).
+*Deferred within 5a:* transition-metal covalent radii (spin-state pass) and **ionic radii** (a per-ion,
+coordination-dependent property — belongs on the ion table, not the element). **Sub-item 5b (remaining)** — the
 lenses (valence electrons, ion charges, electronegativity, radius, ionization energy — each with the
 brief-§8.1 pattern panel: what pattern / why / exceptions / where it shows up) and the modes: **trend mode**
 (click a group/period → build-time-computed trend graph), **formula mode** (built — gets naming from item
@@ -264,7 +280,7 @@ anchors the family.
 2. ~~Item 2 — nomenclature data + engine + gym families (+ Atlas nomenclature concept)~~ (landed).
 3. ~~Item 3 — balancing gym + conservation-matrix view~~ (landed; ADR-0028 — + a reusable JS formula parser).
 4. ~~Item 4 — stoichiometry families + the percent-yield lesson (+ Avogadro datum)~~ (landed; ADR-0029/0030 — 3 gym families + the lesson + the datum; particle drills → Phase 2).
-5. Item 5a — element-property data curation (SOURCES + data/ + oracle cross-check).
+5. ~~Item 5a — element-property data curation (SOURCES + data/ + oracle cross-check)~~ (landed; ADR-0031 — 23 elements + electronegativity/covalent-radius/first-ionization-energy, primary-sourced + mendeleev-checked).
 6. Item 5b — Valence Table lenses + trend/bonding/practice modes.
 7. Item 6 — reaction families (atlas kind + classifier + gym + the neutralization lesson).
 8. Atlas breadth audit: species-atlas + formula-sheet entry kinds; fill every Phase-0/1 regime-map row;
