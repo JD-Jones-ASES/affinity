@@ -1,15 +1,16 @@
 {
-  "id": "precipitation-calcium-carbonate-limiting",
-  "title": "Which reactant runs out when a precipitate forms?",
-  "slug": "calcium-carbonate-limiting",
+  "id": "precipitation-calcium-phosphate-limiting",
+  "title": "Which reactant runs out when the coefficients aren't 1-to-1?",
+  "slug": "calcium-phosphate-limiting",
   "topic": "precipitation",
   "tags": [
     "solutions",
     "stoichiometry",
     "limiting-reagent",
-    "precipitation"
+    "precipitation",
+    "polyatomic-ion"
   ],
-  "scenario": "25.0 mL of 0.100 M CaCl2(aq) is mixed with 20.0 mL of 0.150 M Na2CO3(aq). A white precipitate forms. What mass of calcium carbonate forms, which reactant limits the reaction, and which ions remain in solution?",
+  "scenario": "30.0 mL of 0.100 M CaCl2(aq) is mixed with 25.0 mL of 0.100 M Na3PO4(aq). A white precipitate of calcium phosphate forms. What mass of Ca3(PO4)2 forms, which reactant limits the reaction, and which ions are left in solution? Watch the coefficients: the balanced reaction consumes calcium and phosphate in a 3-to-2 ratio, so more moles does not mean more room to react.",
   "regimes": [
     {
       "facet": "ledger",
@@ -26,11 +27,11 @@
   ],
   "assumptions": [
     {
-      "claim": "CaCl2 and Na2CO3 are strong electrolytes and dissociate completely in water.",
+      "claim": "CaCl2 and Na3PO4 are strong electrolytes and dissociate completely in water.",
       "kind": "model"
     },
     {
-      "claim": "CaCO3 is treated as insoluble and precipitates completely.",
+      "claim": "Ca3(PO4)2 is treated as insoluble and precipitates completely.",
       "kind": "rule"
     },
     {
@@ -41,29 +42,29 @@
   "given": [
     {
       "species": "CaCl2(aq)",
+      "volume_mL": "30.0",
+      "molarity_M": "0.100",
+      "moles": "0.003"
+    },
+    {
+      "species": "Na3PO4(aq)",
       "volume_mL": "25.0",
       "molarity_M": "0.100",
       "moles": "0.0025"
-    },
-    {
-      "species": "Na2CO3(aq)",
-      "volume_mL": "20.0",
-      "molarity_M": "0.150",
-      "moles": "0.003"
     }
   ],
   "equations": {
     "molecular": {
-      "text": "CaCl2(aq) + Na2CO3(aq) -> CaCO3(s) + 2 NaCl(aq)",
-      "latex": "CaCl_{2}\\,\\text{(aq)} + Na_{2}CO_{3}\\,\\text{(aq)} \\rightarrow CaCO_{3}\\,\\text{(s)} + 2\\,NaCl\\,\\text{(aq)}"
+      "text": "3 CaCl2(aq) + 2 Na3PO4(aq) -> Ca3(PO4)2(s) + 6 NaCl(aq)",
+      "latex": "3\\,CaCl_{2}\\,\\text{(aq)} + 2\\,Na_{3}PO_{4}\\,\\text{(aq)} \\rightarrow Ca_{3}(PO_{4})_{2}\\,\\text{(s)} + 6\\,NaCl\\,\\text{(aq)}"
     },
     "complete_ionic": {
-      "text": "Ca^2+ + 2 Cl^- + 2 Na^+ + CO3^2- -> CaCO3 + 2 Na^+ + 2 Cl^-",
-      "latex": "Ca^{2+} + 2\\,Cl^{-} + 2\\,Na^{+} + CO_{3}^{2-} \\rightarrow CaCO_{3} + 2\\,Na^{+} + 2\\,Cl^{-}"
+      "text": "3 Ca^2+ + 6 Cl^- + 6 Na^+ + 2 PO4^3- -> Ca3(PO4)2 + 6 Na^+ + 6 Cl^-",
+      "latex": "3\\,Ca^{2+} + 6\\,Cl^{-} + 6\\,Na^{+} + 2\\,PO_{4}^{3-} \\rightarrow Ca_{3}(PO_{4})_{2} + 6\\,Na^{+} + 6\\,Cl^{-}"
     },
     "net_ionic": {
-      "text": "Ca^2+ + CO3^2- -> CaCO3",
-      "latex": "Ca^{2+} + CO_{3}^{2-} \\rightarrow CaCO_{3}"
+      "text": "3 Ca^2+ + 2 PO4^3- -> Ca3(PO4)2",
+      "latex": "3\\,Ca^{2+} + 2\\,PO_{4}^{3-} \\rightarrow Ca_{3}(PO_{4})_{2}"
     },
     "spectators": [
       "Cl^-",
@@ -72,7 +73,7 @@
   },
   "ledger": {
     "extent_symbol": "xi",
-    "extent_mol": "0.0025",
+    "extent_mol": "0.001",
     "limiting": [
       "CaCl2"
     ],
@@ -82,29 +83,29 @@
         "latex": "CaCl_{2}",
         "phase": "aq",
         "charge": 0,
-        "nu": -1,
-        "initial_mol": "0.0025",
+        "nu": -3,
+        "initial_mol": "0.003",
         "final_mol": "0",
         "role": "limiting"
       },
       {
-        "id": "Na2CO3",
-        "latex": "Na_{2}CO_{3}",
+        "id": "Na3PO4",
+        "latex": "Na_{3}PO_{4}",
         "phase": "aq",
         "charge": 0,
-        "nu": -1,
-        "initial_mol": "0.003",
+        "nu": -2,
+        "initial_mol": "0.0025",
         "final_mol": "0.0005",
         "role": "excess"
       },
       {
-        "id": "CaCO3",
-        "latex": "CaCO_{3}",
+        "id": "Ca3(PO4)2",
+        "latex": "Ca_{3}(PO_{4})_{2}",
         "phase": "s",
         "charge": 0,
         "nu": 1,
         "initial_mol": "0",
-        "final_mol": "0.0025",
+        "final_mol": "0.001",
         "role": "product"
       },
       {
@@ -112,9 +113,9 @@
         "latex": "NaCl",
         "phase": "aq",
         "charge": 0,
-        "nu": 2,
+        "nu": 6,
         "initial_mol": "0",
-        "final_mol": "0.005",
+        "final_mol": "0.006",
         "role": "product"
       }
     ]
@@ -122,6 +123,26 @@
   "dimensional_analysis": [
     {
       "target": "moles of CaCl2(aq)",
+      "steps": [
+        {
+          "value": "30.0",
+          "unit": "mL",
+          "note": "given volume"
+        },
+        {
+          "value": "0.0300",
+          "unit": "L",
+          "note": "convert mL to L (÷ 1000)"
+        },
+        {
+          "value": "0.003",
+          "unit": "mol",
+          "note": "× 0.100 mol/L"
+        }
+      ]
+    },
+    {
+      "target": "moles of Na3PO4(aq)",
       "steps": [
         {
           "value": "25.0",
@@ -139,50 +160,30 @@
           "note": "× 0.100 mol/L"
         }
       ]
-    },
-    {
-      "target": "moles of Na2CO3(aq)",
-      "steps": [
-        {
-          "value": "20.0",
-          "unit": "mL",
-          "note": "given volume"
-        },
-        {
-          "value": "0.0200",
-          "unit": "L",
-          "note": "convert mL to L (÷ 1000)"
-        },
-        {
-          "value": "0.003",
-          "unit": "mol",
-          "note": "× 0.150 mol/L"
-        }
-      ]
     }
   ],
   "result": {
     "precipitate": {
-      "species": "CaCO3",
+      "species": "Ca3(PO4)2",
       "phase": "s",
-      "molar_mass_g_per_mol": "100.086",
-      "moles": "0.0025",
-      "mass_g": "0.250215",
-      "mass_g_display": "0.250"
+      "molar_mass_g_per_mol": "310.174",
+      "moles": "0.001",
+      "mass_g": "0.310174",
+      "mass_g_display": "0.310"
     },
     "limiting_species": [
       "CaCl2"
     ],
     "leftover": [
       {
-        "species": "Na2CO3",
+        "species": "Na3PO4",
         "moles": "0.0005"
       }
     ]
   },
   "misconception": {
-    "claim": "The limiting reagent is whichever reactant has the smaller volume.",
-    "refuted_by": "moles_and_extent_limits"
+    "claim": "The limiting reagent is whichever reactant you have fewer moles of.",
+    "refuted_by": "moles_divided_by_coefficient"
   },
   "visualizations": [
     {
@@ -200,8 +201,8 @@
       "mode": "interactive",
       "annotate": [
         "xi_limited_by_Ca",
-        "CO3_left_over",
-        "CaCO3_mass_tracks_xi"
+        "PO4_left_over",
+        "Ca3PO42_mass_tracks_xi"
       ]
     }
   ],
@@ -220,7 +221,7 @@
     "conservation-of-mass",
     "balancing-equations",
     "calcium",
-    "carbonate"
+    "phosphate"
   ],
   "checks": {
     "atom_balance": true,
@@ -241,10 +242,10 @@
     }
   },
   "solubility_basis": {
-    "species": "CaCO3",
+    "species": "Ca3(PO4)2",
     "soluble": false,
-    "rule_id": "insol-carbonate",
-    "statement": "Carbonates are insoluble, except those of group 1 cations and ammonium.",
+    "rule_id": "insol-phosphate",
+    "statement": "Phosphates are insoluble, except those of group 1 cations and ammonium.",
     "source": "openstax-chemistry-2e"
   },
   "interactive": {
@@ -257,7 +258,7 @@
         "unit": "mL",
         "min": "5",
         "max": "50",
-        "default": "25.0",
+        "default": "30.0",
         "step": "0.5"
       },
       {
@@ -273,24 +274,24 @@
       },
       {
         "name": "v2",
-        "label": "V(Na2CO3)",
-        "species": "Na2CO3",
+        "label": "V(Na3PO4)",
+        "species": "Na3PO4",
         "kind": "volume",
         "unit": "mL",
         "min": "5",
         "max": "50",
-        "default": "20.0",
+        "default": "25.0",
         "step": "0.5"
       },
       {
         "name": "c2",
-        "label": "[Na2CO3]",
-        "species": "Na2CO3",
+        "label": "[Na3PO4]",
+        "species": "Na3PO4",
         "kind": "concentration",
         "unit": "M",
         "min": "0.02",
         "max": "0.30",
-        "default": "0.150",
+        "default": "0.100",
         "step": "0.005"
       }
     ],
@@ -303,28 +304,28 @@
     "closed_form": {
       "n_cation": "v1/1000*c1",
       "n_anion": "v2/1000*c2",
-      "xi": "Math.min(v1/1000*c1, v2/1000*c2)",
-      "mass": "(Math.min(v1/1000*c1, v2/1000*c2))*100.086",
-      "leftover_cation": "(v1/1000*c1) - (Math.min(v1/1000*c1, v2/1000*c2))",
-      "leftover_anion": "(v2/1000*c2) - (Math.min(v1/1000*c1, v2/1000*c2))",
+      "xi": "Math.min((v1/1000*c1)/3, (v2/1000*c2)/2)",
+      "mass": "(Math.min((v1/1000*c1)/3, (v2/1000*c2)/2))*310.174",
+      "leftover_cation": "(v1/1000*c1) - 3*(Math.min((v1/1000*c1)/3, (v2/1000*c2)/2))",
+      "leftover_anion": "(v2/1000*c2) - 2*(Math.min((v1/1000*c1)/3, (v2/1000*c2)/2))",
       "n_spec_cation": "2*(v1/1000*c1)",
-      "n_spec_anion": "2*(v2/1000*c2)"
+      "n_spec_anion": "3*(v2/1000*c2)"
     },
     "cation": {
       "id": "Ca^2+",
       "source": "CaCl2",
       "per": 1,
-      "net_coeff": 1
+      "net_coeff": 3
     },
     "anion": {
-      "id": "CO3^2-",
-      "source": "Na2CO3",
+      "id": "PO4^3-",
+      "source": "Na3PO4",
       "per": 1,
-      "net_coeff": 1
+      "net_coeff": 2
     },
     "product": {
-      "id": "CaCO3",
-      "molar_mass": "100.086",
+      "id": "Ca3(PO4)2",
+      "molar_mass": "310.174",
       "phase": "s",
       "net_coeff": 1
     },
@@ -337,8 +338,8 @@
       },
       {
         "id": "Na^+",
-        "source": "Na2CO3",
-        "per": 2,
+        "source": "Na3PO4",
+        "per": 3,
         "key": "n_spec_anion"
       }
     ],
@@ -357,12 +358,12 @@
         "expect": {
           "n_cation": "0.0025",
           "n_anion": "0.003",
-          "xi": "0.0025",
-          "mass": "0.250215",
+          "xi": "0.000833333333333333333333333333333",
+          "mass": "0.258478333333333333333333333333",
           "leftover_cation": "0",
-          "leftover_anion": "0.0005",
+          "leftover_anion": "0.00133333333333333333333333333333",
           "n_spec_cation": "0.005",
-          "n_spec_anion": "0.006"
+          "n_spec_anion": "0.009"
         }
       },
       {
@@ -375,12 +376,12 @@
         "expect": {
           "n_cation": "0.00375",
           "n_anion": "0.003",
-          "xi": "0.003",
-          "mass": "0.300258",
-          "leftover_cation": "0.00075",
-          "leftover_anion": "0",
+          "xi": "0.00125",
+          "mass": "0.3877175",
+          "leftover_cation": "0",
+          "leftover_anion": "0.0005",
           "n_spec_cation": "0.0075",
-          "n_spec_anion": "0.006"
+          "n_spec_anion": "0.009"
         }
       },
       {
@@ -393,12 +394,12 @@
         "expect": {
           "n_cation": "0.003",
           "n_anion": "0.003",
-          "xi": "0.003",
-          "mass": "0.300258",
+          "xi": "0.001",
+          "mass": "0.310174",
           "leftover_cation": "0",
-          "leftover_anion": "0",
+          "leftover_anion": "0.001",
           "n_spec_cation": "0.006",
-          "n_spec_anion": "0.006"
+          "n_spec_anion": "0.009"
         }
       },
       {
@@ -411,12 +412,12 @@
         "expect": {
           "n_cation": "0.005",
           "n_anion": "0.003",
-          "xi": "0.003",
-          "mass": "0.300258",
-          "leftover_cation": "0.002",
+          "xi": "0.0015",
+          "mass": "0.465261",
+          "leftover_cation": "0.0005",
           "leftover_anion": "0",
           "n_spec_cation": "0.01",
-          "n_spec_anion": "0.006"
+          "n_spec_anion": "0.009"
         }
       },
       {
@@ -429,12 +430,12 @@
         "expect": {
           "n_cation": "0.001",
           "n_anion": "0.003",
-          "xi": "0.001",
-          "mass": "0.100086",
+          "xi": "0.000333333333333333333333333333333",
+          "mass": "0.103391333333333333333333333333",
           "leftover_cation": "0",
-          "leftover_anion": "0.002",
+          "leftover_anion": "0.00233333333333333333333333333333",
           "n_spec_cation": "0.002",
-          "n_spec_anion": "0.006"
+          "n_spec_anion": "0.009"
         }
       },
       {
@@ -447,12 +448,12 @@
         "expect": {
           "n_cation": "0.0025",
           "n_anion": "0.006",
-          "xi": "0.0025",
-          "mass": "0.250215",
+          "xi": "0.000833333333333333333333333333333",
+          "mass": "0.258478333333333333333333333333",
           "leftover_cation": "0",
-          "leftover_anion": "0.0035",
+          "leftover_anion": "0.00433333333333333333333333333333",
           "n_spec_cation": "0.005",
-          "n_spec_anion": "0.012"
+          "n_spec_anion": "0.018"
         }
       },
       {
@@ -465,12 +466,12 @@
         "expect": {
           "n_cation": "0.0025",
           "n_anion": "0.0015",
-          "xi": "0.0015",
-          "mass": "0.150129",
-          "leftover_cation": "0.001",
+          "xi": "0.00075",
+          "mass": "0.2326305",
+          "leftover_cation": "0.00025",
           "leftover_anion": "0",
           "n_spec_cation": "0.005",
-          "n_spec_anion": "0.003"
+          "n_spec_anion": "0.0045"
         }
       },
       {
@@ -483,12 +484,12 @@
         "expect": {
           "n_cation": "0.006",
           "n_anion": "0.003",
-          "xi": "0.003",
-          "mass": "0.300258",
-          "leftover_cation": "0.003",
+          "xi": "0.0015",
+          "mass": "0.465261",
+          "leftover_cation": "0.0015",
           "leftover_anion": "0",
           "n_spec_cation": "0.012",
-          "n_spec_anion": "0.006"
+          "n_spec_anion": "0.009"
         }
       },
       {
@@ -501,12 +502,12 @@
         "expect": {
           "n_cation": "0.001",
           "n_anion": "0.003",
-          "xi": "0.001",
-          "mass": "0.100086",
+          "xi": "0.000333333333333333333333333333333",
+          "mass": "0.103391333333333333333333333333",
           "leftover_cation": "0",
-          "leftover_anion": "0.002",
+          "leftover_anion": "0.00233333333333333333333333333333",
           "n_spec_cation": "0.002",
-          "n_spec_anion": "0.006"
+          "n_spec_anion": "0.009"
         }
       },
       {
@@ -519,175 +520,40 @@
         "expect": {
           "n_cation": "0.003",
           "n_anion": "0.003",
-          "xi": "0.003",
-          "mass": "0.300258",
+          "xi": "0.001",
+          "mass": "0.310174",
           "leftover_cation": "0",
-          "leftover_anion": "0",
+          "leftover_anion": "0.001",
           "n_spec_cation": "0.006",
-          "n_spec_anion": "0.006"
+          "n_spec_anion": "0.009"
         }
       }
     ]
   },
   "practice": {
     "family": "precipitation_limiting_reagent_v1",
-    "seed": 20260705,
+    "seed": 424242,
     "questions": [
       {
         "id": "q1",
         "kind": "limiting",
-        "prompt": "35.0 mL of 0.250 M CaCl2 is mixed with 30.0 mL of 0.100 M Na2CO3. Which reactant is the limiting reagent?",
+        "prompt": "50.0 mL of 0.100 M CaCl2 is mixed with 35.0 mL of 0.250 M Na3PO4. Which reactant is the limiting reagent?",
         "given": [
           {
             "species": "CaCl2",
-            "volume_mL": "35.0",
-            "molarity_M": "0.250"
-          },
-          {
-            "species": "Na2CO3",
-            "volume_mL": "30.0",
-            "molarity_M": "0.100"
-          }
-        ],
-        "args": {
-          "v1": "35.0",
-          "c1": "0.250",
-          "v2": "30.0",
-          "c2": "0.100"
-        },
-        "answer": {
-          "display": "Na2CO3",
-          "value": "Na2CO3"
-        },
-        "choices": [
-          {
-            "display": "CaCl2",
-            "correct": false,
-            "misconception": "Picking CaCl2 by inspection — compare the moles of the reacting ion, not the volumes or concentrations alone."
-          },
-          {
-            "display": "Na2CO3",
-            "correct": true,
-            "misconception": null
-          },
-          {
-            "display": "Neither — both are fully consumed",
-            "correct": false,
-            "misconception": "A limiting reagent runs out first; here one reactant is left over, so they are not both fully consumed."
-          }
-        ],
-        "explain": "Each reactant's capacity is its reacting-ion moles ÷ its net-ionic coefficient: CaCl2 = 8.75 ÷ 1 = 8.75 mmol, Na2CO3 = 3 ÷ 1 = 3 mmol. Na2CO3 is smaller, so it limits."
-      },
-      {
-        "id": "q2",
-        "kind": "mass",
-        "prompt": "35.0 mL of 0.200 M CaCl2 is mixed with 15.0 mL of 0.100 M Na2CO3. What mass of CaCO3 precipitate forms?",
-        "given": [
-          {
-            "species": "CaCl2",
-            "volume_mL": "35.0",
-            "molarity_M": "0.200"
-          },
-          {
-            "species": "Na2CO3",
-            "volume_mL": "15.0",
-            "molarity_M": "0.100"
-          }
-        ],
-        "args": {
-          "v1": "35.0",
-          "c1": "0.200",
-          "v2": "15.0",
-          "c2": "0.100"
-        },
-        "answer": {
-          "display": "0.150 g",
-          "value": "0.150"
-        },
-        "choices": [
-          {
-            "display": "0.150 g",
-            "correct": true,
-            "misconception": null
-          },
-          {
-            "display": "0.701 g",
-            "correct": false,
-            "misconception": "Used CaCl2, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
-          },
-          {
-            "display": "0.851 g",
-            "correct": false,
-            "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
-          }
-        ],
-        "explain": "ξ = 1.5 mmol (set by Na2CO3); mass = 1 × 1.5 mmol × 100.086 g/mol = 0.150 g."
-      },
-      {
-        "id": "q3",
-        "kind": "leftover",
-        "prompt": "15.0 mL of 0.100 M CaCl2 is mixed with 50.0 mL of 0.200 M Na2CO3. After the reaction, how many mmol of the excess reactant remain?",
-        "given": [
-          {
-            "species": "CaCl2",
-            "volume_mL": "15.0",
-            "molarity_M": "0.100"
-          },
-          {
-            "species": "Na2CO3",
             "volume_mL": "50.0",
-            "molarity_M": "0.200"
-          }
-        ],
-        "args": {
-          "v1": "15.0",
-          "c1": "0.100",
-          "v2": "50.0",
-          "c2": "0.200"
-        },
-        "answer": {
-          "display": "8.5 mmol",
-          "value": "8.5"
-        },
-        "choices": [
-          {
-            "display": "8.5 mmol",
-            "correct": true,
-            "misconception": null
-          },
-          {
-            "display": "10 mmol",
-            "correct": false,
-            "misconception": "That is all the Na2CO3 you started with — some of it reacts; only the surplus over the limiting reagent remains."
-          },
-          {
-            "display": "0 mmol",
-            "correct": false,
-            "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
-          }
-        ],
-        "explain": "Na2CO3 started at 10 mmol and 1.5 mmol reacted, leaving 8.5 mmol."
-      },
-      {
-        "id": "q4",
-        "kind": "limiting",
-        "prompt": "20.0 mL of 0.100 M CaCl2 is mixed with 15.0 mL of 0.250 M Na2CO3. Which reactant is the limiting reagent?",
-        "given": [
-          {
-            "species": "CaCl2",
-            "volume_mL": "20.0",
             "molarity_M": "0.100"
           },
           {
-            "species": "Na2CO3",
-            "volume_mL": "15.0",
+            "species": "Na3PO4",
+            "volume_mL": "35.0",
             "molarity_M": "0.250"
           }
         ],
         "args": {
-          "v1": "20.0",
+          "v1": "50.0",
           "c1": "0.100",
-          "v2": "15.0",
+          "v2": "35.0",
           "c2": "0.250"
         },
         "answer": {
@@ -701,9 +567,9 @@
             "misconception": null
           },
           {
-            "display": "Na2CO3",
+            "display": "Na3PO4",
             "correct": false,
-            "misconception": "Na2CO3 has the smaller volume, but volume alone doesn't decide it — convert to moles first."
+            "misconception": "Na3PO4 has the smaller volume, but volume alone doesn't decide it — convert to moles first."
           },
           {
             "display": "Neither — both are fully consumed",
@@ -711,89 +577,89 @@
             "misconception": "A limiting reagent runs out first; here one reactant is left over, so they are not both fully consumed."
           }
         ],
-        "explain": "Each reactant's capacity is its reacting-ion moles ÷ its net-ionic coefficient: CaCl2 = 2 ÷ 1 = 2 mmol, Na2CO3 = 3.75 ÷ 1 = 3.75 mmol. CaCl2 is smaller, so it limits."
+        "explain": "Each reactant's capacity is its reacting-ion moles ÷ its net-ionic coefficient: CaCl2 = 5 ÷ 3 = 1.6667 mmol, Na3PO4 = 8.75 ÷ 2 = 4.375 mmol. CaCl2 is smaller, so it limits. Fewer moles doesn't always mean limiting — the coefficient decides."
       },
       {
-        "id": "q5",
+        "id": "q2",
         "kind": "mass",
-        "prompt": "10.0 mL of 0.150 M CaCl2 is mixed with 20.0 mL of 0.050 M Na2CO3. What mass of CaCO3 precipitate forms?",
+        "prompt": "30.0 mL of 0.050 M CaCl2 is mixed with 35.0 mL of 0.100 M Na3PO4. What mass of Ca3(PO4)2 precipitate forms?",
         "given": [
           {
             "species": "CaCl2",
-            "volume_mL": "10.0",
-            "molarity_M": "0.150"
+            "volume_mL": "30.0",
+            "molarity_M": "0.050"
           },
           {
-            "species": "Na2CO3",
-            "volume_mL": "20.0",
-            "molarity_M": "0.050"
+            "species": "Na3PO4",
+            "volume_mL": "35.0",
+            "molarity_M": "0.100"
           }
         ],
         "args": {
-          "v1": "10.0",
-          "c1": "0.150",
-          "v2": "20.0",
-          "c2": "0.050"
+          "v1": "30.0",
+          "c1": "0.050",
+          "v2": "35.0",
+          "c2": "0.100"
         },
         "answer": {
-          "display": "0.100 g",
-          "value": "0.100"
+          "display": "0.155 g",
+          "value": "0.155"
         },
         "choices": [
           {
-            "display": "0.100 g",
+            "display": "0.155 g",
             "correct": true,
             "misconception": null
           },
           {
-            "display": "0.150 g",
+            "display": "0.543 g",
             "correct": false,
-            "misconception": "Used CaCl2, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
+            "misconception": "Used Na3PO4, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
           },
           {
-            "display": "0.250 g",
+            "display": "0.698 g",
             "correct": false,
             "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
           }
         ],
-        "explain": "ξ = 1 mmol (set by Na2CO3); mass = 1 × 1 mmol × 100.086 g/mol = 0.100 g."
+        "explain": "ξ = 0.5 mmol (set by CaCl2); mass = 1 × 0.5 mmol × 310.174 g/mol = 0.155 g."
       },
       {
-        "id": "q6",
+        "id": "q3",
         "kind": "leftover",
-        "prompt": "40.0 mL of 0.200 M CaCl2 is mixed with 15.0 mL of 0.200 M Na2CO3. After the reaction, how many mmol of the excess reactant remain?",
+        "prompt": "20.0 mL of 0.250 M CaCl2 is mixed with 40.0 mL of 0.150 M Na3PO4. After the reaction, how many mmol of the excess reactant remain?",
         "given": [
           {
             "species": "CaCl2",
-            "volume_mL": "40.0",
-            "molarity_M": "0.200"
+            "volume_mL": "20.0",
+            "molarity_M": "0.250"
           },
           {
-            "species": "Na2CO3",
-            "volume_mL": "15.0",
-            "molarity_M": "0.200"
+            "species": "Na3PO4",
+            "volume_mL": "40.0",
+            "molarity_M": "0.150"
           }
         ],
         "args": {
-          "v1": "40.0",
-          "c1": "0.200",
-          "v2": "15.0",
-          "c2": "0.200"
+          "v1": "20.0",
+          "c1": "0.250",
+          "v2": "40.0",
+          "c2": "0.150"
         },
         "answer": {
-          "display": "5 mmol",
-          "value": "5"
+          "display": "2.6667 mmol",
+          "value": "2.6667"
         },
         "choices": [
           {
-            "display": "5 mmol",
+            "display": "2.6667 mmol",
             "correct": true,
             "misconception": null
           },
           {
-            "display": "8 mmol",
+            "display": "6 mmol",
             "correct": false,
-            "misconception": "That is all the CaCl2 you started with — some of it reacts; only the surplus over the limiting reagent remains."
+            "misconception": "That is all the Na3PO4 you started with — some of it reacts; only the surplus over the limiting reagent remains."
           },
           {
             "display": "0 mmol",
@@ -801,7 +667,142 @@
             "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
           }
         ],
-        "explain": "CaCl2 started at 8 mmol and 3 mmol reacted, leaving 5 mmol."
+        "explain": "Na3PO4 started at 6 mmol and 3.3333 mmol reacted, leaving 2.6667 mmol."
+      },
+      {
+        "id": "q4",
+        "kind": "limiting",
+        "prompt": "40.0 mL of 0.250 M CaCl2 is mixed with 45.0 mL of 0.100 M Na3PO4. Which reactant is the limiting reagent?",
+        "given": [
+          {
+            "species": "CaCl2",
+            "volume_mL": "40.0",
+            "molarity_M": "0.250"
+          },
+          {
+            "species": "Na3PO4",
+            "volume_mL": "45.0",
+            "molarity_M": "0.100"
+          }
+        ],
+        "args": {
+          "v1": "40.0",
+          "c1": "0.250",
+          "v2": "45.0",
+          "c2": "0.100"
+        },
+        "answer": {
+          "display": "Na3PO4",
+          "value": "Na3PO4"
+        },
+        "choices": [
+          {
+            "display": "CaCl2",
+            "correct": false,
+            "misconception": "CaCl2 has the smaller volume, but volume alone doesn't decide it — convert to moles first."
+          },
+          {
+            "display": "Na3PO4",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "Neither — both are fully consumed",
+            "correct": false,
+            "misconception": "A limiting reagent runs out first; here one reactant is left over, so they are not both fully consumed."
+          }
+        ],
+        "explain": "Each reactant's capacity is its reacting-ion moles ÷ its net-ionic coefficient: CaCl2 = 10 ÷ 3 = 3.3333 mmol, Na3PO4 = 4.5 ÷ 2 = 2.25 mmol. Na3PO4 is smaller, so it limits. Fewer moles doesn't always mean limiting — the coefficient decides."
+      },
+      {
+        "id": "q5",
+        "kind": "mass",
+        "prompt": "20.0 mL of 0.200 M CaCl2 is mixed with 30.0 mL of 0.200 M Na3PO4. What mass of Ca3(PO4)2 precipitate forms?",
+        "given": [
+          {
+            "species": "CaCl2",
+            "volume_mL": "20.0",
+            "molarity_M": "0.200"
+          },
+          {
+            "species": "Na3PO4",
+            "volume_mL": "30.0",
+            "molarity_M": "0.200"
+          }
+        ],
+        "args": {
+          "v1": "20.0",
+          "c1": "0.200",
+          "v2": "30.0",
+          "c2": "0.200"
+        },
+        "answer": {
+          "display": "0.414 g",
+          "value": "0.414"
+        },
+        "choices": [
+          {
+            "display": "0.414 g",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "0.931 g",
+            "correct": false,
+            "misconception": "Used Na3PO4, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
+          },
+          {
+            "display": "1.344 g",
+            "correct": false,
+            "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
+          }
+        ],
+        "explain": "ξ = 1.3333 mmol (set by CaCl2); mass = 1 × 1.3333 mmol × 310.174 g/mol = 0.414 g."
+      },
+      {
+        "id": "q6",
+        "kind": "leftover",
+        "prompt": "10.0 mL of 0.100 M CaCl2 is mixed with 25.0 mL of 0.250 M Na3PO4. After the reaction, how many mmol of the excess reactant remain?",
+        "given": [
+          {
+            "species": "CaCl2",
+            "volume_mL": "10.0",
+            "molarity_M": "0.100"
+          },
+          {
+            "species": "Na3PO4",
+            "volume_mL": "25.0",
+            "molarity_M": "0.250"
+          }
+        ],
+        "args": {
+          "v1": "10.0",
+          "c1": "0.100",
+          "v2": "25.0",
+          "c2": "0.250"
+        },
+        "answer": {
+          "display": "5.5833 mmol",
+          "value": "5.5833"
+        },
+        "choices": [
+          {
+            "display": "5.5833 mmol",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "6.25 mmol",
+            "correct": false,
+            "misconception": "That is all the Na3PO4 you started with — some of it reacts; only the surplus over the limiting reagent remains."
+          },
+          {
+            "display": "0 mmol",
+            "correct": false,
+            "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
+          }
+        ],
+        "explain": "Na3PO4 started at 6.25 mmol and 0.6667 mmol reacted, leaving 5.5833 mmol."
       }
     ]
   }

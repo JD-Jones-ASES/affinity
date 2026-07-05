@@ -15,10 +15,11 @@ from chemkernel.reaction import complete_ionic, net_ionic
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT / "problems" / "precipitation" / "calcium-carbonate-limiting.problem.toml"
+SPEC_PHOSPHATE = ROOT / "problems" / "precipitation" / "calcium-phosphate-limiting.problem.toml"
 
 
-def _interactive():
-    spec = tomllib.loads(SPEC.read_text(encoding="utf-8"))
+def _interactive_for(spec_path):
+    spec = tomllib.loads(spec_path.read_text(encoding="utf-8"))
     data = ChemData.load(ROOT)
     reactants = [parse_formula(s) for s in spec["reactants"]]
     products = [parse_formula(s) for s in spec["products"]]
@@ -26,6 +27,10 @@ def _interactive():
     left, right = complete_ionic(reactants, products, coeffs, data)
     net_left, net_right, _ = net_ionic(left, right)
     return build_interactive(reactants, products, coeffs, spec["given"], data, net_left, net_right)
+
+
+def _interactive():
+    return _interactive_for(SPEC)
 
 
 def test_generates_requested_count_and_shape():
@@ -77,3 +82,22 @@ def test_included_in_full_build():
     assert "practice" in sol
     assert sol["practice"]["seed"] == 20260705
     assert len(sol["practice"]["questions"]) == 6
+
+
+def test_nonunit_stoichiometry_answers_use_capacity_not_raw_moles():
+    # The 3:2 calcium-phosphate reaction is the case that separates capacity from raw moles: the limiting
+    # reagent is set by (reacting-ion moles ÷ net-ionic coefficient), not by which reactant has fewer moles.
+    ix = _interactive_for(SPEC_PHOSPHATE)
+    a_cat, a_an = ix["cation"]["net_coeff"], ix["anion"]["net_coeff"]
+    assert (a_cat, a_an) == (3, 2)
+    p = generate_practice(ix, seed=424242, count=6)
+    assert p is not None and len(p["questions"]) == 6
+    for q in p["questions"]:
+        if q["kind"] != "limiting":
+            continue
+        a = q["args"]
+        n_cat = ix["cation"]["per"] * (Fraction(Decimal(a["v1"])) / 1000 * Fraction(Decimal(a["c1"])))
+        n_an = ix["anion"]["per"] * (Fraction(Decimal(a["v2"])) / 1000 * Fraction(Decimal(a["c2"])))
+        want = ix["cation"]["source"] if n_cat / a_cat < n_an / a_an else ix["anion"]["source"]
+        assert q["answer"]["value"] == want                      # capacity-based, verified independently
+        assert "supplies fewer" not in q["explain"]              # never the raw-moles fallacy the lesson breaks

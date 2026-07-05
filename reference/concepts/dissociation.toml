@@ -1,0 +1,14 @@
+# Chemical Atlas concept entry (ADR-0005). The strong-electrolyte idealization the ionic equations lean on.
+id = "dissociation"
+kind = "concept"
+title = "Dissociation"
+term = "dissociation"
+regime = "model-exact"
+definition = "When a soluble ionic compound dissolves, it separates into free ions rather than staying intact: $\\text{Na}_3\\text{PO}_4(aq) \\rightarrow 3\\,\\text{Na}^+(aq) + \\text{PO}_4^{3-}(aq)$. Treating a strong electrolyte as completely dissociated is a disclosed idealization — exact inside the model, not proven — and it is what lets the complete-ionic equation show every dissolved salt as its separate ions."
+latex = "\\text{Na}_3\\text{PO}_4(aq) \\rightarrow 3\\,\\text{Na}^+(aq) + \\text{PO}_4^{3-}(aq)"
+related = [
+  { to = "net-ionic-equation", type = "enables" },
+  { to = "spectator-ion", type = "reveals" },
+  { to = "molarity", type = "assumes" },
+]
+lessons = ["calcium-carbonate-limiting", "calcium-phosphate-limiting"]

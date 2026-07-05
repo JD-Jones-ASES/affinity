@@ -86,7 +86,9 @@ refuted_by = "moles_and_extent_limits"
 ```
 
 `refuted_by` is a short token naming the mechanism; the player builds a data-driven refutation from the
-ledger (e.g. it points out when the smaller-volume reactant is actually in excess).
+ledger — it points out when the smaller-volume reactant is actually in excess, and when the reactant
+coefficients differ it shows each reactant's capacity (moles ÷ coefficient) so "fewer moles must be limiting"
+visibly fails (the calcium-phosphate lesson: the limiting reagent starts with *more* moles).
 
 ### `[[visualizations]]` — declare interactivity (optional)
 

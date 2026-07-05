@@ -3,6 +3,38 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Post-Phase-0 — 2026-07-05 — a second lesson (non-unit stoichiometry) + Atlas breadth
+
+- **Second full lesson** `precipitation/calcium-phosphate-limiting` — 30.0 mL 0.100 M CaCl₂ + 25.0 mL
+  0.100 M Na₃PO₄ → **Ca₃(PO₄)₂(s)** (0.310 g), the first **non-1:1** reaction: net ionic
+  `3 Ca²⁺ + 2 PO₄³⁻ → Ca₃(PO₄)₂`. It stresses what the 1:1 carbonate lesson can't — the limiting reagent is
+  set by **moles ÷ coefficient**, not raw moles: CaCl₂ starts with *more* Ca²⁺ (3.00 mmol) than there is
+  PO₄³⁻ (2.50 mmol) yet still limits, because 3.00/3 < 2.50/2. Full interactives + 6 practice variants, all
+  engine-derived and parity-verified — the `interactive`/`practice` emitters generalised to coefficient > 1
+  with **no code changes** (every multiplicity was already derived from the real chemistry).
+- **Coefficient-aware misconception refutation (player).** `SolutionPlayer` reads the verified ledger and,
+  when the reactant coefficients differ, refutes "fewer moles = limiting" by showing each reactant's capacity
+  (initial ÷ |ν|) and naming the smaller — surfacing that the limiting reagent can start with *more* moles.
+  The equal-coefficient (carbonate) lesson still shows the volume story. Fixed a latent bug in passing: the
+  smaller-volume-vs-limiting check compared phased given ids against phase-stripped ledger ids (so it was
+  always false, only coincidentally right) — now phase-stripped and correct.
+- **Practice explanation fixed to teach the method.** The `limiting`-question explanation now reasons by
+  capacity (moles ÷ net-ionic coefficient) instead of "supplies fewer" — which was the exact misconception
+  the lesson breaks and is false in general for non-1:1 stoichiometry (only coincidentally true for the
+  sampled variants). Molar-mass in the mass explanation is no longer padded with trailing zeros.
+- **Six new concept entries** — `stoichiometry`, `dissociation`, `spectator-ion`, `polyatomic-ion`,
+  `conservation-of-mass`, `balancing-equations` — now **13 concepts**, cross-linked into a denser typed graph;
+  both lessons list all the shared concepts (15 resolving chips each). `polyatomic-ion` is rule-sourced
+  (`openstax-chemistry-2e`); the rest are ledger-/model-exact.
+- **Valence Table** gained the phosphate salts: clicking phosphate now shows **Ca₃(PO₄)₂** and **Na₃PO₄**
+  assembled by charge crossover and verified neutral (`3×(+2)+2×(−3)=0`, `3×(+1)+1×(−3)=0`), tying the lens to
+  the new lesson.
+- **65 producer tests** (+1: a non-unit-stoichiometry practice test asserting capacity, not raw moles) + **6
+  gates** (validate-solutions = 2, validate-reference = **14 objects**, check-ledger = 8 rows, check-parity =
+  **160 closed-form points + 12 practice answers**, check-katex = **71 strings**, scan) + **`astro build`
+  (7 pages)** all green. Both lessons verified in-browser (the switch, practice, both misconception
+  refutations, the Valence Table phosphate click); no console errors.
+
 ## Post-Phase-0 — 2026-07-05 — Atlas breadth-fill + polish
 
 - **Five more concept entries** (`molarity`, `molar-mass`, `net-ionic-equation`, `precipitation`,

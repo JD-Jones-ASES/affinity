@@ -1,0 +1,27 @@
+{
+  "kind": "concept",
+  "id": "dissociation",
+  "title": "Dissociation",
+  "term": "dissociation",
+  "definition": "When a soluble ionic compound dissolves, it separates into free ions rather than staying intact: $\\text{Na}_3\\text{PO}_4(aq) \\rightarrow 3\\,\\text{Na}^+(aq) + \\text{PO}_4^{3-}(aq)$. Treating a strong electrolyte as completely dissociated is a disclosed idealization — exact inside the model, not proven — and it is what lets the complete-ionic equation show every dissolved salt as its separate ions.",
+  "related": [
+    {
+      "to": "net-ionic-equation",
+      "type": "enables"
+    },
+    {
+      "to": "spectator-ion",
+      "type": "reveals"
+    },
+    {
+      "to": "molarity",
+      "type": "assumes"
+    }
+  ],
+  "lessons": [
+    "calcium-carbonate-limiting",
+    "calcium-phosphate-limiting"
+  ],
+  "regime": "model-exact",
+  "latex": "\\text{Na}_3\\text{PO}_4(aq) \\rightarrow 3\\,\\text{Na}^+(aq) + \\text{PO}_4^{3-}(aq)"
+}

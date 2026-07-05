@@ -1,0 +1,63 @@
+# A second precipitation slice (brief §16 shape), authored human layer only — ChemKernel derives and verifies
+# the rest. This one stresses NON-UNIT stoichiometry: the net ionic is 3 Ca2+ + 2 PO4^3- -> Ca3(PO4)2, so the
+# limiting reagent is decided by moles ÷ coefficient, not by raw moles. At the defaults CaCl2 has MORE moles of
+# its reacting ion (3.00 mmol Ca2+) than Na3PO4 has (2.50 mmol PO4^3-), yet CaCl2 still limits — 3.00/3 < 2.50/2.
+# That is the misconception this lesson exists to break. Numbers are strings to stay exact (ADR-0013).
+#
+# Root keys must precede any [table]/[[array]] header, or TOML absorbs them into the preceding table (trap #4).
+
+id = "precipitation-calcium-phosphate-limiting"
+title = "Which reactant runs out when the coefficients aren't 1-to-1?"
+slug = "calcium-phosphate-limiting"
+topic = "precipitation"
+tags = ["solutions", "stoichiometry", "limiting-reagent", "precipitation", "polyatomic-ion"]
+author = "Affinity"
+created = "2026-07-05"
+scenario = "30.0 mL of 0.100 M CaCl2(aq) is mixed with 25.0 mL of 0.100 M Na3PO4(aq). A white precipitate of calcium phosphate forms. What mass of Ca3(PO4)2 forms, which reactant limits the reaction, and which ions are left in solution? Watch the coefficients: the balanced reaction consumes calcium and phosphate in a 3-to-2 ratio, so more moles does not mean more room to react."
+
+reactants = ["CaCl2(aq)", "Na3PO4(aq)"]
+products = ["Ca3(PO4)2(s)", "NaCl(aq)"]
+
+reference_links = ["stoichiometry", "limiting-reagent", "extent-of-reaction", "molarity", "molar-mass", "net-ionic-equation", "precipitation", "solubility-rules", "dissociation", "spectator-ion", "polyatomic-ion", "conservation-of-mass", "balancing-equations", "calcium", "phosphate"]
+
+# Generated practice (ADR-0011, brief §6.8). Deterministic: this seed always yields byte-identical variants.
+[practice]
+family = "precipitation_limiting_reagent_v1"
+seed = 424242
+count = 6
+
+[[given]]
+species = "CaCl2(aq)"
+volume_mL = "30.0"
+molarity_M = "0.100"
+
+[[given]]
+species = "Na3PO4(aq)"
+volume_mL = "25.0"
+molarity_M = "0.100"
+
+[[assumptions]]
+claim = "CaCl2 and Na3PO4 are strong electrolytes and dissociate completely in water."
+kind = "model"
+
+[[assumptions]]
+claim = "Ca3(PO4)2 is treated as insoluble and precipitates completely."
+kind = "rule"
+
+[[assumptions]]
+claim = "Solution volumes are additive."
+kind = "model"
+
+[misconception]
+claim = "The limiting reagent is whichever reactant you have fewer moles of."
+refuted_by = "moles_divided_by_coefficient"
+
+[[visualizations]]
+kind = "beaker_species_view"
+mode = "interactive"
+annotate = ["free_ions_before_mixing", "solid_lattice_forms", "spectator_ions_remain_aqueous", "limiting_reagent_switch"]
+
+[[visualizations]]
+kind = "extent_bar"
+mode = "interactive"
+annotate = ["xi_limited_by_Ca", "PO4_left_over", "Ca3PO42_mass_tracks_xi"]

@@ -1,0 +1,14 @@
+# Chemical Atlas concept entry (ADR-0005). Charges are sourced (data/ions.toml); composition is machine-checked.
+id = "polyatomic-ion"
+kind = "concept"
+title = "Polyatomic ion"
+term = "polyatomic ion"
+regime = "rule-sourced"
+source = "openstax-chemistry-2e"
+definition = "A group of atoms bonded together that carries a single net charge and moves through a reaction as one unit — carbonate $\\text{CO}_3^{2-}$, phosphate $\\text{PO}_4^{3-}$, nitrate $\\text{NO}_3^-$. Its charge is a sourced convention; its atom composition is machine-checked. In charge balance the whole group counts as one charged block, which is why the neutral salt $\\text{Ca}_3(\\text{PO}_4)_2$ keeps the phosphate in parentheses."
+latex = "\\text{PO}_4^{3-} \\quad \\text{CO}_3^{2-} \\quad \\text{NO}_3^{-}"
+related = [
+  { to = "net-ionic-equation", type = "appears-in" },
+  { to = "solubility-rules", type = "governed-by" },
+]
+lessons = ["calcium-carbonate-limiting", "calcium-phosphate-limiting"]

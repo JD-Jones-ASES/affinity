@@ -1,0 +1,31 @@
+{
+  "kind": "concept",
+  "id": "stoichiometry",
+  "title": "Stoichiometry",
+  "term": "stoichiometry",
+  "definition": "The mole-accounting of a balanced reaction: the coefficients $\\nu_i$ fix the ratios in which species are consumed and produced. Every change is a multiple of one extent — $\\Delta n_i = \\nu_i\\,\\xi$ — so a mole ratio like \"3 mol $\\text{Ca}^{2+}$ per 1 mol $\\text{Ca}_3(\\text{PO}_4)_2$\" is just $\\nu$ read off the equation. It is the mole ratio, never the raw masses or volumes, that converts one species into another.",
+  "related": [
+    {
+      "to": "extent-of-reaction",
+      "type": "built-on"
+    },
+    {
+      "to": "conservation-of-mass",
+      "type": "requires"
+    },
+    {
+      "to": "limiting-reagent",
+      "type": "supports"
+    },
+    {
+      "to": "molar-mass",
+      "type": "uses"
+    }
+  ],
+  "lessons": [
+    "calcium-carbonate-limiting",
+    "calcium-phosphate-limiting"
+  ],
+  "regime": "ledger-exact",
+  "latex": "\\frac{\\Delta n_i}{\\nu_i} = \\xi \\quad\\text{for every species } i"
+}

@@ -21,14 +21,32 @@
   const precip = s.result.precipitate;
   const leftover = s.result.leftover ?? [];
 
-  // Data-driven refutation of the misconception: which reactant had the smaller volume, and is it the one
-  // that actually limits? (Here the smaller-volume reactant is in excess — the punch line.)
+  // Data-driven refutation of the misconception, read straight off the verified ledger — never re-derived here.
+  const fmtMmol = (mol) => {
+    const v = Number(mol) * 1000;
+    return Number.isInteger(v) ? String(v) : v.toFixed(4).replace(/\.?0+$/, "");
+  };
+
+  // The two reactant rows (ν<0): one limits, one is in excess. Their real capacities are initial ÷ |ν| — that
+  // is what decides who runs out. When the coefficients differ, THAT is the punch line (not volume or raw
+  // moles): the limiting reagent can even start with more moles. When they're equal, fall back to the volume
+  // story (the classic "smaller amount must be limiting" trap).
+  const reactantRows = (s.ledger.species ?? []).filter((r) => r.nu < 0);
+  const limRow = reactantRows.find((r) => r.role === "limiting");
+  const excRow = reactantRows.find((r) => r.role === "excess");
+  const cap = (r) => Number(r.initial_mol) / Math.abs(r.nu);
+  const coeffStory = !!limRow && !!excRow && Math.abs(limRow.nu) !== Math.abs(excRow.nu);
+  const limStartsWithMore = coeffStory && Number(limRow.initial_mol) > Number(excRow.initial_mol);
+
+  // volume fallback: is the smaller-volume solution actually the one in excess? (ledger.limiting holds
+  // phase-stripped core ids, so strip the given's phase before comparing.)
+  const stripPhase = (id) => String(id).replace(/\((?:s|l|g|aq)\)$/, "");
   const withVol = (s.given ?? []).filter((g) => g.volume_mL != null);
   const smallerVol = withVol.length === 2
     ? (Number(withVol[0].volume_mL) < Number(withVol[1].volume_mL) ? withVol[0] : withVol[1])
     : null;
   const limitingIds = new Set(s.ledger.limiting);
-  const smallerVolLimits = smallerVol ? limitingIds.has(smallerVol.species) : null;
+  const smallerVolLimits = smallerVol ? limitingIds.has(stripPhase(smallerVol.species)) : null;
 
   const roleLabel = { limiting: "limiting", excess: "excess", product: "product" };
 </script>
@@ -183,7 +201,14 @@
     <div class="misconception">
       <div class="mis-claim"><span class="x">✗</span> Common misconception: “{@html s.misconception.claimHtml}”</div>
       <p class="mis-fix">
-        {#if smallerVol && smallerVolLimits === false}
+        {#if coeffStory}
+          Divide each reactant's amount by its coefficient — that capacity is what runs out.
+          <strong>{limRow.idPretty}</strong>: {fmtMmol(limRow.initial_mol)} mmol ÷ {Math.abs(limRow.nu)} =
+          {fmtMmol(cap(limRow))} mmol of reaction; <strong>{excRow.idPretty}</strong>:
+          {fmtMmol(excRow.initial_mol)} mmol ÷ {Math.abs(excRow.nu)} = {fmtMmol(cap(excRow))} mmol.
+          {limRow.idPretty} is smaller, so it <strong>limits</strong>{limStartsWithMore ? ` — even though it starts with more moles (${fmtMmol(limRow.initial_mol)} vs ${fmtMmol(excRow.initial_mol)} mmol)` : ""}.
+          Raw moles mislead when the coefficients differ; watch the <strong>final (mol)</strong> column.
+        {:else if smallerVol && smallerVolLimits === false}
           The smaller-volume solution ({smallerVol.idPretty}, {smallerVol.volume_mL} mL) is actually in
           <strong>excess</strong>. Moles decide it, not volume: {s.result.limiting_speciesPretty.join(", ")}
           reaches 0 in the ledger and limits the reaction — watch the <strong>final (mol)</strong> column.

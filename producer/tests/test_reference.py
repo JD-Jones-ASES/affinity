@@ -30,13 +30,16 @@ def test_valence_table_shape():
     assert t["sources"]["ion_charge"] == "openstax-chemistry-2e"
 
 
-def test_charge_balance_salts_are_the_lesson_four():
+def test_charge_balance_salts_are_the_lesson_salts():
     t = build_valence_table(_data())
     got = {(c["cation"], c["anion"]): c["formula"] for c in t["charge_balance"]}
     assert got[("Ca^2+", "CO3^2-")] == "CaCO3"
     assert got[("Na^+", "CO3^2-")] == "Na2CO3"
     assert got[("Ca^2+", "Cl^-")] == "CaCl2"
     assert got[("Na^+", "Cl^-")] == "NaCl"
+    # the calcium-phosphate lesson's salts, assembled by crossover (charge −3 → 3:2 and 3:1 ratios)
+    assert got[("Ca^2+", "PO4^3-")] == "Ca3(PO4)2"
+    assert got[("Na^+", "PO4^3-")] == "Na3PO4"
 
 
 def test_assemble_formula_crossover_and_parens():
@@ -57,8 +60,8 @@ def test_concept_entry_build():
     entry = build_reference_entry(spec)
     assert entry["kind"] == "concept" and entry["id"] == "limiting-reagent"
     assert entry["term"] == "limiting reagent"
-    assert entry["related"] == [{"to": "extent-of-reaction", "type": "built-on"}]
-    assert entry["lessons"] == ["calcium-carbonate-limiting"]
+    assert {"to": "extent-of-reaction", "type": "built-on"} in entry["related"]
+    assert entry["lessons"] == ["calcium-carbonate-limiting", "calcium-phosphate-limiting"]
     assert entry["regime"] == "ledger-exact" and "latex" in entry
 
 

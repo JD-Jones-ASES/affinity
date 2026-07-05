@@ -190,11 +190,15 @@ parity-verified closed forms (ADR-0022). The lesson also renders a **Practice** 
 variants with misconception distractors, brief §6.8), the spec format is documented
 (`docs/authoring-problems.md`), **CI deploys to GitHub Pages** (live), and the **Chemical Atlas** exists —
 the **Valence Table** periodic lens (click an element for its common ion; click a polyatomic to see neutral
-formulas fall out of charge balance; the four lesson salts assembled by crossover + machine-verified) plus
-two cross-linked concept entries, gated by `validate-reference`. Molecular → complete ionic → net ionic
-(spectators Na⁺/Cl⁻), carbonate rule cited, ledger, Ca²⁺ limiting, 0.250 g CaCO₃. **Counters: 1 built +
-rendered lesson (with practice), 1 Valence Table + 7 cross-linked concept entries (2 rule-sourced, cited), 6
-Node gates + CI + live Pages, 64 producer tests green.** **Phase 0 is complete end to end** — every brief-§16 definition-of-done item is met;
+formulas fall out of charge balance; the two lessons' salts — incl. Ca₃(PO₄)₂/Na₃PO₄ — assembled by crossover
++ machine-verified) plus **13 cross-linked concept entries**, gated by `validate-reference`. Molecular →
+complete ionic → net ionic (spectators Na⁺/Cl⁻), carbonate rule cited, ledger, Ca²⁺ limiting, 0.250 g CaCO₃.
+A **second lesson** (`calcium-phosphate-limiting`, post-Phase-0 within settled contracts) adds the first
+**non-1:1** reaction (`3 Ca²⁺ + 2 PO₄³⁻ → Ca₃(PO₄)₂`, 0.310 g): the `interactive`/`practice` emitters
+generalised to coefficient > 1 with no code changes, the player refutes the "fewer moles = limiting"
+misconception by **capacity** (moles ÷ coefficient), and the practice explanation teaches the same. **Counters:
+2 built + rendered lessons (with practice), 1 Valence Table + 13 cross-linked concept entries (2 rule-sourced,
+cited), 6 Node gates + CI + live Pages, 65 producer tests green.** **Phase 0 is complete end to end** — every brief-§16 definition-of-done item is met;
 **stop for owner review** before Phase 1. See [`ROADMAP.md`](./ROADMAP.md) and
 [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
 
@@ -206,9 +210,9 @@ tested: (a) element/ion/solubility datasets + SOURCES; (b) parser + balancer; (c
 the solution schema + `build.py` + the **five-gate** Node suite (validate-solutions, check-ledger,
 check-parity, check-katex, scan-text); (g) the **player** with **both interactives**; (h) the gate suite;
 (i) the **practice generator** + Practice tab; (j) the **Chemical Atlas** (Valence Table lens +
-`build-reference` + `reference.schema.json`/`valence-table.schema.json` + `validate-reference` + two concept
-entries); (k) `docs/authoring-problems.md`; and **CI/Pages** (live at `/affinity`) — **all eight items
-landed and verified. Phase 0 is complete.**
+`build-reference` + `reference.schema.json`/`valence-table.schema.json` + `validate-reference` + concept
+entries, now **13**); (k) `docs/authoring-problems.md`; and **CI/Pages** (live at `/affinity`) — **all eight
+items landed and verified. Phase 0 is complete.**
 
 **Next is owner review** (ADR-0010 publish already done — Pages is live). After review, per ROADMAP: **Phase 1
 — the procedural core** (dimensional-analysis gym, formula/nomenclature engine, balancing engine,
@@ -216,9 +220,11 @@ stoichiometry suite, the Valence Table flagship, reaction families) and/or the *
 (more species/reactions/concept-graph edges, `docs/regime-map.md` is the coverage dashboard). Do not open
 Phase 1 scope autonomously — that is a phase boundary the owner opens. Docs-only sessions are always in
 season. **Extending Phase 0** (a second lesson, more Atlas entries) is fair game and inherits the settled
-contracts; note the `interactive`/`practice` emitters (`chemkernel.interactive`/`practice`) currently support
-only single-precipitate double-displacement — other reaction shapes render statically (the blocks are
-omitted, by design).
+contracts — a second lesson (`calcium-phosphate-limiting`) and six more concepts landed this way (2026-07-05).
+Note the `interactive`/`practice` emitters (`chemkernel.interactive`/`practice`) support single-precipitate
+double-displacement at **any** integer stoichiometry (proven on the 3:2 phosphate reaction) — other reaction
+shapes (acid-base, gas-evolution, redox) still render statically (the blocks are omitted, by design) until
+the emitters generalise to them.
 
 **Known traps (1 and 2 bit the sibling; 3 and 4 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested

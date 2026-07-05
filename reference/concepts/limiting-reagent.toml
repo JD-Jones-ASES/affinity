@@ -8,5 +8,6 @@ definition = "The reactant that runs out first, capping how far a reaction can p
 latex = "\\xi_{\\max} = \\min_i \\frac{n_{i,0}}{\\lvert\\nu_i\\rvert}"
 related = [
   { to = "extent-of-reaction", type = "built-on" },
+  { to = "stoichiometry", type = "supports" },
 ]
-lessons = ["calcium-carbonate-limiting"]
+lessons = ["calcium-carbonate-limiting", "calcium-phosphate-limiting"]

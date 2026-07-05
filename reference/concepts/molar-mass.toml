@@ -10,4 +10,4 @@ related = [
   { to = "molarity", type = "sibling-conversion" },
   { to = "limiting-reagent", type = "used-with" },
 ]
-lessons = ["calcium-carbonate-limiting"]
+lessons = ["calcium-carbonate-limiting", "calcium-phosphate-limiting"]

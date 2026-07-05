@@ -37,6 +37,17 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   entries** (2 rule-sourced, cited), gated by `validate-reference`. **64 producer tests + 6 Node gates + astro
   build (6 pages) + live Pages.** Every item of the brief-§16 definition of done is met. **Phase 0 is complete — stop for owner
   review** before opening Phase 1.
+- **Post-Phase-0 breadth — 2026-07-05** (within settled contracts; Phase 0 stays complete). A **second
+  lesson** `precipitation/calcium-phosphate-limiting` — the first **non-1:1** reaction
+  (`3 Ca²⁺ + 2 PO₄³⁻ → Ca₃(PO₄)₂`, 0.310 g), where the limiting reagent is set by moles ÷ coefficient, not raw
+  moles — with full interactives + 6 practice variants (the emitters generalised to coefficient > 1 with no
+  code changes). The player gained a **coefficient-aware misconception refutation** (fires when coefficients
+  differ; the volume story still serves the 1:1 lesson) and the practice `limiting` explanation now teaches
+  capacity (moles ÷ coefficient) rather than the raw-moles fallacy. The **Atlas grew to 13 concepts**
+  (+`stoichiometry`, `dissociation`, `spectator-ion`, `polyatomic-ion`, `conservation-of-mass`,
+  `balancing-equations`) and the **Valence Table** gained the phosphate salts (Ca₃(PO₄)₂, Na₃PO₄ by crossover).
+  **2 lessons, 1 Valence Table + 13 concepts, 6 gates + CI + live Pages, 65 producer tests + astro build
+  (7 pages).** Phase 1 is still the owner's to open.
 
 ---
 

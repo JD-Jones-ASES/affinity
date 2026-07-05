@@ -15,7 +15,7 @@ scenario = "25.0 mL of 0.100 M CaCl2(aq) is mixed with 20.0 mL of 0.150 M Na2CO3
 reactants = ["CaCl2(aq)", "Na2CO3(aq)"]
 products = ["CaCO3(s)", "NaCl(aq)"]
 
-reference_links = ["limiting-reagent", "extent-of-reaction", "molarity", "molar-mass", "net-ionic-equation", "precipitation", "solubility-rules", "calcium", "carbonate"]
+reference_links = ["stoichiometry", "limiting-reagent", "extent-of-reaction", "molarity", "molar-mass", "net-ionic-equation", "precipitation", "solubility-rules", "dissociation", "spectator-ion", "polyatomic-ion", "conservation-of-mass", "balancing-equations", "calcium", "carbonate"]
 
 # Generated practice (ADR-0011, brief §6.8). Deterministic: this seed always yields byte-identical variants.
 [practice]

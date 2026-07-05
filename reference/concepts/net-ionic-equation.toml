@@ -8,5 +8,7 @@ definition = "The reaction with the spectators removed — only the species that
 related = [
   { to = "precipitation", type = "expresses" },
   { to = "solubility-rules", type = "uses" },
+  { to = "dissociation", type = "starts-from" },
+  { to = "spectator-ion", type = "removes" },
 ]
-lessons = ["calcium-carbonate-limiting"]
+lessons = ["calcium-carbonate-limiting", "calcium-phosphate-limiting"]

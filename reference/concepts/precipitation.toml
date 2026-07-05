@@ -10,4 +10,4 @@ related = [
   { to = "net-ionic-equation", type = "written-as" },
   { to = "solubility-rules", type = "predicted-by" },
 ]
-lessons = ["calcium-carbonate-limiting"]
+lessons = ["calcium-carbonate-limiting", "calcium-phosphate-limiting"]

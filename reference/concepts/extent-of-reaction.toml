@@ -8,5 +8,6 @@ definition = "One number, $\\xi$ (in moles), that says how far a reaction has ru
 latex = "n_i = n_{i,0} + \\nu_i\\,\\xi"
 related = [
   { to = "limiting-reagent", type = "supports" },
+  { to = "stoichiometry", type = "expressed-as" },
 ]
-lessons = ["calcium-carbonate-limiting"]
+lessons = ["calcium-carbonate-limiting", "calcium-phosphate-limiting"]

@@ -97,8 +97,11 @@ def generate_practice(interactive: dict, seed: int, count: int, ctx: str = "") -
                     {"display": "Neither — both are fully consumed", "correct": False,
                      "misconception": "A limiting reagent runs out first; here one reactant is left over, so they are not both fully consumed."},
                 ],
-                "explain": (f"n({src_cat}) = {_mmol(n_cat)} mmol of the reacting ion, "
-                            f"n({src_an}) = {_mmol(n_an)} mmol. {limiting_src} supplies fewer, so it limits."),
+                "explain": (f"Each reactant's capacity is its reacting-ion moles ÷ its net-ionic coefficient: "
+                            f"{src_cat} = {_mmol(n_cat)} ÷ {a_cat} = {_mmol(cap_cat)} mmol, "
+                            f"{src_an} = {_mmol(n_an)} ÷ {a_an} = {_mmol(cap_an)} mmol. "
+                            f"{limiting_src} is smaller, so it limits."
+                            + ("" if a_cat == a_an else " Fewer moles doesn't always mean limiting — the coefficient decides.")),
             }
         elif kind == "mass":
             m_correct = mass
@@ -119,7 +122,7 @@ def generate_practice(interactive: dict, seed: int, count: int, ctx: str = "") -
                      "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."},
                 ],
                 "explain": (f"ξ = {_mmol(xi)} mmol (set by {limiting_src}); "
-                            f"mass = {p} × {_mmol(xi)} mmol × {format(molar_mass, 'f')} g/mol = {_grams(m_correct)} g."),
+                            f"mass = {p} × {_mmol(xi)} mmol × {prod['molar_mass']} g/mol = {_grams(m_correct)} g."),
             }
         else:  # leftover
             full_excess = n_an if cat_limits else n_cat

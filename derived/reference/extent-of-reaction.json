@@ -8,10 +8,15 @@
     {
       "to": "limiting-reagent",
       "type": "supports"
+    },
+    {
+      "to": "stoichiometry",
+      "type": "expressed-as"
     }
   ],
   "lessons": [
-    "calcium-carbonate-limiting"
+    "calcium-carbonate-limiting",
+    "calcium-phosphate-limiting"
   ],
   "regime": "ledger-exact",
   "latex": "n_i = n_{i,0} + \\nu_i\\,\\xi"

@@ -1,0 +1,22 @@
+{
+  "kind": "concept",
+  "id": "spectator-ion",
+  "title": "Spectator ion",
+  "term": "spectator ion",
+  "definition": "An ion that appears unchanged on both sides of the complete-ionic equation — present before and after, never consumed. Cancelling the spectators is exactly what turns the complete-ionic equation into the net ionic one. They do not vanish: $\\text{Na}^+$ and $\\text{Cl}^-$ stay dissolved while $\\text{Ca}^{2+}$ and $\\text{PO}_4^{3-}$ leave solution as solid — they simply sit the reaction out.",
+  "related": [
+    {
+      "to": "net-ionic-equation",
+      "type": "removed-from"
+    },
+    {
+      "to": "dissociation",
+      "type": "requires"
+    }
+  ],
+  "lessons": [
+    "calcium-carbonate-limiting",
+    "calcium-phosphate-limiting"
+  ],
+  "regime": "ledger-exact"
+}

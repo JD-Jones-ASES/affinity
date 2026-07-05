@@ -15,7 +15,8 @@
     }
   ],
   "lessons": [
-    "calcium-carbonate-limiting"
+    "calcium-carbonate-limiting",
+    "calcium-phosphate-limiting"
   ],
   "regime": "ledger-exact",
   "latex": "M = \\dfrac{n}{V}"

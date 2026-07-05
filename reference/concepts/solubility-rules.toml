@@ -9,4 +9,4 @@ definition = "A short, ordered list of empirical rules that predict whether an i
 related = [
   { to = "precipitation", type = "predicts" },
 ]
-lessons = ["calcium-carbonate-limiting"]
+lessons = ["calcium-carbonate-limiting", "calcium-phosphate-limiting"]

@@ -74,8 +74,10 @@ def build_valence_table(data) -> dict:
         for ion in data.ions.values() if ion.kind == "polyatomic"
     ]
 
-    # charge-balance examples: the four salts of the Phase-0 lesson, each assembled + verified from the table
-    pairs = [("Ca^2+", "CO3^2-"), ("Na^+", "CO3^2-"), ("Ca^2+", "Cl^-"), ("Na^+", "Cl^-")]
+    # charge-balance examples: the salts of the two Phase-0 lessons, each assembled + verified from the table.
+    # The phosphate pair (charge −3) shows the crossover ratios that make the calcium-phosphate lesson tick.
+    pairs = [("Ca^2+", "CO3^2-"), ("Na^+", "CO3^2-"), ("Ca^2+", "Cl^-"), ("Na^+", "Cl^-"),
+             ("Ca^2+", "PO4^3-"), ("Na^+", "PO4^3-")]
     charge_balance = []
     for cat_id, an_id in pairs:
         cation, anion = data.ions.get(cat_id), data.ions.get(an_id)

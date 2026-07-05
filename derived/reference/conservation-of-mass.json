@@ -1,0 +1,27 @@
+{
+  "kind": "concept",
+  "id": "conservation-of-mass",
+  "title": "Conservation of mass",
+  "term": "conservation of mass",
+  "definition": "Atoms are neither created nor destroyed in a reaction, so once the equation is balanced every element's atom count is equal on both sides. This is the constraint the balancer solves and the atom-balance check enforces at build time; it is also why the ledger's coefficients $\\nu_i$ must come from a balanced equation. For each element $E$, the signed contributions of all species sum to zero.",
+  "related": [
+    {
+      "to": "balancing-equations",
+      "type": "enforced-by"
+    },
+    {
+      "to": "stoichiometry",
+      "type": "underlies"
+    },
+    {
+      "to": "extent-of-reaction",
+      "type": "constrains"
+    }
+  ],
+  "lessons": [
+    "calcium-carbonate-limiting",
+    "calcium-phosphate-limiting"
+  ],
+  "regime": "ledger-exact",
+  "latex": "\\sum_i \\nu_i\\,a_{E,i} = 0 \\quad\\text{for every element } E"
+}

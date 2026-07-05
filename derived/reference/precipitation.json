@@ -15,7 +15,8 @@
     }
   ],
   "lessons": [
-    "calcium-carbonate-limiting"
+    "calcium-carbonate-limiting",
+    "calcium-phosphate-limiting"
   ],
   "regime": "rule-sourced",
   "source": "openstax-chemistry-2e"

@@ -8,10 +8,15 @@
     {
       "to": "extent-of-reaction",
       "type": "built-on"
+    },
+    {
+      "to": "stoichiometry",
+      "type": "supports"
     }
   ],
   "lessons": [
-    "calcium-carbonate-limiting"
+    "calcium-carbonate-limiting",
+    "calcium-phosphate-limiting"
   ],
   "regime": "ledger-exact",
   "latex": "\\xi_{\\max} = \\min_i \\frac{n_{i,0}}{\\lvert\\nu_i\\rvert}"
