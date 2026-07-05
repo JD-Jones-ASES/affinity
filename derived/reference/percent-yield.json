@@ -1,0 +1,24 @@
+{
+  "kind": "concept",
+  "id": "percent-yield",
+  "title": "Percent yield",
+  "term": "percent yield",
+  "definition": "The fraction of the theoretical maximum a reaction actually delivers, as a percentage: $\\text{percent yield} = \\dfrac{\\text{actual}}{\\text{theoretical}} \\times 100\\%$. The **theoretical yield** is the product mass predicted by mass stoichiometry from the limiting reagent — the ledger at maximum extent. The **actual yield** is what is measured; it falls short because of side reactions, incomplete conversion, and losses in handling. Yield cannot exceed 100% (that would break conservation of mass); a value above it signals an impure product or a measurement error, not extra matter.",
+  "related": [
+    {
+      "to": "stoichiometry",
+      "type": "extends"
+    },
+    {
+      "to": "limiting-reagent",
+      "type": "depends-on"
+    },
+    {
+      "to": "conservation-of-mass",
+      "type": "bounded-by"
+    }
+  ],
+  "lessons": [],
+  "regime": "ledger-exact",
+  "latex": "\\text{percent yield} = \\dfrac{m_{\\text{actual}}}{m_{\\text{theoretical}}} \\times 100\\%"
+}

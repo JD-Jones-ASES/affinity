@@ -16,9 +16,9 @@ dashboard; phases are defined in [`ROADMAP.md`](../ROADMAP.md).
 | periodic table & periodic trends | 3, 4 | 1 | atlas (Valence Table lens — positions + ion charges) |
 | balancing equations | 1 | **1** | **gym** (balancing, conservation-matrix + charge tally) + atlas (balancing-equations concept) |
 | reaction classes | 3, 4 | 1 | atlas (precipitation, net-ionic, solubility-rules, dissociation, spectator-ion concepts) |
-| stoichiometry (mass/volume/solution/particle) | 1 | 1 | atlas (stoichiometry, conservation-of-mass concepts) |
+| stoichiometry (mass/volume/solution/particle) | 1 | **1** | **gym** (mass → mass) + atlas (stoichiometry, conservation-of-mass concepts) |
 | limiting reagents | 1, 2 | **0** | **2 lessons, practice, atlas** (Phase 0 slice + non-1:1 phosphate) |
-| percent yield | 1, 2 | 1 | — |
+| percent yield | 1, 2 | **1** | **gym** (percent yield) + atlas (percent-yield concept) |
 | solutions & molarity | 1, 2 | **0** | **2 lessons** + atlas (molarity concept) |
 | precipitation & net ionic equations | 1, 2, 3 | **0** | **2 lessons + atlas** (carbonate + calcium phosphate) |
 | gases (ideal-gas model) | 1, 2 | 2+ | — |

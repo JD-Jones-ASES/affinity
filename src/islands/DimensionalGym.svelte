@@ -6,6 +6,15 @@
   let { gym } = $props();
   const problems = gym.problems;
 
+  // The chain caption fits the family: units cancel in conversions, but stoichiometry crosses a mole ratio
+  // and percent yield compares two masses — so the wording adapts (the flow itself is identical).
+  const CHAIN_LABELS = {
+    solution_conversions_v1: "Follow the units — each factor cancels into the next:",
+    mass_stoichiometry_v1: "Convert to moles, cross the mole ratio, convert back:",
+    percent_yield_v1: "Theoretical yield first, then compare the actual:",
+  };
+  const chainLabel = CHAIN_LABELS[gym.family] ?? "Work through it, step by step:";
+
   let idx = $state(0);
   let picked = $state(null);
   let score = $state(0);
@@ -92,7 +101,7 @@
     {#if picked !== null}
       <div class="reveal">
         {#if q.chain}
-          <div class="chain-label">Follow the units — each factor cancels into the next:</div>
+          <div class="chain-label">{chainLabel}</div>
           <div class="chain-flow">
             {#each q.chain as st, i}
               <div class="cq">
@@ -103,7 +112,7 @@
             {/each}
           </div>
         {/if}
-        {#if q.derivation?.species}
+        {#if q.kind === "balancing"}
           <div class="chain-label">Every element balances with the correct coefficients:</div>
           <table class="tally">
             <thead><tr><th>{q.derivation.species.some((s) => s.charge !== 0) ? "element / charge" : "element"}</th><th>reactants</th><th>products</th><th aria-label="balanced"></th></tr></thead>

@@ -224,11 +224,18 @@ trap** (H₂O→H₂O₂, CO→CO₂, proven honest at emit time). A new **pure-
 (`scripts/validate/formula.mjs`, closing the ADR-0023 gap) re-parses every formula and re-proves the
 coefficients zero every element + charge row; `chempy` cross-checks the neutral corpus. The gym islands now
 present choices in a deterministic per-problem shuffle (producer still emits the correct choice first).
-**Counters: 2 lessons + 3 gyms (dimensional analysis + ionic nomenclature + balancing; 30 verified problems),
-1 Valence Table (15 elements) + 15 cross-linked concept entries (3 rule-sourced, cited), 7 Node gates + CI +
-live Pages, 100 producer tests green; astro build = 11 pages.**
-**Phase 0 remains complete end to end**; Phase 1 is filling depth-first — items 4–6 carry full scope blocks,
-an 8-session map, and a **Phase-1 definition of done** in the ROADMAP, with a review gate before Phase 2. See
+**Item 4 (stoichiometry suite) is in progress** (ADR-0029): two gym families landed — `mass_stoichiometry_v1`
+(grams → moles → mole ratio → moles → grams) and `percent_yield_v1` (theoretical yield, then actual ÷
+theoretical × 100), both forward-generated from clean mole amounts (exact values) over the neutral reaction
+corpus. The gate **re-verifies each equation balances** (reusing item 3's `verifyBalance` — the mole ratio is
+proven, not trusted) **and** re-derives the mass/percent numerically; molar-mass consistency now spans the
+whole gym corpus. A `percent-yield` Atlas concept landed; the drill island's chain caption is family-aware.
+Item 4's `limiting_mass_v1` gym, the flagship percent-yield lesson, and the Avogadro datum remain.
+**Counters: 2 lessons + 5 gyms (dimensional analysis + ionic nomenclature + balancing + mass stoichiometry +
+percent yield; 50 verified problems), 1 Valence Table (15 elements) + 16 cross-linked concept entries (3
+rule-sourced, cited), 7 Node gates + CI + live Pages, 133 producer tests green; astro build = 13 pages.**
+**Phase 0 remains complete end to end**; Phase 1 is filling depth-first — items 4 (finishing) through 6 carry
+full scope blocks, an 8-session map, and a **Phase-1 definition of done** in the ROADMAP, with a review gate before Phase 2. See
 [`ROADMAP.md`](./ROADMAP.md) and [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
 
 ## Where this might go next (paths for a future session)

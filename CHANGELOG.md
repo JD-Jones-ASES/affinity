@@ -3,6 +3,33 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 1 — 2026-07-05 — item 4 (part): the stoichiometry gyms
+
+- **Mass stoichiometry, `mass_stoichiometry_v1`** (ADR-0029). Grams of one species → grams of another across a
+  balanced equation: grams → moles (÷ molar mass) → **cross the mole ratio** → moles → grams (× molar mass).
+  Each problem is generated forward from a clean mole amount so every value is an exact terminating decimal,
+  and the equation is balanced by ChemKernel. Wrong options are named mistakes — the mole ratio flipped or
+  ignored, or the grams→moles conversion skipped.
+- **Percent yield, `percent_yield_v1`** (ADR-0029). Given a reactant mass and the actual product mass
+  collected, find percent yield: theoretical yield by mass stoichiometry, then actual ÷ theoretical × 100.
+  Wrong options: inverted ratio, the ×100 dropped, or the reactant mass used as the denominator.
+- **Two independent gate checks per problem.** `validate-gyms.mjs` **re-verifies the equation balances**
+  (reusing item 3's `verifyBalance` — so the mole ratio is proven to come from a real balance, not trusted)
+  **and re-derives the mass/percent numerically** from the given/target molar masses + the coefficient ratio,
+  in pure Node. Molar-mass consistency is now enforced across the **whole** gym corpus (a species carries one
+  sourced molar mass everywhere it appears). `chempy` cross-checks the corpus molar masses (ADR-0026).
+- **Player + Atlas.** The drill island's chain caption is now family-aware ("cross the mole ratio" /
+  "theoretical yield first"); chain step notes get Unicode subscripts too. A new `percent-yield` Atlas concept
+  covers the regime-map row. Fixed an island bug caught in in-browser testing: the balancing conservation-tally
+  block keyed on `derivation.species` (which stoichiometry now also emits, for the balance check) — re-keyed
+  to balancing-only so the stoich reveal renders its chain, not a broken tally.
+- **133 producer tests** (+33: stoichiometry shape/re-derivation/balance/determinism + a `chempy` molar-mass
+  cross-check over every corpus species) + **7 gates** (validate-gyms = **5 gyms / 50 problems**,
+  validate-reference = 17, check-katex = 90) + **astro build (13 pages)** green. In-browser: both stoich drills
+  render their chains + family labels; the reveal, scoring, and shuffled choices work; balancing's tally
+  regresses clean. **Deferred (item 4 continues):** the `limiting_mass_v1` gym, the flagship percent-yield
+  lesson, and the Avogadro datum for particle-count stoichiometry.
+
 ## Phase 1 — 2026-07-05 — item 3: the balancing engine
 
 - **Balancing gym, `balancing_v1`** (ADR-0028). Pick the balanced equation, then watch **every element (and

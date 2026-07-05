@@ -1,0 +1,1147 @@
+{
+  "kind": "gym",
+  "id": "stoichiometry-percent-yield",
+  "title": "Percent yield: actual vs. theoretical",
+  "slug": "percent-yield",
+  "topic": "stoichiometry",
+  "family": "percent_yield_v1",
+  "seed": 3141592,
+  "blurb": "Given how much reactant went in and how much product actually came out, find the percent yield: work out the theoretical yield by mass stoichiometry, then take actual ÷ theoretical × 100. The theoretical yield is machine-computed from a sourced, balanced equation; each wrong option is a specific mistake — the ratio inverted, the ×100 dropped, or the reactant mass used instead of the theoretical yield.",
+  "skills": [
+    "theoretical yield by mass stoichiometry",
+    "percent yield = actual ÷ theoretical × 100",
+    "the denominator is the theoretical product mass, not the reactant mass",
+    "a percent, not a bare fraction"
+  ],
+  "reference_links": [
+    "percent-yield",
+    "stoichiometry",
+    "molar-mass"
+  ],
+  "problems": [
+    {
+      "kind": "percent_yield",
+      "prompt": "For 3 CaCl2 + 2 Na3PO4 → Ca3(PO4)2 + 6 NaCl: 22.1956 g of CaCl2 is reacted and 12.8568 g of NaCl is collected. What is the percent yield?",
+      "chain": [
+        {
+          "value": "22.1956",
+          "unit": "g",
+          "note": "CaCl2 reacted"
+        },
+        {
+          "value": "23.376",
+          "unit": "g",
+          "note": "theoretical yield (mass stoichiometry)"
+        },
+        {
+          "value": "12.8568",
+          "unit": "g",
+          "note": "actual yield (measured)"
+        },
+        {
+          "value": "55",
+          "unit": "%",
+          "note": "actual ÷ theoretical × 100"
+        }
+      ],
+      "target_unit": "%",
+      "answer": {
+        "value": "55",
+        "unit": "%",
+        "display": "55 %"
+      },
+      "derivation": {
+        "kind": "percent_yield",
+        "species": [
+          {
+            "formula": "CaCl2",
+            "role": "reactant",
+            "counts": {
+              "Ca": 1,
+              "Cl": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Na3PO4",
+            "role": "reactant",
+            "counts": {
+              "Na": 3,
+              "P": 1,
+              "O": 4
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Ca3(PO4)2",
+            "role": "product",
+            "counts": {
+              "Ca": 3,
+              "P": 2,
+              "O": 8
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaCl",
+            "role": "product",
+            "counts": {
+              "Na": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          3,
+          2,
+          1,
+          6
+        ],
+        "given": {
+          "index": 0,
+          "formula": "CaCl2",
+          "coeff": 3,
+          "molar_mass_g_per_mol": "110.978",
+          "mass_g": "22.1956"
+        },
+        "target": {
+          "index": 3,
+          "formula": "NaCl",
+          "coeff": 6,
+          "molar_mass_g_per_mol": "58.44"
+        },
+        "actual_mass_g": "12.8568",
+        "theoretical_mass_g": "23.376"
+      },
+      "choices": [
+        {
+          "display": "55 %",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "181.8 %",
+          "correct": false,
+          "misconception": "Divided upside down — percent yield is actual ÷ theoretical, not theoretical ÷ actual."
+        },
+        {
+          "display": "0.55 %",
+          "correct": false,
+          "misconception": "That's the fraction, not the percent — multiply by 100."
+        }
+      ],
+      "explain": "Theoretical yield first: 22.1956 g CaCl2 gives 23.376 g NaCl by stoichiometry. Then percent yield = actual ÷ theoretical × 100 = 12.8568 ÷ 23.376 × 100 = 55%.",
+      "subscript_tokens": [
+        "Ca3(PO4)2",
+        "CaCl2",
+        "Na3PO4"
+      ],
+      "id": "q1"
+    },
+    {
+      "kind": "percent_yield",
+      "prompt": "For 4 Fe + 3 O2 → 2 Fe2O3: 27.9225 g of Fe is reacted and 29.9413125 g of Fe2O3 is collected. What is the percent yield?",
+      "chain": [
+        {
+          "value": "27.9225",
+          "unit": "g",
+          "note": "Fe reacted"
+        },
+        {
+          "value": "39.92175",
+          "unit": "g",
+          "note": "theoretical yield (mass stoichiometry)"
+        },
+        {
+          "value": "29.9413125",
+          "unit": "g",
+          "note": "actual yield (measured)"
+        },
+        {
+          "value": "75",
+          "unit": "%",
+          "note": "actual ÷ theoretical × 100"
+        }
+      ],
+      "target_unit": "%",
+      "answer": {
+        "value": "75",
+        "unit": "%",
+        "display": "75 %"
+      },
+      "derivation": {
+        "kind": "percent_yield",
+        "species": [
+          {
+            "formula": "Fe",
+            "role": "reactant",
+            "counts": {
+              "Fe": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Fe2O3",
+            "role": "product",
+            "counts": {
+              "Fe": 2,
+              "O": 3
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          4,
+          3,
+          2
+        ],
+        "given": {
+          "index": 0,
+          "formula": "Fe",
+          "coeff": 4,
+          "molar_mass_g_per_mol": "55.845",
+          "mass_g": "27.9225"
+        },
+        "target": {
+          "index": 2,
+          "formula": "Fe2O3",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "159.687"
+        },
+        "actual_mass_g": "29.9413125",
+        "theoretical_mass_g": "39.92175"
+      },
+      "choices": [
+        {
+          "display": "75 %",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "133.3 %",
+          "correct": false,
+          "misconception": "Divided upside down — percent yield is actual ÷ theoretical, not theoretical ÷ actual."
+        },
+        {
+          "display": "0.75 %",
+          "correct": false,
+          "misconception": "That's the fraction, not the percent — multiply by 100."
+        }
+      ],
+      "explain": "Theoretical yield first: 27.9225 g Fe gives 39.92175 g Fe2O3 by stoichiometry. Then percent yield = actual ÷ theoretical × 100 = 29.9413125 ÷ 39.92175 × 100 = 75%.",
+      "subscript_tokens": [
+        "Fe2O3",
+        "O2"
+      ],
+      "id": "q2"
+    },
+    {
+      "kind": "percent_yield",
+      "prompt": "For 2 C2H6 + 7 O2 → 4 CO2 + 6 H2O: 4.5105 g of C2H6 is reacted and 4.86405 g of H2O is collected. What is the percent yield?",
+      "chain": [
+        {
+          "value": "4.5105",
+          "unit": "g",
+          "note": "C2H6 reacted"
+        },
+        {
+          "value": "8.10675",
+          "unit": "g",
+          "note": "theoretical yield (mass stoichiometry)"
+        },
+        {
+          "value": "4.86405",
+          "unit": "g",
+          "note": "actual yield (measured)"
+        },
+        {
+          "value": "60",
+          "unit": "%",
+          "note": "actual ÷ theoretical × 100"
+        }
+      ],
+      "target_unit": "%",
+      "answer": {
+        "value": "60",
+        "unit": "%",
+        "display": "60 %"
+      },
+      "derivation": {
+        "kind": "percent_yield",
+        "species": [
+          {
+            "formula": "C2H6",
+            "role": "reactant",
+            "counts": {
+              "C": 2,
+              "H": 6
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO2",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          7,
+          4,
+          6
+        ],
+        "given": {
+          "index": 0,
+          "formula": "C2H6",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "30.07",
+          "mass_g": "4.5105"
+        },
+        "target": {
+          "index": 3,
+          "formula": "H2O",
+          "coeff": 6,
+          "molar_mass_g_per_mol": "18.015"
+        },
+        "actual_mass_g": "4.86405",
+        "theoretical_mass_g": "8.10675"
+      },
+      "choices": [
+        {
+          "display": "60 %",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "166.7 %",
+          "correct": false,
+          "misconception": "Divided upside down — percent yield is actual ÷ theoretical, not theoretical ÷ actual."
+        },
+        {
+          "display": "0.6 %",
+          "correct": false,
+          "misconception": "That's the fraction, not the percent — multiply by 100."
+        }
+      ],
+      "explain": "Theoretical yield first: 4.5105 g C2H6 gives 8.10675 g H2O by stoichiometry. Then percent yield = actual ÷ theoretical × 100 = 4.86405 ÷ 8.10675 × 100 = 60%.",
+      "subscript_tokens": [
+        "C2H6",
+        "CO2",
+        "H2O",
+        "O2"
+      ],
+      "id": "q3"
+    },
+    {
+      "kind": "percent_yield",
+      "prompt": "For 2 KClO3 → 2 KCl + 3 O2: 61.2725 g of KClO3 is reacted and 15.599025 g of O2 is collected. What is the percent yield?",
+      "chain": [
+        {
+          "value": "61.2725",
+          "unit": "g",
+          "note": "KClO3 reacted"
+        },
+        {
+          "value": "23.9985",
+          "unit": "g",
+          "note": "theoretical yield (mass stoichiometry)"
+        },
+        {
+          "value": "15.599025",
+          "unit": "g",
+          "note": "actual yield (measured)"
+        },
+        {
+          "value": "65",
+          "unit": "%",
+          "note": "actual ÷ theoretical × 100"
+        }
+      ],
+      "target_unit": "%",
+      "answer": {
+        "value": "65",
+        "unit": "%",
+        "display": "65 %"
+      },
+      "derivation": {
+        "kind": "percent_yield",
+        "species": [
+          {
+            "formula": "KClO3",
+            "role": "reactant",
+            "counts": {
+              "K": 1,
+              "Cl": 1,
+              "O": 3
+            },
+            "charge": 0
+          },
+          {
+            "formula": "KCl",
+            "role": "product",
+            "counts": {
+              "K": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "product",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          2,
+          3
+        ],
+        "given": {
+          "index": 0,
+          "formula": "KClO3",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "122.545",
+          "mass_g": "61.2725"
+        },
+        "target": {
+          "index": 2,
+          "formula": "O2",
+          "coeff": 3,
+          "molar_mass_g_per_mol": "31.998"
+        },
+        "actual_mass_g": "15.599025",
+        "theoretical_mass_g": "23.9985"
+      },
+      "choices": [
+        {
+          "display": "65 %",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "153.8 %",
+          "correct": false,
+          "misconception": "Divided upside down — percent yield is actual ÷ theoretical, not theoretical ÷ actual."
+        },
+        {
+          "display": "0.65 %",
+          "correct": false,
+          "misconception": "That's the fraction, not the percent — multiply by 100."
+        }
+      ],
+      "explain": "Theoretical yield first: 61.2725 g KClO3 gives 23.9985 g O2 by stoichiometry. Then percent yield = actual ÷ theoretical × 100 = 15.599025 ÷ 23.9985 × 100 = 65%.",
+      "subscript_tokens": [
+        "KClO3",
+        "O2"
+      ],
+      "id": "q4"
+    },
+    {
+      "kind": "percent_yield",
+      "prompt": "For 2 H2 + O2 → 2 H2O: 0.504 g of H2 is reacted and 3.152625 g of H2O is collected. What is the percent yield?",
+      "chain": [
+        {
+          "value": "0.504",
+          "unit": "g",
+          "note": "H2 reacted"
+        },
+        {
+          "value": "4.50375",
+          "unit": "g",
+          "note": "theoretical yield (mass stoichiometry)"
+        },
+        {
+          "value": "3.152625",
+          "unit": "g",
+          "note": "actual yield (measured)"
+        },
+        {
+          "value": "70",
+          "unit": "%",
+          "note": "actual ÷ theoretical × 100"
+        }
+      ],
+      "target_unit": "%",
+      "answer": {
+        "value": "70",
+        "unit": "%",
+        "display": "70 %"
+      },
+      "derivation": {
+        "kind": "percent_yield",
+        "species": [
+          {
+            "formula": "H2",
+            "role": "reactant",
+            "counts": {
+              "H": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          1,
+          2
+        ],
+        "given": {
+          "index": 0,
+          "formula": "H2",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "2.016",
+          "mass_g": "0.504"
+        },
+        "target": {
+          "index": 2,
+          "formula": "H2O",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "18.015"
+        },
+        "actual_mass_g": "3.152625",
+        "theoretical_mass_g": "4.50375"
+      },
+      "choices": [
+        {
+          "display": "70 %",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "142.9 %",
+          "correct": false,
+          "misconception": "Divided upside down — percent yield is actual ÷ theoretical, not theoretical ÷ actual."
+        },
+        {
+          "display": "0.7 %",
+          "correct": false,
+          "misconception": "That's the fraction, not the percent — multiply by 100."
+        }
+      ],
+      "explain": "Theoretical yield first: 0.504 g H2 gives 4.50375 g H2O by stoichiometry. Then percent yield = actual ÷ theoretical × 100 = 3.152625 ÷ 4.50375 × 100 = 70%.",
+      "subscript_tokens": [
+        "H2",
+        "H2O",
+        "O2"
+      ],
+      "id": "q5"
+    },
+    {
+      "kind": "percent_yield",
+      "prompt": "For 2 C + O2 → 2 CO: 63.996 g of O2 is reacted and 106.438 g of CO is collected. What is the percent yield?",
+      "chain": [
+        {
+          "value": "63.996",
+          "unit": "g",
+          "note": "O2 reacted"
+        },
+        {
+          "value": "112.04",
+          "unit": "g",
+          "note": "theoretical yield (mass stoichiometry)"
+        },
+        {
+          "value": "106.438",
+          "unit": "g",
+          "note": "actual yield (measured)"
+        },
+        {
+          "value": "95",
+          "unit": "%",
+          "note": "actual ÷ theoretical × 100"
+        }
+      ],
+      "target_unit": "%",
+      "answer": {
+        "value": "95",
+        "unit": "%",
+        "display": "95 %"
+      },
+      "derivation": {
+        "kind": "percent_yield",
+        "species": [
+          {
+            "formula": "C",
+            "role": "reactant",
+            "counts": {
+              "C": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          1,
+          2
+        ],
+        "given": {
+          "index": 1,
+          "formula": "O2",
+          "coeff": 1,
+          "molar_mass_g_per_mol": "31.998",
+          "mass_g": "63.996"
+        },
+        "target": {
+          "index": 2,
+          "formula": "CO",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "28.01"
+        },
+        "actual_mass_g": "106.438",
+        "theoretical_mass_g": "112.04"
+      },
+      "choices": [
+        {
+          "display": "95 %",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "105.3 %",
+          "correct": false,
+          "misconception": "Divided upside down — percent yield is actual ÷ theoretical, not theoretical ÷ actual."
+        },
+        {
+          "display": "0.95 %",
+          "correct": false,
+          "misconception": "That's the fraction, not the percent — multiply by 100."
+        }
+      ],
+      "explain": "Theoretical yield first: 63.996 g O2 gives 112.04 g CO by stoichiometry. Then percent yield = actual ÷ theoretical × 100 = 106.438 ÷ 112.04 × 100 = 95%.",
+      "subscript_tokens": [
+        "O2"
+      ],
+      "id": "q6"
+    },
+    {
+      "kind": "percent_yield",
+      "prompt": "For C3H8 + 5 O2 → 3 CO2 + 4 H2O: 31.998 g of O2 is reacted and 13.25904 g of H2O is collected. What is the percent yield?",
+      "chain": [
+        {
+          "value": "31.998",
+          "unit": "g",
+          "note": "O2 reacted"
+        },
+        {
+          "value": "14.412",
+          "unit": "g",
+          "note": "theoretical yield (mass stoichiometry)"
+        },
+        {
+          "value": "13.25904",
+          "unit": "g",
+          "note": "actual yield (measured)"
+        },
+        {
+          "value": "92",
+          "unit": "%",
+          "note": "actual ÷ theoretical × 100"
+        }
+      ],
+      "target_unit": "%",
+      "answer": {
+        "value": "92",
+        "unit": "%",
+        "display": "92 %"
+      },
+      "derivation": {
+        "kind": "percent_yield",
+        "species": [
+          {
+            "formula": "C3H8",
+            "role": "reactant",
+            "counts": {
+              "C": 3,
+              "H": 8
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO2",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          5,
+          3,
+          4
+        ],
+        "given": {
+          "index": 1,
+          "formula": "O2",
+          "coeff": 5,
+          "molar_mass_g_per_mol": "31.998",
+          "mass_g": "31.998"
+        },
+        "target": {
+          "index": 3,
+          "formula": "H2O",
+          "coeff": 4,
+          "molar_mass_g_per_mol": "18.015"
+        },
+        "actual_mass_g": "13.25904",
+        "theoretical_mass_g": "14.412"
+      },
+      "choices": [
+        {
+          "display": "92 %",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "108.7 %",
+          "correct": false,
+          "misconception": "Divided upside down — percent yield is actual ÷ theoretical, not theoretical ÷ actual."
+        },
+        {
+          "display": "0.92 %",
+          "correct": false,
+          "misconception": "That's the fraction, not the percent — multiply by 100."
+        }
+      ],
+      "explain": "Theoretical yield first: 31.998 g O2 gives 14.412 g H2O by stoichiometry. Then percent yield = actual ÷ theoretical × 100 = 13.25904 ÷ 14.412 × 100 = 92%.",
+      "subscript_tokens": [
+        "C3H8",
+        "CO2",
+        "H2O",
+        "O2"
+      ],
+      "id": "q7"
+    },
+    {
+      "kind": "percent_yield",
+      "prompt": "For CH4 + 2 O2 → CO2 + 2 H2O: 16.043 g of CH4 is reacted and 25.221 g of H2O is collected. What is the percent yield?",
+      "chain": [
+        {
+          "value": "16.043",
+          "unit": "g",
+          "note": "CH4 reacted"
+        },
+        {
+          "value": "36.03",
+          "unit": "g",
+          "note": "theoretical yield (mass stoichiometry)"
+        },
+        {
+          "value": "25.221",
+          "unit": "g",
+          "note": "actual yield (measured)"
+        },
+        {
+          "value": "70",
+          "unit": "%",
+          "note": "actual ÷ theoretical × 100"
+        }
+      ],
+      "target_unit": "%",
+      "answer": {
+        "value": "70",
+        "unit": "%",
+        "display": "70 %"
+      },
+      "derivation": {
+        "kind": "percent_yield",
+        "species": [
+          {
+            "formula": "CH4",
+            "role": "reactant",
+            "counts": {
+              "C": 1,
+              "H": 4
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO2",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          2,
+          1,
+          2
+        ],
+        "given": {
+          "index": 0,
+          "formula": "CH4",
+          "coeff": 1,
+          "molar_mass_g_per_mol": "16.043",
+          "mass_g": "16.043"
+        },
+        "target": {
+          "index": 3,
+          "formula": "H2O",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "18.015"
+        },
+        "actual_mass_g": "25.221",
+        "theoretical_mass_g": "36.03"
+      },
+      "choices": [
+        {
+          "display": "70 %",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "142.9 %",
+          "correct": false,
+          "misconception": "Divided upside down — percent yield is actual ÷ theoretical, not theoretical ÷ actual."
+        },
+        {
+          "display": "0.7 %",
+          "correct": false,
+          "misconception": "That's the fraction, not the percent — multiply by 100."
+        }
+      ],
+      "explain": "Theoretical yield first: 16.043 g CH4 gives 36.03 g H2O by stoichiometry. Then percent yield = actual ÷ theoretical × 100 = 25.221 ÷ 36.03 × 100 = 70%.",
+      "subscript_tokens": [
+        "CH4",
+        "CO2",
+        "H2O",
+        "O2"
+      ],
+      "id": "q8"
+    },
+    {
+      "kind": "percent_yield",
+      "prompt": "For 2 H2 + O2 → 2 H2O: 4.7997 g of O2 is reacted and 4.053375 g of H2O is collected. What is the percent yield?",
+      "chain": [
+        {
+          "value": "4.7997",
+          "unit": "g",
+          "note": "O2 reacted"
+        },
+        {
+          "value": "5.4045",
+          "unit": "g",
+          "note": "theoretical yield (mass stoichiometry)"
+        },
+        {
+          "value": "4.053375",
+          "unit": "g",
+          "note": "actual yield (measured)"
+        },
+        {
+          "value": "75",
+          "unit": "%",
+          "note": "actual ÷ theoretical × 100"
+        }
+      ],
+      "target_unit": "%",
+      "answer": {
+        "value": "75",
+        "unit": "%",
+        "display": "75 %"
+      },
+      "derivation": {
+        "kind": "percent_yield",
+        "species": [
+          {
+            "formula": "H2",
+            "role": "reactant",
+            "counts": {
+              "H": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          1,
+          2
+        ],
+        "given": {
+          "index": 1,
+          "formula": "O2",
+          "coeff": 1,
+          "molar_mass_g_per_mol": "31.998",
+          "mass_g": "4.7997"
+        },
+        "target": {
+          "index": 2,
+          "formula": "H2O",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "18.015"
+        },
+        "actual_mass_g": "4.053375",
+        "theoretical_mass_g": "5.4045"
+      },
+      "choices": [
+        {
+          "display": "75 %",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "133.3 %",
+          "correct": false,
+          "misconception": "Divided upside down — percent yield is actual ÷ theoretical, not theoretical ÷ actual."
+        },
+        {
+          "display": "0.75 %",
+          "correct": false,
+          "misconception": "That's the fraction, not the percent — multiply by 100."
+        }
+      ],
+      "explain": "Theoretical yield first: 4.7997 g O2 gives 5.4045 g H2O by stoichiometry. Then percent yield = actual ÷ theoretical × 100 = 4.053375 ÷ 5.4045 × 100 = 75%.",
+      "subscript_tokens": [
+        "H2",
+        "H2O",
+        "O2"
+      ],
+      "id": "q9"
+    },
+    {
+      "kind": "percent_yield",
+      "prompt": "For Zn + 2 HCl → ZnCl2 + H2: 18.229 g of HCl is reacted and 31.3444 g of ZnCl2 is collected. What is the percent yield?",
+      "chain": [
+        {
+          "value": "18.229",
+          "unit": "g",
+          "note": "HCl reacted"
+        },
+        {
+          "value": "34.07",
+          "unit": "g",
+          "note": "theoretical yield (mass stoichiometry)"
+        },
+        {
+          "value": "31.3444",
+          "unit": "g",
+          "note": "actual yield (measured)"
+        },
+        {
+          "value": "92",
+          "unit": "%",
+          "note": "actual ÷ theoretical × 100"
+        }
+      ],
+      "target_unit": "%",
+      "answer": {
+        "value": "92",
+        "unit": "%",
+        "display": "92 %"
+      },
+      "derivation": {
+        "kind": "percent_yield",
+        "species": [
+          {
+            "formula": "Zn",
+            "role": "reactant",
+            "counts": {
+              "Zn": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "HCl",
+            "role": "reactant",
+            "counts": {
+              "H": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "ZnCl2",
+            "role": "product",
+            "counts": {
+              "Zn": 1,
+              "Cl": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2",
+            "role": "product",
+            "counts": {
+              "H": 2
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          2,
+          1,
+          1
+        ],
+        "given": {
+          "index": 1,
+          "formula": "HCl",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "36.458",
+          "mass_g": "18.229"
+        },
+        "target": {
+          "index": 2,
+          "formula": "ZnCl2",
+          "coeff": 1,
+          "molar_mass_g_per_mol": "136.28"
+        },
+        "actual_mass_g": "31.3444",
+        "theoretical_mass_g": "34.07"
+      },
+      "choices": [
+        {
+          "display": "92 %",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "108.7 %",
+          "correct": false,
+          "misconception": "Divided upside down — percent yield is actual ÷ theoretical, not theoretical ÷ actual."
+        },
+        {
+          "display": "0.92 %",
+          "correct": false,
+          "misconception": "That's the fraction, not the percent — multiply by 100."
+        }
+      ],
+      "explain": "Theoretical yield first: 18.229 g HCl gives 34.07 g ZnCl2 by stoichiometry. Then percent yield = actual ÷ theoretical × 100 = 31.3444 ÷ 34.07 × 100 = 92%.",
+      "subscript_tokens": [
+        "H2",
+        "ZnCl2"
+      ],
+      "id": "q10"
+    }
+  ],
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights"
+    }
+  }
+}

@@ -18,6 +18,8 @@ ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT / "gyms" / "dimensional-analysis" / "solution-conversions.gym.toml"
 SPEC_NOMENCLATURE = ROOT / "gyms" / "nomenclature" / "ionic-compounds.gym.toml"
 SPEC_BALANCING = ROOT / "gyms" / "balancing" / "balance-equations.gym.toml"
+SPEC_MASS_STOICH = ROOT / "gyms" / "stoichiometry" / "mass-stoichiometry.gym.toml"
+SPEC_PERCENT_YIELD = ROOT / "gyms" / "stoichiometry" / "percent-yield.gym.toml"
 
 _TARGET = {
     "volume_molarity_to_moles": "mol", "moles_molarity_to_volume": "mL", "mass_to_moles": "mol",
@@ -201,3 +203,73 @@ def test_balancing_includes_subscript_mutation_trap():
 def test_balancing_deterministic():
     assert _bal_gym() == _bal_gym()                                   # byte-identical for a seed (ADR-0008)
     assert _bal_gym(seed=7)["problems"] != _bal_gym()["problems"]     # a different seed differs
+
+
+# ------------------------------ stoichiometry families (item 4, ADR-0029) ------------------------------
+
+def _gym_from(spec_path, seed=None):
+    spec = dict(tomllib.loads(spec_path.read_text(encoding="utf-8")))
+    if seed is not None:
+        spec["seed"] = seed
+    return generate_gym(spec, ChemData.load(ROOT), spec["id"])
+
+
+def _rederive_theoretical(d):
+    """Independent mass-stoichiometry: given mass ÷ M × (target/given coeff ratio) × target M — exact."""
+    g, t = d["given"], d["target"]
+    moles_given = Fraction(Decimal(g["mass_g"])) / Fraction(Decimal(g["molar_mass_g_per_mol"]))
+    return moles_given * Fraction(t["coeff"], g["coeff"]) * Fraction(Decimal(t["molar_mass_g_per_mol"]))
+
+
+def test_mass_stoichiometry_shape_and_rederive():
+    g = _gym_from(SPEC_MASS_STOICH)
+    assert g["family"] == "mass_stoichiometry_v1" and len(g["problems"]) == 10
+    data = ChemData.load(ROOT)
+    for p in g["problems"]:
+        d = p["derivation"]
+        assert p["kind"] == "mass_stoichiometry" and p["target_unit"] == "g" and p["answer"]["unit"] == "g"
+        assert d["given"]["index"] != d["target"]["index"]
+        assert d["species"][d["given"]["index"]]["role"] == "reactant"          # given is always a reactant
+        # emitted molar masses come from data/ (no hand-typed constants)
+        assert Decimal(d["given"]["molar_mass_g_per_mol"]) == data.molar_mass(d["given"]["formula"])
+        assert Decimal(d["target"]["molar_mass_g_per_mol"]) == data.molar_mass(d["target"]["formula"])
+        # the answer re-derives exactly, and the chain ends at it
+        assert Fraction(Decimal(p["answer"]["value"])) == _rederive_theoretical(d)
+        assert Fraction(Decimal(p["chain"][-1]["value"])) == _rederive_theoretical(d)
+        assert sum(1 for c in p["choices"] if c["correct"]) == 1
+        assert len({c["display"] for c in p["choices"]}) == 3
+        for c in p["choices"]:
+            assert c["correct"] or c["misconception"]
+
+
+def test_percent_yield_shape_and_rederive():
+    g = _gym_from(SPEC_PERCENT_YIELD)
+    assert g["family"] == "percent_yield_v1" and len(g["problems"]) == 10
+    for p in g["problems"]:
+        d = p["derivation"]
+        assert p["kind"] == "percent_yield" and p["target_unit"] == "%" and p["answer"]["unit"] == "%"
+        assert d["species"][d["given"]["index"]]["role"] == "reactant"
+        assert d["species"][d["target"]["index"]]["role"] == "product"           # yield is of a product
+        theoretical = _rederive_theoretical(d)
+        assert Fraction(Decimal(d["theoretical_mass_g"])) == theoretical
+        percent = Fraction(Decimal(d["actual_mass_g"])) / theoretical * 100
+        assert Fraction(Decimal(p["answer"]["value"])) == percent
+        assert 0 < percent <= 100                                                 # a physical yield
+        assert sum(1 for c in p["choices"] if c["correct"]) == 1
+
+
+@pytest.mark.parametrize("spec", [SPEC_MASS_STOICH, SPEC_PERCENT_YIELD])
+def test_stoichiometry_equations_balance_and_terminate(spec):
+    for p in _gym_from(spec)["problems"]:
+        d = p["derivation"]
+        for el in {e for s in d["species"] for e in s["counts"]}:                 # the emitted equation balances
+            assert _side_total(d["species"], d["coefficients"], el, "reactant") == \
+                   _side_total(d["species"], d["coefficients"], el, "product"), (p["id"], el)
+        s = p["answer"]["value"]
+        assert "/" not in s and "e" not in s.lower()                             # exact terminating decimal
+
+
+@pytest.mark.parametrize("spec", [SPEC_MASS_STOICH, SPEC_PERCENT_YIELD])
+def test_stoichiometry_deterministic(spec):
+    assert _gym_from(spec) == _gym_from(spec)
+    assert _gym_from(spec, seed=13)["problems"] != _gym_from(spec)["problems"]

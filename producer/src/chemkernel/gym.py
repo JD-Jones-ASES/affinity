@@ -557,10 +557,197 @@ def _generate_balancing(seed, count, data, ctx):
     return selected
 
 
+# ------------------------------ stoichiometry (item 4, ADR-0029) ------------------------------
+
+# Mass stoichiometry reuses the balancing corpus's *neutral* reactions (every species' molar mass resolves
+# from data/). Problems are generated FORWARD from a clean mole amount (like the conversion gym): pick moles
+# of the given species, so mass = moles × M is an exact terminating decimal; carry it across the mole ratio
+# (from the engine's balance) and back to a mass, rejecting any non-terminating candidate. The dimensional
+# chain (mass → mol → mol → mass) is the same units-cancellation the conversion gym proves.
+_STOICH_MOLES = [Decimal(n) for n in ("0.0500", "0.100", "0.150", "0.200", "0.250", "0.500", "1.00", "2.00")]
+_PERCENTS = [Decimal(p) for p in ("55", "60", "65", "70", "75", "80", "85", "90", "92", "95")]
+
+
+def _neutral_reactions():
+    """Balancing-corpus reactions with no charged species — chempy-checkable and molar-mass-resolvable."""
+    return [r for r in _REACTIONS if not any("^" in f for f in r["reactants"] + r["products"])]
+
+
+def _stoich_forward(species, coeffs, gi, ti, moles_given, data):
+    """Carry moles_given from species[gi] to species[ti] across the balanced equation. None if non-terminating."""
+    Mg, Mt = data.molar_mass(species[gi]["formula"]), data.molar_mass(species[ti]["formula"])
+    ratio = Fraction(coeffs[ti], coeffs[gi])
+    moles_target = moles_given * ratio
+    mass_given, mass_target = moles_given * _fr(Mg), moles_target * _fr(Mt)
+    if not (_terminates(mass_given) and _terminates(moles_target) and _terminates(mass_target)):
+        return None
+    return {"Mg": Mg, "Mt": Mt, "ratio": ratio, "moles_target": moles_target,
+            "mass_given": mass_given, "mass_target": mass_target}
+
+
+def _numeric_choices(answer, unit, wrongs):
+    """Correct (exact) + up to two distinct named-wrong choices (rounded display). None if it can't fill 3."""
+    correct = _disp(answer, unit)
+    choices = [{"display": correct, "correct": True, "misconception": None}]
+    seen = {correct}
+    for val, why in wrongs:
+        if sum(1 for c in choices if not c["correct"]) >= 2:
+            break
+        disp = f"{_sig(val)} {unit}"
+        if disp in seen:
+            continue
+        seen.add(disp)
+        choices.append({"display": disp, "correct": False, "misconception": why})
+    return (choices, correct) if len(choices) == 3 else None
+
+
+def _stoich_derivation(kind, species, coeffs, gi, ti, s, extra=None):
+    """The emitted derivation: the full equation (so the gate re-verifies the balance) + given/target facts."""
+    d = {
+        "kind": kind,
+        "species": species,
+        "coefficients": list(coeffs),
+        "given": {"index": gi, "formula": species[gi]["formula"], "coeff": coeffs[gi],
+                  "molar_mass_g_per_mol": _trim(str(s["Mg"])), "mass_g": _trim(_exact(s["mass_given"]))},
+        "target": {"index": ti, "formula": species[ti]["formula"], "coeff": coeffs[ti],
+                   "molar_mass_g_per_mol": _trim(str(s["Mt"]))},
+    }
+    if extra:
+        d.update(extra)
+    return d
+
+
+def _mass_stoich_problem(reaction, rng, data, ctx):
+    r_forms, p_forms, species = _species_of(reaction["reactants"], reaction["products"], ctx)
+    coeffs = balance(r_forms, p_forms, ctx)
+    reactant_idx = [i for i, sp in enumerate(species) if sp["role"] == "reactant"]
+    gi = rng.choice(reactant_idx)
+    ti = rng.choice([j for j in range(len(species)) if j != gi])
+    s = _stoich_forward(species, coeffs, gi, ti, _fr(rng.choice(_STOICH_MOLES)), data)
+    if s is None:
+        return None
+
+    given_f, target_f = species[gi]["formula"], species[ti]["formula"]
+    cg, ct = coeffs[gi], coeffs[ti]
+    eq, mg = _eq_str(species, coeffs), _trim(_exact(s["mass_given"]))
+    verb = "are produced from" if species[ti]["role"] == "product" else "react with"
+    prompt = f"For {eq}: how many grams of {target_f} {verb} {mg} g of {given_f}?"
+    chain = [
+        {"value": mg, "unit": "g", "note": f"mass of {given_f}"},
+        {"value": _trim(_exact(s["mass_given"] / _fr(s["Mg"]))), "unit": "mol",
+         "note": f"÷ {_trim(str(s['Mg']))} g/mol"},
+        {"value": _trim(_exact(s["moles_target"])), "unit": "mol",
+         "note": f"× ({ct} mol {target_f} / {cg} mol {given_f})"},
+        {"value": _trim(_exact(s["mass_target"])), "unit": "g", "note": f"× {_trim(str(s['Mt']))} g/mol"},
+    ]
+    _verify_dims(Quantity.of(mg, "g") / Quantity.of(str(s["Mg"]), "g/mol"), "mol", ctx)
+    _verify_dims(Quantity.of(_exact(s["moles_target"]), "mol") * Quantity.of(str(s["Mt"]), "g/mol"), "g", ctx)
+
+    moles_given = s["mass_given"] / _fr(s["Mg"])
+    wrongs = [
+        (moles_given * Fraction(cg, ct) * _fr(s["Mt"]),
+         f"Flipped the mole ratio — read it from given to target: × ({ct} mol {target_f} / {cg} mol {given_f})."),
+        (moles_given * _fr(s["Mt"]),
+         f"Skipped the mole ratio — the equation says {cg} mol {given_f} : {ct} mol {target_f}, not 1 : 1."),
+        (s["mass_given"] * s["ratio"] * _fr(s["Mt"]),
+         f"Skipped grams → moles — divide by the molar mass of {given_f} before the mole ratio."),
+        (s["moles_target"],
+         f"Stopped at moles — multiply by {target_f}'s molar mass to get grams."),
+    ]
+    made = _numeric_choices(s["mass_target"], "g", wrongs)
+    if made is None:
+        return None
+    choices, correct = made
+    explain = (f"Divide by molar mass, cross the mole ratio, multiply back: {mg} g {given_f} ÷ "
+               f"{_trim(str(s['Mg']))} g/mol × ({ct}/{cg}) × {_trim(str(s['Mt']))} g/mol = "
+               f"{_trim(_exact(s['mass_target']))} g {target_f}. The recipe is the coefficients of {eq}.")
+    return {
+        "kind": "mass_stoichiometry", "prompt": prompt, "chain": chain, "target_unit": "g",
+        "answer": {"value": _exact(s["mass_target"]), "unit": "g", "display": correct},
+        "derivation": _stoich_derivation("mass_stoichiometry", species, coeffs, gi, ti, s),
+        "choices": choices, "explain": explain,
+        "subscript_tokens": sorted({sp["formula"] for sp in species if any(c.isdigit() for c in sp["formula"])}),
+    }
+
+
+def _percent_yield_problem(reaction, rng, data, ctx):
+    r_forms, p_forms, species = _species_of(reaction["reactants"], reaction["products"], ctx)
+    coeffs = balance(r_forms, p_forms, ctx)
+    reactant_idx = [i for i, sp in enumerate(species) if sp["role"] == "reactant"]
+    product_idx = [i for i, sp in enumerate(species) if sp["role"] == "product"]
+    gi, ti = rng.choice(reactant_idx), rng.choice(product_idx)
+    s = _stoich_forward(species, coeffs, gi, ti, _fr(rng.choice(_STOICH_MOLES)), data)
+    if s is None:
+        return None
+    pct = _fr(rng.choice(_PERCENTS))
+    actual = s["mass_target"] * pct / 100
+    if not _terminates(actual):
+        return None
+
+    given_f, target_f = species[gi]["formula"], species[ti]["formula"]
+    eq = _eq_str(species, coeffs)
+    mg, theo, act = _trim(_exact(s["mass_given"])), _trim(_exact(s["mass_target"])), _trim(_exact(actual))
+    prompt = (f"For {eq}: {mg} g of {given_f} is reacted and {act} g of {target_f} is collected. "
+              f"What is the percent yield?")
+    chain = [
+        {"value": mg, "unit": "g", "note": f"{given_f} reacted"},
+        {"value": theo, "unit": "g", "note": "theoretical yield (mass stoichiometry)"},
+        {"value": act, "unit": "g", "note": "actual yield (measured)"},
+        {"value": _trim(_exact(pct)), "unit": "%", "note": "actual ÷ theoretical × 100"},
+    ]
+    wrongs = [
+        (s["mass_target"] / actual * 100,
+         "Divided upside down — percent yield is actual ÷ theoretical, not theoretical ÷ actual."),
+        (actual / s["mass_target"],
+         "That's the fraction, not the percent — multiply by 100."),
+        (actual / s["mass_given"] * 100,
+         f"Compared to the {given_f} mass — percent yield uses the *theoretical* {target_f} yield as the denominator."),
+    ]
+    made = _numeric_choices(pct, "%", wrongs)
+    if made is None:
+        return None
+    choices, correct = made
+    explain = (f"Theoretical yield first: {mg} g {given_f} gives {theo} g {target_f} by stoichiometry. "
+               f"Then percent yield = actual ÷ theoretical × 100 = {act} ÷ {theo} × 100 = {_trim(_exact(pct))}%.")
+    return {
+        "kind": "percent_yield", "prompt": prompt, "chain": chain, "target_unit": "%",
+        "answer": {"value": _exact(pct), "unit": "%", "display": correct},
+        "derivation": _stoich_derivation("percent_yield", species, coeffs, gi, ti, s,
+                                         {"actual_mass_g": _exact(actual),
+                                          "theoretical_mass_g": _exact(s["mass_target"])}),
+        "choices": choices, "explain": explain,
+        "subscript_tokens": sorted({sp["formula"] for sp in species if any(c.isdigit() for c in sp["formula"])}),
+    }
+
+
+def _rotating_generator(problem_fn):
+    """Shared driver for the stoichiometry families: rotate reactions, reject/dedupe, require `count`."""
+    def generate(seed, count, data, ctx):
+        rng = random.Random(seed)
+        reactions = _neutral_reactions()
+        problems: list[dict] = []
+        seen: set = set()
+        attempts = 0
+        while len(problems) < count and attempts < 8000:
+            attempts += 1
+            q = problem_fn(rng.choice(reactions), rng, data, ctx)
+            if q is None or q["prompt"] in seen:
+                continue
+            seen.add(q["prompt"])
+            q["id"] = f"q{len(problems) + 1}"
+            problems.append(q)
+        if len(problems) < count:
+            raise BuildError(f"{ctx}: stoichiometry gym could not generate {count} problems at seed {seed}")
+        return problems
+    return generate
+
+
 _FAMILIES = {
     "solution_conversions_v1": _generate_conversions,
     "ionic_nomenclature_v1": _generate_nomenclature,
     "balancing_v1": _generate_balancing,
+    "mass_stoichiometry_v1": _rotating_generator(_mass_stoich_problem),
+    "percent_yield_v1": _rotating_generator(_percent_yield_problem),
 }
 
 

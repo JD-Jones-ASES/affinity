@@ -30,6 +30,8 @@ ROOT = Path(__file__).resolve().parents[2]
 # the balancing gym's neutral corpus (ADR-0028) — chempy parses element formulas, not caret-charge net-ionic
 _NEUTRAL_REACTIONS = [r for r in _REACTIONS
                       if not any("^" in f for f in r["reactants"] + r["products"])]
+# every distinct species the mass-stoichiometry / percent-yield gyms draw molar masses from (ADR-0029)
+_CORPUS_SPECIES = sorted({f for r in _NEUTRAL_REACTIONS for f in r["reactants"] + r["products"]})
 
 # every substance the corpus uses (gym salts ∪ lesson species)
 _SUBSTANCES = ["NaCl", "CaCl2", "Na2CO3", "CaCO3", "Na3PO4", "Ca3(PO4)2"]
@@ -56,6 +58,14 @@ def test_molar_masses_match_chempy():
         ours = float(data.molar_mass(f))
         oracle = chempy.Substance.from_formula(f).mass
         assert abs(ours - oracle) <= 0.02, f"{f}: ours {ours} vs chempy {oracle}"
+
+
+@pytest.mark.parametrize("formula", _CORPUS_SPECIES)
+def test_corpus_molar_masses_match_chempy(formula):
+    """Every species the stoichiometry gyms use (ADR-0029) has a molar mass chempy independently reproduces."""
+    ours = float(_data().molar_mass(formula))
+    oracle = chempy.Substance.from_formula(formula).mass
+    assert abs(ours - oracle) <= 0.02, f"{formula}: ours {ours} vs chempy {oracle}"
 
 
 @pytest.mark.parametrize("reactants,products", [

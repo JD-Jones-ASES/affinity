@@ -1,0 +1,15 @@
+# A procedural gym (Phase 1 item 4, ADR-0024/0029). ChemKernel generates each problem FORWARD from a clean
+# mole amount so every value is an exact terminating decimal, balances the equation with the engine, and
+# carries the mass across the mole ratio (grams → moles → moles → grams). Every wrong option is a named
+# stoichiometry mistake — a flipped mole ratio, a skipped grams→moles step, or the ratio ignored entirely.
+
+id = "stoichiometry-mass-to-mass"
+title = "Mass stoichiometry: grams to grams"
+slug = "mass-stoichiometry"
+topic = "stoichiometry"
+family = "mass_stoichiometry_v1"
+seed = 7180020
+count = 10
+blurb = "Convert a mass of one species to a mass of another across a balanced equation: grams → moles → (cross the mole ratio) → moles → grams. The equation is balanced by ChemKernel, the molar masses are sourced, and every value is exact. Each wrong option is a specific mistake — the mole ratio flipped, ignored, or the grams→moles conversion skipped — never a random number."
+skills = ["grams → moles (÷ molar mass)", "the mole ratio comes from the balanced equation's coefficients", "moles → grams (× molar mass)", "the coefficient ratio is target-over-given, not 1:1"]
+reference_links = ["stoichiometry", "molar-mass", "balancing-equations"]

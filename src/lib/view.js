@@ -127,6 +127,9 @@ export function renderGym(gym) {
       ...p,
       prompt: prettyText(p.prompt, tokens),
       explain: prettyText(p.explain, tokens),
+      // chain step notes can name species (e.g. "× (1 mol H2 / 2 mol HCl)") — subscript them too; the
+      // numeric values and units carry no formula tokens, so they pass through untouched.
+      chain: p.chain && p.chain.map((st) => ({ ...st, note: prettyText(st.note, tokens) })),
       choices: p.choices.map((c) => ({
         ...c,
         display: prettyText(c.display, tokens),

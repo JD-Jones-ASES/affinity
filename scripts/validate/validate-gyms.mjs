@@ -67,52 +67,89 @@ const eqSide = (species, coeffs, role) =>
 const reconstructEquation = (species, coeffs, arrow) =>
   `${eqSide(species, coeffs, "reactant")} ${arrow} ${eqSide(species, coeffs, "product")}`;
 
-function verifyBalancing(rel, p, fail) {
-  const d = p.derivation;
-  if (!Array.isArray(d.species) || !Array.isArray(d.coefficients))
-    fail(rel, `${p.id}: balancing derivation missing species/coefficients`);
-  const n = d.species.length;
-  if (d.coefficients.length !== n) fail(rel, `${p.id}: ${d.coefficients.length} coefficients for ${n} species`);
-
-  // each formula re-parses to exactly the emitted counts + charge (two independent parsers must agree)
+// re-parse every species formula and re-prove the coefficient vector zeroes every element row + the charge
+// row (the definition of balanced), all-positive and reduced (gcd 1). Returns the sorted element list. Shared
+// by the balancing gym and the stoichiometry gyms (which re-verify the equation the mole ratio comes from).
+function verifyBalance(rel, id, species, coefficients, fail) {
+  if (!Array.isArray(species) || !Array.isArray(coefficients))
+    fail(rel, `${id}: derivation missing species/coefficients`);
+  const n = species.length;
+  if (coefficients.length !== n) fail(rel, `${id}: ${coefficients.length} coefficients for ${n} species`);
   const els = new Set();
-  for (const s of d.species) {
+  for (const s of species) {
     let parsed;
     try { parsed = parseFormula(s.formula); }
-    catch (e) { fail(rel, `${p.id}: cannot parse species '${s.formula}': ${e.message}`); }
-    if (parsed.charge !== s.charge) fail(rel, `${p.id}: '${s.formula}' charge ${parsed.charge} != emitted ${s.charge}`);
+    catch (e) { fail(rel, `${id}: cannot parse species '${s.formula}': ${e.message}`); }
+    if (parsed.charge !== s.charge) fail(rel, `${id}: '${s.formula}' charge ${parsed.charge} != emitted ${s.charge}`);
     const a = parsed.counts, b = s.counts;
-    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
-    for (const k of keys) {
-      if ((a[k] || 0) !== (b[k] || 0)) fail(rel, `${p.id}: '${s.formula}' count ${k}=${a[k] || 0} != emitted ${b[k] || 0}`);
+    for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
+      if ((a[k] || 0) !== (b[k] || 0)) fail(rel, `${id}: '${s.formula}' count ${k}=${a[k] || 0} != emitted ${b[k] || 0}`);
       els.add(k);
     }
   }
-
-  // the coefficient vector conserves every element and the total charge (matrix · coeffs = 0)
-  const rows = [...els].sort().concat("charge");
-  for (const key of rows) {
+  for (const key of [...els].sort().concat("charge")) {
     let left = 0, right = 0;
-    d.species.forEach((s, i) => {
-      const amt = (key === "charge" ? s.charge : (s.counts[key] || 0)) * d.coefficients[i];
+    species.forEach((s, i) => {
+      const amt = (key === "charge" ? s.charge : (s.counts[key] || 0)) * coefficients[i];
       if (s.role === "reactant") left += amt; else right += amt;
     });
-    if (left !== right) fail(rel, `${p.id}: ${key} not conserved (${left} vs ${right}) — not balanced`);
+    if (left !== right) fail(rel, `${id}: ${key} not conserved (${left} vs ${right}) — not balanced`);
   }
+  if (coefficients.some((c) => !Number.isInteger(c) || c < 1))
+    fail(rel, `${id}: coefficients must be positive integers, got [${coefficients}]`);
+  if (coefficients.reduce((a, b) => gcd(a, b)) !== 1)
+    fail(rel, `${id}: coefficients [${coefficients}] are not reduced (common factor)`);
+  return [...els].sort();
+}
 
-  // smallest positive integers: every coefficient ≥ 1 and the whole vector is reduced (gcd 1)
-  if (d.coefficients.some((c) => !Number.isInteger(c) || c < 1))
-    fail(rel, `${p.id}: coefficients must be positive integers, got [${d.coefficients}]`);
-  if (d.coefficients.reduce((a, b) => gcd(a, b)) !== 1)
-    fail(rel, `${p.id}: coefficients [${d.coefficients}] are not reduced (common factor)`);
-
-  // the answer reconstructs from species + coefficients: CSV value, "→" display, and the correct choice
+function verifyBalancing(rel, p, fail) {
+  const d = p.derivation;
+  verifyBalance(rel, p.id, d.species, d.coefficients, fail);
+  // the answer reconstructs from species + coefficients: CSV value, "→" display, and the skeletal prompt
   const csv = d.coefficients.join(",");
   if (p.answer.value !== csv) fail(rel, `${p.id}: answer.value '${p.answer.value}' != coefficients '${csv}'`);
   const eq = reconstructEquation(d.species, d.coefficients, "→");
   if (p.answer.display !== eq) fail(rel, `${p.id}: answer.display '${p.answer.display}' != reconstructed '${eq}'`);
   if (!p.prompt.includes(reconstructEquation(d.species, d.species.map(() => 1), "→")))
     fail(rel, `${p.id}: prompt does not contain the skeletal (all-coefficient-1) equation`);
+}
+
+// stoichiometry (ADR-0029): re-verify the balanced equation (so the mole ratio is a real one), then re-derive
+// the mass (or percent yield) numerically from the given/target molar masses + the coefficient ratio — the
+// same arithmetic a student does, independent of Python.
+function verifyStoich(rel, p, fail) {
+  const d = p.derivation;
+  verifyBalance(rel, p.id, d.species, d.coefficients, fail);
+  const g = d.given, t = d.target;
+  if (!g || !t) fail(rel, `${p.id}: stoichiometry derivation missing given/target`);
+  if (g.index === t.index) fail(rel, `${p.id}: given and target are the same species`);
+  for (const part of [g, t]) {
+    const sp = d.species[part.index];
+    if (!sp || sp.formula !== part.formula) fail(rel, `${p.id}: ${part.formula} not at species index ${part.index}`);
+    if (d.coefficients[part.index] !== part.coeff)
+      fail(rel, `${p.id}: ${part.formula} coeff ${part.coeff} != coefficients[${part.index}]=${d.coefficients[part.index]}`);
+  }
+  const theoretical = (Number(g.mass_g) / Number(g.molar_mass_g_per_mol))
+    * (t.coeff / g.coeff) * Number(t.molar_mass_g_per_mol);
+
+  if (p.kind === "mass_stoichiometry") {
+    if (!close(theoretical, Number(p.answer.value)))
+      fail(rel, `${p.id}: mass ${p.answer.value} != re-derived ${theoretical}`);
+  } else { // percent_yield
+    if (d.theoretical_mass_g == null || d.actual_mass_g == null)
+      fail(rel, `${p.id}: percent_yield missing theoretical/actual mass`);
+    if (!close(theoretical, Number(d.theoretical_mass_g)))
+      fail(rel, `${p.id}: theoretical ${d.theoretical_mass_g} != re-derived ${theoretical}`);
+    const percent = (Number(d.actual_mass_g) / theoretical) * 100;
+    if (!close(percent, Number(p.answer.value)))
+      fail(rel, `${p.id}: percent ${p.answer.value} != re-derived ${percent}`);
+  }
+
+  // units line up and the chain ends at the answer (as with the conversion gym)
+  if (p.answer.unit !== p.target_unit) fail(rel, `${p.id}: answer unit '${p.answer.unit}' != target_unit '${p.target_unit}'`);
+  const last = p.chain[p.chain.length - 1];
+  if (last.unit !== p.target_unit) fail(rel, `${p.id}: chain ends in '${last.unit}', not target '${p.target_unit}'`);
+  if (!close(Number(last.value), Number(p.answer.value))) fail(rel, `${p.id}: chain end ${last.value} != answer ${p.answer.value}`);
 }
 
 const files = readdirSync(gymDir).filter((n) => n.endsWith(".gym.json"));
@@ -150,6 +187,9 @@ for (const name of files) {
     } else if (p.kind === "balancing") {
       // 1b. balancing: re-parse the formulas, verify the coefficients zero every element + charge row (ADR-0028)
       verifyBalancing(rel, p, fail);
+    } else if (p.kind === "mass_stoichiometry" || p.kind === "percent_yield") {
+      // 1s. stoichiometry: re-verify the balanced equation + re-derive the mass/percent numerically (ADR-0029)
+      verifyStoich(rel, p, fail);
     } else {
       // 1c. conversion: the answer re-derives from the raw inputs; units line up; the chain ends at the answer
       const got = rederive(p.kind, p.derivation.inputs, rel, p.id);
@@ -170,10 +210,14 @@ for (const name of files) {
     if (new Set(displays).size !== displays.length) fail(rel, `${p.id}: choice displays are not distinct`);
     for (const c of p.choices) if (!c.correct && !c.misconception) fail(rel, `${p.id}: a wrong choice has no named misconception`);
 
-    // 3. molar mass is consistent per substance across the whole corpus (conversion problems only)
-    const mm = p.derivation.inputs?.molar_mass_g_per_mol;
-    if (mm != null) {
-      const sub = p.derivation.inputs.substance;
+    // 3. molar mass is consistent per substance across the WHOLE corpus (conversions ∪ stoichiometry): the
+    // same species must carry the same sourced molar mass everywhere it appears.
+    const mmPairs = [];
+    if (p.derivation.inputs?.molar_mass_g_per_mol != null)
+      mmPairs.push([p.derivation.inputs.substance, p.derivation.inputs.molar_mass_g_per_mol]);
+    for (const part of [p.derivation.given, p.derivation.target])
+      if (part?.molar_mass_g_per_mol != null) mmPairs.push([part.formula, part.molar_mass_g_per_mol]);
+    for (const [sub, mm] of mmPairs) {
       if (molarMass.has(sub) && molarMass.get(sub) !== mm)
         fail(rel, `${p.id}: molar mass ${mm} for ${sub} disagrees with ${molarMass.get(sub)} elsewhere`);
       molarMass.set(sub, mm);

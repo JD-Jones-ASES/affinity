@@ -20,7 +20,8 @@ unless a machine checked it, a registered source backs it, or a disclosed model 
   species ledger, particle/electronic view, and evidence view — with a misconception register that makes
   the canonical wrong move visibly fail.
 - **The Gym** — procedural drills generated and machine-verified at build time (dimensional analysis, ionic
-  nomenclature, and equation balancing live; stoichiometry to follow), every wrong option a named mistake.
+  nomenclature, equation balancing, and mass stoichiometry + percent yield live), every wrong option a named
+  mistake.
 - **The Chemical Atlas** — species, formulas, reactions, and a typed concept graph; breadth to the
   lessons' depth.
 - **The Valence Table** — a periodic table that is a database visualization, pattern explainer, and

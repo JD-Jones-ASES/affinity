@@ -575,3 +575,37 @@ without touching the conversion/nomenclature paths. Redox (half-reaction balanci
 still Phase 2; this family balances by atom + total-charge conservation only. The corpus is data — extending
 it is adding a row, and a reaction with a clean subscript-mutation trap adds a `trap` (proven honest at emit
 time).
+
+## ADR-0029 — Stoichiometry gyms: forward-generated, balance-verified, molar-mass-consistent (2026-07-05)
+
+**Context.** Phase-1 item 4 (the stoichiometry suite) opens with the stress scenario *percent yield on a
+mass→mass path*. Two new gym families are needed — `mass_stoichiometry_v1` (grams → moles → mole ratio →
+moles → grams) and `percent_yield_v1` (theoretical yield by mass stoichiometry, then actual ÷ theoretical ×
+100). Two honesty questions specific to stoichiometry: (1) the mole ratio is a chemistry claim (it comes from
+the balanced equation), so the gate must confirm the ratio is real, not just re-do the arithmetic; (2) the
+answers must be exact terminating decimals despite non-round molar masses.
+
+**Decision.** Both families **generate forward from a clean mole amount** (the conversion-gym pattern,
+ADR-0024): pick moles of the given species so `mass = moles × M` is exact, carry it across the engine-derived
+mole ratio, convert back, and **reject any non-terminating candidate** (ADR-0013). Molar masses come from
+`data/` (sourced). Each problem emits the **full balanced equation** (`species` + `coefficients`, the
+item-3 shape) *plus* the numeric `given`/`target` facts (formula, coefficient, molar mass, mass). The gate
+(`validate-gyms.mjs`) does two independent things per problem: it **re-verifies the equation balances**
+(reusing `verifyBalance`, factored out of the balancing branch — so the mole ratio is proven to come from a
+real balance, closing the "trust the ratio" hole), and it **re-derives the mass or percent numerically** from
+the given/target molar masses + the coefficient ratio — the same arithmetic a student does, in pure Node.
+Molar-mass consistency is now enforced **across the whole gym corpus** (conversions ∪ stoichiometry): the
+same species must carry the same sourced molar mass everywhere it appears. Distractors are named mistakes
+(flipped mole ratio, ratio ignored, grams→moles skipped; for percent yield: inverted, ×100 dropped, reactant
+mass as denominator). The neutral corpus's molar masses are cross-checked against `chempy` (ADR-0026).
+
+**Consequences.** Two families reuse the conversion gym's `chain`/`target_unit`/`answer` shape (so the drill
+island renders them with no new plumbing) and the item-3 balance verifier (so the equation is re-proven). The
+drill island's chain caption became family-aware (units cancel for conversions; "cross the mole ratio" for
+mass stoichiometry; "theoretical first" for percent yield). One island bug surfaced and was fixed in
+in-browser verification: the conservation-tally block keyed on `derivation.species` (which stoichiometry now
+also emits, for the balance check) — it was re-keyed to `kind === "balancing"` so the tally stays
+balancing-only. A `percent-yield` Atlas concept covers the regime-map row. **Deferred (item 4 continues):**
+`limiting_mass_v1` (limiting reagent from masses), the flagship **percent-yield lesson** (topic
+`percent-yield`, which needs the lesson pipeline generalised past precipitation), and particle-count
+stoichiometry (needs the Avogadro constant registered as a sourced datum, SOURCES + `data/`).

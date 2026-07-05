@@ -59,7 +59,18 @@ A `family` selects the generator in `chemkernel.gym.generate_gym`. Today:
   zero every element + charge row (positive, gcd 1, reconstructs to the answer) — no Python. A reaction with a
   clean trap carries a `trap` in the corpus; the producer proves it atom-balances and changed a formula.
 
-Adding a new procedural skill (stoichiometry, periodic trends, …) means adding a new `family` to
+- **`mass_stoichiometry_v1`** (ADR-0029) — grams of one species → grams of another across a balanced
+  equation (grams → moles → cross the mole ratio → moles → grams). Generated forward from a clean mole amount
+  so every value is exact; drawn over the balancing corpus's neutral reactions. The `derivation` carries the
+  whole balanced equation (`species` + `coefficients`) plus `given`/`target` (formula, coeff, molar mass, and
+  the given mass). Wrong choices are named ratio/conversion mistakes.
+- **`percent_yield_v1`** (ADR-0029) — given a reactant mass and the actual product mass, find percent yield:
+  theoretical yield by mass stoichiometry, then actual ÷ theoretical × 100. The `derivation` adds
+  `actual_mass_g` + `theoretical_mass_g`. For both stoichiometry families `validate-gyms.mjs` **re-verifies
+  the equation balances** (the mole ratio is proven, not trusted) **and** re-derives the mass/percent
+  numerically in pure Node; a species' molar mass must be consistent everywhere it appears in the corpus.
+
+Adding a new procedural skill (limiting-reagent-from-mass, periodic trends, …) means adding a new `family` to
 `generate_gym` and, if it introduces a new answer shape, a per-kind branch to `validate-gyms.mjs` so the gate
 can re-derive it. It does **not** mean new plumbing.
 

@@ -62,7 +62,7 @@
             "required": ["kind"],
             "properties": {
               "kind": {
-                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing"]
+                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield"]
               },
               "inputs": {
                 "type": "object",
@@ -84,7 +84,11 @@
               "archetype": { "type": "string", "minLength": 1 },
               "species": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/balancespecies" } },
               "coefficients": { "type": "array", "minItems": 2, "items": { "type": "integer", "minimum": 1 } },
-              "elements": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^[A-Z][a-z]?$" } }
+              "elements": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^[A-Z][a-z]?$" } },
+              "given": { "$ref": "#/$defs/stoichpart" },
+              "target": { "$ref": "#/$defs/stoichpart" },
+              "actual_mass_g": { "type": "string" },
+              "theoretical_mass_g": { "type": "string" }
             }
           },
           "choices": {
@@ -147,6 +151,18 @@
           "additionalProperties": { "type": "integer", "minimum": 1 }
         },
         "charge": { "type": "integer" }
+      }
+    },
+    "stoichpart": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "formula", "coeff", "molar_mass_g_per_mol"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "formula": { "type": "string", "minLength": 1 },
+        "coeff": { "type": "integer", "minimum": 1 },
+        "molar_mass_g_per_mol": { "type": "string" },
+        "mass_g": { "type": "string" }
       }
     }
   }
