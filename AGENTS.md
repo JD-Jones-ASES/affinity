@@ -178,7 +178,7 @@ Decimal/Fraction, never float (ADR-0013). The **emit + verify pipeline is live**
 `derived/…solution.json` (`schemas/solution.schema.json`, ADR-0020) that passes the Ajv + honesty gate
 (`scripts/validate/validate-solutions.mjs`, run via `package.json`). Molecular → complete ionic → net ionic
 (spectators Na⁺/Cl⁻), carbonate rule cited, ledger, Ca²⁺ limiting, 0.250 g CaCO₃. **Counters: 1 built
-lesson (validated, not yet rendered), 0 Atlas entries, 1 Node gate, 48 producer tests green.** The engine +
+lesson (validated, not yet rendered), 0 Atlas entries, 1 Node gate, 49 producer tests green.** The engine +
 emit + verify layers exist; the **player (Astro/Svelte) does not yet**. See [`ROADMAP.md`](./ROADMAP.md)
 for what remains and [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
 

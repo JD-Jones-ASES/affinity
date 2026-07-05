@@ -35,7 +35,10 @@ plan in [`ROADMAP.md`](./ROADMAP.md).
   `scripts/validate/validate-solutions.mjs` (Ajv + honesty cross-checks: path/topic match, checks hold,
   rule-sourced regime needs a cited source, ledger integrity, provenance sources) via `package.json`. Gate
   proven non-vacuous against tampered checks/extra keys/bad enums.
-- **48 producer tests + the Node gate green** (+1 build regression).
+- **Determinism fix:** net-ionic term order came from set iteration (varies with `PYTHONHASHSEED` across
+  processes), which would have made committed `derived/` non-byte-stable (ADR-0008). Now preserves the
+  chemically-conventional left-to-right insertion order; guarded by a cross-hash-seed build test.
+- **49 producer tests + the Node gate green** (+2: build regression + determinism guard).
 - **Resolved architecture open-questions** Q1 (dataset+format), Q2 (numeric representation), Q3 (parser
   grammar), Q5 (schema granularity), Q6 (solubility encoding) via ADR-0012/0013/0014/0020/0017; units,
   ledger, ionic-transform, and emit shapes fixed by ADR-0015/0016/0018/0019.

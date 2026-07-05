@@ -20,7 +20,7 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   ledger, Ca²⁺ limiting, 0.250 g CaCO₃. The **emit + verify pipeline is live**: the authored spec
   `problems/precipitation/calcium-carbonate-limiting.problem.toml` builds (`build.py`, ADR-0019) to a
   committed, schema-valid `derived/…solution.json` (`schemas/solution.schema.json`, ADR-0020) that passes
-  the Ajv + honesty gate. **48 producer tests + the Node gate green.** Remaining: the rest of the gate
+  the Ajv + honesty gate. **49 producer tests + the Node gate green.** Remaining: the rest of the gate
   suite (scan-text, Node ledger re-check, KaTeX) + CI, the player + the two interactives, the practice
   generator, the Atlas entry, the periodic lens.
 

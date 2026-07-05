@@ -95,7 +95,10 @@ def net_ionic(
     spectators: list[str] = []
     net_left: dict[tuple[str, str | None], int] = {}
     net_right: dict[tuple[str, str | None], int] = {}
-    for key in set(L) | set(R):
+    # deterministic, chemically-conventional order: left terms in insertion order, then right-only terms
+    # (NOT set union, whose iteration order varies and would make committed derived/ non-byte-stable)
+    ordered_keys = list(L.keys()) + [k for k in R if k not in L]
+    for key in ordered_keys:
         left_n, right_n = L.get(key, 0), R.get(key, 0)
         common = min(left_n, right_n)
         nl, nr = left_n - common, right_n - common
