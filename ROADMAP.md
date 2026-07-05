@@ -17,9 +17,12 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   dissociation + complete/net ionic transforms (ADR-0018), sourced solubility classifier (ADR-0017) —
   exact arithmetic throughout (ADR-0013). The **whole Phase 0 chemistry** runs end to end in the library:
   molecular → complete ionic → net ionic (spectators Na⁺/Cl⁻), carbonate rule cited for the precipitate,
-  ledger, Ca²⁺ limiting, 0.250 g CaCO₃. **47 producer tests green.** Remaining: solution schema, `build.py`
-  (spec → JSON), Node gates + CI, player + the two interactives, practice generator, Atlas entry, periodic
-  lens.
+  ledger, Ca²⁺ limiting, 0.250 g CaCO₃. The **emit + verify pipeline is live**: the authored spec
+  `problems/precipitation/calcium-carbonate-limiting.problem.toml` builds (`build.py`, ADR-0019) to a
+  committed, schema-valid `derived/…solution.json` (`schemas/solution.schema.json`, ADR-0020) that passes
+  the Ajv + honesty gate. **48 producer tests + the Node gate green.** Remaining: the rest of the gate
+  suite (scan-text, Node ledger re-check, KaTeX) + CI, the player + the two interactives, the practice
+  generator, the Atlas entry, the periodic lens.
 
 ---
 
@@ -36,11 +39,11 @@ The lesson lives at `problems/precipitation/` (the topic slug for path purposes 
 §naming).
 
 **Landed so far (2026-07-05):** scope items 1 (datasets), 2 (parser, balancer, units engine, dissociation
-transformer, net-ionic reducer, Extent solver → species ledger), and 3's conservation/nonnegative proofs
-are all complete and tested in the `chemkernel` library. Solubility (item's honesty basis) is
-machine-classified and rule-cited. **Not yet built: the emit/verify/present layer** — item 4's solution
-schema + Node gates, plus a `build.py` to wire authored specs to JSON (items 5–8: player, practice, Atlas,
-lens, CI).
+transformer, net-ionic reducer, Extent solver → species ledger), 3 (conservation + nonnegative-extent
+proofs), and **4 (solution schema + `build.py` + the `validate-solutions` Ajv/honesty gate)** are complete
+and tested; the authored Phase-0 spec and its verified `derived/` JSON are committed. **Not yet built:** the
+rest of item 4's gate suite + CI, then items 5 (player + the two interactives), 6 (practice generator), 7
+(Atlas entry + periodic lens), 8 (authoring guide).
 
 **Scope.**
 1. `data/`: minimal element dataset (Ca, Cl, Na, C, O, H) + common-ion and polyatomic-ion entries, source

@@ -7,8 +7,8 @@ dependencies = [
     "sympy==1.14.0",
 ]
 
-# [project.scripts] build-problems / build-reference land with build.py (Phase 0), once there are specs
-# and a schema to emit against. Until then the package ships library modules (data, formula, balance).
+[project.scripts]
+build-problems = "chemkernel.build:build_problems_main"
 
 [dependency-groups]
 dev = ["pytest>=8.0"]

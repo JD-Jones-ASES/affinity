@@ -3,7 +3,7 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
-## Phase 0 (in progress) — 2026-07-05 — ChemKernel engine: datasets, parser, balancer, units, ledger, ionic transforms, solubility
+## Phase 0 (in progress) — 2026-07-05 — ChemKernel engine + emit/verify pipeline (spec → verified JSON → gate)
 
 - **Curated `data/` datasets (ADR-0012):** `data/elements.toml` (9 elements: the 6 Phase-0 plus N/S/P for
   ion-composition consistency; CIAAW abridged atomic weights, IUPAC positions) and `data/ions.toml` (13
@@ -28,10 +28,17 @@ plan in [`ROADMAP.md`](./ROADMAP.md).
   `verify_phase` build check). The Phase-0 reaction transforms mechanically to complete ionic
   `Ca²⁺ + 2Cl⁻ + 2Na⁺ + CO₃²⁻ → CaCO₃(s) + 2Na⁺ + 2Cl⁻`, net ionic `Ca²⁺ + CO₃²⁻ → CaCO₃(s)` (spectators
   Na⁺, Cl⁻), with CaCO₃'s precipitation machine-classified and cited to the carbonate rule.
-- **47 producer tests green** total (+10 for reaction + solubility).
+- **Emit + verify pipeline** (ADR-0019, ADR-0020): `chemkernel.build` (`build-problems` entry point) reads
+  the authored `problems/precipitation/calcium-carbonate-limiting.problem.toml` and emits the committed,
+  verified `derived/precipitation/calcium-carbonate-limiting.solution.json` (exact decimal strings). One
+  `schemas/solution.schema.json` (draft 2020-12, `additionalProperties:false`, optional blocks) checked by
+  `scripts/validate/validate-solutions.mjs` (Ajv + honesty cross-checks: path/topic match, checks hold,
+  rule-sourced regime needs a cited source, ledger integrity, provenance sources) via `package.json`. Gate
+  proven non-vacuous against tampered checks/extra keys/bad enums.
+- **48 producer tests + the Node gate green** (+1 build regression).
 - **Resolved architecture open-questions** Q1 (dataset+format), Q2 (numeric representation), Q3 (parser
-  grammar), Q6 (solubility encoding) via ADR-0012/0013/0014/0017; units engine, ledger, and ionic-transform
-  shapes fixed by ADR-0015/0016/0018.
+  grammar), Q5 (schema granularity), Q6 (solubility encoding) via ADR-0012/0013/0014/0020/0017; units,
+  ledger, ionic-transform, and emit shapes fixed by ADR-0015/0016/0018/0019.
 
 ## Bootstrap — 2026-07-05 — repo founded, docs-first
 

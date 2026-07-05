@@ -1,0 +1,244 @@
+{
+  "id": "precipitation-calcium-carbonate-limiting",
+  "title": "Which reactant runs out when a precipitate forms?",
+  "slug": "calcium-carbonate-limiting",
+  "topic": "precipitation",
+  "tags": [
+    "solutions",
+    "stoichiometry",
+    "limiting-reagent",
+    "precipitation"
+  ],
+  "scenario": "25.0 mL of 0.100 M CaCl2(aq) is mixed with 20.0 mL of 0.150 M Na2CO3(aq). A white precipitate forms. What mass of calcium carbonate forms, which reactant limits the reaction, and which ions remain in solution?",
+  "regimes": [
+    {
+      "facet": "ledger",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "solubility",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "solution_behavior",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "CaCl2 and Na2CO3 are strong electrolytes and dissociate completely in water.",
+      "kind": "model"
+    },
+    {
+      "claim": "CaCO3 is treated as insoluble and precipitates completely.",
+      "kind": "rule"
+    },
+    {
+      "claim": "Solution volumes are additive.",
+      "kind": "model"
+    }
+  ],
+  "given": [
+    {
+      "species": "CaCl2(aq)",
+      "volume_mL": "25.0",
+      "molarity_M": "0.100",
+      "moles": "0.0025"
+    },
+    {
+      "species": "Na2CO3(aq)",
+      "volume_mL": "20.0",
+      "molarity_M": "0.150",
+      "moles": "0.003"
+    }
+  ],
+  "equations": {
+    "molecular": {
+      "text": "CaCl2(aq) + Na2CO3(aq) -> CaCO3(s) + 2 NaCl(aq)",
+      "latex": "CaCl_{2}\\,\\text{(aq)} + Na_{2}CO_{3}\\,\\text{(aq)} \\rightarrow CaCO_{3}\\,\\text{(s)} + 2\\,NaCl\\,\\text{(aq)}"
+    },
+    "complete_ionic": {
+      "text": "Ca^2+ + 2 Cl^- + 2 Na^+ + CO3^2- -> CaCO3 + 2 Na^+ + 2 Cl^-",
+      "latex": "Ca^{2+} + 2\\,Cl^{-} + 2\\,Na^{+} + CO_{3}^{2-} \\rightarrow CaCO_{3} + 2\\,Na^{+} + 2\\,Cl^{-}"
+    },
+    "net_ionic": {
+      "text": "Ca^2+ + CO3^2- -> CaCO3",
+      "latex": "Ca^{2+} + CO_{3}^{2-} \\rightarrow CaCO_{3}"
+    },
+    "spectators": [
+      "Cl^-",
+      "Na^+"
+    ]
+  },
+  "ledger": {
+    "extent_symbol": "xi",
+    "extent_mol": "0.0025",
+    "limiting": [
+      "CaCl2"
+    ],
+    "species": [
+      {
+        "id": "CaCl2",
+        "latex": "CaCl_{2}",
+        "phase": "aq",
+        "charge": 0,
+        "nu": -1,
+        "initial_mol": "0.0025",
+        "final_mol": "0",
+        "role": "limiting"
+      },
+      {
+        "id": "Na2CO3",
+        "latex": "Na_{2}CO_{3}",
+        "phase": "aq",
+        "charge": 0,
+        "nu": -1,
+        "initial_mol": "0.003",
+        "final_mol": "0.0005",
+        "role": "excess"
+      },
+      {
+        "id": "CaCO3",
+        "latex": "CaCO_{3}",
+        "phase": "s",
+        "charge": 0,
+        "nu": 1,
+        "initial_mol": "0",
+        "final_mol": "0.0025",
+        "role": "product"
+      },
+      {
+        "id": "NaCl",
+        "latex": "NaCl",
+        "phase": "aq",
+        "charge": 0,
+        "nu": 2,
+        "initial_mol": "0",
+        "final_mol": "0.005",
+        "role": "product"
+      }
+    ]
+  },
+  "dimensional_analysis": [
+    {
+      "target": "moles of CaCl2(aq)",
+      "steps": [
+        {
+          "value": "25.0",
+          "unit": "mL",
+          "note": "given volume"
+        },
+        {
+          "value": "0.0250",
+          "unit": "L",
+          "note": "convert mL to L (÷ 1000)"
+        },
+        {
+          "value": "0.0025",
+          "unit": "mol",
+          "note": "× 0.100 mol/L"
+        }
+      ]
+    },
+    {
+      "target": "moles of Na2CO3(aq)",
+      "steps": [
+        {
+          "value": "20.0",
+          "unit": "mL",
+          "note": "given volume"
+        },
+        {
+          "value": "0.0200",
+          "unit": "L",
+          "note": "convert mL to L (÷ 1000)"
+        },
+        {
+          "value": "0.003",
+          "unit": "mol",
+          "note": "× 0.150 mol/L"
+        }
+      ]
+    }
+  ],
+  "result": {
+    "precipitate": {
+      "species": "CaCO3",
+      "phase": "s",
+      "molar_mass_g_per_mol": "100.086",
+      "moles": "0.0025",
+      "mass_g": "0.250215",
+      "mass_g_display": "0.250"
+    },
+    "limiting_species": [
+      "CaCl2"
+    ],
+    "leftover": [
+      {
+        "species": "Na2CO3",
+        "moles": "0.0005"
+      }
+    ]
+  },
+  "misconception": {
+    "claim": "The limiting reagent is whichever reactant has the smaller volume.",
+    "refuted_by": "moles_and_extent_limits"
+  },
+  "visualizations": [
+    {
+      "kind": "beaker_species_view",
+      "mode": "interactive",
+      "annotate": [
+        "free_ions_before_mixing",
+        "solid_lattice_forms",
+        "spectator_ions_remain_aqueous",
+        "limiting_reagent_switch"
+      ]
+    },
+    {
+      "kind": "extent_bar",
+      "mode": "interactive",
+      "annotate": [
+        "xi_limited_by_Ca",
+        "CO3_left_over",
+        "CaCO3_mass_tracks_xi"
+      ]
+    }
+  ],
+  "reference_links": [
+    "limiting-reagent",
+    "extent-of-reaction",
+    "molarity",
+    "molar-mass",
+    "net-ionic-equation",
+    "precipitation",
+    "solubility-rules",
+    "calcium",
+    "carbonate"
+  ],
+  "checks": {
+    "atom_balance": true,
+    "charge_balance": true,
+    "unit_check": true,
+    "extent_nonnegative": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-05",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights",
+      "ion_charge": "openstax-chemistry-2e",
+      "solubility": "openstax-chemistry-2e"
+    }
+  },
+  "solubility_basis": {
+    "species": "CaCO3",
+    "soluble": false,
+    "rule_id": "insol-carbonate",
+    "statement": "Carbonates are insoluble, except those of group 1 cations and ammonium.",
+    "source": "openstax-chemistry-2e"
+  }
+}

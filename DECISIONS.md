@@ -309,3 +309,42 @@ intact) is deferred until acid-base content needs it.
 `Ca²⁺ + 2Cl⁻ + 2Na⁺ + CO₃²⁻ → CaCO₃(s) + 2Na⁺ + 2Cl⁻`, net ionic `Ca²⁺ + CO₃²⁻ → CaCO₃(s)`, spectators
 Na⁺ and Cl⁻ — with conservation re-proven. 10 further tests (reaction + solubility); 47 producer tests
 total. The species ledger (ADR-0016) can now be driven at the net-ionic level from these transforms.
+
+## ADR-0019 — The emit pipeline: build.py reads authored TOML, runs the engine, writes derived JSON (2026-07-05)
+
+**Context.** The engine (ADR-0014–0018) computes everything; it needs an orchestrator turning an authored
+spec into the committed solution object, mirroring the sibling's `build.py` + `[project.scripts]` pattern.
+
+**Decision.** `chemkernel.build` exposes the `build-problems` entry point:
+`problems/<topic>/<slug>.problem.toml → derived/<topic>/<slug>.solution.json`. It parses the spec's human
+layer (id/title/slug/topic/scenario, reactants, products, givens, assumptions, misconception,
+visualizations, reference links), then derives everything else via the engine — balance, moles +
+dimensional chains from the givens, the species ledger, the three equations + spectators, the precipitate
++ leftovers, and the cited solubility basis (`verify_phase` flags any phase that contradicts the ruleset).
+Exact amounts are emitted as **terminating decimal strings**; a non-terminating amount raises rather than
+shipping a rounded "exact" value (ADR-0013). The producer refuses to emit on any engine failure; the
+authored TOML never contains a derived number. Species ids in emitted rows are phase-stripped cores
+(`CaCl2`), with phase in its own field.
+
+**Consequences.** The Phase 0 spec builds to a complete solution JSON reproducing the brief. Adding a
+lesson = author a TOML + `npm run produce`; the engine never changes. A `test_build` regression pins the
+key fields; 48 producer tests total.
+
+## ADR-0020 — One solution schema with optional blocks, gated by Ajv + honesty cross-checks (2026-07-05)
+
+**Context.** Resolves architecture open-question Q5 (schema granularity). The emitted object needs a
+contract that CI can re-validate in pure Node.
+
+**Decision.** **One** `schemas/solution.schema.json` (JSON Schema draft 2020-12, `additionalProperties:
+false` throughout) with optional blocks for facets a given lesson may omit (`solubility_basis`,
+`visualizations`, `tags`, `reference_links`) — the sibling's proven single-schema pattern — rather than a
+schema per lesson kind. `scripts/validate/validate-solutions.mjs` compiles it with Ajv (strict) and adds
+the honesty cross-checks the shape can't express: derived path matches topic/slug; ids unique; every
+`checks.*` holds; a `rule-sourced` regime requires a cited `solubility_basis.source`; ledger integrity
+(limiting rows have `final_mol` 0, extent > 0, reactant/product ν signs); the reported precipitate is a
+solid ledger row; provenance sources non-empty. Wired via `package.json` (`produce → validate →
+prepare:data`), Ajv committed to devDependencies. The gate is proven non-vacuous (rejects tampered checks,
+extra keys, bad enums, missing blocks).
+
+**Consequences.** Committed `derived/` is the Python↔Node contract; CI re-verifies it with no Python. New
+optional lesson facets extend the one schema; the honesty gate grows with new invariants, not new schemas.

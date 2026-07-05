@@ -1,0 +1,18 @@
+{
+  "name": "affinity",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A beginning-chemistry portal where the verification system is the product.",
+  "license": "MIT",
+  "scripts": {
+    "produce": "uv --project producer run build-problems",
+    "validate:solutions": "node scripts/validate/validate-solutions.mjs",
+    "validate": "npm run validate:solutions",
+    "prepare:data": "npm run produce && npm run validate"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

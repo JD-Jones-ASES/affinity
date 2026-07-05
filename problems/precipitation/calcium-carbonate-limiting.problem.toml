@@ -1,0 +1,54 @@
+# The Phase 0 vertical slice (brief §16). Authored human layer only — ChemKernel derives and verifies the
+# rest. Numbers are strings to keep them exact (no float enters the pipeline, ADR-0013).
+#
+# Root keys must precede any [table]/[[array]] header, or TOML absorbs them into the preceding table.
+
+id = "precipitation-calcium-carbonate-limiting"
+title = "Which reactant runs out when a precipitate forms?"
+slug = "calcium-carbonate-limiting"
+topic = "precipitation"
+tags = ["solutions", "stoichiometry", "limiting-reagent", "precipitation"]
+author = "Affinity"
+created = "2026-07-05"
+scenario = "25.0 mL of 0.100 M CaCl2(aq) is mixed with 20.0 mL of 0.150 M Na2CO3(aq). A white precipitate forms. What mass of calcium carbonate forms, which reactant limits the reaction, and which ions remain in solution?"
+
+reactants = ["CaCl2(aq)", "Na2CO3(aq)"]
+products = ["CaCO3(s)", "NaCl(aq)"]
+
+reference_links = ["limiting-reagent", "extent-of-reaction", "molarity", "molar-mass", "net-ionic-equation", "precipitation", "solubility-rules", "calcium", "carbonate"]
+
+[[given]]
+species = "CaCl2(aq)"
+volume_mL = "25.0"
+molarity_M = "0.100"
+
+[[given]]
+species = "Na2CO3(aq)"
+volume_mL = "20.0"
+molarity_M = "0.150"
+
+[[assumptions]]
+claim = "CaCl2 and Na2CO3 are strong electrolytes and dissociate completely in water."
+kind = "model"
+
+[[assumptions]]
+claim = "CaCO3 is treated as insoluble and precipitates completely."
+kind = "rule"
+
+[[assumptions]]
+claim = "Solution volumes are additive."
+kind = "model"
+
+[misconception]
+claim = "The limiting reagent is whichever reactant has the smaller volume."
+refuted_by = "moles_and_extent_limits"
+
+[[visualizations]]
+kind = "beaker_species_view"
+mode = "interactive"
+annotate = ["free_ions_before_mixing", "solid_lattice_forms", "spectator_ions_remain_aqueous", "limiting_reagent_switch"]
+
+[[visualizations]]
+kind = "extent_bar"
+mode = "interactive"
+annotate = ["xi_limited_by_Ca", "CO3_left_over", "CaCO3_mass_tracks_xi"]

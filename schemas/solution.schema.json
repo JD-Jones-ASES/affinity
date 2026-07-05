@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://affinity/schemas/solution.schema.json",
+  "title": "Affinity solution object",
+  "description": "One verified lesson emitted by ChemKernel (ADR-0019). One schema with optional blocks (ADR-0020). additionalProperties:false everywhere.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id", "title", "slug", "topic", "scenario", "regimes", "assumptions", "given",
+    "equations", "ledger", "dimensional_analysis", "result", "misconception",
+    "checks", "provenance"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "topic": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "scenario": { "type": "string", "minLength": 1 },
+    "regimes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["facet", "regime"],
+        "properties": {
+          "facet": { "type": "string" },
+          "regime": { "enum": ["ledger-exact", "model-exact", "rule-sourced", "mechanistic"] }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim", "kind"],
+        "properties": {
+          "claim": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["model", "rule"] }
+        }
+      }
+    },
+    "given": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["species", "moles"],
+        "properties": {
+          "species": { "type": "string" },
+          "volume_mL": { "type": "string" },
+          "molarity_M": { "type": "string" },
+          "mass_g": { "type": "string" },
+          "moles": { "type": "string" }
+        }
+      }
+    },
+    "equations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["molecular", "complete_ionic", "net_ionic", "spectators"],
+      "properties": {
+        "molecular": { "$ref": "#/$defs/equation" },
+        "complete_ionic": { "$ref": "#/$defs/equation" },
+        "net_ionic": { "$ref": "#/$defs/equation" },
+        "spectators": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "ledger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["extent_symbol", "extent_mol", "limiting", "species"],
+      "properties": {
+        "extent_symbol": { "type": "string" },
+        "extent_mol": { "type": "string" },
+        "limiting": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "species": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "latex", "phase", "charge", "nu", "initial_mol", "final_mol", "role"],
+            "properties": {
+              "id": { "type": "string" },
+              "latex": { "type": "string" },
+              "phase": { "enum": ["s", "l", "g", "aq", null] },
+              "charge": { "type": "integer" },
+              "nu": { "type": "integer" },
+              "initial_mol": { "type": "string" },
+              "final_mol": { "type": "string" },
+              "role": { "enum": ["limiting", "excess", "product"] }
+            }
+          }
+        }
+      }
+    },
+    "dimensional_analysis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["target", "steps"],
+        "properties": {
+          "target": { "type": "string" },
+          "steps": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["value", "unit", "note"],
+              "properties": {
+                "value": { "type": "string" },
+                "unit": { "type": "string" },
+                "note": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["precipitate", "limiting_species", "leftover"],
+      "properties": {
+        "precipitate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["species", "phase", "molar_mass_g_per_mol", "moles", "mass_g", "mass_g_display"],
+          "properties": {
+            "species": { "type": "string" },
+            "phase": { "enum": ["s", "l", "g", "aq"] },
+            "molar_mass_g_per_mol": { "type": "string" },
+            "moles": { "type": "string" },
+            "mass_g": { "type": "string" },
+            "mass_g_display": { "type": "string" }
+          }
+        },
+        "limiting_species": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "leftover": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["species", "moles"],
+            "properties": {
+              "species": { "type": "string" },
+              "moles": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "solubility_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["species", "soluble", "rule_id", "statement", "source"],
+      "properties": {
+        "species": { "type": "string" },
+        "soluble": { "type": "boolean" },
+        "rule_id": { "type": "string" },
+        "statement": { "type": "string" },
+        "source": { "type": "string" }
+      }
+    },
+    "misconception": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "refuted_by"],
+      "properties": {
+        "claim": { "type": "string", "minLength": 1 },
+        "refuted_by": { "type": "string" }
+      }
+    },
+    "visualizations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "mode"],
+        "properties": {
+          "kind": { "type": "string" },
+          "mode": { "enum": ["static", "interactive"] },
+          "annotate": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "reference_links": { "type": "array", "items": { "type": "string" } },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["atom_balance", "charge_balance", "unit_check", "extent_nonnegative"],
+      "properties": {
+        "atom_balance": { "const": true },
+        "charge_balance": { "const": true },
+        "unit_check": { "const": true },
+        "extent_nonnegative": { "const": true }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer", "version", "author", "created", "sources"],
+      "properties": {
+        "producer": { "const": "chemkernel" },
+        "version": { "type": "string" },
+        "python": { "type": "string" },
+        "author": { "type": "string" },
+        "created": { "type": "string" },
+        "sources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["atomic_weight", "ion_charge", "solubility"],
+          "properties": {
+            "atomic_weight": { "type": "string", "minLength": 1 },
+            "ion_charge": { "type": "string", "minLength": 1 },
+            "solubility": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "equation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "latex"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "latex": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

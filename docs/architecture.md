@@ -31,13 +31,15 @@ The load-bearing invariant: **ChemKernel refuses to emit** an object that fails 
 self-check); `chemkernel.formula` (parser, ADR-0014); `chemkernel.balance` (balancer, ADR-0014);
 `chemkernel.units` (Quantity engine, ADR-0015); `chemkernel.extent` (Extent solver → species ledger,
 ADR-0016); `chemkernel.reaction` (dissociation + complete/net ionic, ADR-0018); `chemkernel.solubility`
-(sourced classifier, ADR-0017). **47 producer tests green** (`uv --project producer run pytest`). The
-entire Phase 0 chemistry runs end to end in the library — molecular → complete ionic → net ionic
-(spectators Na⁺, Cl⁻), the carbonate solubility rule cited as the precipitate's basis, moles from
-volume×molarity, the species ledger, limiting reagent, 0.250 g CaCO₃ — all matching the brief. What
-remains is the *emit + verify + present* layer: no `build.py`, solution schema, Node gates, or entry
-points yet. Next: the solution schema → `build.py` (authored TOML spec → verified JSON) → Node gates + CI
-→ the player.
+(sourced classifier, ADR-0017); `chemkernel.build` (orchestrator + `build-problems` entry point,
+ADR-0019). The **emit + verify** layer is now live too: `problems/precipitation/*.problem.toml` (authored
+spec) → `derived/precipitation/*.solution.json` (committed, verified) → `schemas/solution.schema.json`
+(ADR-0020) checked by `scripts/validate/validate-solutions.mjs` (Ajv + honesty cross-checks) via
+`package.json`. **48 producer tests + the Node gate green.** The whole Phase 0 lesson's chemistry computes,
+emits as schema-valid JSON, and re-validates in pure Node — molecular → complete ionic → net ionic
+(spectators Na⁺, Cl⁻), carbonate rule cited, ledger, limiting reagent, 0.250 g CaCO₃. What remains: the
+rest of the gate suite (scan-text, a Node-side ledger/conservation re-check, KaTeX) + CI, then the **player**
+(Astro/Svelte) with the two interactives, the practice generator, and the Atlas/periodic-lens.
 
 ## ChemKernel module map (brief §6)
 
@@ -51,13 +53,16 @@ points yet. Next: the solution schema → `build.py` (authored TOML spec → ver
 | `reaction.py` transforms | dissociation (formula → ions via the ion table), complete ionic, net ionic with spectator cancellation + conservation re-check | **built** (ADR-0018) |
 | `solubility.py` classifier | sourced ruleset → soluble/insoluble verdict + governing rule id; `verify_phase` build check | **built** (ADR-0017) |
 | proofs | atom/charge conservation (in `balance.py` + `reaction.py`) and nonnegative extent (in `extent.py`) done; unit homogeneity of reference formulas (SymPy `dims.py`) with the Atlas | partly built |
+| `build.py` orchestration | authored `problems/**/*.problem.toml` → engine → verified `derived/<topic>/<slug>.solution.json`; entry point `build-problems`; exact decimal strings | **built** (ADR-0019) |
 | practice generator | template + constraints + misconception target → solver-verified variants with derivation trees; reject-list enforced | Phase 0 (one family) |
 | reaction classifier | precipitation/acid-base/gas-evolution/combustion/redox/… + required conditions | Phase 1 |
 | equilibrium / kinetics / thermo / electrochem | ICE-as-ledger, rate laws, energy ledger, electron ledger | Phase 2+ |
 
-## The solution object (planned shape; schema pins it in Phase 0)
+## The solution object (pinned by `schemas/solution.schema.json`, ADR-0020)
 
-Per the brief's §12 sketch, one JSON object per lesson carrying: `id/title/slug/topic/scenario`; a
+**Built.** One schema, draft 2020-12, `additionalProperties:false`, with optional blocks (Q5 → single
+schema). The emitted object (see `derived/precipitation/calcium-carbonate-limiting.solution.json`) carries,
+per the brief's §12 sketch: `id/title/slug/topic/scenario`; a
 `regimes` block (per-facet regime classification, ADR-0003); `assumptions[]` (each `{claim, kind}` —
 model/rule assumptions only, **never referenced inside derivations**); `given[]` (species + quantities);
 `equations` (molecular, complete ionic, net ionic); `checks` (atom balance, charge balance, unit check,
@@ -94,7 +99,7 @@ reject-list.
 
 | Gate | Checks |
 |---|---|
-| validate-solutions | Ajv schema; every `checks.*` true; assumptions all kind-tagged; badges present on every rule/model claim; path matches topic/slug; unique ids; reference_links resolve |
+| validate-solutions | **built** (ADR-0020): Ajv schema; every `checks.*` true; path matches topic/slug; unique ids; rule-sourced regime needs a cited `solubility_basis.source`; ledger integrity (limiting rows final_mol 0, extent > 0, ν signs); precipitate is a solid ledger row; provenance sources non-empty |
 | validate-reference | Atlas JSON schema-valid; concept-graph edges resolve; every empirical value carries a source id resolving in `docs/SOURCES.md` |
 | check-ledger | recompute atom/charge totals from the committed ledger (initial vs. final, per element and charge) — conservation re-proven in Node, independent of Python |
 | check-parity | recompile exported JS closed forms; re-evaluate at embedded sample points within tolerance; practice answers finite and unique |
@@ -125,8 +130,7 @@ solubility claims, ambiguous sig figs, unbalanced templates.
    hydrates and isotopes deferred.
 4. **Regime-4 badge** — does mechanistic/interpretive content need a fourth badge, or model-assumed + an
    interpretive marker (ADR-0003 leaves this open)?
-5. **Schema granularity** — one `solution.schema.json` with optional blocks (sibling pattern) vs. schema
-   per lesson kind.
+5. ~~**Schema granularity**~~ — **RESOLVED (ADR-0020):** one `solution.schema.json` with optional blocks.
 6. ~~**Solubility-rule encoding**~~ — **RESOLVED (ADR-0017):** `data/solubility.toml`, precedence-ordered
    rules from OpenStax Table 4.1; `classify()` returns the governing rule id for citation.
 7. **Sig-fig policy** — computation exact, display rounded; where the policy lives (house-conventions) and
