@@ -25,9 +25,13 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   beaker/species view drive the **limiting-reagent switch** from parity-verified closed forms (the producer
   emits an `interactive` block of JS closed forms + engine-computed sample points; `check-parity.mjs`
   re-proves the browser's JS against the engine). The **gate suite is rounded out** (ADR-0023): five Node
-  gates — validate-solutions, check-ledger, check-parity, check-katex, scan-text — plus `astro build`.
-  **53 producer tests + 5 Node gates + astro build green.** Remaining: the practice generator, the Atlas
-  entry + periodic lens, the authoring guide, and the CI `deploy.yml` (owner's publish call, ADR-0010).
+  gates — validate-solutions, check-ledger, check-parity, check-katex, scan-text — plus `astro build`. The
+  lesson also renders a **Practice** tab — 6 deterministic solver-verified variants with misconception
+  distractors, re-derived in Node from the parity-verified closed forms (ADR-0022, brief §6.8). The spec
+  format is documented (`docs/authoring-problems.md`) and **CI deploys to GitHub Pages** (`deploy.yml`, live
+  at `/affinity`; repo stays private on the owner's Educator plan, ADR-0010). **57 producer tests + 5 Node
+  gates + CI + live Pages green.** The **one remaining Phase-0 build is the Chemical Atlas entry + the
+  Valence Table periodic lens (item 7)**; then Phase 0 is complete and stops for owner review.
 
 ---
 
@@ -46,11 +50,12 @@ The lesson lives at `problems/precipitation/` (the topic slug for path purposes 
 **Landed so far (2026-07-05):** scope items 1 (datasets), 2 (parser, balancer, units engine, dissociation
 transformer, net-ionic reducer, Extent solver → species ledger), 3 (conservation + nonnegative-extent
 proofs), **4 (solution schema + `build.py` + the five-gate Node suite: validate-solutions, check-ledger,
-check-parity, check-katex, scan-text)**, and **5 (the player + both interactives — the extent bar and the
-beaker/species view, with the limiting-reagent switch driven by parity-verified closed forms)** are complete
-and tested; the authored Phase-0 spec, its verified `derived/` JSON, and the Astro/Svelte site are committed.
-**Not yet built:** items 6 (practice generator), 7 (Atlas entry + periodic lens), 8 (authoring guide + CI
-`deploy.yml`, the last gated by the owner's publish call, ADR-0010).
+check-parity, check-katex, scan-text)**, **5 (the player + both interactives — the extent bar and the
+beaker/species view, with the limiting-reagent switch driven by parity-verified closed forms)**, **6 (the
+practice generator + Practice tab)**, and **8 (the authoring guide `docs/authoring-problems.md` + the CI
+`deploy.yml`, live on GitHub Pages)** are complete and tested; the authored Phase-0 spec, its verified
+`derived/` JSON, and the Astro/Svelte site are committed and deployed. **Not yet built:** only item 7 (the
+Chemical Atlas entry + the Valence Table periodic lens) — after which Phase 0 stops for owner review.
 
 **Scope.**
 1. `data/`: minimal element dataset (Ca, Cl, Na, C, O, H) + common-ion and polyatomic-ion entries, source

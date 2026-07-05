@@ -37,9 +37,11 @@ derives parity-verified closed forms for the sliders. Emit + verify: `problems/*
 static site + Svelte islands (`src/`) rendering the committed JSON: `lessons/[slug].astro` +
 `SolutionPlayer.svelte` step scenario → three equations → dimensional chains → species ledger → result, with
 the three honesty badges, the misconception register, and **both interactives** (`ExtentBar`,
-`BeakerSpecies`) whose limiting-reagent switch runs on the parity-verified closed forms. **53 producer tests
-+ 5 Node gates + `astro build` (4 pages) green.** What remains: the practice generator, the Atlas +
-periodic-lens, the authoring guide, and the CI `deploy.yml` (owner's publish call, ADR-0010).
+`BeakerSpecies`) whose limiting-reagent switch runs on the parity-verified closed forms, plus a **Practice**
+tab (`practice.py` → `PracticeQuestion.svelte`). The spec format is documented (`docs/authoring-problems.md`)
+and **CI deploys to GitHub Pages** (`.github/workflows/deploy.yml`, live at `/affinity`). **57 producer tests
++ 5 Node gates + `astro build` (4 pages) + the live CI run green.** What remains: only the Chemical Atlas +
+the Valence Table periodic lens (opens `reference/`), then Phase 0 stops for owner review.
 
 ## ChemKernel module map (brief §6)
 
@@ -55,7 +57,7 @@ periodic-lens, the authoring guide, and the CI `deploy.yml` (owner's publish cal
 | proofs | atom/charge conservation (in `balance.py` + `reaction.py`) and nonnegative extent (in `extent.py`) done; unit homogeneity of reference formulas (SymPy `dims.py`) with the Atlas | partly built |
 | `build.py` orchestration | authored `problems/**/*.problem.toml` → engine → verified `derived/<topic>/<slug>.solution.json`; entry point `build-problems`; exact decimal strings | **built** (ADR-0019) |
 | `interactive.py` | derives the optional interactive block: slider params + JS closed forms + engine-computed sample points; multiplicities from `dissociate`/`net_ionic`; single-precipitate double-displacement only, else omitted | **built** (ADR-0022) |
-| practice generator | template + constraints + misconception target → solver-verified variants with derivation trees; reject-list enforced | Phase 0 (one family) |
+| `practice.py` generator | deterministic seeded variants off the reaction → solver-verified answers + misconception distractors; reject-list (near-ties, no leftover, colliding displays); reuses `interactive` multiplicities | **built** (ADR-0022, one family) |
 | reaction classifier | precipitation/acid-base/gas-evolution/combustion/redox/… + required conditions | Phase 1 |
 | equilibrium / kinetics / thermo / electrochem | ICE-as-ledger, rate laws, energy ledger, electron ledger | Phase 2+ |
 
@@ -71,9 +73,11 @@ extent nonnegative — all must be true to emit); `ledger` (the species ledger: 
 initial mol, stoich coefficient, final mol; limiting species; ξ_max); a dimensional-analysis `chain`;
 `result`; `visualizations[]` (kind, static/interactive mode, params, annotations — ADR-0011 governs mode);
 an optional `interactive` block (ADR-0022: slider params + JS closed forms + engine-computed sample points
-the player evaluates and `check-parity` re-proves); `misconception` (claim + what refutes it);
-`practice_family`; `reference_links[]` (must resolve into the Atlas); badge annotations on every
-data/rule/model-dependent value; `provenance` (producer version, dataset versions, author, created).
+the player evaluates and `check-parity` re-proves); an optional `practice` block (ADR-0022: deterministic
+solver-verified variants, each with `args` so `check-parity` re-derives the answer in Node);
+`misconception` (claim + what refutes it); `reference_links[]` (must resolve into the Atlas); badge
+annotations on every data/rule/model-dependent value; `provenance` (producer version, dataset versions,
+author, created).
 
 ## Ported machinery (third-generation code — ADR-0001)
 
@@ -104,7 +108,7 @@ reject-list.
 | validate-solutions | **built** (ADR-0020): Ajv schema; every `checks.*` true; path matches topic/slug; unique ids; rule-sourced regime needs a cited `solubility_basis.source`; ledger integrity (limiting rows final_mol 0, extent > 0, ν signs); precipitate is a solid ledger row; provenance sources non-empty |
 | validate-reference | Atlas JSON schema-valid; concept-graph edges resolve; every empirical value carries a source id resolving in `docs/SOURCES.md` |
 | check-ledger | **built** (ADR-0023): re-derives every row's final amount as n = n₀ + ν·ξ from the committed initial/coefficient/extent (independent of Python), checks role/sign consistency, and matches the reported result (precipitate moles, leftovers). Atom/charge re-check by element counts is future (needs counts in the emitted ledger or a JS parser) |
-| check-parity | **built** (ADR-0023, ADR-0022): recompiles the exported JS closed forms and re-evaluates them at the embedded engine-computed sample points within tolerance; cross-checks the default slider setting against the committed static answer. Practice-answer parity added when the generator lands |
+| check-parity | **built** (ADR-0023, ADR-0022): recompiles the exported JS closed forms and re-evaluates them at the embedded engine-computed sample points within tolerance; cross-checks the default slider setting against the committed static answer; **re-derives every practice answer** in Node from those closed forms (mass/leftover numerically, limiting by capacity) and asserts exactly-one-correct + distinct choices |
 | check-katex | **built** (ADR-0023): every LaTeX string renders through KaTeX with `throwOnError:true` |
 | scan-text | **built** (ADR-0023): committed text is provider-agnostic; banned-terms list in the gate, seeded from the sibling's (ADR-0004) |
 

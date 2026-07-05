@@ -3,6 +3,30 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 0 (in progress) — 2026-07-05 — practice generator, authoring guide, CI/Pages (site live)
+
+- **Generated practice (ADR-0022, brief §6.8):** `chemkernel.practice.generate_practice` builds the
+  `precipitation_limiting_reagent_v1` family — deterministic (seeded), solver-verified variants off the same
+  reaction, rotating through limiting/mass/leftover asks. Multiplicities reused from the interactive block
+  (engine-derived). Every wrong choice is a named misconception; a reject-list drops ambiguous variants
+  (near-ties, no leftover, choices colliding at display precision). Spec declares `[practice]`
+  family/seed/count. Schema grew an optional `practice` block. `check-parity.mjs` re-derives every answer in
+  pure Node from the parity-verified closed forms. Player: `PracticeQuestion.svelte` + a Practice tab (pick a
+  choice → right/wrong + the misconception + a worked explanation). **Fixed a Svelte-5 footgun:** a helper
+  named `state` collided with Svelte's internal `state` import (compiles `$state`), throwing at render and
+  corrupting the island's tab reactivity — renamed. Verified in-browser (feedback, explanations, mobile wrap).
+- **Authoring guide:** `docs/authoring-problems.md` — the `*.problem.toml` spec written from the now-stable
+  format (required/optional fields, the bare-keys-before-tables gotcha, what ChemKernel derives vs. what you
+  author, refuse-to-emit conditions, `[practice]`, build/verify commands, worked example).
+- **CI + GitHub Pages (ADR-0001, ADR-0010):** `.github/workflows/deploy.yml` — push to `main` → `npm install`
+  → five Node gates + `astro build` → Pages at base `/affinity`. No Python in CI. Pages **enabled on the
+  private repo** (owner's Educator plan) and **live** at https://jd-jones-ases.github.io/affinity/ (home +
+  lesson return 200). Repo stays private; note the deployed site is world-readable on non-Enterprise plans.
+- **Verification:** 57 producer tests (+4: practice shape, closed-forms-reproduce-engine, default+switch,
+  full-build inclusion) + 5 Node gates (6 practice answers re-derived) + `astro build` + the live CI run all
+  green. Determinism test now forces `PYTHONIOENCODING=utf-8` for the subprocess (matches the utf-8 artifact,
+  which now carries ξ in practice explanations).
+
 ## Phase 0 (in progress) — 2026-07-05 — the player + honest interactives (verified JSON → rendered site)
 
 - **The player (ADR-0021):** an Astro static site + Svelte 5 islands, build-time KaTeX, base `/affinity`.
