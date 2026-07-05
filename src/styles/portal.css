@@ -1,0 +1,129 @@
+/* Affinity — design tokens + chrome. No framework; CSS custom properties only.
+   Sibling of Quadrature, its own identity: quiet paper, a chemistry blue accent, generous type. The three
+   honesty badges (ADR-0003) map to three colors: machine-checked = blue, data/rule-sourced = violet,
+   model-assumed = amber. Misconceptions are red. */
+
+:root {
+  --paper: #fbfaf7;
+  --paper-2: #f2f2ee;
+  --paper-sunk: #e7e7e0;
+  --ink: #1e2530;
+  --ink-2: #48515e;
+  --ink-faint: #868e99;
+  --line: #dcdad0;
+
+  --accent: #2f6f9f;        /* machine-checked blue (the primary accent) */
+  --accent-soft: #e2eef5;
+  --sourced: #7a4f9c;       /* data/rule-sourced violet */
+  --sourced-soft: #efe7f4;
+  --model: #b5651d;         /* model-assumed amber (author-asserted, disclosed) */
+  --model-soft: #f5ebdf;
+  --warn: #a23b2d;          /* misconception red */
+  --warn-soft: #f6e7e3;
+
+  /* species / ion colors for the particle views (beaker + ledger) */
+  --ion-ca: #c47f2a;        /* Ca2+ (cation, limiting default) */
+  --ion-co3: #2f8f8f;       /* CO3 2- (anion) */
+  --ion-na: #8a6fb0;        /* Na+ (spectator) */
+  --ion-cl: #4f9a5a;        /* Cl- (spectator) */
+  --solid: #6b7280;         /* CaCO3(s) precipitate lattice */
+  --solid-soft: #d7dade;
+
+  --font-sans: "Space Grotesk Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", monospace;
+  --radius: 10px;
+  --maxw: 64rem;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #14171b;
+    --paper-2: #1b1f24;
+    --paper-sunk: #232830;
+    --ink: #e7e6df;
+    --ink-2: #b1b8c0;
+    --ink-faint: #7c848d;
+    --line: #2c323a;
+
+    --accent: #5fa3d0;
+    --accent-soft: #182633;
+    --sourced: #b18cd0;
+    --sourced-soft: #241d2e;
+    --model: #d6953f;
+    --model-soft: #2c2318;
+    --warn: #d8775f;
+    --warn-soft: #2c211e;
+
+    --ion-ca: #d99a4e;
+    --ion-co3: #57b3b3;
+    --ion-na: #ab8fd0;
+    --ion-cl: #6fbf7c;
+    --solid: #9aa1ab;
+    --solid-soft: #2a2f36;
+  }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  font-size: 17px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2, h3 { line-height: 1.2; font-weight: 600; }
+code, kbd { font-family: var(--font-mono); font-size: 0.92em; }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 1.25rem; }
+
+/* header / footer */
+.site-header {
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper) 85%, transparent);
+  position: sticky; top: 0; z-index: 10; backdrop-filter: blur(6px);
+}
+.site-header .wrap { display: flex; align-items: baseline; gap: 1.5rem; padding-block: 0.9rem; }
+.brand { font-weight: 700; font-size: 1.15rem; color: var(--ink); letter-spacing: -0.01em; }
+.brand .a { color: var(--accent); }
+.nav { display: flex; gap: 1.1rem; margin-left: auto; font-size: 0.95rem; flex-wrap: wrap; }
+.nav a { color: var(--ink-2); }
+.site-footer { border-top: 1px solid var(--line); margin-top: 4rem; color: var(--ink-faint); font-size: 0.85rem; }
+.site-footer .wrap { padding-block: 1.5rem; }
+
+main { padding-top: 2rem; }
+
+/* badges — the three-badge honesty model (ADR-0003) */
+.badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.78rem; font-weight: 600; padding: 0.18rem 0.55rem;
+  border-radius: 999px; border: 1px solid var(--line); white-space: nowrap;
+}
+.badge .dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; flex: none; }
+.badge.machine { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+.badge.machine .dot { background: var(--accent); }
+.badge.sourced { background: var(--sourced-soft); color: var(--sourced); border-color: color-mix(in srgb, var(--sourced) 30%, transparent); }
+.badge.sourced .dot { background: var(--sourced); }
+.badge.model { background: var(--model-soft); color: var(--model); border-color: color-mix(in srgb, var(--model) 30%, transparent); }
+.badge.model .dot { background: var(--model); }
+.badge.regime { background: var(--paper-sunk); color: var(--ink-2); }
+
+/* cards & panels */
+.card { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.25rem; }
+.muted { color: var(--ink-2); }
+.faint { color: var(--ink-faint); }
+
+/* KaTeX sizing in flow */
+.katex-display { margin: 0.4rem 0; overflow-x: auto; overflow-y: hidden; }
+
+/* results row */
+.results { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 0.75rem; }
+.result { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 0.85rem; }
+.result .label { font-size: 0.8rem; color: var(--ink-faint); }
+.result .value { font-size: 1.3rem; font-weight: 600; }
+.result .unit { font-size: 0.9rem; color: var(--ink-2); }

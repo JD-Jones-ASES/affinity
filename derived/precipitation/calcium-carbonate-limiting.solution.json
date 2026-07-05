@@ -240,5 +240,287 @@
     "rule_id": "insol-carbonate",
     "statement": "Carbonates are insoluble, except those of group 1 cations and ammonium.",
     "source": "openstax-chemistry-2e"
+  },
+  "interactive": {
+    "params": [
+      {
+        "name": "v1",
+        "label": "V(CaCl2)",
+        "species": "CaCl2",
+        "kind": "volume",
+        "unit": "mL",
+        "min": "5",
+        "max": "50",
+        "default": "25.0",
+        "step": "0.5"
+      },
+      {
+        "name": "c1",
+        "label": "[CaCl2]",
+        "species": "CaCl2",
+        "kind": "concentration",
+        "unit": "M",
+        "min": "0.02",
+        "max": "0.30",
+        "default": "0.100",
+        "step": "0.005"
+      },
+      {
+        "name": "v2",
+        "label": "V(Na2CO3)",
+        "species": "Na2CO3",
+        "kind": "volume",
+        "unit": "mL",
+        "min": "5",
+        "max": "50",
+        "default": "20.0",
+        "step": "0.5"
+      },
+      {
+        "name": "c2",
+        "label": "[Na2CO3]",
+        "species": "Na2CO3",
+        "kind": "concentration",
+        "unit": "M",
+        "min": "0.02",
+        "max": "0.30",
+        "default": "0.150",
+        "step": "0.005"
+      }
+    ],
+    "closed_form_params": [
+      "v1",
+      "c1",
+      "v2",
+      "c2"
+    ],
+    "closed_form": {
+      "n_cation": "v1/1000*c1",
+      "n_anion": "v2/1000*c2",
+      "xi": "Math.min(v1/1000*c1, v2/1000*c2)",
+      "mass": "(Math.min(v1/1000*c1, v2/1000*c2))*100.086",
+      "leftover_cation": "(v1/1000*c1) - (Math.min(v1/1000*c1, v2/1000*c2))",
+      "leftover_anion": "(v2/1000*c2) - (Math.min(v1/1000*c1, v2/1000*c2))",
+      "n_spec_cation": "2*(v1/1000*c1)",
+      "n_spec_anion": "2*(v2/1000*c2)"
+    },
+    "cation": {
+      "id": "Ca^2+",
+      "source": "CaCl2",
+      "per": 1,
+      "net_coeff": 1
+    },
+    "anion": {
+      "id": "CO3^2-",
+      "source": "Na2CO3",
+      "per": 1,
+      "net_coeff": 1
+    },
+    "product": {
+      "id": "CaCO3",
+      "molar_mass": "100.086",
+      "phase": "s",
+      "net_coeff": 1
+    },
+    "spectators": [
+      {
+        "id": "Cl^-",
+        "source": "CaCl2",
+        "per": 2,
+        "key": "n_spec_cation"
+      },
+      {
+        "id": "Na^+",
+        "source": "Na2CO3",
+        "per": 2,
+        "key": "n_spec_anion"
+      }
+    ],
+    "leftover_keys": {
+      "cation": "leftover_cation",
+      "anion": "leftover_anion"
+    },
+    "samples": [
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.100",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.0025",
+          "n_anion": "0.003",
+          "xi": "0.0025",
+          "mass": "0.250215",
+          "leftover_cation": "0",
+          "leftover_anion": "0.0005",
+          "n_spec_cation": "0.005",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.150",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.00375",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.300258",
+          "leftover_cation": "0.00075",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.0075",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.120",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.003",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.300258",
+          "leftover_cation": "0",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.006",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "50.0",
+          "c1": "0.100",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.005",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.300258",
+          "leftover_cation": "0.002",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.01",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "10.0",
+          "c1": "0.100",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.001",
+          "n_anion": "0.003",
+          "xi": "0.001",
+          "mass": "0.100086",
+          "leftover_cation": "0",
+          "leftover_anion": "0.002",
+          "n_spec_cation": "0.002",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.100",
+          "v2": "40.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.0025",
+          "n_anion": "0.006",
+          "xi": "0.0025",
+          "mass": "0.250215",
+          "leftover_cation": "0",
+          "leftover_anion": "0.0035",
+          "n_spec_cation": "0.005",
+          "n_spec_anion": "0.012"
+        }
+      },
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.100",
+          "v2": "10.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.0025",
+          "n_anion": "0.0015",
+          "xi": "0.0015",
+          "mass": "0.150129",
+          "leftover_cation": "0.001",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.005",
+          "n_spec_anion": "0.003"
+        }
+      },
+      {
+        "args": {
+          "v1": "30.0",
+          "c1": "0.200",
+          "v2": "30.0",
+          "c2": "0.100"
+        },
+        "expect": {
+          "n_cation": "0.006",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.300258",
+          "leftover_cation": "0.003",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.012",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "20.0",
+          "c1": "0.050",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.001",
+          "n_anion": "0.003",
+          "xi": "0.001",
+          "mass": "0.100086",
+          "leftover_cation": "0",
+          "leftover_anion": "0.002",
+          "n_spec_cation": "0.002",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "40.0",
+          "c1": "0.075",
+          "v2": "15.0",
+          "c2": "0.200"
+        },
+        "expect": {
+          "n_cation": "0.003",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.300258",
+          "leftover_cation": "0",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.006",
+          "n_spec_anion": "0.006"
+        }
+      }
+    ]
   }
 }

@@ -172,31 +172,39 @@ committed `derived/`. The repo is **private** until the owner calls the Phase 0 
 chemistry engine: `data/` (element/ion/solubility datasets, ADR-0012/0017) and the `chemkernel` package —
 `data`, `formula` (ADR-0014), `balance` (ADR-0014), `units` (ADR-0015), `extent` (species ledger, the
 ADR-0002 pivot, ADR-0016), `reaction` (dissociation + complete/net ionic, ADR-0018), `solubility` (sourced
-classifier, ADR-0017), `build` (orchestrator + `build-problems` entry point, ADR-0019) — all exact
-Decimal/Fraction, never float (ADR-0013). The **emit + verify pipeline is live**: the authored spec
+classifier, ADR-0017), `build` (orchestrator + `build-problems` entry point, ADR-0019), `interactive`
+(parity-verified closed forms for the sliders, ADR-0022) — all exact Decimal/Fraction, never float
+(ADR-0013). The **emit → verify → present pipeline is live end to end**: the authored spec
 `problems/precipitation/calcium-carbonate-limiting.problem.toml` builds to a committed, schema-valid
-`derived/…solution.json` (`schemas/solution.schema.json`, ADR-0020) that passes the Ajv + honesty gate
-(`scripts/validate/validate-solutions.mjs`, run via `package.json`). Molecular → complete ionic → net ionic
-(spectators Na⁺/Cl⁻), carbonate rule cited, ledger, Ca²⁺ limiting, 0.250 g CaCO₃. **Counters: 1 built
-lesson (validated, not yet rendered), 0 Atlas entries, 1 Node gate, 49 producer tests green.** The engine +
-emit + verify layers exist; the **player (Astro/Svelte) does not yet**. See [`ROADMAP.md`](./ROADMAP.md)
-for what remains and [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
+`derived/…solution.json` (`schemas/solution.schema.json`, ADR-0020), passes **five Node gates**
+(`validate-solutions`, `check-ledger`, `check-parity`, `check-katex`, `scan-text`), and **renders as an
+Astro/Svelte site** (ADR-0021): the lesson page steps scenario → three equations → dimensional chains →
+species ledger → result, shows the three honesty badges + the misconception register, and hosts **both
+interactives** — the extent bar and the beaker/species view — whose **limiting-reagent switch** runs on the
+parity-verified closed forms (ADR-0022). Molecular → complete ionic → net ionic (spectators Na⁺/Cl⁻),
+carbonate rule cited, ledger, Ca²⁺ limiting, 0.250 g CaCO₃. **Counters: 1 built + rendered lesson, 0 Atlas
+entries, 5 Node gates + `astro build`, 53 producer tests green.** The engine + emit + verify + **player**
+layers all exist; what remains is the practice generator, the Atlas/periodic-lens, the authoring guide, and
+CI. See [`ROADMAP.md`](./ROADMAP.md) for what remains and [`docs/architecture.md`](./docs/architecture.md)
+(§as-built) for module status.
 
 ## Where this might go next (paths for a future session)
 
 Phase 0 is the only sanctioned build track until it lands and is reviewed (brief §16, ROADMAP). Done and
 tested: (a) element/ion/solubility datasets + SOURCES; (b) parser + balancer; (c) units/quantity engine;
 (d) dissociation + net-ionic transforms + solubility classifier; (e) Extent solver → species ledger; (f)
-the solution schema + `build.py` + the `validate-solutions` Ajv/honesty gate — **the authored spec now
-emits verified, schema-valid JSON that re-validates in pure Node.** The current front is **present + finish
-verifying**: (g) the **player** — an Astro static site + Svelte islands rendering
-`derived/…solution.json` (steps: scenario → the three equations → dimensional chains → the species ledger
-→ result), with the two interactives (beaker/species view + extent bar; the limiting-reagent switch is the
-core, ADR-0011); build-time KaTeX (the `latex` fields are ready); mind the nested-island `css:"injected"`
-trap. (h) round out the gate suite (a Node-side ledger/conservation re-check, `scan-text` for
-provider-agnosticism ADR-0004, KaTeX renderability) + the CI `deploy.yml`; (i) practice generator +
-misconception register; (j) Atlas entry + periodic lens; (k) authoring guide. Docs-only sessions are
-always in season.
+the solution schema + `build.py` + the **five-gate** Node suite (validate-solutions, check-ledger,
+check-parity, check-katex, scan-text); (g) the **player** — Astro static + Svelte islands rendering
+`derived/…solution.json` with **both interactives** (extent bar + beaker/species view; the limiting-reagent
+switch works, ADR-0021/0022) and (h) the rounded-out gate suite — **all landed and verified.** The remaining
+Phase 0 fronts, each a fresh sub-area and a good next session: (i) **practice generator** —
+`precipitation_limiting_reagent_v1` family, solver-verified variants + reject-list (brief §6.8); (j)
+**Chemical Atlas** entry + the **Valence Table** periodic lens (opens `reference/` + `derived/reference/`);
+(k) `docs/authoring-problems.md` from the now-stable spec format; and the CI `deploy.yml` — **the last is
+gated by the owner's Phase-0 publish call (ADR-0010); do not enable Pages or flip repo visibility
+autonomously.** Docs-only sessions are always in season. When picking up (g)/(h) for a *second* lesson, note
+the interactive emitter (`chemkernel.interactive`) currently supports only single-precipitate
+double-displacement; other reaction shapes render statically (the block is omitted, by design).
 
 **Known traps (1 and 2 bit the sibling; 3 and 4 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested

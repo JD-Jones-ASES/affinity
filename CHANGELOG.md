@@ -3,6 +3,36 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 0 (in progress) — 2026-07-05 — the player + honest interactives (verified JSON → rendered site)
+
+- **The player (ADR-0021):** an Astro static site + Svelte 5 islands, build-time KaTeX, base `/affinity`.
+  `src/` = `layouts/Base.astro`, `styles/portal.css` (Affinity tokens — chemistry-blue accent; the three
+  ADR-0003 badges rendered as blue/violet/amber), `lib/` (`withBase`, `katex` with `inline`/`plain`, `view`
+  deep-render + ASCII→Unicode ion formatter), pages (home = the ledger thesis, `lessons/` index by topic,
+  `lessons/[slug]` one page per committed `*.solution.json` via `getStaticPaths`, `verification`).
+  `SolutionPlayer.svelte` is the dumb stepper — tabs are reconciled views of the one ledger (Equations,
+  Dimensional analysis, Species ledger, Beaker, Extent); always-on: the three badges, scenario, verified
+  result cards, the SHOWN checks, the data-driven misconception refutation, disclosed assumptions.
+  `css:"injected"` set for nested islands (known trap #2); `client:load` so it paints headlessly.
+- **Honest interactives (ADR-0022):** the producer emits an optional `interactive` block —
+  `chemkernel.interactive.build_interactive` derives every multiplicity from the real chemistry
+  (`dissociate`, `net_ionic`), then exports JS closed forms (moles, ξ = min(…), mass, leftovers, spectators)
+  plus a deterministic grid of **engine-computed** sample points straddling the limiting switch. Schema grew
+  one optional block (ADR-0020 pattern). `ExtentBar.svelte` (two capacity bars, the ξ line, the switch) and
+  `BeakerSpecies.svelte` (free ions before mixing → solid + spectators + leftover after) evaluate only those
+  forms. **The limiting-reagent switch works** — visually verified: raising [CaCl₂] to 0.15 M flips the
+  limiting reagent to CO₃²⁻ (ξ 2.5→3 mmol, 0.250→0.300 g), matching the engine sample exactly.
+- **Gate suite rounded out (ADR-0023):** `check-parity.mjs` (re-proves the browser's JS closed forms against
+  the engine at every sample; ties the default slider to the committed answer), `check-ledger.mjs`
+  (re-derives n = n₀ + ν·ξ per row and matches the reported result, independent of Python), `check-katex.mjs`
+  (every LaTeX string renders), `scan-text.mjs` (provider-agnostic; banned list seeded from the sibling,
+  ADR-0004). All four proven non-vacuous by tamper tests.
+- **Verification:** **53 producer tests** (+4: the interactive block — shape, closed-forms-reproduce-engine,
+  default+switch samples, full-build inclusion) + **5 Node gates** (80 closed-form parity points, 4 ledger
+  rows, 7 KaTeX strings, schema + honesty, scan) + **`astro build`** (4 pages) all green. Determinism test
+  now covers the interactive block (byte-stable across `PYTHONHASHSEED` 0/1/42/12345). Player visually
+  confirmed in the browser (both interactives, both themes; no console errors; nested-island CSS renders).
+
 ## Phase 0 (in progress) — 2026-07-05 — ChemKernel engine + emit/verify pipeline (spec → verified JSON → gate)
 
 - **Curated `data/` datasets (ADR-0012):** `data/elements.toml` (9 elements: the 6 Phase-0 plus N/S/P for

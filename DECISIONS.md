@@ -348,3 +348,69 @@ extra keys, bad enums, missing blocks).
 
 **Consequences.** Committed `derived/` is the Python↔Node contract; CI re-verifies it with no Python. New
 optional lesson facets extend the one schema; the honesty gate grows with new invariants, not new schemas.
+
+## ADR-0021 — The player: Astro static + Svelte islands stepping the committed solution JSON (2026-07-05)
+
+**Context.** The verified-data spine existed (ADR-0014…0020) but nothing rendered it. ADR-0001 fixed the
+stack (Astro static + Svelte 5, build-time KaTeX, GitHub Pages at base `/affinity`); this ADR records the
+player's concrete shape, built to the sibling's proven patterns.
+
+**Decision.** `src/` holds: `layouts/Base.astro` (chrome + nav), `styles/portal.css` (Affinity's own tokens —
+a chemistry-blue accent, and **three badge colors** mapping the ADR-0003 honesty model: blue machine-checked,
+violet data/rule-sourced, amber model-assumed), `lib/` (`withBase` base-path discipline, `katex` build-time
+rendering + `inline`/`plain` prose helpers, `view` deep-render of the solution's LaTeX + an ASCII→Unicode ion
+formatter). Pages: home (the ledger thesis), `lessons/` index (grouped by topic), `lessons/[slug].astro`
+(one page per committed `*.solution.json` via `getStaticPaths` + `import.meta.glob`), `verification`. The
+lesson island `SolutionPlayer.svelte` is a **dumb stepper**: tabs are reconciled views of the one ledger —
+Equations (molecular → complete ionic → net ionic), Dimensional analysis (the mole chains), Species ledger
+(the pivot table with role coloring), plus the two interactive tabs; always-on are the three badges, the
+scenario, the verified result cards, the SHOWN checks, the data-driven misconception refutation, and the
+disclosed assumptions. `astro.config.mjs` sets `svelte({ compilerOptions: { css: "injected" } })` so nested
+child islands ship their scoped CSS (known trap #2). The player hydrates `client:load` (not `client:visible`)
+so it paints in headless previews. It computes no chemistry; every value is read from the JSON.
+
+**Consequences.** Adding a lesson = author a TOML + rebuild; its page appears automatically. The presentation
+layer is now real: the full verified chain renders and re-validates via `astro build`. Publish (Pages, repo
+visibility) remains the owner's Phase-0 call (ADR-0010) — the deploy workflow is deferred to that event.
+
+## ADR-0022 — Honest interactives: emitted closed forms + engine-sampled parity gate (2026-07-05)
+
+**Context.** ADR-0011 admits a control only when co-motion of quantities *is* the lesson — the
+limiting-reagent switch qualifies. ADR-0008 forbids the player from computing chemistry at runtime. The
+sibling's resolution (its emit/parity pattern) is: the producer exports browser-evaluable closed forms plus
+high-precision sample points, and a Node gate re-proves the JS against the engine.
+
+**Decision.** ChemKernel emits an **optional `interactive` block** (extends the one schema per ADR-0020's
+settled pattern — additive optional facet, not a contract change) carrying: slider `params` (volume +
+concentration of each solution), `closed_form` (JS-evaluable strings for every number the player displays —
+moles of each reacting ion, ξ = min(…), precipitate mass, leftovers, spectator amounts), and a deterministic
+grid of `samples` whose `expect` values are computed by the **real engine** (`solve_extent`), several
+straddling the limiting switch. `chemkernel.interactive.build_interactive` derives every multiplicity from
+the actual chemistry (`dissociate`, `net_ionic`) — nothing hard-coded — and returns `None` (block omitted)
+for any reaction outside the supported single-precipitate double-displacement shape, refusing to fabricate a
+closed form. `scripts/validate/check-parity.mjs` recompiles each closed form, re-evaluates it at every sample,
+requires a match to the engine within tolerance, and cross-checks that the default slider setting reproduces
+the committed static answer (ξ, mass). The islands (`ExtentBar`, `BeakerSpecies`) evaluate only these forms.
+
+**Consequences.** The sliders drive the real limiting-reagent switch, proven honest without client-side
+Python: the JS the browser runs is verified against the engine across the whole slider range. The three
+brief-§16 misconception targets are now interactive (smaller-volume-isn't-limiting; spectators don't vanish;
+aqueous salts are free ions). Parity gate proven non-vacuous (a wrong molar-mass literal fails it).
+
+## ADR-0023 — Gate suite rounded out: ledger re-derivation, KaTeX, provider scan (2026-07-05)
+
+**Context.** ADR-0008 wants CI to re-prove the committed output in pure Node; architecture.md planned a
+fuller gate table than the single `validate-solutions` gate that existed.
+
+**Decision.** Three further Node gates, all fail-loud, wired into `npm run validate`: **`check-ledger.mjs`**
+re-derives every ledger row's final amount as n = n₀ + ν·ξ from the committed initial/coefficient/extent
+(independent of Python) and cross-checks the reported result (precipitate moles, leftovers) against the
+rows; **`check-katex.mjs`** renders every LaTeX string with `throwOnError:true` so a survived string is
+known-good; **`scan-text.mjs`** enforces provider-agnosticism (ADR-0004), its banned-terms list **seeded
+from the sibling's** generic exam-board terms (the specific board mapping lives only in the private brief —
+extend the list when the owner confirms it). Each is proven non-vacuous.
+
+**Consequences.** Five gates now re-verify committed `derived/` with no Python; the honesty story the portal
+advertises is enforced end to end. The atom/charge re-check by element counts is future work (needs element
+counts in the emitted ledger or a JS formula parser); the extent-equation re-derivation is the achievable,
+load-bearing conservation check today.

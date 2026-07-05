@@ -15,14 +15,19 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   engine landed and tested: element/ion/solubility datasets (ADR-0012/0017), formula parser + molar mass,
   balancer (ADR-0014), units/quantity engine (ADR-0015), Extent solver → species ledger (ADR-0016),
   dissociation + complete/net ionic transforms (ADR-0018), sourced solubility classifier (ADR-0017) —
-  exact arithmetic throughout (ADR-0013). The **whole Phase 0 chemistry** runs end to end in the library:
-  molecular → complete ionic → net ionic (spectators Na⁺/Cl⁻), carbonate rule cited for the precipitate,
-  ledger, Ca²⁺ limiting, 0.250 g CaCO₃. The **emit + verify pipeline is live**: the authored spec
-  `problems/precipitation/calcium-carbonate-limiting.problem.toml` builds (`build.py`, ADR-0019) to a
-  committed, schema-valid `derived/…solution.json` (`schemas/solution.schema.json`, ADR-0020) that passes
-  the Ajv + honesty gate. **49 producer tests + the Node gate green.** Remaining: the rest of the gate
-  suite (scan-text, Node ledger re-check, KaTeX) + CI, the player + the two interactives, the practice
-  generator, the Atlas entry, the periodic lens.
+  exact arithmetic throughout (ADR-0013). The **whole Phase 0 chemistry** runs end to end: molecular →
+  complete ionic → net ionic (spectators Na⁺/Cl⁻), carbonate rule cited for the precipitate, ledger, Ca²⁺
+  limiting, 0.250 g CaCO₃. The **emit + verify pipeline is live** (`build.py`/ADR-0019 →
+  `schemas/solution.schema.json`/ADR-0020 → Ajv + honesty gate). The **player now exists** (ADR-0021): an
+  Astro static site + Svelte islands renders the committed `derived/…solution.json` — scenario, the three
+  honesty badges, the three equations, dimensional chains, the species-ledger table, the result, the SHOWN
+  checks, and the misconception register. Both **interactives** work (ADR-0022): the extent bar and the
+  beaker/species view drive the **limiting-reagent switch** from parity-verified closed forms (the producer
+  emits an `interactive` block of JS closed forms + engine-computed sample points; `check-parity.mjs`
+  re-proves the browser's JS against the engine). The **gate suite is rounded out** (ADR-0023): five Node
+  gates — validate-solutions, check-ledger, check-parity, check-katex, scan-text — plus `astro build`.
+  **53 producer tests + 5 Node gates + astro build green.** Remaining: the practice generator, the Atlas
+  entry + periodic lens, the authoring guide, and the CI `deploy.yml` (owner's publish call, ADR-0010).
 
 ---
 
@@ -40,10 +45,12 @@ The lesson lives at `problems/precipitation/` (the topic slug for path purposes 
 
 **Landed so far (2026-07-05):** scope items 1 (datasets), 2 (parser, balancer, units engine, dissociation
 transformer, net-ionic reducer, Extent solver → species ledger), 3 (conservation + nonnegative-extent
-proofs), and **4 (solution schema + `build.py` + the `validate-solutions` Ajv/honesty gate)** are complete
-and tested; the authored Phase-0 spec and its verified `derived/` JSON are committed. **Not yet built:** the
-rest of item 4's gate suite + CI, then items 5 (player + the two interactives), 6 (practice generator), 7
-(Atlas entry + periodic lens), 8 (authoring guide).
+proofs), **4 (solution schema + `build.py` + the five-gate Node suite: validate-solutions, check-ledger,
+check-parity, check-katex, scan-text)**, and **5 (the player + both interactives — the extent bar and the
+beaker/species view, with the limiting-reagent switch driven by parity-verified closed forms)** are complete
+and tested; the authored Phase-0 spec, its verified `derived/` JSON, and the Astro/Svelte site are committed.
+**Not yet built:** items 6 (practice generator), 7 (Atlas entry + periodic lens), 8 (authoring guide + CI
+`deploy.yml`, the last gated by the owner's publish call, ADR-0010).
 
 **Scope.**
 1. `data/`: minimal element dataset (Ca, Cl, Na, C, O, H) + common-ion and polyatomic-ion entries, source

@@ -1,0 +1,66 @@
+---
+import Base from "../layouts/Base.astro";
+import { withBase } from "../lib/withBase.js";
+import { tex } from "../lib/katex.js";
+
+const ledger = tex(String.raw`n_i = n_{i,0} + \nu_i\,\xi`);
+const example = tex(String.raw`\begin{aligned}
+\text{Ca}^{2+} + \text{CO}_3^{2-} &\rightarrow \text{CaCO}_3(s) \\
+\xi_{\max} &= \min_i \frac{n_{i,0}}{\lvert\nu_i\rvert} \quad\text{(a reactant hits zero — it limits)}
+\end{aligned}`);
+---
+
+<Base title="Affinity — chemistry as a verified species ledger">
+  <h1>Chemistry is accounting for atoms and charge — done exactly.</h1>
+  <p class="lede muted">
+    Beginning chemistry where the <strong>verification system is the product</strong>. A build-time engine
+    balances every equation, conserves charge, sources every empirical rule, and refuses to publish a claim
+    it cannot prove. Nothing here is asserted — it is checked, and the check is shown.
+  </p>
+
+  <div class="card math-hero">
+    <p class="faint">The one object underneath every topic — the species ledger over reaction extent:</p>
+    <div set:html={ledger} />
+    <p class="muted">
+      Balancing, stoichiometry, limiting reagents, ICE tables, kinetics, thermochemistry, electrochemistry —
+      all are views of the same conserved, changing system. Track each species’ amount as the reaction runs a
+      distance <em>ξ</em>, and the limiting reagent, the leftovers, and the product mass all fall out of one
+      ledger.
+    </p>
+    <div set:html={example} />
+  </div>
+
+  <h2>Three honesty badges — every claim carries one</h2>
+  <div class="badgerow">
+    <div class="bcard">
+      <span class="badge machine"><span class="dot"></span>Machine-checked</span>
+      <p>The engine derived and verified it — atom balance, charge balance, units, extent. The proof is shown.</p>
+    </div>
+    <div class="bcard">
+      <span class="badge sourced"><span class="dot"></span>Data / rule-sourced</span>
+      <p>From a cited dataset or rule (atomic weights, ion charges, solubility rules) — source and version revealed, never dressed up as a theorem.</p>
+    </div>
+    <div class="bcard">
+      <span class="badge model"><span class="dot"></span>Model-assumed</span>
+      <p>An author-stated idealization (complete dissociation, additive volumes) — disclosed, not discharged.</p>
+    </div>
+  </div>
+
+  <div class="cta">
+    <a class="btn" href={withBase("/lessons/")}>Open the lessons →</a>
+    <a class="btn ghost" href={withBase("/verification/")}>How it is verified</a>
+  </div>
+
+  <style>
+    h1 { font-size: 2.1rem; letter-spacing: -0.02em; }
+    .lede { font-size: 1.15rem; max-width: 46rem; }
+    .math-hero { margin: 1.5rem 0; }
+    .badgerow { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.9rem; margin: 1rem 0; }
+    .bcard { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1rem; }
+    .bcard p { margin: 0.5rem 0 0; font-size: 0.92rem; color: var(--ink-2); }
+    .cta { display: flex; flex-wrap: wrap; gap: 0.8rem; margin: 1.5rem 0; }
+    .btn { background: var(--accent); color: #fff; padding: 0.55rem 1.1rem; border-radius: 8px; font-weight: 600; }
+    .btn:hover { text-decoration: none; filter: brightness(1.05); }
+    .btn.ghost { background: var(--paper-2); color: var(--ink); border: 1px solid var(--line); }
+  </style>
+</Base>

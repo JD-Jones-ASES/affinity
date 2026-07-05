@@ -26,6 +26,7 @@ from .balance import balance
 from .data import ChemData
 from .extent import solve_extent, species_mass_g, to_decimal
 from .formula import Formula, parse_formula
+from .interactive import build_interactive
 from .reaction import complete_ionic, net_ionic
 from .solubility import Solubility
 from .units import Quantity
@@ -218,6 +219,12 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
     }
     if solubility_basis is not None:
         solution["solubility_basis"] = solubility_basis
+
+    # the interactive block: parity-verified closed forms for the sliders (ADR-0011). Optional — emitted only
+    # for the supported single-precipitate double-displacement shape; the schema allows its absence.
+    interactive = build_interactive(reactants, products, coeffs, spec["given"], data, net_left, net_right, ctx)
+    if interactive is not None:
+        solution["interactive"] = interactive
 
     return solution, f"{spec['topic']}/{spec['slug']}.solution.json"
 

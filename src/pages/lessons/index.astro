@@ -1,0 +1,62 @@
+---
+import Base from "../../layouts/Base.astro";
+import { withBase } from "../../lib/withBase.js";
+import { inline } from "../../lib/katex.js";
+
+const mods = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
+const lessons = Object.values(mods).map((m) => m.default);
+
+// Group by topic; topics render alphabetically, lessons by title within each. Resilient to any count — a new
+// derived/ file appears here automatically.
+const topics = [...new Set(lessons.map((l) => l.topic))].sort();
+const groups = topics.map((t) => ({
+  topic: t,
+  lessons: lessons.filter((l) => l.topic === t).sort((a, b) => a.title.localeCompare(b.title)),
+}));
+const titleCase = (s) => s.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+---
+
+<Base title="Lessons — Affinity">
+  <h1>Lessons</h1>
+  <p class="muted lede">
+    {lessons.length} lesson{lessons.length === 1 ? "" : "s"}, each built and verified end to end by
+    ChemKernel — balanced, charge-conserved, extent-checked, and sourced. The reaction chemistry is machine
+    proof; the modeling assumptions are disclosed.
+  </p>
+
+  {groups.map((g) => (
+    <section class="topic">
+      <div class="topic-head">
+        <h2 id={g.topic}>{titleCase(g.topic)}</h2>
+      </div>
+      <ul class="lessons">
+        {g.lessons.map((l) => (
+          <li>
+            <a href={withBase(`/lessons/${l.slug}/`)}>
+              <div class="row">
+                <span class="title">{l.title}</span>
+                <span class="badge machine"><span class="dot"></span>verified</span>
+              </div>
+              <p class="scenario" set:html={inline(l.scenario)} />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+
+  <style>
+    h1 { font-size: 1.9rem; }
+    .lede { max-width: 48rem; }
+    .topic { margin-top: 1.8rem; }
+    .topic-head { border-bottom: 1px solid var(--line); padding-bottom: 0.3rem; margin-bottom: 0.8rem; }
+    .topic-head h2 { font-size: 1.25rem; margin: 0; scroll-margin-top: 1rem; }
+    .lessons { list-style: none; padding: 0; display: grid; gap: 0.7rem; }
+    .lessons a { display: block; background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem; color: inherit; }
+    .lessons a:hover { text-decoration: none; border-color: var(--accent); }
+    .row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+    .title { font-size: 1.05rem; font-weight: 600; color: var(--ink); }
+    .badge.machine { flex: none; font-size: 0.72rem; }
+    .scenario { color: var(--ink-2); margin: 0.35rem 0 0; font-size: 0.93rem; }
+  </style>
+</Base>

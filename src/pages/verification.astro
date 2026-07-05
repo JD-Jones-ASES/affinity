@@ -1,0 +1,54 @@
+---
+import Base from "../layouts/Base.astro";
+import { withBase } from "../lib/withBase.js";
+---
+
+<Base title="How Affinity is verified">
+  <h1>Verification is the product</h1>
+  <p class="lede muted">
+    Affinity is a factory with a gate at the exit. A build-time engine (<strong>ChemKernel</strong>) turns
+    authored problem specs into machine-verified solution data; it <strong>refuses to emit</strong> anything
+    that fails a check. Then a separate, pure-Node gate re-validates the committed output — so what deploys is
+    proven twice, and the second layer needs no Python.
+  </p>
+
+  <h2>The two layers</h2>
+  <div class="layers">
+    <div class="card">
+      <span class="badge machine"><span class="dot"></span>Emit-time (local)</span>
+      <p>ChemKernel parses formulas, balances by exact rational arithmetic, dissociates strong electrolytes,
+        cancels spectators, solves the extent, and classifies solubility from a sourced ruleset. A failed
+        check — unbalanced atoms, non-conserved charge, a negative amount, a phase that contradicts the rules —
+        raises and writes nothing.</p>
+    </div>
+    <div class="card">
+      <span class="badge machine"><span class="dot"></span>Gate-time (CI)</span>
+      <p>Node re-validates the committed JSON against a strict schema and re-runs honesty cross-checks:
+        every check holds, the ledger is internally consistent, the precipitate is a real solid row, every
+        empirical value is traceable to a source. The interactive sliders evaluate closed forms that are
+        proven against the engine.</p>
+    </div>
+  </div>
+
+  <h2>What the badges mean</h2>
+  <ul class="badgelist">
+    <li><span class="badge machine"><span class="dot"></span>Machine-checked</span> — derived and verified by the engine; the proof detail is shown, not asserted.</li>
+    <li><span class="badge sourced"><span class="dot"></span>Data / rule-sourced</span> — from a registered dataset or rule; the badge reveals source, version, and conditions.</li>
+    <li><span class="badge model"><span class="dot"></span>Model-assumed</span> — an author-asserted idealization; disclosed, never quietly discharged.</li>
+  </ul>
+
+  <p class="muted">
+    Every lesson also carries a <strong>misconception register</strong>: the canonical wrong move, made to
+    visibly fail in the ledger — never merely scolded. See it in action in the
+    <a href={withBase("/lessons/")}>lessons</a>.
+  </p>
+
+  <style>
+    h1 { font-size: 1.9rem; }
+    .lede { max-width: 48rem; }
+    .layers { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 0.9rem; margin: 1rem 0 2rem; }
+    .layers .card p { margin: 0.6rem 0 0; font-size: 0.93rem; }
+    .badgelist { list-style: none; padding: 0; display: grid; gap: 0.6rem; max-width: 48rem; }
+    .badgelist li { font-size: 0.95rem; color: var(--ink-2); }
+  </style>
+</Base>

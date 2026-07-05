@@ -6,12 +6,29 @@
   "description": "A beginning-chemistry portal where the verification system is the product.",
   "license": "MIT",
   "scripts": {
+    "dev": "astro dev",
+    "dev:preview": "set LOCAL_ROOT=1&& astro dev",
+    "preview": "astro preview",
+    "preview:local": "set LOCAL_ROOT=1&& astro preview",
     "produce": "uv --project producer run build-problems",
     "validate:solutions": "node scripts/validate/validate-solutions.mjs",
-    "validate": "npm run validate:solutions",
-    "prepare:data": "npm run produce && npm run validate"
+    "check:ledger": "node scripts/validate/check-ledger.mjs",
+    "check:parity": "node scripts/validate/check-parity.mjs",
+    "check:katex": "node scripts/validate/check-katex.mjs",
+    "validate:scan": "node scripts/validate/scan-text.mjs",
+    "validate": "npm run validate:solutions && npm run check:ledger && npm run check:parity && npm run check:katex && npm run validate:scan",
+    "prepare:data": "npm run produce && npm run validate",
+    "build": "npm run validate && astro build"
+  },
+  "dependencies": {
+    "@astrojs/svelte": "^9.0.0",
+    "astro": "^7.0.0",
+    "katex": "^0.16.11",
+    "svelte": "^5.56.3"
   },
   "devDependencies": {
+    "@fontsource-variable/space-grotesk": "^5.2.5",
+    "@fontsource/ibm-plex-mono": "^5.2.5",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1"
   }

@@ -190,6 +190,85 @@
       }
     },
     "reference_links": { "type": "array", "items": { "type": "string" } },
+    "interactive": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional slider instrument (ADR-0011): parity-verified closed forms (ADR-0008) the browser evaluates. Emitted only for the supported single-precipitate double-displacement shape.",
+      "required": ["params", "closed_form_params", "closed_form", "cation", "anion", "product", "spectators", "leftover_keys", "samples"],
+      "properties": {
+        "params": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "label", "species", "kind", "unit", "min", "max", "default", "step"],
+            "properties": {
+              "name": { "type": "string" },
+              "label": { "type": "string" },
+              "species": { "type": "string" },
+              "kind": { "enum": ["volume", "concentration"] },
+              "unit": { "type": "string" },
+              "min": { "type": "string" },
+              "max": { "type": "string" },
+              "default": { "type": "string" },
+              "step": { "type": "string" }
+            }
+          }
+        },
+        "closed_form_params": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "closed_form": { "type": "object", "additionalProperties": { "type": "string" }, "minProperties": 1 },
+        "cation": { "$ref": "#/$defs/ionrole" },
+        "anion": { "$ref": "#/$defs/ionrole" },
+        "product": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "molar_mass", "phase", "net_coeff"],
+          "properties": {
+            "id": { "type": "string" },
+            "molar_mass": { "type": "string" },
+            "phase": { "enum": ["s", "l", "g", "aq"] },
+            "net_coeff": { "type": "integer" }
+          }
+        },
+        "spectators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "source", "per", "key"],
+            "properties": {
+              "id": { "type": "string" },
+              "source": { "type": "string" },
+              "per": { "type": "integer" },
+              "key": { "type": "string" }
+            }
+          }
+        },
+        "leftover_keys": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cation", "anion"],
+          "properties": {
+            "cation": { "type": "string" },
+            "anion": { "type": "string" }
+          }
+        },
+        "samples": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["args", "expect"],
+            "properties": {
+              "args": { "type": "object", "additionalProperties": { "type": "string" } },
+              "expect": { "type": "object", "additionalProperties": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
     "checks": {
       "type": "object",
       "additionalProperties": false,
@@ -232,6 +311,17 @@
       "properties": {
         "text": { "type": "string", "minLength": 1 },
         "latex": { "type": "string", "minLength": 1 }
+      }
+    },
+    "ionrole": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source", "per", "net_coeff"],
+      "properties": {
+        "id": { "type": "string" },
+        "source": { "type": "string" },
+        "per": { "type": "integer" },
+        "net_coeff": { "type": "integer" }
       }
     }
   }

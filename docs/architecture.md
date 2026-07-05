@@ -26,20 +26,20 @@ the sibling: `prepare:data` = `produce` + `validate`; `build` = `validate` + `as
 The load-bearing invariant: **ChemKernel refuses to emit** an object that fails any check below
 (ADR-0008). CI re-gates the committed output with Node-only checks. A green build certifies both layers.
 
-**As-built so far (2026-07-05).** The full compute + chemistry engine exists and is tested: `data/`
-(element, ion, and solubility datasets, ADR-0012/0017); `chemkernel.data` (loader + molar mass +
-self-check); `chemkernel.formula` (parser, ADR-0014); `chemkernel.balance` (balancer, ADR-0014);
-`chemkernel.units` (Quantity engine, ADR-0015); `chemkernel.extent` (Extent solver → species ledger,
-ADR-0016); `chemkernel.reaction` (dissociation + complete/net ionic, ADR-0018); `chemkernel.solubility`
-(sourced classifier, ADR-0017); `chemkernel.build` (orchestrator + `build-problems` entry point,
-ADR-0019). The **emit + verify** layer is now live too: `problems/precipitation/*.problem.toml` (authored
-spec) → `derived/precipitation/*.solution.json` (committed, verified) → `schemas/solution.schema.json`
-(ADR-0020) checked by `scripts/validate/validate-solutions.mjs` (Ajv + honesty cross-checks) via
-`package.json`. **48 producer tests + the Node gate green.** The whole Phase 0 lesson's chemistry computes,
-emits as schema-valid JSON, and re-validates in pure Node — molecular → complete ionic → net ionic
-(spectators Na⁺, Cl⁻), carbonate rule cited, ledger, limiting reagent, 0.250 g CaCO₃. What remains: the
-rest of the gate suite (scan-text, a Node-side ledger/conservation re-check, KaTeX) + CI, then the **player**
-(Astro/Svelte) with the two interactives, the practice generator, and the Atlas/periodic-lens.
+**As-built so far (2026-07-05).** The pipeline runs end to end — compute → emit → verify → **present**. The
+engine: `data/` (element, ion, solubility datasets, ADR-0012/0017); `chemkernel.data`/`formula`/`balance`/
+`units`/`extent`/`reaction`/`solubility`/`build` (ADR-0012–0019); and `chemkernel.interactive` (ADR-0022) —
+derives parity-verified closed forms for the sliders. Emit + verify: `problems/**/*.problem.toml` →
+`derived/**/*.solution.json` (committed) → `schemas/solution.schema.json` (ADR-0020, now with an optional
+`interactive` block) checked by **five Node gates** — `validate-solutions` (Ajv + honesty), `check-ledger`
+(re-derives n = n₀ + ν·ξ), `check-parity` (re-proves the browser's JS closed forms against the engine),
+`check-katex`, `scan-text` (ADR-0023) — via `package.json`. Present: the **player** (ADR-0021) — an Astro
+static site + Svelte islands (`src/`) rendering the committed JSON: `lessons/[slug].astro` +
+`SolutionPlayer.svelte` step scenario → three equations → dimensional chains → species ledger → result, with
+the three honesty badges, the misconception register, and **both interactives** (`ExtentBar`,
+`BeakerSpecies`) whose limiting-reagent switch runs on the parity-verified closed forms. **53 producer tests
++ 5 Node gates + `astro build` (4 pages) green.** What remains: the practice generator, the Atlas +
+periodic-lens, the authoring guide, and the CI `deploy.yml` (owner's publish call, ADR-0010).
 
 ## ChemKernel module map (brief §6)
 
@@ -54,6 +54,7 @@ rest of the gate suite (scan-text, a Node-side ledger/conservation re-check, KaT
 | `solubility.py` classifier | sourced ruleset → soluble/insoluble verdict + governing rule id; `verify_phase` build check | **built** (ADR-0017) |
 | proofs | atom/charge conservation (in `balance.py` + `reaction.py`) and nonnegative extent (in `extent.py`) done; unit homogeneity of reference formulas (SymPy `dims.py`) with the Atlas | partly built |
 | `build.py` orchestration | authored `problems/**/*.problem.toml` → engine → verified `derived/<topic>/<slug>.solution.json`; entry point `build-problems`; exact decimal strings | **built** (ADR-0019) |
+| `interactive.py` | derives the optional interactive block: slider params + JS closed forms + engine-computed sample points; multiplicities from `dissociate`/`net_ionic`; single-precipitate double-displacement only, else omitted | **built** (ADR-0022) |
 | practice generator | template + constraints + misconception target → solver-verified variants with derivation trees; reject-list enforced | Phase 0 (one family) |
 | reaction classifier | precipitation/acid-base/gas-evolution/combustion/redox/… + required conditions | Phase 1 |
 | equilibrium / kinetics / thermo / electrochem | ICE-as-ledger, rate laws, energy ledger, electron ledger | Phase 2+ |
@@ -69,9 +70,10 @@ model/rule assumptions only, **never referenced inside derivations**); `given[]`
 extent nonnegative — all must be true to emit); `ledger` (the species ledger: per-species phase, charge,
 initial mol, stoich coefficient, final mol; limiting species; ξ_max); a dimensional-analysis `chain`;
 `result`; `visualizations[]` (kind, static/interactive mode, params, annotations — ADR-0011 governs mode);
-`misconception` (claim + what refutes it); `practice_family`; `reference_links[]` (must resolve into the
-Atlas); badge annotations on every data/rule/model-dependent value; `provenance` (producer version,
-dataset versions, author, created).
+an optional `interactive` block (ADR-0022: slider params + JS closed forms + engine-computed sample points
+the player evaluates and `check-parity` re-proves); `misconception` (claim + what refutes it);
+`practice_family`; `reference_links[]` (must resolve into the Atlas); badge annotations on every
+data/rule/model-dependent value; `provenance` (producer version, dataset versions, author, created).
 
 ## Ported machinery (third-generation code — ADR-0001)
 
@@ -101,16 +103,21 @@ reject-list.
 |---|---|
 | validate-solutions | **built** (ADR-0020): Ajv schema; every `checks.*` true; path matches topic/slug; unique ids; rule-sourced regime needs a cited `solubility_basis.source`; ledger integrity (limiting rows final_mol 0, extent > 0, ν signs); precipitate is a solid ledger row; provenance sources non-empty |
 | validate-reference | Atlas JSON schema-valid; concept-graph edges resolve; every empirical value carries a source id resolving in `docs/SOURCES.md` |
-| check-ledger | recompute atom/charge totals from the committed ledger (initial vs. final, per element and charge) — conservation re-proven in Node, independent of Python |
-| check-parity | recompile exported JS closed forms; re-evaluate at embedded sample points within tolerance; practice answers finite and unique |
-| check-katex | every LaTeX string renders through KaTeX |
-| scan-text | committed text is provider-agnostic (banned-terms list lives in the gate, seeded from the sibling's) |
+| check-ledger | **built** (ADR-0023): re-derives every row's final amount as n = n₀ + ν·ξ from the committed initial/coefficient/extent (independent of Python), checks role/sign consistency, and matches the reported result (precipitate moles, leftovers). Atom/charge re-check by element counts is future (needs counts in the emitted ledger or a JS parser) |
+| check-parity | **built** (ADR-0023, ADR-0022): recompiles the exported JS closed forms and re-evaluates them at the embedded engine-computed sample points within tolerance; cross-checks the default slider setting against the committed static answer. Practice-answer parity added when the generator lands |
+| check-katex | **built** (ADR-0023): every LaTeX string renders through KaTeX with `throwOnError:true` |
+| scan-text | **built** (ADR-0023): committed text is provider-agnostic; banned-terms list in the gate, seeded from the sibling's (ADR-0004) |
 
 ## Rendering
 
-As in the sibling: all LaTeX rendered to HTML at build time (KaTeX never ships to the browser); islands
-hydrate `client:visible`; interactive graphs evaluate exported closed forms/tables only. Nested Svelte
-islands require `css: "injected"` (sibling ADR-0019 — known trap).
+**Built (ADR-0021).** All LaTeX is rendered to HTML at build time in Astro frontmatter (`src/lib/katex.js`,
+`view.js`) — KaTeX never ships to the browser. The lesson island hydrates **`client:load`** (not
+`client:visible`): the player is the lesson and sits above the fold, and `client:visible` never fires in a
+headless preview that loads at a 0×0 viewport (the IntersectionObserver never triggers), which would block
+paint-verification. Interactive islands evaluate only the producer's exported, parity-checked closed forms
+(ADR-0022) — no runtime chemistry. Nested Svelte islands (the interactives inside `SolutionPlayer`) require
+`svelte({ compilerOptions: { css: "injected" } })` in `astro.config.mjs` or their scoped CSS is silently
+dropped (known trap #2) — set, and confirmed rendering in the browser.
 
 ## Practice generation policy
 

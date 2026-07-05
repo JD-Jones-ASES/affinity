@@ -1,0 +1,50 @@
+---
+import Base from "../../layouts/Base.astro";
+import SolutionPlayer from "../../islands/SolutionPlayer.svelte";
+import { withBase } from "../../lib/withBase.js";
+import { renderSolution } from "../../lib/view.js";
+import { plain } from "../../lib/katex.js";
+
+// One page per committed solution JSON (ADR-0019). The producer is the source of truth; this page only reads
+// and renders it — no chemistry happens here.
+export function getStaticPaths() {
+  const all = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
+  return Object.values(all).map((m) => ({ params: { slug: m.default.slug }, props: { solution: m.default } }));
+}
+
+const { solution } = Astro.props;
+const view = renderSolution(solution);
+
+const metaRaw = plain(solution.scenario);
+const metaDesc = metaRaw.length > 157 ? metaRaw.slice(0, 156).replace(/\s+\S*$/, "") + "…" : metaRaw;
+
+// Concept links point at the Chemical Atlas (not built yet). Render them as labelled chips now; they become
+// live links when the Atlas lands (Phase 0 item 7). Prettify ids like "net-ionic-equation" for display.
+const conceptLabel = (id) => id.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+const concepts = (solution.reference_links ?? []).map((id) => ({ id, label: conceptLabel(id) }));
+---
+
+<Base title={`${solution.title} — Affinity`} description={metaDesc}>
+  <p class="crumb faint"><a href={withBase("/lessons/")}>Lessons</a> · {solution.topic}</p>
+  <h1>{solution.title}</h1>
+
+  {/* client:load (not client:visible): the player IS the lesson and sits above the fold; client:visible never
+      hydrates in a headless preview loading at a 0×0 viewport (the IntersectionObserver never fires). */}
+  <SolutionPlayer solution={view} client:load />
+
+  <section class="links">
+    <h2>Concepts in this lesson</h2>
+    <p class="muted">These will link into the <em>Chemical Atlas</em> (the reference corpus) as it is built.</p>
+    <ul class="chips">
+      {concepts.map((c) => <li class="chip">{c.label}</li>)}
+    </ul>
+  </section>
+
+  <style>
+    h1 { font-size: 1.9rem; }
+    .crumb { margin-bottom: 0.3rem; }
+    .links { margin-top: 2.5rem; }
+    .chips { list-style: none; padding: 0; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .chip { background: var(--paper-sunk); color: var(--ink-2); padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.85rem; }
+  </style>
+</Base>

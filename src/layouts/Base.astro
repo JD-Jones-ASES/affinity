@@ -1,0 +1,49 @@
+---
+import "@fontsource-variable/space-grotesk";
+import "@fontsource/ibm-plex-mono";
+import "katex/dist/katex.min.css";
+import "../styles/portal.css";
+import { withBase } from "../lib/withBase.js";
+
+const {
+  title = "Affinity",
+  description = "A beginning-chemistry course where the verification system is the product — every claim machine-checked, sourced, or disclosed.",
+} = Astro.props;
+const nav = [
+  ["Home", "/"],
+  ["Lessons", "/lessons/"],
+  ["Verification", "/verification/"],
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href={withBase("/")}><span class="a">A</span>ffinity</a>
+        <nav class="nav">
+          {nav.map(([label, href]) => <a href={withBase(href)}>{label}</a>)}
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrap">
+        <slot />
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        Beginning chemistry, verified by ChemKernel at build time. Code MIT · content CC BY-SA 4.0.
+        AI-authored under an owner-designed verification system — the system is the safeguard.
+      </div>
+    </footer>
+  </body>
+</html>
