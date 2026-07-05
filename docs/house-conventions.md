@@ -27,8 +27,8 @@ marked *(open)* are settled in Phase 0 alongside the architecture open-questions
 
 - Strong electrolytes fully dissociate in the dissociation transformer; the assumption is disclosed on
   every lesson using it (**model-assumed** badge).
-- Solubility calls always cite the specific rule applied, from the curated ruleset in `data/` *(open:
-  encoding — architecture Q6)*.
+- Solubility calls always cite the specific rule applied, from the curated ruleset in
+  `data/solubility.toml` (ADR-0017); `chemkernel.solubility.classify` returns the governing rule id.
 - Spectator ions are shown canceling, never vanishing (particle view + complete ionic equation).
 - Atomic masses come only from the `data/` element dataset (ADR-0012) at its stated precision; no
   hand-typed molar masses anywhere, including prose. Enforced in code: `chemkernel.data` is the only

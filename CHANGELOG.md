@@ -3,7 +3,7 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
-## Phase 0 (in progress) — 2026-07-05 — ChemKernel compute core: datasets, parser, balancer, units, species ledger
+## Phase 0 (in progress) — 2026-07-05 — ChemKernel engine: datasets, parser, balancer, units, ledger, ionic transforms, solubility
 
 - **Curated `data/` datasets (ADR-0012):** `data/elements.toml` (9 elements: the 6 Phase-0 plus N/S/P for
   ion-composition consistency; CIAAW abridged atomic weights, IUPAC positions) and `data/ions.toml` (13
@@ -22,8 +22,16 @@ plan in [`ROADMAP.md`](./ROADMAP.md).
   CaCl₂ + Na₂CO₃ → CaCO₃ + 2 NaCl (`[1,1,1,2]`); ξ = 0.00250 mol, Ca²⁺ limiting, 0.00050 mol CO₃²⁻
   leftover, **0.250 g CaCO₃** (M = 100.086 g/mol); the net ionic form `[1,1,1]` gives the same result via
   the same ledger machine.
+- **Reaction transforms + sourced solubility** (ADR-0018, ADR-0017): `reaction` (dissociation via the ion
+  table, complete ionic, net ionic with spectator cancellation + conservation re-check) and `solubility`
+  (`data/solubility.toml` from OpenStax Table 4.1; `classify` returns the governing rule for citation;
+  `verify_phase` build check). The Phase-0 reaction transforms mechanically to complete ionic
+  `Ca²⁺ + 2Cl⁻ + 2Na⁺ + CO₃²⁻ → CaCO₃(s) + 2Na⁺ + 2Cl⁻`, net ionic `Ca²⁺ + CO₃²⁻ → CaCO₃(s)` (spectators
+  Na⁺, Cl⁻), with CaCO₃'s precipitation machine-classified and cited to the carbonate rule.
+- **47 producer tests green** total (+10 for reaction + solubility).
 - **Resolved architecture open-questions** Q1 (dataset+format), Q2 (numeric representation), Q3 (parser
-  grammar) via ADR-0012/0013/0014; units engine and ledger shape fixed by ADR-0015/0016.
+  grammar), Q6 (solubility encoding) via ADR-0012/0013/0014/0017; units engine, ledger, and ionic-transform
+  shapes fixed by ADR-0015/0016/0018.
 
 ## Bootstrap — 2026-07-05 — repo founded, docs-first
 

@@ -168,25 +168,29 @@ committed `derived/`. The repo is **private** until the owner calls the Phase 0 
 
 ## Current state
 
-**Phase 0 in progress (opened 2026-07-05).** Bootstrap docs shipped, then the ChemKernel compute core: the
-curated `data/` datasets (ADR-0012) and the `chemkernel` producer package — `data` (loader + molar mass +
-self-check), `formula` (parser, ADR-0014), `balance` (balancer, ADR-0014), `units` (Quantity engine,
-ADR-0015), `extent` (Extent solver → species ledger, the ADR-0002 pivot, ADR-0016) — all exact
-Decimal/Fraction, never float (ADR-0013). The Phase 0 scenario runs end to end in the library (0.250 g
-CaCO₃, Ca²⁺ limiting). **Counters: 0 lessons, 0 Atlas entries, 0 gates, 37 producer tests green.** No
-`build.py`, schema, or Node gates yet — the modules are a library. See [`ROADMAP.md`](./ROADMAP.md) for
-what remains in Phase 0 and [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
+**Phase 0 in progress (opened 2026-07-05).** Bootstrap docs shipped, then the full ChemKernel compute +
+chemistry engine: `data/` (element/ion/solubility datasets, ADR-0012/0017) and the `chemkernel` package —
+`data`, `formula` (ADR-0014), `balance` (ADR-0014), `units` (ADR-0015), `extent` (species ledger, the
+ADR-0002 pivot, ADR-0016), `reaction` (dissociation + complete/net ionic, ADR-0018), `solubility` (sourced
+classifier, ADR-0017) — all exact Decimal/Fraction, never float (ADR-0013). The entire Phase 0 chemistry
+runs end to end in the library: molecular → complete ionic → net ionic (spectators Na⁺/Cl⁻), carbonate
+rule cited for the precipitate, ledger, Ca²⁺ limiting, 0.250 g CaCO₃. **Counters: 0 lessons, 0 Atlas
+entries, 0 gates, 47 producer tests green.** No `build.py`, schema, or Node gates yet — the modules are a
+library. See [`ROADMAP.md`](./ROADMAP.md) for what remains and
+[`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
 
 ## Where this might go next (paths for a future session)
 
-Phase 0 is the only sanctioned build track until it lands and is reviewed (brief §16, ROADMAP). Done: (a)
-element/ion datasets + SOURCES; (b) formula parser + balancer; (c) units/quantity engine; (e) Extent
-solver → species ledger — all tested. Natural next session-sized units: (d) dissociation transformer +
-net-ionic reducer — **this is the current front, and it starts with a research + ADR pass on the
-solubility ruleset (its source, encoding, and exception handling — architecture Q6)** before code;
-(f) the solution schema + `build.py` (wire authored TOML specs → emitted JSON) + Node gates + CI; (g)
-player + the two interactives; (h) practice generator + misconception register; (i) authoring guides once
-formats stabilize. Docs-only sessions (sweeps, planning) are always in season.
+Phase 0 is the only sanctioned build track until it lands and is reviewed (brief §16, ROADMAP). Done and
+tested in the `chemkernel` library: (a) element/ion/solubility datasets + SOURCES; (b) parser + balancer;
+(c) units/quantity engine; (d) dissociation + net-ionic transforms + solubility classifier; (e) Extent
+solver → species ledger. **The whole Phase 0 chemistry computes end to end.** The current front is the
+**emit/verify/present layer**: (f) design the solution schema (`schemas/solution.schema.json`, draft
+2020-12) — the shape that carries the ledger, the three equations, the dimensional chain, badges,
+misconception, provenance — then write `build.py` to read an authored `problems/precipitation/*.problem.toml`
+spec and emit verified `derived/**.json`, then the Node gates (`scripts/validate/`) + CI; (g) the player +
+the two interactives; (h) practice generator + misconception register; (i) authoring guides once the spec
+stabilizes. This is the natural next session. Docs-only sessions (sweeps, planning) are always in season.
 
 **Known traps (1 and 2 bit the sibling; 3 and 4 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested

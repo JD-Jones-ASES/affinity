@@ -26,15 +26,18 @@ the sibling: `prepare:data` = `produce` + `validate`; `build` = `validate` + `as
 The load-bearing invariant: **ChemKernel refuses to emit** an object that fails any check below
 (ADR-0008). CI re-gates the committed output with Node-only checks. A green build certifies both layers.
 
-**As-built so far (2026-07-05).** The compute core exists and is tested: `data/` (curated element + ion
-datasets, ADR-0012); `chemkernel.data` (loader + molar mass + load-time self-check); `chemkernel.formula`
-(parser, ADR-0014); `chemkernel.balance` (balancer, ADR-0014); `chemkernel.units` (Quantity engine,
-ADR-0015); `chemkernel.extent` (Extent solver → species ledger, ADR-0016). **37 producer tests green**
-(`uv --project producer run pytest`). The Phase 0 scenario runs end to end in the library — moles from
-volume×molarity, balanced equation, ledger, limiting reagent, 0.250 g CaCO₃ — matching the brief. No
-`build.py`, schema, gates, or entry points yet: the modules are a library, not yet wired to authored specs
-or emitted JSON. Next: dissociation/net-ionic transformer (needs the solubility ruleset, Q6) → the
-solution schema → `build.py` → Node gates.
+**As-built so far (2026-07-05).** The full compute + chemistry engine exists and is tested: `data/`
+(element, ion, and solubility datasets, ADR-0012/0017); `chemkernel.data` (loader + molar mass +
+self-check); `chemkernel.formula` (parser, ADR-0014); `chemkernel.balance` (balancer, ADR-0014);
+`chemkernel.units` (Quantity engine, ADR-0015); `chemkernel.extent` (Extent solver → species ledger,
+ADR-0016); `chemkernel.reaction` (dissociation + complete/net ionic, ADR-0018); `chemkernel.solubility`
+(sourced classifier, ADR-0017). **47 producer tests green** (`uv --project producer run pytest`). The
+entire Phase 0 chemistry runs end to end in the library — molecular → complete ionic → net ionic
+(spectators Na⁺, Cl⁻), the carbonate solubility rule cited as the precipitate's basis, moles from
+volume×molarity, the species ledger, limiting reagent, 0.250 g CaCO₃ — all matching the brief. What
+remains is the *emit + verify + present* layer: no `build.py`, solution schema, Node gates, or entry
+points yet. Next: the solution schema → `build.py` (authored TOML spec → verified JSON) → Node gates + CI
+→ the player.
 
 ## ChemKernel module map (brief §6)
 
@@ -45,8 +48,9 @@ solution schema → `build.py` → Node gates.
 | `balance.py` balancer | element+charge conservation matrix over ℚ → SymPy null space → smallest positive integer coefficients; re-verified; fails on ambiguity | **built** (ADR-0014) |
 | `units.py` engine | `Quantity` over an amount/mass/volume `Dim` basis; exact Decimal; units cancel through ×/÷; rejects invalid conversions (numeric dimensional-analysis chain) | **built** (ADR-0015) |
 | `extent.py` solver | initial moles → per-reactant extent limits → limiting reagent(s) → species ledger with leftovers; exact Fraction; refuses negative amounts | **built** (ADR-0016) |
-| dissociation + net-ionic | strong-electrolyte transformer, spectator identification, complete/net ionic equations | Phase 0 (next) |
-| proofs | atom/charge conservation (in `balance.py`) and nonnegative extent (in `extent.py`) done; unit homogeneity of reference formulas (SymPy `dims.py`) with the Atlas | partly built |
+| `reaction.py` transforms | dissociation (formula → ions via the ion table), complete ionic, net ionic with spectator cancellation + conservation re-check | **built** (ADR-0018) |
+| `solubility.py` classifier | sourced ruleset → soluble/insoluble verdict + governing rule id; `verify_phase` build check | **built** (ADR-0017) |
+| proofs | atom/charge conservation (in `balance.py` + `reaction.py`) and nonnegative extent (in `extent.py`) done; unit homogeneity of reference formulas (SymPy `dims.py`) with the Atlas | partly built |
 | practice generator | template + constraints + misconception target → solver-verified variants with derivation trees; reject-list enforced | Phase 0 (one family) |
 | reaction classifier | precipitation/acid-base/gas-evolution/combustion/redox/… + required conditions | Phase 1 |
 | equilibrium / kinetics / thermo / electrochem | ICE-as-ledger, rate laws, energy ledger, electron ledger | Phase 2+ |
@@ -123,7 +127,7 @@ solubility claims, ambiguous sig figs, unbalanced templates.
    interpretive marker (ADR-0003 leaves this open)?
 5. **Schema granularity** — one `solution.schema.json` with optional blocks (sibling pattern) vs. schema
    per lesson kind.
-6. **Solubility-rule encoding** — how rules + exceptions are structured in `data/` so the net-ionic
-   transformer can cite the exact rule applied.
+6. ~~**Solubility-rule encoding**~~ — **RESOLVED (ADR-0017):** `data/solubility.toml`, precedence-ordered
+   rules from OpenStax Table 4.1; `classify()` returns the governing rule id for citation.
 7. **Sig-fig policy** — computation exact, display rounded; where the policy lives (house-conventions) and
    how the practice generator avoids ambiguous-rounding items.

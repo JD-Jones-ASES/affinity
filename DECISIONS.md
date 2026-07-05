@@ -270,3 +270,42 @@ spectators at ν=0 all run through the same machine.
 0.00050 mol CO₃²⁻ leftover, 0.250 g CaCO₃ — from both the molecular and net-ionic forms. ICE tables
 (reversible extent) and the electron ledger are later extensions of this row shape, not new machinery.
 14 further tests (units + extent); 37 producer tests total.
+
+## ADR-0017 — Solubility ruleset: sourced, precedence-ordered, machine-classified precipitates (2026-07-05)
+
+**Context.** The precipitate in a precipitation lesson (CaCO₃ is a solid) is an empirical claim, not
+algebra. ADR-0008 says an unsupported empirical claim breaks the build; the honesty model (ADR-0003)
+requires it sourced and cited. Resolves architecture open-question Q6 (solubility-rule encoding).
+
+**Decision.** `data/solubility.toml` encodes the standard solubility rules faithfully from **OpenStax
+Chemistry 2e, Table 4.1** (source `openstax-chemistry-2e`, already registered), restricted to rules whose
+anions are formable from the ion table. `chemkernel.solubility.classify(cation, anion)` applies them in a
+fixed precedence — (1) a universally-soluble cation (group 1 / ammonium) wins; else (2) the anion's
+soluble rule, flipped by its cation-exception list; else (3) the anion's insoluble rule, flipped by its
+exceptions — and returns a `Verdict` naming the governing rule id + statement, so the lesson cites the
+exact rule (data/rule-sourced badge). `group1` is a class token resolved against `data/elements.toml`. An
+anion with no matching rule raises `BuildError` (refuse to emit, don't guess). `verify_phase` turns a
+mismatch between an authored phase and the ruleset into a build failure.
+
+**Consequences.** CaCO₃ is classified insoluble by `insol-carbonate` (and Na₂CO₃ soluble because Na⁺ is
+group 1) — the precipitate is machine-derived and rule-cited, not asserted. CaSO₄ correctly hits the
+sulfate exception. Adding an ion that introduces a new anion means adding its rule + keeping the source
+current, enforced by the refuse-to-emit default.
+
+## ADR-0018 — Reaction transforms: dissociation + complete/net ionic via the ion table (2026-07-05)
+
+**Context.** The lesson must show the molecular equation become a complete ionic equation and then a net
+ionic equation with spectators cancelled (brief §16). This should be machine-derived, not authored prose.
+
+**Decision.** `chemkernel.reaction`: `dissociate(formula)` decomposes a neutral salt into one cation +
+one anion from the ion table by charge balance and composition match (no ion identities hard-coded);
+`complete_ionic` dissociates every `(aq)` decomposable species and keeps solids/liquids/gases intact;
+`net_ionic` cancels spectators (species present unchanged on both sides), reduces coefficients, and
+**re-verifies atom and charge conservation** on the reduced equation (refuse to emit if it fails). v0
+treats every dissociable `(aq)` species as a strong electrolyte; a strong/weak flag (so a weak acid stays
+intact) is deferred until acid-base content needs it.
+
+**Consequences.** The Phase 0 reaction yields, mechanically: complete ionic
+`Ca²⁺ + 2Cl⁻ + 2Na⁺ + CO₃²⁻ → CaCO₃(s) + 2Na⁺ + 2Cl⁻`, net ionic `Ca²⁺ + CO₃²⁻ → CaCO₃(s)`, spectators
+Na⁺ and Cl⁻ — with conservation re-proven. 10 further tests (reaction + solubility); 47 producer tests
+total. The species ledger (ADR-0016) can now be driven at the net-ionic level from these transforms.

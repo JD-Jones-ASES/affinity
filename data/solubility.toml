@@ -1,0 +1,64 @@
+# Curated solubility ruleset (ADR-0006, ADR-0017). Regime-3 sourced data.
+#
+# Faithful to OpenStax Chemistry 2e, Table 4.1 (§4.2 Classifying Chemical Reactions) — source
+# `openstax-chemistry-2e` (CC BY 4.0). Restricted to rules whose anions can be formed from the registered
+# ion table; extend (with this source) when new ions arrive. classify() applies rules in a fixed
+# precedence: (1) a universally-soluble cation wins; else (2) the anion's soluble rule, flipped by its
+# cation-exception list; else (3) the anion's insoluble rule, flipped by its exception list. A compound
+# whose anion matches no rule fails the build (refuse to emit) rather than guessing.
+#
+# `group1` is a class token meaning "any monatomic cation whose element is in group 1" (resolved against
+# data/elements.toml). Exception ions not yet in the ion table (Ag^+, Ba^2+, ...) are kept for fidelity
+# and future-proofing; they are matched by id if such a compound is ever built.
+
+source = "openstax-chemistry-2e"
+soluble_cations = ["group1", "NH4^+"]
+cation_rule = "Salts of group 1 cations and ammonium (NH4^+) are soluble."
+
+[[soluble]]
+id = "sol-nitrate"
+anion = "NO3^-"
+except = []
+statement = "Nitrates are soluble."
+
+[[soluble]]
+id = "sol-acetate"
+anion = "C2H3O2^-"
+except = []
+statement = "Acetates are soluble."
+
+[[soluble]]
+id = "sol-bicarbonate"
+anion = "HCO3^-"
+except = []
+statement = "Hydrogen carbonates (bicarbonates) are soluble."
+
+[[soluble]]
+id = "sol-chloride"
+anion = "Cl^-"
+except = ["Ag^+", "Hg2^2+", "Pb^2+"]
+statement = "Chlorides are soluble, except those of Ag+, Hg2^2+, and Pb2+."
+
+[[soluble]]
+id = "sol-sulfate"
+anion = "SO4^2-"
+except = ["Ag^+", "Ba^2+", "Ca^2+", "Hg2^2+", "Pb^2+", "Sr^2+"]
+statement = "Sulfates are soluble, except those of Ag+, Ba2+, Ca2+, Hg2^2+, Pb2+, and Sr2+."
+
+[[insoluble]]
+id = "insol-carbonate"
+anion = "CO3^2-"
+except = ["group1", "NH4^+"]
+statement = "Carbonates are insoluble, except those of group 1 cations and ammonium."
+
+[[insoluble]]
+id = "insol-phosphate"
+anion = "PO4^3-"
+except = ["group1", "NH4^+"]
+statement = "Phosphates are insoluble, except those of group 1 cations and ammonium."
+
+[[insoluble]]
+id = "insol-hydroxide"
+anion = "OH^-"
+except = ["group1", "Ba^2+"]
+statement = "Hydroxides are insoluble, except those of group 1 cations and Ba2+."

@@ -11,13 +11,15 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   protocol, eleven founding ADRs (ADR-0001…0011), architecture design contract with open questions,
   house conventions, regime map seeded across all v1 topics, SOURCES register, licenses, private GitHub
   repo. No code, no content.
-- **Phase 0 — the vertical slice — IN PROGRESS** (opened 2026-07-05). ChemKernel compute core landed and
-  tested: curated element/ion datasets (ADR-0012), formula parser + molar mass, equation balancer
-  (ADR-0014), units/quantity engine (ADR-0015), **Extent solver → species ledger** (ADR-0016), all in
-  exact Decimal/rational arithmetic (ADR-0013). The Phase 0 scenario runs end to end in the library
-  (0.250 g CaCO₃, Ca²⁺ limiting). **37 producer tests green.** Remaining: dissociation + net-ionic
-  transformer, solution schema, `build.py` + Node gates, player + the two interactives, practice
-  generator, Atlas entry, periodic lens, CI.
+- **Phase 0 — the vertical slice — IN PROGRESS** (opened 2026-07-05). ChemKernel compute + chemistry
+  engine landed and tested: element/ion/solubility datasets (ADR-0012/0017), formula parser + molar mass,
+  balancer (ADR-0014), units/quantity engine (ADR-0015), Extent solver → species ledger (ADR-0016),
+  dissociation + complete/net ionic transforms (ADR-0018), sourced solubility classifier (ADR-0017) —
+  exact arithmetic throughout (ADR-0013). The **whole Phase 0 chemistry** runs end to end in the library:
+  molecular → complete ionic → net ionic (spectators Na⁺/Cl⁻), carbonate rule cited for the precipitate,
+  ledger, Ca²⁺ limiting, 0.250 g CaCO₃. **47 producer tests green.** Remaining: solution schema, `build.py`
+  (spec → JSON), Node gates + CI, player + the two interactives, practice generator, Atlas entry, periodic
+  lens.
 
 ---
 
@@ -33,11 +35,12 @@ a periodic-table lens.
 The lesson lives at `problems/precipitation/` (the topic slug for path purposes — house-conventions
 §naming).
 
-**Landed so far (2026-07-05):** scope item 1 (datasets) complete; item 2 mostly complete — formula parser,
-equation balancer, units/quantity engine, and Extent solver → species ledger, all tested. Remaining in
-item 2: dissociation transformer + net-ionic reducer (blocked on the solubility ruleset, architecture Q6).
-Items 3–8 not started, though item 3's atom/charge conservation and nonnegative-extent proofs already run
-inside the balancer and extent solver.
+**Landed so far (2026-07-05):** scope items 1 (datasets), 2 (parser, balancer, units engine, dissociation
+transformer, net-ionic reducer, Extent solver → species ledger), and 3's conservation/nonnegative proofs
+are all complete and tested in the `chemkernel` library. Solubility (item's honesty basis) is
+machine-classified and rule-cited. **Not yet built: the emit/verify/present layer** — item 4's solution
+schema + Node gates, plus a `build.py` to wire authored specs to JSON (items 5–8: player, practice, Atlas,
+lens, CI).
 
 **Scope.**
 1. `data/`: minimal element dataset (Ca, Cl, Na, C, O, H) + common-ion and polyatomic-ion entries, source
