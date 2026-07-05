@@ -245,8 +245,12 @@ double-displacement at **any** integer stoichiometry (proven on the 3:2 phosphat
 shapes (acid-base, gas-evolution, redox) still render statically (the blocks are omitted, by design) until
 the emitters generalise to them.
 
-**Known traps (1 and 2 bit the sibling; 3 and 4 are local):** (1) In CI use `npm install`, not `npm ci` —
+**Known traps (1 and 2 bit the sibling; 3–5 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested
 inside islands need `svelte({ compilerOptions: { css: "injected" } })` in `astro.config.mjs` or child
 scoped CSS is silently dropped. (3) Google Drive syncs this folder — see close-out step 4. (4) TOML: bare
-keys must precede any `[table]` header or they get absorbed into it.
+keys must precede any `[table]` header or they get absorbed into it. (5) `actions/deploy-pages` can fail
+transiently ("Deployment failed, try again later") even when every gate passed — `gh run rerun <id>
+--failed` fixes it; and never pipe `gh run watch --exit-status` through `| tail` (the pipeline exit status
+is tail's, masking the failure) — check the run **conclusion**, then curl the live pages for the new
+content, not just a 200.
