@@ -31,7 +31,11 @@ const conceptTitle = Object.fromEntries(concepts.map((c) => [c.id, c.title]));
       <article class="concept" id={c.id}>
         <div class="c-head">
           <h3>{c.title}</h3>
-          {c.regime && <span class="badge regime">{c.regime}</span>}
+          <span class="badges">
+            {c.regime === "rule-sourced"
+              ? <span class="badge sourced"><span class="dot"></span>rule-sourced ({c.source})</span>
+              : c.regime && <span class="badge regime">{c.regime}</span>}
+          </span>
         </div>
         <p class="def" set:html={c.definitionHtml} />
         {c.latexHtml && <div class="c-math" set:html={c.latexHtml} />}

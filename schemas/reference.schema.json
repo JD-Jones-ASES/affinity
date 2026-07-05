@@ -13,6 +13,7 @@
     "term": { "type": "string", "minLength": 1 },
     "definition": { "type": "string", "minLength": 1 },
     "regime": { "enum": ["ledger-exact", "model-exact", "rule-sourced", "mechanistic"] },
+    "source": { "type": "string", "minLength": 1 },
     "latex": { "type": "string" },
     "related": {
       "type": "array",

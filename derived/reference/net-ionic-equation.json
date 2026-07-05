@@ -1,0 +1,21 @@
+{
+  "kind": "concept",
+  "id": "net-ionic-equation",
+  "title": "Net ionic equation",
+  "term": "net ionic equation",
+  "definition": "The reaction with the spectators removed — only the species that actually change. Start from the complete ionic equation (every dissolved strong electrolyte shown as its free ions), cancel whatever appears unchanged on both sides, and re-check that atoms and charge still balance. What remains is the real chemical event: for the precipitation lesson, $\\text{Ca}^{2+} + \\text{CO}_3^{2-} \\rightarrow \\text{CaCO}_3(s)$.",
+  "related": [
+    {
+      "to": "precipitation",
+      "type": "expresses"
+    },
+    {
+      "to": "solubility-rules",
+      "type": "uses"
+    }
+  ],
+  "lessons": [
+    "calcium-carbonate-limiting"
+  ],
+  "regime": "ledger-exact"
+}

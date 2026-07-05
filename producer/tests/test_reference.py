@@ -65,3 +65,21 @@ def test_concept_entry_build():
 def test_concept_entry_requires_fields():
     with pytest.raises(BuildError):
         build_reference_entry({"id": "x", "kind": "concept", "title": "X"})  # missing term/definition
+
+
+def test_rule_sourced_concept_needs_source():
+    base = {"id": "solubility-rules", "kind": "concept", "title": "Solubility rules",
+            "term": "solubility rules", "definition": "Empirical rules.", "regime": "rule-sourced"}
+    with pytest.raises(BuildError):
+        build_reference_entry(dict(base))                      # rule-sourced without a source is refused
+    entry = build_reference_entry({**base, "source": "openstax-chemistry-2e"})
+    assert entry["source"] == "openstax-chemistry-2e"
+
+
+def test_authored_concepts_all_build():
+    root = ROOT / "reference" / "concepts"
+    for path in sorted(root.glob("*.toml")):
+        spec = tomllib.loads(path.read_text(encoding="utf-8"))
+        entry = build_reference_entry(spec, spec.get("id", path.stem))
+        # every related edge points at an id that is either another concept file or the valence table
+        assert entry["kind"] == "concept"

@@ -1,0 +1,13 @@
+# Chemical Atlas concept entry (ADR-0005).
+id = "molar-mass"
+kind = "concept"
+title = "Molar mass"
+term = "molar mass"
+regime = "ledger-exact"
+definition = "The mass of one mole of a substance, in g/mol — the sum of its atoms' standard atomic weights. It converts between mass and moles, $n = m/\\mathcal{M}$, so it turns a ledger amount into a mass on the balance. The arithmetic is exact; the atomic weights it sums are sourced data (CIAAW)."
+latex = "n = \\dfrac{m}{\\mathcal{M}}"
+related = [
+  { to = "molarity", type = "sibling-conversion" },
+  { to = "limiting-reagent", type = "used-with" },
+]
+lessons = ["calcium-carbonate-limiting"]

@@ -1,0 +1,12 @@
+# Chemical Atlas concept entry (ADR-0005). A rule-sourced concept — it must cite its source (ADR-0003).
+id = "solubility-rules"
+kind = "concept"
+title = "Solubility rules"
+term = "solubility rules"
+regime = "rule-sourced"
+source = "openstax-chemistry-2e"
+definition = "A short, ordered list of empirical rules that predict whether an ionic compound dissolves in water — with exceptions. They are *tabulated facts*, not theorems: nitrates and group-1 salts are soluble; most carbonates are not, except those of group-1 cations and ammonium. ChemKernel applies them in a fixed precedence and cites the governing rule, so a precipitate is classified, never asserted."
+related = [
+  { to = "precipitation", type = "predicts" },
+]
+lessons = ["calcium-carbonate-limiting"]

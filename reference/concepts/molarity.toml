@@ -1,0 +1,13 @@
+# Chemical Atlas concept entry (ADR-0005).
+id = "molarity"
+kind = "concept"
+title = "Molarity"
+term = "molarity"
+regime = "ledger-exact"
+definition = "Concentration as amount of solute per litre of solution: $M = n/V$, in mol/L. It is the bridge from something you can measure — a volume — to moles: multiply a volume in litres by a molarity and the litres cancel, leaving the moles that feed the ledger."
+latex = "M = \\dfrac{n}{V}"
+related = [
+  { to = "molar-mass", type = "sibling-conversion" },
+  { to = "limiting-reagent", type = "prerequisite-for" },
+]
+lessons = ["calcium-carbonate-limiting"]

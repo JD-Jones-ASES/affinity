@@ -54,6 +54,8 @@ for (const { rel, obj } of entries) {
   if (obj.kind === "concept") {
     for (const e of obj.related) if (!ids.has(e.to)) fail(rel, `related edge → '${e.to}' resolves to no reference`);
     for (const s of obj.lessons) if (!slugs.has(s)) fail(rel, `lesson '${s}' is not a real lesson slug`);
+    // the honesty model (ADR-0003): a rule-sourced concept must cite its source
+    if (obj.regime === "rule-sourced" && !obj.source) fail(rel, `rule-sourced concept has no source`);
   } else if (obj.kind === "valence-table") {
     const syms = new Set(obj.elements.map((e) => e.symbol));
     for (const h of obj.highlight) if (!syms.has(h)) fail(rel, `highlight '${h}' is not an element in the table`);

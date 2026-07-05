@@ -1,0 +1,13 @@
+# Chemical Atlas concept entry (ADR-0005). Rule-sourced — predicting a precipitate needs the solubility data.
+id = "precipitation"
+kind = "concept"
+title = "Precipitation"
+term = "precipitation"
+regime = "rule-sourced"
+source = "openstax-chemistry-2e"
+definition = "A reaction in which mixing two solutions produces an insoluble solid — the precipitate — that drops out of solution. Whether a solid forms, and which one, is read from the solubility rules; the amount that forms is then pure ledger. In the lesson, $\\text{Ca}^{2+}$ and $\\text{CO}_3^{2-}$ meet and leave solution as solid $\\text{CaCO}_3$, while the spectator ions stay dissolved."
+related = [
+  { to = "net-ionic-equation", type = "written-as" },
+  { to = "solubility-rules", type = "predicted-by" },
+]
+lessons = ["calcium-carbonate-limiting"]

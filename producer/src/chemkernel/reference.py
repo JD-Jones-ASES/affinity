@@ -131,6 +131,11 @@ def build_reference_entry(spec: dict, ctx: str = "") -> dict:
     }
     if "regime" in spec:
         entry["regime"] = spec["regime"]
+    if "source" in spec:
+        entry["source"] = spec["source"]
     if "latex" in spec:
         entry["latex"] = spec["latex"]
+    # a rule-sourced concept must cite where the rule comes from (the honesty model, ADR-0003)
+    if entry.get("regime") == "rule-sourced" and "source" not in entry:
+        raise BuildError(f"{ctx}: rule-sourced concept '{entry['id']}' needs a `source`")
     return entry
