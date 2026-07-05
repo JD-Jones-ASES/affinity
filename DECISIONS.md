@@ -414,3 +414,37 @@ extend the list when the owner confirms it). Each is proven non-vacuous.
 advertises is enforced end to end. The atom/charge re-check by element counts is future work (needs element
 counts in the emitted ledger or a JS formula parser); the extent-equation re-derivation is the achievable,
 load-bearing conservation check today.
+
+## ADR-0024 — Procedural gyms: a producer-generated, verified, drillable problem-set content type (2026-07-05)
+
+**Context.** Phase 1 (brief §17) opens with the procedural core — the dimensional-analysis gym, then formula
+/nomenclature, balancing, and stoichiometry engines — whose defining trait is *endless generated* practice,
+not one authored scenario. The owner opened Phase 1 with the rationale that solving many problems now makes
+granular lessons cheap to fill later. The Phase-0 pipeline (`build_problems` → one authored reaction →
+`solution.json`) doesn't fit a generated conversion drill, and the `practice` generator is bolted onto a
+lesson. A new content shape was needed; the choice was whether to bolt gyms onto the lesson pipeline or give
+them their own producer/schema/gate/player track.
+
+**Decision.** A first-class **gym** content type, mirroring the `reference` track's shape so the machinery is
+reusable across Phase-1 items. Authored `gyms/**/*.gym.toml` (topic + family + seed + count) →
+`chemkernel.gym.generate_gym` → committed `derived/gyms/<slug>.gym.json` via a new **`build-gyms`** entry
+point; `npm run produce` runs all three builders. The generator is **deterministic in the seed** (ADR-0008),
+computes every value as an exact `Fraction` and **rejects any non-terminating candidate** (ADR-0013), and
+**re-checks each conversion's dimensions through the units engine** (`Quantity`) so the emitted cancellation
+chain is machine-certified homogeneous — the author never certifies that L × mol/L = mol. Every wrong choice
+is a **named cancellation mistake**, not a random number. Each problem carries a raw `derivation` block so the
+new Node gate **`validate-gyms.mjs`** re-derives every answer in pure Node (the check-parity pattern:
+independent re-computation from raw inputs), plus schema + choice invariants (one correct, distinct displays,
+chain ends at the answer, molar-mass consistency). One `schemas/gym.schema.json` (draft 2020-12,
+`additionalProperties:false`). The player gets a `/gym/` section + a `DimensionalGym.svelte` drill island that
+reveals the cancellation chain on each pick (reusing the proven `PracticeQuestion` interaction pattern);
+molar masses stay sourced (provenance carries the atomic-weight source id).
+
+**Consequences.** Seven Node gates now; Phase-1 procedural fill inherits a solved instrument — items 2–4
+(nomenclature, balancing, stoichiometry gyms) add a new `family` to `generate_gym` (and, where a new answer
+shape appears, a per-kind branch to `validate-gyms`) rather than new plumbing. The first family,
+`solution_conversions_v1`, covers volume·molarity·moles·mass in five kinds using only the existing units
+engine + sourced molar masses (no new dataset). Particle/Avogadro conversions are deferred until the Avogadro
+constant is registered as a sourced datum. The units engine verifies *dimensions*; the exact *values* are
+Fraction-exact in the producer and re-derived numerically (float tolerance) by the Node gate — consistent
+with how `check-parity` trusts emitted literals and anchors them to engine-computed expectations.

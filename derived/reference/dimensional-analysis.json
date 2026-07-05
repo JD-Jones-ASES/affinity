@@ -1,0 +1,24 @@
+{
+  "kind": "concept",
+  "id": "dimensional-analysis",
+  "title": "Dimensional analysis",
+  "term": "dimensional analysis",
+  "definition": "Solving by carrying the units: multiply a quantity by conversion factors written as fractions equal to 1, chosen so the unwanted unit cancels and the wanted one survives. If the units come out right, the setup is right. Volume $\\rightarrow$ moles $\\rightarrow$ mass is just $\\text{mL}\\times\\frac{1\\,\\text{L}}{1000\\,\\text{mL}}\\times\\frac{\\text{mol}}{\\text{L}}\\times\\frac{\\text{g}}{\\text{mol}}$, with every unit but grams cancelling. ChemKernel's units engine checks the cancellation on every generated problem.",
+  "related": [
+    {
+      "to": "molarity",
+      "type": "applies"
+    },
+    {
+      "to": "molar-mass",
+      "type": "applies"
+    },
+    {
+      "to": "stoichiometry",
+      "type": "supports"
+    }
+  ],
+  "lessons": [],
+  "regime": "ledger-exact",
+  "latex": "\\text{mL}\\times\\frac{1\\,\\text{L}}{1000\\,\\text{mL}}\\times\\frac{\\text{mol}}{\\text{L}}\\times\\frac{\\text{g}}{\\text{mol}} = \\text{g}"
+}

@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://affinity/schemas/gym.schema.json",
+  "title": "Affinity procedural gym (generated, verified problem set)",
+  "description": "A Phase-1 gym: producer-generated dimensional-analysis problems (ADR-0024). additionalProperties:false everywhere.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "id", "title", "slug", "topic", "family", "seed", "problems", "provenance"],
+  "properties": {
+    "kind": { "const": "gym" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "topic": { "type": "string", "minLength": 1 },
+    "family": { "type": "string", "minLength": 1 },
+    "seed": { "type": "integer" },
+    "blurb": { "type": "string" },
+    "skills": { "type": "array", "items": { "type": "string" } },
+    "reference_links": { "type": "array", "items": { "type": "string" } },
+    "problems": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "prompt", "chain", "target_unit", "answer", "derivation", "choices", "explain"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^q[0-9]+$" },
+          "kind": { "type": "string", "minLength": 1 },
+          "prompt": { "type": "string", "minLength": 1 },
+          "chain": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["value", "unit", "note"],
+              "properties": {
+                "value": { "type": "string" },
+                "unit": { "type": "string" },
+                "note": { "type": "string" }
+              }
+            }
+          },
+          "target_unit": { "type": "string", "minLength": 1 },
+          "answer": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["value", "unit", "display"],
+            "properties": {
+              "value": { "type": "string" },
+              "unit": { "type": "string" },
+              "display": { "type": "string" }
+            }
+          },
+          "derivation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "inputs"],
+            "properties": {
+              "kind": {
+                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass"]
+              },
+              "inputs": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["substance"],
+                "properties": {
+                  "substance": { "type": "string" },
+                  "v_mL": { "type": "string" },
+                  "c_M": { "type": "string" },
+                  "n_mol": { "type": "string" },
+                  "m_g": { "type": "string" },
+                  "molar_mass_g_per_mol": { "type": "string" }
+                }
+              }
+            }
+          },
+          "choices": {
+            "type": "array",
+            "minItems": 3,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["display", "correct", "misconception"],
+              "properties": {
+                "display": { "type": "string", "minLength": 1 },
+                "correct": { "type": "boolean" },
+                "misconception": { "type": ["string", "null"] }
+              }
+            }
+          },
+          "explain": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer", "version", "sources"],
+      "properties": {
+        "producer": { "type": "string" },
+        "version": { "type": "string" },
+        "sources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["atomic_weight"],
+          "properties": { "atomic_weight": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

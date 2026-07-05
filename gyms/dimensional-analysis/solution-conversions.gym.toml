@@ -1,0 +1,16 @@
+# A procedural gym (Phase 1 / brief §17.1, ADR-0024). Authored human layer only — ChemKernel *generates* the
+# problems, computes every answer exactly, re-checks each conversion's dimensions through the units engine, and
+# writes the verified set. You never write an answer; the seed makes the set deterministic and reviewable.
+#
+# Root keys must precede any [table]/[[array]] header (TOML trap #4). This gym has only root scalars.
+
+id = "dimensional-analysis-solution-conversions"
+title = "Solution conversions: volume, molarity, moles, and mass"
+slug = "solution-conversions"
+topic = "dimensional-analysis"
+family = "solution_conversions_v1"
+seed = 4242043
+count = 10
+blurb = "Endless generated quantity-algebra where the units do the bookkeeping. Convert between volume, molarity, moles, and mass — one conversion factor at a time — and watch the units cancel down the chain. Every answer is machine-computed and every wrong option is a specific cancellation mistake."
+skills = ["mL → L (÷ 1000)", "volume × molarity → moles", "moles ÷ molarity → volume", "mass ↔ moles via molar mass", "volume + molarity + molar mass → grams"]
+reference_links = ["dimensional-analysis", "molarity", "molar-mass"]

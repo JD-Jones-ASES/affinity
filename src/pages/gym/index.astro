@@ -1,0 +1,60 @@
+---
+import Base from "../../layouts/Base.astro";
+import { withBase } from "../../lib/withBase.js";
+
+// One card per committed gym (ADR-0024). A new derived/gyms/*.gym.json appears here automatically.
+const mods = import.meta.glob("../../../derived/gyms/*.gym.json", { eager: true });
+const gyms = Object.values(mods).map((m) => m.default);
+const topics = [...new Set(gyms.map((g) => g.topic))].sort();
+const titleCase = (s) => s.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+const groups = topics.map((t) => ({
+  topic: t,
+  gyms: gyms.filter((g) => g.topic === t).sort((a, b) => a.title.localeCompare(b.title)),
+}));
+---
+
+<Base title="Gym — Affinity" description="Procedural drills: endless generated, machine-verified chemistry problems with visible unit cancellation.">
+  <h1>Gym</h1>
+  <p class="muted lede">
+    Procedural drills — generated, machine-verified problems you can run again and again. Lessons go deep on one
+    scenario; the gym builds fluency by repetition. Every problem is computed and re-checked by ChemKernel, and
+    every wrong option is a specific, named mistake — not a random number.
+  </p>
+
+  {groups.map((g) => (
+    <section class="topic">
+      <div class="topic-head"><h2 id={g.topic}>{titleCase(g.topic)}</h2></div>
+      <ul class="gyms">
+        {g.gyms.map((gy) => (
+          <li>
+            <a href={withBase(`/gym/${gy.slug}/`)}>
+              <div class="row">
+                <span class="title">{gy.title}</span>
+                <span class="badge machine"><span class="dot"></span>{gy.problems.length} verified</span>
+              </div>
+              <p class="blurb">{gy.blurb}</p>
+              <div class="skills">{gy.skills.map((s) => <span class="skill">{s}</span>)}</div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+
+  <style>
+    h1 { font-size: 1.9rem; }
+    .lede { max-width: 48rem; }
+    .topic { margin-top: 1.8rem; }
+    .topic-head { border-bottom: 1px solid var(--line); padding-bottom: 0.3rem; margin-bottom: 0.8rem; }
+    .topic-head h2 { font-size: 1.25rem; margin: 0; }
+    .gyms { list-style: none; padding: 0; display: grid; gap: 0.7rem; }
+    .gyms a { display: block; background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem; color: inherit; }
+    .gyms a:hover { text-decoration: none; border-color: var(--accent); }
+    .row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+    .title { font-size: 1.05rem; font-weight: 600; color: var(--ink); }
+    .badge.machine { flex: none; font-size: 0.72rem; }
+    .blurb { color: var(--ink-2); margin: 0.35rem 0 0.5rem; font-size: 0.93rem; }
+    .skills { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .skill { font-size: 0.75rem; color: var(--ink-2); background: var(--paper-sunk); border-radius: 999px; padding: 0.12rem 0.55rem; font-family: var(--font-mono); }
+  </style>
+</Base>

@@ -26,6 +26,7 @@ from .balance import balance
 from .data import ChemData
 from .extent import solve_extent, species_mass_g, to_decimal
 from .formula import Formula, parse_formula
+from .gym import generate_gym
 from .interactive import build_interactive
 from .practice import generate_practice
 from .reaction import complete_ionic, net_ionic
@@ -271,6 +272,33 @@ def build_reference_main(argv: list[str] | None = None) -> int:
         ids.add(entry["id"])
         _write_json(root / "derived" / "reference" / f"{entry['id']}.json", entry)
         print(f"  built {path.relative_to(root).as_posix()} -> derived/reference/{entry['id']}.json")
+    return 0
+
+
+def build_gyms_main(argv: list[str] | None = None) -> int:
+    """Build the procedural gyms: gyms/**/*.gym.toml -> derived/gyms/<slug>.gym.json (Phase 1, ADR-0024)."""
+    root = Path.cwd()
+    data = ChemData.load(root)
+    specs = sorted((root / "gyms").glob("**/*.gym.toml"))
+    if not specs:
+        print("no *.gym.toml found under gyms/", file=sys.stderr)
+        return 1
+    ids: set[str] = set()
+    for path in specs:
+        spec = tomllib.loads(path.read_text(encoding="utf-8"))
+        ctx = spec.get("id", path.stem)
+        try:
+            gym = generate_gym(spec, data, ctx)
+        except BuildError as e:
+            print(f"BUILD FAILED — {e}", file=sys.stderr)
+            return 1
+        if gym["id"] in ids:
+            print(f"BUILD FAILED — duplicate gym id {gym['id']}", file=sys.stderr)
+            return 1
+        ids.add(gym["id"])
+        out_rel = f"gyms/{gym['slug']}.gym.json"
+        _write_json(root / "derived" / out_rel, gym)
+        print(f"  built {path.relative_to(root).as_posix()} -> derived/{out_rel}")
     return 0
 
 

@@ -86,9 +86,10 @@ No session ends without this checklist. Small session → short sweep; long sess
 ```
 problems/<topic>/*.problem.toml    ─┐
 reference/**/*.toml  (Atlas specs) ─┼─►  ChemKernel (uv, LOCAL)      ─►  derived/<topic>/*.solution.json
-data/elements + curated datasets   ─┘    parse + balance + PROVE +       derived/reference/*.json
-                                         ledger + units + badges +       derived/assets/**            (COMMITTED)
-                                         practice variants                    │
+gyms/**/*.gym.toml   (drill specs) ─┤    parse + balance + PROVE +       derived/reference/*.json
+data/elements + curated datasets   ─┘    ledger + units + badges +       derived/gyms/*.gym.json
+                                         practice + generated gyms        derived/assets/**            (COMMITTED)
+                                                                              │
                                              Ajv + parity + KaTeX + scan ─────┤  (fail loud)
                                                                               ▼
                                              Astro + Svelte player (steps the JSON; runs no Python)
@@ -110,6 +111,7 @@ map is the plan of record (ADR-0009):
 ```
 problems/<topic>/    AUTHORED scenario TOML (quantities, assumptions, unknowns, misconception, regime)
 reference/           AUTHORED Chemical Atlas specs (species, formulas, reactions, graph edges)
+gyms/<topic>/        AUTHORED gym specs (topic + family + seed + count) → generated drill sets (ADR-0024)
 data/                CURATED datasets (periodic table, ions, solubility, …) — versioned + sourced (ADR-0006)
 producer/            ChemKernel: uv package; src/chemkernel/*.py + tests/
 derived/             GENERATED, COMMITTED, schema-valid ChemKernel output
@@ -171,8 +173,10 @@ at its URL even though the repo is private (private/access-controlled Pages need
 
 ## Current state
 
-**Phase 0 COMPLETE (2026-07-05), pending owner review.** All eight scope items landed, verified, and
-deployed. Bootstrap docs shipped, then the full ChemKernel compute + chemistry engine: `data/` (element/ion/
+**Phase 0 COMPLETE; Phase 1 OPEN (2026-07-05).** Phase 0's eight scope items landed, verified, and deployed;
+the owner then opened Phase 1 and its **first item — the dimensional-analysis gym — landed** as the reusable
+generated-problem instrument the rest of Phase 1 inherits (ADR-0024; see the Phase-1 note below the counters).
+Bootstrap docs shipped, then the full ChemKernel compute + chemistry engine: `data/` (element/ion/
 solubility datasets, ADR-0012/0017) and the `chemkernel` package —
 `data`, `formula` (ADR-0014), `balance` (ADR-0014), `units` (ADR-0015), `extent` (species ledger, the
 ADR-0002 pivot, ADR-0016), `reaction` (dissociation + complete/net ionic, ADR-0018), `solubility` (sourced
@@ -196,16 +200,24 @@ complete ionic → net ionic (spectators Na⁺/Cl⁻), carbonate rule cited, led
 A **second lesson** (`calcium-phosphate-limiting`, post-Phase-0 within settled contracts) adds the first
 **non-1:1** reaction (`3 Ca²⁺ + 2 PO₄³⁻ → Ca₃(PO₄)₂`, 0.310 g): the `interactive`/`practice` emitters
 generalised to coefficient > 1 with no code changes, the player refutes the "fewer moles = limiting"
-misconception by **capacity** (moles ÷ coefficient), and the practice explanation teaches the same. **Counters:
-2 built + rendered lessons (with practice), 1 Valence Table + 13 cross-linked concept entries (2 rule-sourced,
-cited), 6 Node gates + CI + live Pages, 65 producer tests green.** **Phase 0 is complete end to end** — every brief-§16 definition-of-done item is met;
-**stop for owner review** before Phase 1. See [`ROADMAP.md`](./ROADMAP.md) and
+misconception by **capacity** (moles ÷ coefficient), and the practice explanation teaches the same.
+
+**Phase 1 (OPEN)** adds the **gym** content type (ADR-0024): authored `gyms/*.gym.toml` →
+`chemkernel.gym`/`build-gyms` → committed `derived/gyms/*.gym.json`, one `schemas/gym.schema.json`, the
+**`validate-gyms`** Node gate (re-derives every answer in pure Node), and a `/gym/` drill player (the
+`DimensionalGym` island reveals the unit-cancellation chain on each pick). The first family
+`solution_conversions_v1` generates 10 deterministic, units-engine-verified conversions
+(volume·molarity·moles·mass); each value is exact (non-terminating rejected) and each wrong choice is a named
+cancellation mistake. **Counters: 2 lessons + 1 dimensional-analysis gym (10 verified conversions), 1 Valence
+Table + 14 cross-linked concept entries (2 rule-sourced, cited), 7 Node gates + CI + live Pages, 70 producer
+tests green; astro build = 9 pages.** **Phase 0 remains complete end to end**; Phase 1 is now open and filling
+depth-first (items 2–6 inherit the gym instrument). See [`ROADMAP.md`](./ROADMAP.md) and
 [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
 
 ## Where this might go next (paths for a future session)
 
-Phase 0 is the only sanctioned build track until it lands and is reviewed (brief §16, ROADMAP). Done and
-tested: (a) element/ion/solubility datasets + SOURCES; (b) parser + balancer; (c) units/quantity engine;
+Phase 0 is complete and deployed; **Phase 1 is now open** (owner-opened 2026-07-05) and filling depth-first.
+Phase-0 foundations, done and tested: (a) element/ion/solubility datasets + SOURCES; (b) parser + balancer; (c) units/quantity engine;
 (d) dissociation + net-ionic transforms + solubility classifier; (e) Extent solver → species ledger; (f)
 the solution schema + `build.py` + the **five-gate** Node suite (validate-solutions, check-ledger,
 check-parity, check-katex, scan-text); (g) the **player** with **both interactives**; (h) the gate suite;
@@ -214,12 +226,15 @@ check-parity, check-katex, scan-text); (g) the **player** with **both interactiv
 entries, now **13**); (k) `docs/authoring-problems.md`; and **CI/Pages** (live at `/affinity`) — **all eight
 items landed and verified. Phase 0 is complete.**
 
-**Next is owner review** (ADR-0010 publish already done — Pages is live). After review, per ROADMAP: **Phase 1
-— the procedural core** (dimensional-analysis gym, formula/nomenclature engine, balancing engine,
-stoichiometry suite, the Valence Table flagship, reaction families) and/or the **Atlas breadth-fill**
-(more species/reactions/concept-graph edges, `docs/regime-map.md` is the coverage dashboard). Do not open
-Phase 1 scope autonomously — that is a phase boundary the owner opens. Docs-only sessions are always in
-season. **Extending Phase 0** (a second lesson, more Atlas entries) is fair game and inherits the settled
+**Phase 1 is open and filling depth-first** (ADR-0024). Item 1 (the dimensional-analysis gym) landed; the
+remaining procedural-core items each inherit the gym instrument — **item 2 formula/nomenclature engine**,
+**item 3 balancing engine**, **item 4 stoichiometry suite**, **item 5 the Valence Table flagship**, **item 6
+reaction families** (brief §17; each adds a `family` to `chemkernel.gym` and, for a new answer shape, a
+per-kind branch to `validate-gyms` — not new plumbing). The **Atlas breadth-fill** (more species/reactions/
+concept-graph edges, `docs/regime-map.md` is the coverage dashboard) runs in parallel, as does another lesson.
+Docs-only sessions are always in season. **Opening Phase 2** (the model-bearing topics — gases,
+thermochemistry, equilibrium, kinetics, electrochemistry) remains a phase boundary the owner opens.
+**Extending inside the open phases** (a new gym family, a second lesson, more Atlas entries) is fair game and inherits the settled
 contracts — a second lesson (`calcium-phosphate-limiting`) and six more concepts landed this way (2026-07-05).
 Note the `interactive`/`practice` emitters (`chemkernel.interactive`/`practice`) support single-precipitate
 double-displacement at **any** integer stoichiometry (proven on the 3:2 phosphate reaction) — other reaction

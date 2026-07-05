@@ -1,0 +1,563 @@
+{
+  "kind": "gym",
+  "id": "dimensional-analysis-solution-conversions",
+  "title": "Solution conversions: volume, molarity, moles, and mass",
+  "slug": "solution-conversions",
+  "topic": "dimensional-analysis",
+  "family": "solution_conversions_v1",
+  "seed": 4242043,
+  "blurb": "Endless generated quantity-algebra where the units do the bookkeeping. Convert between volume, molarity, moles, and mass — one conversion factor at a time — and watch the units cancel down the chain. Every answer is machine-computed and every wrong option is a specific cancellation mistake.",
+  "skills": [
+    "mL → L (÷ 1000)",
+    "volume × molarity → moles",
+    "moles ÷ molarity → volume",
+    "mass ↔ moles via molar mass",
+    "volume + molarity + molar mass → grams"
+  ],
+  "reference_links": [
+    "dimensional-analysis",
+    "molarity",
+    "molar-mass"
+  ],
+  "problems": [
+    {
+      "kind": "volume_molarity_to_moles",
+      "prompt": "How many moles of CaCl2 are in 50 mL of 0.2 M CaCl2(aq)?",
+      "chain": [
+        {
+          "value": "50",
+          "unit": "mL",
+          "note": "given volume"
+        },
+        {
+          "value": "0.05",
+          "unit": "L",
+          "note": "× (1 L / 1000 mL)"
+        },
+        {
+          "value": "0.01",
+          "unit": "mol",
+          "note": "× 0.2 mol/L"
+        }
+      ],
+      "target_unit": "mol",
+      "answer": {
+        "value": "0.01",
+        "unit": "mol",
+        "display": "0.01 mol"
+      },
+      "derivation": {
+        "kind": "volume_molarity_to_moles",
+        "inputs": {
+          "substance": "CaCl2",
+          "v_mL": "50",
+          "c_M": "0.2"
+        }
+      },
+      "choices": [
+        {
+          "display": "0.01 mol",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "10 mol",
+          "correct": false,
+          "misconception": "Skipped mL → L — the volume must be in litres before multiplying by mol/L (a factor of 1000)."
+        },
+        {
+          "display": "0.25 mol",
+          "correct": false,
+          "misconception": "Divided the volume by the molarity; the factor is × mol/L, and L × mol/L = mol."
+        }
+      ],
+      "explain": "50 mL = 0.05 L; × 0.2 mol/L = 0.01 mol. The litres cancel against mol/L, leaving mol.",
+      "id": "q1"
+    },
+    {
+      "kind": "moles_molarity_to_volume",
+      "prompt": "What volume (in mL) of 0.5 M NaCl(aq) contains 0.0075 mol of NaCl?",
+      "chain": [
+        {
+          "value": "0.0075",
+          "unit": "mol",
+          "note": "given amount"
+        },
+        {
+          "value": "0.015",
+          "unit": "L",
+          "note": "÷ 0.5 mol/L"
+        },
+        {
+          "value": "15",
+          "unit": "mL",
+          "note": "× (1000 mL / 1 L)"
+        }
+      ],
+      "target_unit": "mL",
+      "answer": {
+        "value": "15",
+        "unit": "mL",
+        "display": "15 mL"
+      },
+      "derivation": {
+        "kind": "moles_molarity_to_volume",
+        "inputs": {
+          "substance": "NaCl",
+          "n_mol": "0.0075",
+          "c_M": "0.5"
+        }
+      },
+      "choices": [
+        {
+          "display": "15 mL",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "0.015 mL",
+          "correct": false,
+          "misconception": "Left the answer in litres — the L → mL step (× 1000) was skipped."
+        },
+        {
+          "display": "3.75 mL",
+          "correct": false,
+          "misconception": "Multiplied by the molarity instead of dividing; to undo mol/L you divide."
+        }
+      ],
+      "explain": "0.0075 mol ÷ 0.5 mol/L = 0.015 L; × 1000 = 15 mL. Dividing by mol/L cancels the moles and leaves litres.",
+      "id": "q2"
+    },
+    {
+      "kind": "mass_to_moles",
+      "prompt": "How many moles are in 16.6467 g of CaCl2?  (M = 110.978 g/mol)",
+      "chain": [
+        {
+          "value": "16.6467",
+          "unit": "g",
+          "note": "given mass"
+        },
+        {
+          "value": "0.15",
+          "unit": "mol",
+          "note": "÷ 110.978 g/mol"
+        }
+      ],
+      "target_unit": "mol",
+      "answer": {
+        "value": "0.15",
+        "unit": "mol",
+        "display": "0.15 mol"
+      },
+      "derivation": {
+        "kind": "mass_to_moles",
+        "inputs": {
+          "substance": "CaCl2",
+          "m_g": "16.6467",
+          "molar_mass_g_per_mol": "110.978"
+        }
+      },
+      "choices": [
+        {
+          "display": "0.15 mol",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "1847 mol",
+          "correct": false,
+          "misconception": "Multiplied by the molar mass instead of dividing; g ÷ (g/mol) = mol."
+        },
+        {
+          "display": "6.667 mol",
+          "correct": false,
+          "misconception": "Inverted the factor — divided the molar mass by the mass."
+        }
+      ],
+      "explain": "16.6467 g ÷ 110.978 g/mol = 0.15 mol. Grams over grams-per-mole leaves moles.",
+      "id": "q3"
+    },
+    {
+      "kind": "moles_to_mass",
+      "prompt": "What is the mass of 0.1 mol of NaCl?  (M = 58.44 g/mol)",
+      "chain": [
+        {
+          "value": "0.1",
+          "unit": "mol",
+          "note": "given amount"
+        },
+        {
+          "value": "5.844",
+          "unit": "g",
+          "note": "× 58.44 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "5.844",
+        "unit": "g",
+        "display": "5.844 g"
+      },
+      "derivation": {
+        "kind": "moles_to_mass",
+        "inputs": {
+          "substance": "NaCl",
+          "n_mol": "0.1",
+          "molar_mass_g_per_mol": "58.44"
+        }
+      },
+      "choices": [
+        {
+          "display": "5.844 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "0.001711 g",
+          "correct": false,
+          "misconception": "Divided by the molar mass instead of multiplying; mol × (g/mol) = g."
+        },
+        {
+          "display": "58.44 g",
+          "correct": false,
+          "misconception": "Reported the molar mass — that is the mass of exactly 1 mol, not 0.1 mol."
+        }
+      ],
+      "explain": "0.1 mol × 58.44 g/mol = 5.844 g. Moles times grams-per-mole leaves grams.",
+      "id": "q4"
+    },
+    {
+      "kind": "volume_molarity_to_mass",
+      "prompt": "What mass of Na2CO3 is in 40 mL of 0.25 M Na2CO3(aq)?  (M = 105.988 g/mol)",
+      "chain": [
+        {
+          "value": "40",
+          "unit": "mL",
+          "note": "given volume"
+        },
+        {
+          "value": "0.04",
+          "unit": "L",
+          "note": "× (1 L / 1000 mL)"
+        },
+        {
+          "value": "0.01",
+          "unit": "mol",
+          "note": "× 0.25 mol/L"
+        },
+        {
+          "value": "1.05988",
+          "unit": "g",
+          "note": "× 105.988 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "1.05988",
+        "unit": "g",
+        "display": "1.05988 g"
+      },
+      "derivation": {
+        "kind": "volume_molarity_to_mass",
+        "inputs": {
+          "substance": "Na2CO3",
+          "v_mL": "40",
+          "c_M": "0.25",
+          "molar_mass_g_per_mol": "105.988"
+        }
+      },
+      "choices": [
+        {
+          "display": "1.05988 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "1060 g",
+          "correct": false,
+          "misconception": "Skipped mL → L, so the moles (and the mass) came out 1000× too large."
+        },
+        {
+          "display": "0.01 g",
+          "correct": false,
+          "misconception": "Stopped at moles — the amount was never multiplied by the molar mass to reach grams."
+        }
+      ],
+      "explain": "40 mL = 0.04 L; × 0.25 mol/L = 0.01 mol; × 105.988 g/mol = 1.05988 g.",
+      "id": "q5"
+    },
+    {
+      "kind": "volume_molarity_to_moles",
+      "prompt": "How many moles of Na2CO3 are in 30 mL of 0.05 M Na2CO3(aq)?",
+      "chain": [
+        {
+          "value": "30",
+          "unit": "mL",
+          "note": "given volume"
+        },
+        {
+          "value": "0.03",
+          "unit": "L",
+          "note": "× (1 L / 1000 mL)"
+        },
+        {
+          "value": "0.0015",
+          "unit": "mol",
+          "note": "× 0.05 mol/L"
+        }
+      ],
+      "target_unit": "mol",
+      "answer": {
+        "value": "0.0015",
+        "unit": "mol",
+        "display": "0.0015 mol"
+      },
+      "derivation": {
+        "kind": "volume_molarity_to_moles",
+        "inputs": {
+          "substance": "Na2CO3",
+          "v_mL": "30",
+          "c_M": "0.05"
+        }
+      },
+      "choices": [
+        {
+          "display": "0.0015 mol",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "1.5 mol",
+          "correct": false,
+          "misconception": "Skipped mL → L — the volume must be in litres before multiplying by mol/L (a factor of 1000)."
+        },
+        {
+          "display": "0.6 mol",
+          "correct": false,
+          "misconception": "Divided the volume by the molarity; the factor is × mol/L, and L × mol/L = mol."
+        }
+      ],
+      "explain": "30 mL = 0.03 L; × 0.05 mol/L = 0.0015 mol. The litres cancel against mol/L, leaving mol.",
+      "id": "q6"
+    },
+    {
+      "kind": "moles_molarity_to_volume",
+      "prompt": "What volume (in mL) of 0.05 M Na3PO4(aq) contains 0.002 mol of Na3PO4?",
+      "chain": [
+        {
+          "value": "0.002",
+          "unit": "mol",
+          "note": "given amount"
+        },
+        {
+          "value": "0.04",
+          "unit": "L",
+          "note": "÷ 0.05 mol/L"
+        },
+        {
+          "value": "40",
+          "unit": "mL",
+          "note": "× (1000 mL / 1 L)"
+        }
+      ],
+      "target_unit": "mL",
+      "answer": {
+        "value": "40",
+        "unit": "mL",
+        "display": "40 mL"
+      },
+      "derivation": {
+        "kind": "moles_molarity_to_volume",
+        "inputs": {
+          "substance": "Na3PO4",
+          "n_mol": "0.002",
+          "c_M": "0.05"
+        }
+      },
+      "choices": [
+        {
+          "display": "40 mL",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "0.04 mL",
+          "correct": false,
+          "misconception": "Left the answer in litres — the L → mL step (× 1000) was skipped."
+        },
+        {
+          "display": "0.1 mL",
+          "correct": false,
+          "misconception": "Multiplied by the molarity instead of dividing; to undo mol/L you divide."
+        }
+      ],
+      "explain": "0.002 mol ÷ 0.05 mol/L = 0.04 L; × 1000 = 40 mL. Dividing by mol/L cancels the moles and leaves litres.",
+      "id": "q7"
+    },
+    {
+      "kind": "mass_to_moles",
+      "prompt": "How many moles are in 2.6497 g of Na2CO3?  (M = 105.988 g/mol)",
+      "chain": [
+        {
+          "value": "2.6497",
+          "unit": "g",
+          "note": "given mass"
+        },
+        {
+          "value": "0.025",
+          "unit": "mol",
+          "note": "÷ 105.988 g/mol"
+        }
+      ],
+      "target_unit": "mol",
+      "answer": {
+        "value": "0.025",
+        "unit": "mol",
+        "display": "0.025 mol"
+      },
+      "derivation": {
+        "kind": "mass_to_moles",
+        "inputs": {
+          "substance": "Na2CO3",
+          "m_g": "2.6497",
+          "molar_mass_g_per_mol": "105.988"
+        }
+      },
+      "choices": [
+        {
+          "display": "0.025 mol",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "280.8 mol",
+          "correct": false,
+          "misconception": "Multiplied by the molar mass instead of dividing; g ÷ (g/mol) = mol."
+        },
+        {
+          "display": "40 mol",
+          "correct": false,
+          "misconception": "Inverted the factor — divided the molar mass by the mass."
+        }
+      ],
+      "explain": "2.6497 g ÷ 105.988 g/mol = 0.025 mol. Grams over grams-per-mole leaves moles.",
+      "id": "q8"
+    },
+    {
+      "kind": "moles_to_mass",
+      "prompt": "What is the mass of 0.01 mol of Na2CO3?  (M = 105.988 g/mol)",
+      "chain": [
+        {
+          "value": "0.01",
+          "unit": "mol",
+          "note": "given amount"
+        },
+        {
+          "value": "1.05988",
+          "unit": "g",
+          "note": "× 105.988 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "1.05988",
+        "unit": "g",
+        "display": "1.05988 g"
+      },
+      "derivation": {
+        "kind": "moles_to_mass",
+        "inputs": {
+          "substance": "Na2CO3",
+          "n_mol": "0.01",
+          "molar_mass_g_per_mol": "105.988"
+        }
+      },
+      "choices": [
+        {
+          "display": "1.05988 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "0.00009435 g",
+          "correct": false,
+          "misconception": "Divided by the molar mass instead of multiplying; mol × (g/mol) = g."
+        },
+        {
+          "display": "106 g",
+          "correct": false,
+          "misconception": "Reported the molar mass — that is the mass of exactly 1 mol, not 0.01 mol."
+        }
+      ],
+      "explain": "0.01 mol × 105.988 g/mol = 1.05988 g. Moles times grams-per-mole leaves grams.",
+      "id": "q9"
+    },
+    {
+      "kind": "volume_molarity_to_mass",
+      "prompt": "What mass of Na3PO4 is in 50 mL of 0.05 M Na3PO4(aq)?  (M = 163.94 g/mol)",
+      "chain": [
+        {
+          "value": "50",
+          "unit": "mL",
+          "note": "given volume"
+        },
+        {
+          "value": "0.05",
+          "unit": "L",
+          "note": "× (1 L / 1000 mL)"
+        },
+        {
+          "value": "0.0025",
+          "unit": "mol",
+          "note": "× 0.05 mol/L"
+        },
+        {
+          "value": "0.40985",
+          "unit": "g",
+          "note": "× 163.94 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "0.40985",
+        "unit": "g",
+        "display": "0.40985 g"
+      },
+      "derivation": {
+        "kind": "volume_molarity_to_mass",
+        "inputs": {
+          "substance": "Na3PO4",
+          "v_mL": "50",
+          "c_M": "0.05",
+          "molar_mass_g_per_mol": "163.94"
+        }
+      },
+      "choices": [
+        {
+          "display": "0.40985 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "409.9 g",
+          "correct": false,
+          "misconception": "Skipped mL → L, so the moles (and the mass) came out 1000× too large."
+        },
+        {
+          "display": "0.0025 g",
+          "correct": false,
+          "misconception": "Stopped at moles — the amount was never multiplied by the molar mass to reach grams."
+        }
+      ],
+      "explain": "50 mL = 0.05 L; × 0.05 mol/L = 0.0025 mol; × 163.94 g/mol = 0.40985 g.",
+      "id": "q10"
+    }
+  ],
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights"
+    }
+  }
+}

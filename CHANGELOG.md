@@ -3,6 +3,34 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 1 — 2026-07-05 — OPEN: the dimensional-analysis gym (a generated-problem instrument)
+
+- **Phase 1 opened** by the owner ("the more problems we solve, the easier filling in granular lessons
+  later"). **Item 1 — the dimensional-analysis gym — landed** as the reusable generated-problem instrument
+  the rest of Phase 1 inherits (ADR-0024).
+- **New content type: the gym.** Authored `gyms/**/*.gym.toml` → `chemkernel.gym.generate_gym` → committed
+  `derived/gyms/<slug>.gym.json` via a new **`build-gyms`** entry point (`npm run produce` now runs all three
+  builders). Deterministic in the seed; every value exact `Fraction` (non-terminating candidates rejected);
+  every conversion's dimensions **re-checked through the units engine** so the emitted cancellation chain is
+  machine-certified homogeneous; every wrong choice a **named cancellation mistake**.
+- **First family `solution_conversions_v1`:** 10 problems across five kinds — volume·molarity→moles,
+  moles·molarity→volume, mass↔moles, and the two-step volume·molarity·molar-mass→grams — over recognizable
+  salts whose molar mass comes from `data/` (sourced).
+- **Schema + gate:** one `schemas/gym.schema.json` (draft 2020-12, `additionalProperties:false`) and
+  **`validate-gyms.mjs`** — the 7th Node gate — which re-derives every answer in pure Node from raw inputs,
+  and checks the choice invariants (one correct, distinct displays, chain ends at the answer, molar-mass
+  consistency).
+- **Player:** a `/gym/` section (index + per-gym page) and the `DimensionalGym.svelte` drill island — pick an
+  answer and it reveals the **cancellation chain** step by step, the worked explanation, and (for a wrong
+  pick) exactly which cancellation mistake it was. **Gym** added to the nav; concept chips link into the
+  Atlas (incl. a new `dimensional-analysis` concept).
+- **70 producer tests** (+5 gym: shape/kind-coverage, exact re-derivation, terminating answers, determinism,
+  unknown-family refusal) + **7 gates** (validate-gyms = 10 problems) + **`astro build` (9 pages)** all green.
+  In-browser: the gym page renders the drill, badges, and Atlas chips; the drill's click interaction is the
+  proven `PracticeQuestion` pattern (this preview session couldn't dispatch Svelte-5 delegated clicks — the
+  lesson tabs were equally unresponsive — so live-click was confirmed by pattern parity + the data gates, not
+  a fresh click).
+
 ## Post-Phase-0 — 2026-07-05 — a second lesson (non-unit stoichiometry) + Atlas breadth
 
 - **Second full lesson** `precipitation/calcium-phosphate-limiting` — 30.0 mL 0.100 M CaCl₂ + 25.0 mL

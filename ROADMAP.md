@@ -48,6 +48,15 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   `balancing-equations`) and the **Valence Table** gained the phosphate salts (Ca₃(PO₄)₂, Na₃PO₄ by crossover).
   **2 lessons, 1 Valence Table + 13 concepts, 6 gates + CI + live Pages, 65 producer tests + astro build
   (7 pages).** Phase 1 is still the owner's to open.
+- **Phase 1 — the procedural core — OPEN (2026-07-05).** Owner opened Phase 1 to build problem-generation
+  infrastructure ("the more problems we solve, the easier filling in granular lessons later"). **Item 1 —
+  the dimensional-analysis gym — landed** end to end as the reusable generated-problem instrument (ADR-0024):
+  authored `gyms/*.gym.toml` → `chemkernel.gym`/`build-gyms` → `derived/gyms/*.gym.json`, `gym.schema.json`,
+  the **`validate-gyms`** gate (now **7 gates**), and a `/gym/` drill player. First family
+  `solution_conversions_v1`: 10 deterministic, units-engine-verified conversions (volume·molarity·moles·mass),
+  each answer re-derived in pure Node, each wrong choice a named cancellation mistake. **70 producer tests +
+  7 gates + astro build (9 pages) + live Pages.** Items 2–6 (nomenclature, balancing, stoichiometry, the
+  Valence Table flagship, reaction families) inherit the instrument.
 
 ---
 
@@ -103,18 +112,29 @@ with immediate diagnosis → click Ca in the table and see why Ca²⁺ is the co
 see how `CaCO3` follows from charge balance → watch the misconceptions fail. All gates green; deployed
 static build. **Then stop for owner review; publish (ADR-0010) is the owner's call.**
 
-## Phase 1 — the procedural core (map, post-review)
+## Phase 1 — the procedural core (OPEN 2026-07-05)
 
 Items and order per brief §17; this roadmap groups them into two tiers — the procedural core here (brief
 items 1–6), the model-bearing topics as Phase 2+ (brief items 7–10) — so each phase ends at a reviewable
 boundary. Each item opens with its stress scenario and gets its own scope block when its phase opens:
 
-1. **Dimensional analysis gym** — endless generated quantity-algebra with visible unit cancellation.
+1. **Dimensional analysis gym** — endless generated quantity-algebra with visible unit cancellation. **← LANDED**
 2. **Formula & nomenclature engine** — ions, charges, compounds, acids, polyatomics, both directions.
 3. **Balancing engine** — inspection mode, conservation-matrix view, misconception modes; redox preview.
 4. **Stoichiometry suite** — mass/volume/solution/particle stoich, limiting reagent, percent yield.
 5. **Valence Table flagship** — lenses, trend mode, formula mode, bonding mode, practice mode (brief §8).
 6. **Reaction families** — precipitation, acid-base, gas evolution, combustion, redox (Atlas-backed).
+
+**Item 1 — Dimensional analysis gym — LANDED (2026-07-05).** Opened Phase 1 by building the reusable
+**gym instrument** (ADR-0024), stress-scenario = solution/mass conversions (volume·molarity·moles·mass):
+`chemkernel.gym.generate_gym` + the `build-gyms` entry point → committed `derived/gyms/<slug>.gym.json`, one
+`schemas/gym.schema.json`, the `validate-gyms.mjs` Node gate (re-derives every answer in pure Node), and a
+`/gym/` player with the `DimensionalGym` drill island (reveals the cancellation chain on each pick). The first
+family `solution_conversions_v1` generates 10 deterministic problems across five kinds; each value is exact
+(non-terminating candidates rejected), each conversion's dimensions are re-checked through the units engine,
+and each wrong choice is a named cancellation mistake. **Items 2–6 inherit this instrument** — a new item adds
+a `family` to `generate_gym` (and a per-kind branch to `validate-gyms` when a new answer shape appears), not a
+new pipeline.
 
 ## Phase 2+ — the model-bearing topics (sketch)
 

@@ -8,7 +8,7 @@ dashboard; phases are defined in [`ROADMAP.md`](../ROADMAP.md).
 
 | Topic | Regimes | Phase | Status |
 |---|---|---|---|
-| measurement, units, dimensional analysis | 1 | 1 | — |
+| measurement, units, dimensional analysis | 1 | **1** | **gym** (solution conversions) + atlas (dimensional-analysis concept) |
 | atoms, isotopes, average atomic mass | 1, 3 | 1 | — |
 | mole concept & molar mass | 1, 3 | 1 | atlas (molar-mass concept) |
 | ions & formula writing | 1, 3 | 1 | atlas (Valence Table — charge-balance formulas; polyatomic-ion concept) |
