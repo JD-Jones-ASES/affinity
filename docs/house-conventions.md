@@ -30,14 +30,17 @@ marked *(open)* are settled in Phase 0 alongside the architecture open-questions
 - Solubility calls always cite the specific rule applied, from the curated ruleset in `data/` *(open:
   encoding — architecture Q6)*.
 - Spectator ions are shown canceling, never vanishing (particle view + complete ionic equation).
-- Atomic masses come only from the `data/` element dataset at its stated precision *(open: dataset —
-  ADR-0006)*; no hand-typed molar masses anywhere, including prose.
+- Atomic masses come only from the `data/` element dataset (ADR-0012) at its stated precision; no
+  hand-typed molar masses anywhere, including prose. Enforced in code: `chemkernel.data` is the only
+  source of atomic weights, and it reads them from `data/elements.toml`.
 
-## Significant figures *(open — architecture Q7)*
+## Numeric representation & significant figures
 
-Computation exact; display rounded. Working default until the ADR: carry exact values in the ledger,
-render 3 significant figures for derived results, and echo given-value precision. The practice generator
-must never produce items whose correctness hinges on ambiguous rounding.
+Computation is **exact and never float** (ADR-0013): `Decimal` for masses/amounts, exact rationals for
+balancing. Display rounding is a separate, emit-time concern. Display sig-fig policy is still provisional
+*(open — architecture Q7)*: working default is to carry exact values in the ledger, render 3 significant
+figures for derived results, and echo given-value precision. The practice generator must never produce
+items whose correctness hinges on ambiguous rounding.
 
 ## Naming
 

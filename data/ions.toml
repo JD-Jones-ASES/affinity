@@ -1,0 +1,98 @@
+# Curated ion dataset (ADR-0006, ADR-0012). Common monatomic + polyatomic ions.
+#
+# Ion charges are conventional teaching facts (regime 3) — source `openstax-chemistry-2e` (CC BY 4.0),
+# see docs/SOURCES.md. The `formula` field is the composition only (no charge); `charge` is the sourced
+# datum. data.py verifies at load that every formula parses and is built from elements in elements.toml,
+# so the composition of each ion is machine-checked even though the charge is sourced.
+#
+# Table keys are the species id in the house caret charge form (house-conventions §Notation), quoted
+# because `^`/`+` are not TOML bare-key characters.
+
+charge_source = "openstax-chemistry-2e"
+
+# --- monatomic ions (element links back to elements.toml) ---
+
+[ions."H^+"]
+formula = "H"
+charge = 1
+name = "hydrogen ion"
+kind = "monatomic"
+element = "H"
+
+[ions."Na^+"]
+formula = "Na"
+charge = 1
+name = "sodium ion"
+kind = "monatomic"
+element = "Na"
+
+[ions."Ca^2+"]
+formula = "Ca"
+charge = 2
+name = "calcium ion"
+kind = "monatomic"
+element = "Ca"
+
+[ions."Cl^-"]
+formula = "Cl"
+charge = -1
+name = "chloride"
+kind = "monatomic"
+element = "Cl"
+
+[ions."O^2-"]
+formula = "O"
+charge = -2
+name = "oxide"
+kind = "monatomic"
+element = "O"
+
+# --- polyatomic ions ---
+
+[ions."OH^-"]
+formula = "OH"
+charge = -1
+name = "hydroxide"
+kind = "polyatomic"
+
+[ions."NH4^+"]
+formula = "NH4"
+charge = 1
+name = "ammonium"
+kind = "polyatomic"
+
+[ions."NO3^-"]
+formula = "NO3"
+charge = -1
+name = "nitrate"
+kind = "polyatomic"
+
+[ions."CO3^2-"]
+formula = "CO3"
+charge = -2
+name = "carbonate"
+kind = "polyatomic"
+
+[ions."HCO3^-"]
+formula = "HCO3"
+charge = -1
+name = "hydrogen carbonate"
+kind = "polyatomic"
+
+[ions."SO4^2-"]
+formula = "SO4"
+charge = -2
+name = "sulfate"
+kind = "polyatomic"
+
+[ions."PO4^3-"]
+formula = "PO4"
+charge = -3
+name = "phosphate"
+kind = "polyatomic"
+
+[ions."C2H3O2^-"]
+formula = "C2H3O2"
+charge = -1
+name = "acetate"
+kind = "polyatomic"

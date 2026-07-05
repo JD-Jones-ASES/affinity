@@ -168,20 +168,23 @@ committed `derived/`. The repo is **private** until the owner calls the Phase 0 
 
 ## Current state
 
-**Bootstrap (2026-07-05).** Documentation and repo infrastructure only — no code, no content yet. The doc
-set is the contract for Phase 0: [`ROADMAP.md`](./ROADMAP.md) has the phase plan (Phase 0 = the
-precipitation vertical slice, then STOP for review), [`DECISIONS.md`](./DECISIONS.md) has the eleven
-founding ADRs, [`docs/architecture.md`](./docs/architecture.md) has the ChemKernel design and its open
-questions.
-Counters: 0 lessons, 0 Atlas entries, 0 gates, 0 tests.
+**Phase 0 in progress (opened 2026-07-05).** Bootstrap docs shipped, then the ChemKernel foundation: the
+curated `data/` datasets (ADR-0012), and the `chemkernel` producer package's first three modules — `data`
+(loader + molar mass + self-check), `formula` (parser, ADR-0014), `balance` (balancer, ADR-0014) — with
+exact Decimal/rational arithmetic (ADR-0013). **Counters: 0 lessons, 0 Atlas entries, 0 gates, 23 producer
+tests green.** No `build.py`, schema, or Node gates yet — the modules are a library. See
+[`ROADMAP.md`](./ROADMAP.md) for what remains in Phase 0 and [`docs/architecture.md`](./docs/architecture.md)
+(§as-built) for module status.
 
 ## Where this might go next (paths for a future session)
 
-Phase 0 is the only sanctioned build track until it lands and is reviewed (brief §16, ROADMAP). Within it,
-natural session-sized units: (a) resolve the element-dataset ADR and land `data/` + SOURCES entries; (b)
-ChemKernel core: formula parser + balancer + tests; (c) extent solver + ledger emission + schema; (d) Node
-gates + CI; (e) player + the two Phase 0 interactives; (f) practice generator + misconception register;
-(g) authoring guides once formats stabilize. Docs-only sessions (sweeps, planning) are always in season.
+Phase 0 is the only sanctioned build track until it lands and is reviewed (brief §16, ROADMAP). Done: (a)
+element/ion datasets + SOURCES; (b) formula parser + balancer + tests. Natural next session-sized units:
+(c) units/dimensional-analysis engine (adapt the sibling's `dims.py` — SI 7-vector, add `L` and `M`);
+(d) dissociation transformer + net-ionic reducer (needs the solubility ruleset, architecture Q6); (e)
+Extent solver → species ledger; (f) solution schema + Node gates + CI; (g) player + the two interactives;
+(h) practice generator + misconception register; (i) authoring guides once formats stabilize. Docs-only
+sessions (sweeps, planning) are always in season.
 
 **Known traps (1 and 2 bit the sibling; 3 and 4 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested

@@ -1,0 +1,92 @@
+# Curated element dataset (ADR-0006, ADR-0012). ChemKernel reads empirical constants ONLY from here.
+#
+# Atomic weights are the IUPAC/CIAAW *abridged* standard atomic weights (Atomic Weights 2021 report,
+# table revised 2024) — see docs/SOURCES.md id `ciaaw-2021-atomic-weights`. The values are scientific
+# facts (not copyrightable); CIAAW is cited as the authority + access date. Stored as strings and read as
+# Decimal so precision/sig-figs survive and no float ever enters the pipeline (ADR-0013).
+#
+# Group/period/block are the definitional IUPAC periodic-table positions — source `iupac-periodic-table`.
+#
+# N, S, P are included beyond the six Phase-0 elements so every ion in ions.toml is composed of known
+# elements (the load-time self-check in data.py depends on this).
+
+source = "ciaaw-2021-atomic-weights"
+position_source = "iupac-periodic-table"
+
+[elements.H]
+Z = 1
+name = "hydrogen"
+atomic_weight = "1.0080"
+uncertainty = "0.0002"
+group = 1
+period = 1
+block = "s"
+
+[elements.C]
+Z = 6
+name = "carbon"
+atomic_weight = "12.011"
+uncertainty = "0.002"
+group = 14
+period = 2
+block = "p"
+
+[elements.N]
+Z = 7
+name = "nitrogen"
+atomic_weight = "14.007"
+group = 15
+period = 2
+block = "p"
+
+[elements.O]
+Z = 8
+name = "oxygen"
+atomic_weight = "15.999"
+uncertainty = "0.001"
+group = 16
+period = 2
+block = "p"
+
+[elements.Na]
+Z = 11
+name = "sodium"
+atomic_weight = "22.990"
+uncertainty = "0.001"
+group = 1
+period = 3
+block = "s"
+
+[elements.P]
+Z = 15
+name = "phosphorus"
+atomic_weight = "30.974"
+group = 15
+period = 3
+block = "p"
+
+[elements.S]
+Z = 16
+name = "sulfur"
+atomic_weight = "32.06"
+group = 16
+period = 3
+block = "p"
+
+[elements.Cl]
+Z = 17
+name = "chlorine"
+atomic_weight = "35.45"
+uncertainty = "0.01"
+group = 17
+period = 3
+block = "p"
+
+[elements.Ca]
+Z = 20
+name = "calcium"
+atomic_weight = "40.078"
+uncertainty = "0.004"
+group = 2
+period = 4
+block = "s"

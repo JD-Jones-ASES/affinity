@@ -175,3 +175,58 @@ share state with the symbolic solution — no disconnected animations, no fake m
 
 **Consequences.** Authoring specs declare static/interactive per visualization and the choice is
 reviewable. Interactive candidates in the brief (§9, §14) are the whitelist to start from.
+
+## ADR-0012 — Element & ion datasets: CIAAW + OpenStax, authored as TOML under `data/` (2026-07-05)
+
+**Context.** ADR-0006 deferred the element-dataset choice (source, precision, file format, entry shape) to
+the first Phase 0 data session; the parser's molar mass and the periodic-table lens both block on it, and
+every value must be badge-traceable (ADR-0003) — resolves architecture open-question Q1.
+
+**Decision.** Three sourced datasets, each registered in `docs/SOURCES.md` before use: atomic weights are
+the **IUPAC/CIAAW abridged standard atomic weights** (Atomic Weights 2021, table rev. 2024; the numeric
+values are scientific facts, CIAAW cited as authority + access date); group/period/block are the
+definitional **IUPAC periodic-table** positions; common monatomic and polyatomic ion **charges** are
+conventional teaching facts from **OpenStax Chemistry 2e** (CC BY 4.0). Format is **TOML under `data/`**
+(consistent with authored specs, `tomllib` read-only): `data/elements.toml` (nine elements — the six
+Phase 0 plus N, S, P so every ion is composed of known elements) and `data/ions.toml` (thirteen ions).
+Atomic weights are stored as strings, read as `Decimal`. `data.py` machine-checks the dataset on load —
+every ion formula must parse and be built from known elements — so ion *composition* is regime-1 verified
+even though ion *charge* is regime-3 sourced.
+
+**Consequences.** ChemKernel reads empirical constants only from `data/` (ADR-0006 honored). Extending the
+periodic table = adding rows + a SOURCES entry; no code change. Electronegativity, radii, and ionization
+energies (a NIST-class source) are deferred until a lesson needs them.
+
+## ADR-0013 — Exact numeric representation inside ChemKernel: never float (2026-07-05)
+
+**Context.** Chemistry arithmetic (molar mass, balancing coefficients, extent, leftovers) must be exact
+and reproducible byte-for-byte in committed `derived/` and re-checkable by the Node parity gate — resolves
+architecture open-question Q2. Floats would introduce rounding noise and non-determinism.
+
+**Decision.** No `float` anywhere in the pipeline. Molar masses and other decimal quantities use
+`decimal.Decimal` (seeded from dataset strings, preserving stated precision); balancing uses exact
+rational arithmetic (SymPy `Rational` null space → integers via LCM/GCD). Computation is exact; rounding is
+a display concern only, applied at emit time per the sig-fig policy (house-conventions). Emitted JSON will
+carry exact values as strings (mirroring the sibling's §12 sketch) so nothing is lost to float.
+
+**Consequences.** Reproducible builds and a checkable parity contract. Display rounding is separated from
+computation; the practice generator must avoid items whose answer hinges on ambiguous rounding (Q7).
+
+## ADR-0014 — Formula parser grammar v0 + balancer via rational null space (2026-07-05)
+
+**Context.** ADR-0008 fixed the balancer as "conservation matrix → smallest integer coefficients" but not
+the parser's accepted grammar or the exact solving method — resolves architecture open-question Q3.
+
+**Decision.** Parser grammar v0 accepts elements `[A-Z][a-z]?`, integer subscripts, nested `(...)` groups
+with subscripts, a trailing caret charge (`^2-`, `^+`, …), and an optional trailing phase `(s|l|g|aq)`.
+Hydrates (`·`) and isotopes are **out of scope for v0** (revisit when a lesson needs them). The parser is
+pure (no data). The balancer builds the element-plus-charge conservation matrix (reactants +, products −),
+takes the SymPy rational null space, and requires it to be exactly **one-dimensional** — a zero- or
+multi-dimensional space raises `BuildError` (unbalanceable or ambiguous). The single solution is scaled to
+smallest positive integers and then **re-verified element-by-element and for charge** before return.
+Subscripts are never mutated; only coefficients are chosen.
+
+**Consequences.** The Phase 0 scenario balances to `[1,1,1,2]` and the net ionic `Ca^2+ + CO3^2- → CaCO3(s)`
+to `[1,1,1]` (charge row load-bearing). 23 producer tests cover parser, dataset, and balancer with
+independent hand-checked values. The "do not change subscripts" misconception mode (brief §13.3) is a
+natural extension since the engine structurally cannot touch subscripts.

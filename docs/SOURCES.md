@@ -27,18 +27,20 @@ the **model-assumed** badge.
 
 | Source id | Points to | Method/covers | Version & license | Notes |
 |---|---|---|---|---|
-| _(none yet — Phase 0 ships the element dataset and solubility ruleset)_ | | | | |
+| `ciaaw-2021-atomic-weights` | `data/elements.toml` atomic weights | `cited` | IUPAC/CIAAW abridged standard atomic weights, Atomic Weights 2021 report (table rev. 2024). Values are scientific facts (not copyrightable, Feist); © CIAAW 2007–2024 covers presentation only | accessed 2026-07-05 · https://www.ciaaw.org/abridged-atomic-weights.htm |
+| `iupac-periodic-table` | `data/elements.toml` group/period/block | `cited` | IUPAC periodic table (definitional element positions) | structural facts; used to place elements on the Valence Table |
+| `openstax-chemistry-2e` | `data/ions.toml` ion charges | `cited` | OpenStax *Chemistry 2e*, CC BY 4.0 | common monatomic + polyatomic ion charges (universal teaching facts); ion *composition* is separately machine-checked in `data.py` |
 
-## Element-dataset candidates (decide in first Phase 0 data session → ADR; see ADR-0006)
+## Element-dataset decision (RESOLVED — ADR-0012)
 
-- **IUPAC/CIAAW** — the authority for standard atomic weights (some published as intervals; the ADR must
-  pick a convention for interval → display value). Verify current recommended values + terms at decision
-  time.
-- **NIST** — physical properties (ionization energies, radii, densities); US-government data, public
-  domain.
-- A vetted open compilation (e.g. community periodic-table JSON datasets) may be acceptable for display
-  metadata (names, categories, blocks) **only** with license verified and values spot-checked against the
-  authorities above; load-bearing numbers come from the authorities.
+Atomic weights come from **IUPAC/CIAAW** (abridged standard values, using the abridged single value rather
+than the published interval), positions from the **IUPAC periodic table**, ion charges from **OpenStax
+Chemistry 2e** (CC BY 4.0). All three registered above. Still deferred until a lesson needs them:
+
+- **NIST** — physical properties (ionization energies, radii, densities, electronegativity); US-government
+  data, public domain. Register when the periodic-trends lens or bonding content lands.
+- The **solubility ruleset** (regime 3) for the net-ionic transformer — its own source + encoding
+  (architecture Q6), landing with the dissociation/net-ionic module.
 
 ## Conventions for adding an entry
 
