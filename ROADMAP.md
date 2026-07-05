@@ -33,9 +33,9 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   at `/affinity`; repo stays private on the owner's Educator plan, ADR-0010). **57 producer tests + 5 Node
   gates + CI + live Pages green.** The **Chemical Atlas** now exists too (item 7): the Valence Table periodic
   lens (click an element for its common ion; click a polyatomic to see neutral formulas fall out of charge
-  balance — the four lesson salts assembled by crossover and machine-verified) + two cross-linked concept
-  entries, gated by `validate-reference`. **62 producer tests + 6 Node gates + astro build (6 pages) + live
-  Pages.** Every item of the brief-§16 definition of done is met. **Phase 0 is complete — stop for owner
+  balance — the four lesson salts assembled by crossover and machine-verified) + **7 cross-linked concept
+  entries** (2 rule-sourced, cited), gated by `validate-reference`. **64 producer tests + 6 Node gates + astro
+  build (6 pages) + live Pages.** Every item of the brief-§16 definition of done is met. **Phase 0 is complete — stop for owner
   review** before opening Phase 1.
 
 ---

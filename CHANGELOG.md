@@ -3,6 +3,21 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Post-Phase-0 — 2026-07-05 — Atlas breadth-fill + polish
+
+- **Five more concept entries** (`molarity`, `molar-mass`, `net-ionic-equation`, `precipitation`,
+  `solubility-rules`) — now **7 concepts**, richly cross-linked (molarity↔molar-mass;
+  net-ionic↔precipitation↔solubility-rules). Every concept the Phase-0 lesson references resolves, so all its
+  chips link into the Atlas (7 → concept entries, calcium/carbonate → the Valence Table).
+- **Honesty model in the Atlas:** concept entries gained an optional `source`; a `rule-sourced` concept
+  **must** cite it (`build_reference_entry` raises, `validate-reference` re-checks, the index shows the violet
+  badge). `precipitation` and `solubility-rules` are rule-sourced, citing `openstax-chemistry-2e`.
+- **Fix:** the Verification page rendered "in action in thelessons" — an Astro whitespace collapse where a
+  line-ending word met a link on the next line; fixed with `{" "}`. A full scan of the built HTML confirms no
+  other collapse artifacts across the site.
+- 64 producer tests (+2) + 6 gates (validate-reference = 8 objects, check-katex = 40 strings) + astro build
+  (6 pages) green.
+
 ## Phase 0 — 2026-07-05 — the Chemical Atlas + Valence Table (Phase 0 COMPLETE)
 
 - **The reference layer.** `chemkernel.reference`: `build_valence_table` projects `data/` — elements in

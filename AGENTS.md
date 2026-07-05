@@ -193,8 +193,8 @@ the **Valence Table** periodic lens (click an element for its common ion; click 
 formulas fall out of charge balance; the four lesson salts assembled by crossover + machine-verified) plus
 two cross-linked concept entries, gated by `validate-reference`. Molecular → complete ionic → net ionic
 (spectators Na⁺/Cl⁻), carbonate rule cited, ledger, Ca²⁺ limiting, 0.250 g CaCO₃. **Counters: 1 built +
-rendered lesson (with practice), 1 Valence Table + 2 concept entries, 6 Node gates + CI + live Pages, 62
-producer tests green.** **Phase 0 is complete end to end** — every brief-§16 definition-of-done item is met;
+rendered lesson (with practice), 1 Valence Table + 7 cross-linked concept entries (2 rule-sourced, cited), 6
+Node gates + CI + live Pages, 64 producer tests green.** **Phase 0 is complete end to end** — every brief-§16 definition-of-done item is met;
 **stop for owner review** before Phase 1. See [`ROADMAP.md`](./ROADMAP.md) and
 [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
 
