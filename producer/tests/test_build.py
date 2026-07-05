@@ -9,6 +9,7 @@ from chemkernel.build import build_problem
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT / "problems" / "precipitation" / "calcium-carbonate-limiting.problem.toml"
+SPEC_YIELD = ROOT / "problems" / "percent-yield" / "zinc-carbonate-percent-yield.problem.toml"
 
 
 def test_builds_phase0_solution():
@@ -31,6 +32,38 @@ def test_builds_phase0_solution():
 
     assert all(sol["checks"].values())
     assert sol["provenance"]["sources"]["atomic_weight"] == "ciaaw-2021-atomic-weights"
+
+
+def test_percent_yield_lesson():
+    """The flagship percent-yield lesson (ADR-0029): theoretical = precipitate mass; percent = actual/theo×100."""
+    from decimal import Decimal
+    from fractions import Fraction
+
+    sol, out_rel = build_problem(SPEC_YIELD, ROOT)
+    assert out_rel == "percent-yield/zinc-carbonate-percent-yield.solution.json"
+    assert sol["result"]["precipitate"]["species"] == "ZnCO3"
+    assert sol["result"]["limiting_species"] == ["ZnCl2"]
+
+    py = sol["result"]["percent_yield"]
+    theoretical = Fraction(Decimal(py["theoretical_mass_g"]))
+    actual = Fraction(Decimal(py["actual_mass_g"]))
+    assert py["theoretical_mass_g"] == sol["result"]["precipitate"]["mass_g"]   # theoretical IS the ledger mass
+    assert 0 < actual <= theoretical                                            # a physical yield
+    assert abs(float(actual / theoretical * 100) - float(py["percent_display"])) <= 0.05  # display rounds to 0.1%
+    # the lesson reuses the full precipitation pipeline (interactive + practice come for free)
+    assert sol.get("interactive") and sol.get("practice")
+
+
+def test_percent_yield_refuses_superphysical_actual(tmp_path):
+    """Refuse a yield above 100% — you cannot collect more than the theoretical maximum (ADR-0008)."""
+    import pytest
+    from chemkernel import BuildError
+
+    text = SPEC_YIELD.read_text(encoding="utf-8").replace('actual_mass_g = "0.276"', 'actual_mass_g = "9.9"')
+    tmp = tmp_path / "superphysical.problem.toml"
+    tmp.write_text(text, encoding="utf-8")
+    with pytest.raises(BuildError):
+        build_problem(tmp, ROOT)
 
 
 def test_build_is_deterministic_across_hash_seeds():

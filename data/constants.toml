@@ -1,0 +1,12 @@
+# Physical constants (ADR-0006). Curated + sourced like every other datum; ChemKernel reads constants only
+# from here, never hard-coded. The Avogadro constant is an EXACT defined value since the 2019 SI redefinition
+# (26th CGPM, 2018; in force 20 May 2019): N_A = 6.02214076e23 mol^-1, exact by definition — so it is a
+# defined constant, not a measured one with uncertainty. Read as Decimal (ADR-0013).
+source = "bipm-si-2019"
+
+[avogadro]
+symbol = "N_A"
+value = "6.02214076e23"
+unit = "mol^-1"
+name = "Avogadro constant"
+exact = true

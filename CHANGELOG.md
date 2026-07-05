@@ -3,6 +3,30 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 1 — 2026-07-05 — item 4 FINISHED: limiting-reagent gym, percent-yield lesson, Avogadro datum
+
+- **Limiting-reagent gym, `limiting_mass_v1`** (ADR-0029). Two reactant masses in → which runs out first (the
+  smaller reaction extent = moles ÷ coefficient) and the maximum product mass it allows. Generated forward
+  (exact); the gate re-verifies the balance, re-computes each reactant's extent, confirms the limiting reagent,
+  and re-derives the product mass. The star wrong option sizes the yield from the reagent that is actually in
+  **excess** — the classic mistake.
+- **Flagship percent-yield lesson** (`percent-yield/zinc-carbonate-percent-yield`, ADR-0030). A gravimetric
+  precipitation (`ZnCl2 + Na2CO3 → ZnCO3(s) + 2 NaCl`) where the **theoretical yield is the precipitate mass**
+  the ledger already computes, plus an authored actual (measured) mass → an optional **`result.percent_yield`**
+  block: theoretical, actual, and `percent = actual ÷ theoretical × 100`. The producer refuses a nonphysical
+  yield (>100%); `check-ledger` re-derives the percent and confirms theoretical = precipitate mass. The lesson
+  reuses the full pipeline — three equations, species ledger, both interactives, generated practice — and adds
+  a **yield card** (with the "a yield can't exceed 100%" teaching inline). **3 lessons total.**
+- **Avogadro constant registered** (`data/constants.toml`, source `bipm-si-2019`) — a curated, sourced,
+  **exact** datum (2019 SI redefinition, N_A = 6.02214076×10²³ mol⁻¹), loaded by `data.py` like every other
+  constant. This lands the ADR-0029 prerequisite for particle-count stoichiometry.
+- **139 producer tests** (+6: limiting-mass shape + yield-lesson + nonphysical-yield-refused + Avogadro datum)
+  + **7 gates** (validate-gyms = **6 gyms / 60 problems**; validate-solutions = 3; check-ledger re-derives the
+  yield; check-parity = 240 + 18; check-katex = 97) + **astro build (15 pages)** green. In-browser: the
+  percent-yield lesson renders the yield card + the full precipitation lesson; the limiting-reagent gym works.
+  **Deferred to Phase 2:** the particle-count *drills* (moles↔particles — sci-notation display; pairs with gas
+  work).
+
 ## Phase 1 — 2026-07-05 — item 4 (part): the stoichiometry gyms
 
 - **Mass stoichiometry, `mass_stoichiometry_v1`** (ADR-0029). Grams of one species → grams of another across a

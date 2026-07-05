@@ -20,6 +20,7 @@ SPEC_NOMENCLATURE = ROOT / "gyms" / "nomenclature" / "ionic-compounds.gym.toml"
 SPEC_BALANCING = ROOT / "gyms" / "balancing" / "balance-equations.gym.toml"
 SPEC_MASS_STOICH = ROOT / "gyms" / "stoichiometry" / "mass-stoichiometry.gym.toml"
 SPEC_PERCENT_YIELD = ROOT / "gyms" / "stoichiometry" / "percent-yield.gym.toml"
+SPEC_LIMITING_MASS = ROOT / "gyms" / "stoichiometry" / "limiting-reagent.gym.toml"
 
 _TARGET = {
     "volume_molarity_to_moles": "mol", "moles_molarity_to_volume": "mL", "mass_to_moles": "mol",
@@ -258,7 +259,30 @@ def test_percent_yield_shape_and_rederive():
         assert sum(1 for c in p["choices"] if c["correct"]) == 1
 
 
-@pytest.mark.parametrize("spec", [SPEC_MASS_STOICH, SPEC_PERCENT_YIELD])
+def test_limiting_mass_shape_and_rederive():
+    g = _gym_from(SPEC_LIMITING_MASS)
+    assert g["family"] == "limiting_mass_v1" and len(g["problems"]) == 10
+    for p in g["problems"]:
+        d = p["derivation"]
+        assert p["kind"] == "limiting_mass" and p["target_unit"] == "g"
+        assert len(d["reactants"]) == 2
+        # each reactant's reaction extent = moles ÷ coefficient; the smaller one limits (re-derived here)
+        extents = {}
+        for r in d["reactants"]:
+            assert d["species"][r["index"]]["role"] == "reactant"
+            extents[r["index"]] = (Fraction(Decimal(r["mass_g"])) / Fraction(Decimal(r["molar_mass_g_per_mol"]))) / r["coeff"]
+        lim = min(extents, key=extents.get)
+        assert lim == d["limiting_index"]
+        assert len(set(extents.values())) == 2                       # an unambiguous limiting reagent
+        t = d["target"]
+        theoretical = extents[lim] * t["coeff"] * Fraction(Decimal(t["molar_mass_g_per_mol"]))
+        assert Fraction(Decimal(p["answer"]["value"])) == theoretical
+        assert Fraction(Decimal(p["chain"][-1]["value"])) == theoretical
+        assert sum(1 for c in p["choices"] if c["correct"]) == 1
+        assert len({c["display"] for c in p["choices"]}) == 3
+
+
+@pytest.mark.parametrize("spec", [SPEC_MASS_STOICH, SPEC_PERCENT_YIELD, SPEC_LIMITING_MASS])
 def test_stoichiometry_equations_balance_and_terminate(spec):
     for p in _gym_from(spec)["problems"]:
         d = p["derivation"]
@@ -269,7 +293,7 @@ def test_stoichiometry_equations_balance_and_terminate(spec):
         assert "/" not in s and "e" not in s.lower()                             # exact terminating decimal
 
 
-@pytest.mark.parametrize("spec", [SPEC_MASS_STOICH, SPEC_PERCENT_YIELD])
+@pytest.mark.parametrize("spec", [SPEC_MASS_STOICH, SPEC_PERCENT_YIELD, SPEC_LIMITING_MASS])
 def test_stoichiometry_deterministic(spec):
     assert _gym_from(spec) == _gym_from(spec)
     assert _gym_from(spec, seed=13)["problems"] != _gym_from(spec)["problems"]

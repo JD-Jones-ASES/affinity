@@ -1,0 +1,1232 @@
+{
+  "kind": "gym",
+  "id": "stoichiometry-limiting-mass",
+  "title": "Limiting reagent: which runs out first?",
+  "slug": "limiting-reagent",
+  "topic": "stoichiometry",
+  "family": "limiting_mass_v1",
+  "seed": 2718281,
+  "blurb": "Two reactants are mixed by mass — which one limits the reaction, and how much product can form? Convert each mass to moles, divide by its coefficient to get the reaction extent it can reach, and the smaller one wins: it runs out first and sets the theoretical yield. Every value is exact and machine-verified; the tempting wrong answer sizes the yield from the reagent that is actually in excess.",
+  "skills": [
+    "reaction extent = moles ÷ coefficient, for each reactant",
+    "the SMALLER extent is the limiting reagent",
+    "theoretical yield comes from the limiting reagent only",
+    "the reagent with more grams is not always the one that limits"
+  ],
+  "reference_links": [
+    "limiting-reagent",
+    "stoichiometry",
+    "molar-mass"
+  ],
+  "problems": [
+    {
+      "kind": "limiting_mass",
+      "prompt": "For 2 H2 + O2 → 2 H2O: 0.1008 g of H2 is mixed with 7.9995 g of O2. What is the maximum mass of H2O that can form?",
+      "chain": [
+        {
+          "value": "0.1008",
+          "unit": "g",
+          "note": "H2 (the limiting reagent)"
+        },
+        {
+          "value": "0.05",
+          "unit": "mol",
+          "note": "÷ 2.016 g/mol"
+        },
+        {
+          "value": "0.05",
+          "unit": "mol",
+          "note": "× (2 mol H2O / 2 mol H2)"
+        },
+        {
+          "value": "0.90075",
+          "unit": "g",
+          "note": "× 18.015 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "0.90075",
+        "unit": "g",
+        "display": "0.90075 g"
+      },
+      "derivation": {
+        "kind": "limiting_mass",
+        "species": [
+          {
+            "formula": "H2",
+            "role": "reactant",
+            "counts": {
+              "H": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          1,
+          2
+        ],
+        "reactants": [
+          {
+            "index": 0,
+            "formula": "H2",
+            "coeff": 2,
+            "molar_mass_g_per_mol": "2.016",
+            "mass_g": "0.1008"
+          },
+          {
+            "index": 1,
+            "formula": "O2",
+            "coeff": 1,
+            "molar_mass_g_per_mol": "31.998",
+            "mass_g": "7.9995"
+          }
+        ],
+        "target": {
+          "index": 2,
+          "formula": "H2O",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "18.015"
+        },
+        "limiting_index": 0
+      },
+      "choices": [
+        {
+          "display": "0.90075 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "9.008 g",
+          "correct": false,
+          "misconception": "Used O2 to size the yield, but it is in EXCESS — the limiting reagent H2 (smaller moles ÷ coefficient) sets how much H2O forms."
+        },
+        {
+          "display": "1.802 g",
+          "correct": false,
+          "misconception": "Skipped H2's coefficient — divide its moles by 2 to get the reaction extent first."
+        }
+      ],
+      "explain": "Compare reaction extents: H2 gives 0.025 mol, O2 gives 0.25 mol — H2 is smaller, so it limits. Its extent × 2 × 18.015 g/mol = 0.90075 g H2O.",
+      "subscript_tokens": [
+        "H2",
+        "H2O",
+        "O2"
+      ],
+      "id": "q1"
+    },
+    {
+      "kind": "limiting_mass",
+      "prompt": "For N2 + 3 H2 → 2 NH3: 5.6028 g of N2 is mixed with 0.2016 g of H2. What is the maximum mass of NH3 that can form?",
+      "chain": [
+        {
+          "value": "0.2016",
+          "unit": "g",
+          "note": "H2 (the limiting reagent)"
+        },
+        {
+          "value": "0.1",
+          "unit": "mol",
+          "note": "÷ 2.016 g/mol"
+        },
+        {
+          "value": "0.0666666666666666666666666666666666666666666666666666666666667",
+          "unit": "mol",
+          "note": "× (2 mol NH3 / 3 mol H2)"
+        },
+        {
+          "value": "1.1354",
+          "unit": "g",
+          "note": "× 17.031 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "1.1354",
+        "unit": "g",
+        "display": "1.1354 g"
+      },
+      "derivation": {
+        "kind": "limiting_mass",
+        "species": [
+          {
+            "formula": "N2",
+            "role": "reactant",
+            "counts": {
+              "N": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2",
+            "role": "reactant",
+            "counts": {
+              "H": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NH3",
+            "role": "product",
+            "counts": {
+              "N": 1,
+              "H": 3
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          3,
+          2
+        ],
+        "reactants": [
+          {
+            "index": 0,
+            "formula": "N2",
+            "coeff": 1,
+            "molar_mass_g_per_mol": "28.014",
+            "mass_g": "5.6028"
+          },
+          {
+            "index": 1,
+            "formula": "H2",
+            "coeff": 3,
+            "molar_mass_g_per_mol": "2.016",
+            "mass_g": "0.2016"
+          }
+        ],
+        "target": {
+          "index": 2,
+          "formula": "NH3",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "17.031"
+        },
+        "limiting_index": 1
+      },
+      "choices": [
+        {
+          "display": "1.1354 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "6.812 g",
+          "correct": false,
+          "misconception": "Used N2 to size the yield, but it is in EXCESS — the limiting reagent H2 (smaller moles ÷ coefficient) sets how much NH3 forms."
+        },
+        {
+          "display": "3.406 g",
+          "correct": false,
+          "misconception": "Skipped H2's coefficient — divide its moles by 3 to get the reaction extent first."
+        }
+      ],
+      "explain": "Compare reaction extents: N2 gives 0.2 mol, H2 gives 0.0333333333333333333333333333333333333333333333333333333333333 mol — H2 is smaller, so it limits. Its extent × 2 × 17.031 g/mol = 1.1354 g NH3.",
+      "subscript_tokens": [
+        "H2",
+        "N2",
+        "NH3"
+      ],
+      "id": "q2"
+    },
+    {
+      "kind": "limiting_mass",
+      "prompt": "For 2 C2H6 + 7 O2 → 4 CO2 + 6 H2O: 4.5105 g of C2H6 is mixed with 6.3996 g of O2. What is the maximum mass of CO2 that can form?",
+      "chain": [
+        {
+          "value": "6.3996",
+          "unit": "g",
+          "note": "O2 (the limiting reagent)"
+        },
+        {
+          "value": "0.2",
+          "unit": "mol",
+          "note": "÷ 31.998 g/mol"
+        },
+        {
+          "value": "0.114285714285714285714285714285714285714285714285714285714286",
+          "unit": "mol",
+          "note": "× (4 mol CO2 / 7 mol O2)"
+        },
+        {
+          "value": "5.0296",
+          "unit": "g",
+          "note": "× 44.009 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "5.0296",
+        "unit": "g",
+        "display": "5.0296 g"
+      },
+      "derivation": {
+        "kind": "limiting_mass",
+        "species": [
+          {
+            "formula": "C2H6",
+            "role": "reactant",
+            "counts": {
+              "C": 2,
+              "H": 6
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO2",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          7,
+          4,
+          6
+        ],
+        "reactants": [
+          {
+            "index": 0,
+            "formula": "C2H6",
+            "coeff": 2,
+            "molar_mass_g_per_mol": "30.07",
+            "mass_g": "4.5105"
+          },
+          {
+            "index": 1,
+            "formula": "O2",
+            "coeff": 7,
+            "molar_mass_g_per_mol": "31.998",
+            "mass_g": "6.3996"
+          }
+        ],
+        "target": {
+          "index": 2,
+          "formula": "CO2",
+          "coeff": 4,
+          "molar_mass_g_per_mol": "44.009"
+        },
+        "limiting_index": 1
+      },
+      "choices": [
+        {
+          "display": "5.0296 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "13.2 g",
+          "correct": false,
+          "misconception": "Used C2H6 to size the yield, but it is in EXCESS — the limiting reagent O2 (smaller moles ÷ coefficient) sets how much CO2 forms."
+        },
+        {
+          "display": "35.21 g",
+          "correct": false,
+          "misconception": "Skipped O2's coefficient — divide its moles by 7 to get the reaction extent first."
+        }
+      ],
+      "explain": "Compare reaction extents: C2H6 gives 0.075 mol, O2 gives 0.0285714285714285714285714285714285714285714285714285714285714 mol — O2 is smaller, so it limits. Its extent × 4 × 44.009 g/mol = 5.0296 g CO2.",
+      "subscript_tokens": [
+        "C2H6",
+        "CO2",
+        "H2O",
+        "O2"
+      ],
+      "id": "q3"
+    },
+    {
+      "kind": "limiting_mass",
+      "prompt": "For N2 + 3 H2 → 2 NH3: 28.014 g of N2 is mixed with 0.4032 g of H2. What is the maximum mass of NH3 that can form?",
+      "chain": [
+        {
+          "value": "0.4032",
+          "unit": "g",
+          "note": "H2 (the limiting reagent)"
+        },
+        {
+          "value": "0.2",
+          "unit": "mol",
+          "note": "÷ 2.016 g/mol"
+        },
+        {
+          "value": "0.133333333333333333333333333333333333333333333333333333333333",
+          "unit": "mol",
+          "note": "× (2 mol NH3 / 3 mol H2)"
+        },
+        {
+          "value": "2.2708",
+          "unit": "g",
+          "note": "× 17.031 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "2.2708",
+        "unit": "g",
+        "display": "2.2708 g"
+      },
+      "derivation": {
+        "kind": "limiting_mass",
+        "species": [
+          {
+            "formula": "N2",
+            "role": "reactant",
+            "counts": {
+              "N": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2",
+            "role": "reactant",
+            "counts": {
+              "H": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NH3",
+            "role": "product",
+            "counts": {
+              "N": 1,
+              "H": 3
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          3,
+          2
+        ],
+        "reactants": [
+          {
+            "index": 0,
+            "formula": "N2",
+            "coeff": 1,
+            "molar_mass_g_per_mol": "28.014",
+            "mass_g": "28.014"
+          },
+          {
+            "index": 1,
+            "formula": "H2",
+            "coeff": 3,
+            "molar_mass_g_per_mol": "2.016",
+            "mass_g": "0.4032"
+          }
+        ],
+        "target": {
+          "index": 2,
+          "formula": "NH3",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "17.031"
+        },
+        "limiting_index": 1
+      },
+      "choices": [
+        {
+          "display": "2.2708 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "34.06 g",
+          "correct": false,
+          "misconception": "Used N2 to size the yield, but it is in EXCESS — the limiting reagent H2 (smaller moles ÷ coefficient) sets how much NH3 forms."
+        },
+        {
+          "display": "6.812 g",
+          "correct": false,
+          "misconception": "Skipped H2's coefficient — divide its moles by 3 to get the reaction extent first."
+        }
+      ],
+      "explain": "Compare reaction extents: N2 gives 1 mol, H2 gives 0.0666666666666666666666666666666666666666666666666666666666667 mol — H2 is smaller, so it limits. Its extent × 2 × 17.031 g/mol = 2.2708 g NH3.",
+      "subscript_tokens": [
+        "H2",
+        "N2",
+        "NH3"
+      ],
+      "id": "q4"
+    },
+    {
+      "kind": "limiting_mass",
+      "prompt": "For 2 NaOH + H2SO4 → Na2SO4 + 2 H2O: 7.9994 g of NaOH is mixed with 196.144 g of H2SO4. What is the maximum mass of Na2SO4 that can form?",
+      "chain": [
+        {
+          "value": "7.9994",
+          "unit": "g",
+          "note": "NaOH (the limiting reagent)"
+        },
+        {
+          "value": "0.2",
+          "unit": "mol",
+          "note": "÷ 39.997 g/mol"
+        },
+        {
+          "value": "0.1",
+          "unit": "mol",
+          "note": "× (1 mol Na2SO4 / 2 mol NaOH)"
+        },
+        {
+          "value": "14.2036",
+          "unit": "g",
+          "note": "× 142.036 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "14.2036",
+        "unit": "g",
+        "display": "14.2036 g"
+      },
+      "derivation": {
+        "kind": "limiting_mass",
+        "species": [
+          {
+            "formula": "NaOH",
+            "role": "reactant",
+            "counts": {
+              "Na": 1,
+              "O": 1,
+              "H": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2SO4",
+            "role": "reactant",
+            "counts": {
+              "H": 2,
+              "S": 1,
+              "O": 4
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Na2SO4",
+            "role": "product",
+            "counts": {
+              "Na": 2,
+              "S": 1,
+              "O": 4
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          1,
+          1,
+          2
+        ],
+        "reactants": [
+          {
+            "index": 0,
+            "formula": "NaOH",
+            "coeff": 2,
+            "molar_mass_g_per_mol": "39.997",
+            "mass_g": "7.9994"
+          },
+          {
+            "index": 1,
+            "formula": "H2SO4",
+            "coeff": 1,
+            "molar_mass_g_per_mol": "98.072",
+            "mass_g": "196.144"
+          }
+        ],
+        "target": {
+          "index": 2,
+          "formula": "Na2SO4",
+          "coeff": 1,
+          "molar_mass_g_per_mol": "142.036"
+        },
+        "limiting_index": 0
+      },
+      "choices": [
+        {
+          "display": "14.2036 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "284.1 g",
+          "correct": false,
+          "misconception": "Used H2SO4 to size the yield, but it is in EXCESS — the limiting reagent NaOH (smaller moles ÷ coefficient) sets how much Na2SO4 forms."
+        },
+        {
+          "display": "28.41 g",
+          "correct": false,
+          "misconception": "Skipped NaOH's coefficient — divide its moles by 2 to get the reaction extent first."
+        }
+      ],
+      "explain": "Compare reaction extents: NaOH gives 0.1 mol, H2SO4 gives 2 mol — NaOH is smaller, so it limits. Its extent × 1 × 142.036 g/mol = 14.2036 g Na2SO4.",
+      "subscript_tokens": [
+        "H2O",
+        "H2SO4",
+        "Na2SO4"
+      ],
+      "id": "q5"
+    },
+    {
+      "kind": "limiting_mass",
+      "prompt": "For C3H8 + 5 O2 → 3 CO2 + 4 H2O: 6.61455 g of C3H8 is mixed with 6.3996 g of O2. What is the maximum mass of H2O that can form?",
+      "chain": [
+        {
+          "value": "6.3996",
+          "unit": "g",
+          "note": "O2 (the limiting reagent)"
+        },
+        {
+          "value": "0.2",
+          "unit": "mol",
+          "note": "÷ 31.998 g/mol"
+        },
+        {
+          "value": "0.16",
+          "unit": "mol",
+          "note": "× (4 mol H2O / 5 mol O2)"
+        },
+        {
+          "value": "2.8824",
+          "unit": "g",
+          "note": "× 18.015 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "2.8824",
+        "unit": "g",
+        "display": "2.8824 g"
+      },
+      "derivation": {
+        "kind": "limiting_mass",
+        "species": [
+          {
+            "formula": "C3H8",
+            "role": "reactant",
+            "counts": {
+              "C": 3,
+              "H": 8
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO2",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          5,
+          3,
+          4
+        ],
+        "reactants": [
+          {
+            "index": 0,
+            "formula": "C3H8",
+            "coeff": 1,
+            "molar_mass_g_per_mol": "44.097",
+            "mass_g": "6.61455"
+          },
+          {
+            "index": 1,
+            "formula": "O2",
+            "coeff": 5,
+            "molar_mass_g_per_mol": "31.998",
+            "mass_g": "6.3996"
+          }
+        ],
+        "target": {
+          "index": 3,
+          "formula": "H2O",
+          "coeff": 4,
+          "molar_mass_g_per_mol": "18.015"
+        },
+        "limiting_index": 1
+      },
+      "choices": [
+        {
+          "display": "2.8824 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "10.81 g",
+          "correct": false,
+          "misconception": "Used C3H8 to size the yield, but it is in EXCESS — the limiting reagent O2 (smaller moles ÷ coefficient) sets how much H2O forms."
+        },
+        {
+          "display": "14.41 g",
+          "correct": false,
+          "misconception": "Skipped O2's coefficient — divide its moles by 5 to get the reaction extent first."
+        }
+      ],
+      "explain": "Compare reaction extents: C3H8 gives 0.15 mol, O2 gives 0.04 mol — O2 is smaller, so it limits. Its extent × 4 × 18.015 g/mol = 2.8824 g H2O.",
+      "subscript_tokens": [
+        "C3H8",
+        "CO2",
+        "H2O",
+        "O2"
+      ],
+      "id": "q6"
+    },
+    {
+      "kind": "limiting_mass",
+      "prompt": "For N2 + 3 H2 → 2 NH3: 28.014 g of N2 is mixed with 0.1008 g of H2. What is the maximum mass of NH3 that can form?",
+      "chain": [
+        {
+          "value": "0.1008",
+          "unit": "g",
+          "note": "H2 (the limiting reagent)"
+        },
+        {
+          "value": "0.05",
+          "unit": "mol",
+          "note": "÷ 2.016 g/mol"
+        },
+        {
+          "value": "0.0333333333333333333333333333333333333333333333333333333333333",
+          "unit": "mol",
+          "note": "× (2 mol NH3 / 3 mol H2)"
+        },
+        {
+          "value": "0.5677",
+          "unit": "g",
+          "note": "× 17.031 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "0.5677",
+        "unit": "g",
+        "display": "0.5677 g"
+      },
+      "derivation": {
+        "kind": "limiting_mass",
+        "species": [
+          {
+            "formula": "N2",
+            "role": "reactant",
+            "counts": {
+              "N": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2",
+            "role": "reactant",
+            "counts": {
+              "H": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NH3",
+            "role": "product",
+            "counts": {
+              "N": 1,
+              "H": 3
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          3,
+          2
+        ],
+        "reactants": [
+          {
+            "index": 0,
+            "formula": "N2",
+            "coeff": 1,
+            "molar_mass_g_per_mol": "28.014",
+            "mass_g": "28.014"
+          },
+          {
+            "index": 1,
+            "formula": "H2",
+            "coeff": 3,
+            "molar_mass_g_per_mol": "2.016",
+            "mass_g": "0.1008"
+          }
+        ],
+        "target": {
+          "index": 2,
+          "formula": "NH3",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "17.031"
+        },
+        "limiting_index": 1
+      },
+      "choices": [
+        {
+          "display": "0.5677 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "34.06 g",
+          "correct": false,
+          "misconception": "Used N2 to size the yield, but it is in EXCESS — the limiting reagent H2 (smaller moles ÷ coefficient) sets how much NH3 forms."
+        },
+        {
+          "display": "1.703 g",
+          "correct": false,
+          "misconception": "Skipped H2's coefficient — divide its moles by 3 to get the reaction extent first."
+        }
+      ],
+      "explain": "Compare reaction extents: N2 gives 1 mol, H2 gives 0.0166666666666666666666666666666666666666666666666666666666667 mol — H2 is smaller, so it limits. Its extent × 2 × 17.031 g/mol = 0.5677 g NH3.",
+      "subscript_tokens": [
+        "H2",
+        "N2",
+        "NH3"
+      ],
+      "id": "q7"
+    },
+    {
+      "kind": "limiting_mass",
+      "prompt": "For 2 C2H6 + 7 O2 → 4 CO2 + 6 H2O: 60.14 g of C2H6 is mixed with 63.996 g of O2. What is the maximum mass of CO2 that can form?",
+      "chain": [
+        {
+          "value": "63.996",
+          "unit": "g",
+          "note": "O2 (the limiting reagent)"
+        },
+        {
+          "value": "2",
+          "unit": "mol",
+          "note": "÷ 31.998 g/mol"
+        },
+        {
+          "value": "1.14285714285714285714285714285714285714285714285714285714286",
+          "unit": "mol",
+          "note": "× (4 mol CO2 / 7 mol O2)"
+        },
+        {
+          "value": "50.296",
+          "unit": "g",
+          "note": "× 44.009 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "50.296",
+        "unit": "g",
+        "display": "50.296 g"
+      },
+      "derivation": {
+        "kind": "limiting_mass",
+        "species": [
+          {
+            "formula": "C2H6",
+            "role": "reactant",
+            "counts": {
+              "C": 2,
+              "H": 6
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO2",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          7,
+          4,
+          6
+        ],
+        "reactants": [
+          {
+            "index": 0,
+            "formula": "C2H6",
+            "coeff": 2,
+            "molar_mass_g_per_mol": "30.07",
+            "mass_g": "60.14"
+          },
+          {
+            "index": 1,
+            "formula": "O2",
+            "coeff": 7,
+            "molar_mass_g_per_mol": "31.998",
+            "mass_g": "63.996"
+          }
+        ],
+        "target": {
+          "index": 2,
+          "formula": "CO2",
+          "coeff": 4,
+          "molar_mass_g_per_mol": "44.009"
+        },
+        "limiting_index": 1
+      },
+      "choices": [
+        {
+          "display": "50.296 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "176 g",
+          "correct": false,
+          "misconception": "Used C2H6 to size the yield, but it is in EXCESS — the limiting reagent O2 (smaller moles ÷ coefficient) sets how much CO2 forms."
+        },
+        {
+          "display": "352.1 g",
+          "correct": false,
+          "misconception": "Skipped O2's coefficient — divide its moles by 7 to get the reaction extent first."
+        }
+      ],
+      "explain": "Compare reaction extents: C2H6 gives 1 mol, O2 gives 0.285714285714285714285714285714285714285714285714285714285714 mol — O2 is smaller, so it limits. Its extent × 4 × 44.009 g/mol = 50.296 g CO2.",
+      "subscript_tokens": [
+        "C2H6",
+        "CO2",
+        "H2O",
+        "O2"
+      ],
+      "id": "q8"
+    },
+    {
+      "kind": "limiting_mass",
+      "prompt": "For CH4 + 2 O2 → CO2 + 2 H2O: 2.40645 g of CH4 is mixed with 31.998 g of O2. What is the maximum mass of H2O that can form?",
+      "chain": [
+        {
+          "value": "2.40645",
+          "unit": "g",
+          "note": "CH4 (the limiting reagent)"
+        },
+        {
+          "value": "0.15",
+          "unit": "mol",
+          "note": "÷ 16.043 g/mol"
+        },
+        {
+          "value": "0.3",
+          "unit": "mol",
+          "note": "× (2 mol H2O / 1 mol CH4)"
+        },
+        {
+          "value": "5.4045",
+          "unit": "g",
+          "note": "× 18.015 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "5.4045",
+        "unit": "g",
+        "display": "5.4045 g"
+      },
+      "derivation": {
+        "kind": "limiting_mass",
+        "species": [
+          {
+            "formula": "CH4",
+            "role": "reactant",
+            "counts": {
+              "C": 1,
+              "H": 4
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO2",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          2,
+          1,
+          2
+        ],
+        "reactants": [
+          {
+            "index": 0,
+            "formula": "CH4",
+            "coeff": 1,
+            "molar_mass_g_per_mol": "16.043",
+            "mass_g": "2.40645"
+          },
+          {
+            "index": 1,
+            "formula": "O2",
+            "coeff": 2,
+            "molar_mass_g_per_mol": "31.998",
+            "mass_g": "31.998"
+          }
+        ],
+        "target": {
+          "index": 3,
+          "formula": "H2O",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "18.015"
+        },
+        "limiting_index": 0
+      },
+      "choices": [
+        {
+          "display": "5.4045 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "18.02 g",
+          "correct": false,
+          "misconception": "Used O2 to size the yield, but it is in EXCESS — the limiting reagent CH4 (smaller moles ÷ coefficient) sets how much H2O forms."
+        },
+        {
+          "display": "5.405 g",
+          "correct": false,
+          "misconception": "Skipped CH4's coefficient — divide its moles by 1 to get the reaction extent first."
+        }
+      ],
+      "explain": "Compare reaction extents: CH4 gives 0.15 mol, O2 gives 0.5 mol — CH4 is smaller, so it limits. Its extent × 2 × 18.015 g/mol = 5.4045 g H2O.",
+      "subscript_tokens": [
+        "CH4",
+        "CO2",
+        "H2O",
+        "O2"
+      ],
+      "id": "q9"
+    },
+    {
+      "kind": "limiting_mass",
+      "prompt": "For 4 Al + 3 O2 → 2 Al2O3: 53.964 g of Al is mixed with 7.9995 g of O2. What is the maximum mass of Al2O3 that can form?",
+      "chain": [
+        {
+          "value": "7.9995",
+          "unit": "g",
+          "note": "O2 (the limiting reagent)"
+        },
+        {
+          "value": "0.25",
+          "unit": "mol",
+          "note": "÷ 31.998 g/mol"
+        },
+        {
+          "value": "0.166666666666666666666666666666666666666666666666666666666667",
+          "unit": "mol",
+          "note": "× (2 mol Al2O3 / 3 mol O2)"
+        },
+        {
+          "value": "16.9935",
+          "unit": "g",
+          "note": "× 101.961 g/mol"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "16.9935",
+        "unit": "g",
+        "display": "16.9935 g"
+      },
+      "derivation": {
+        "kind": "limiting_mass",
+        "species": [
+          {
+            "formula": "Al",
+            "role": "reactant",
+            "counts": {
+              "Al": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Al2O3",
+            "role": "product",
+            "counts": {
+              "Al": 2,
+              "O": 3
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          4,
+          3,
+          2
+        ],
+        "reactants": [
+          {
+            "index": 0,
+            "formula": "Al",
+            "coeff": 4,
+            "molar_mass_g_per_mol": "26.982",
+            "mass_g": "53.964"
+          },
+          {
+            "index": 1,
+            "formula": "O2",
+            "coeff": 3,
+            "molar_mass_g_per_mol": "31.998",
+            "mass_g": "7.9995"
+          }
+        ],
+        "target": {
+          "index": 2,
+          "formula": "Al2O3",
+          "coeff": 2,
+          "molar_mass_g_per_mol": "101.961"
+        },
+        "limiting_index": 1
+      },
+      "choices": [
+        {
+          "display": "16.9935 g",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "102 g",
+          "correct": false,
+          "misconception": "Used Al to size the yield, but it is in EXCESS — the limiting reagent O2 (smaller moles ÷ coefficient) sets how much Al2O3 forms."
+        },
+        {
+          "display": "50.98 g",
+          "correct": false,
+          "misconception": "Skipped O2's coefficient — divide its moles by 3 to get the reaction extent first."
+        }
+      ],
+      "explain": "Compare reaction extents: Al gives 0.5 mol, O2 gives 0.0833333333333333333333333333333333333333333333333333333333333 mol — O2 is smaller, so it limits. Its extent × 2 × 101.961 g/mol = 16.9935 g Al2O3.",
+      "subscript_tokens": [
+        "Al2O3",
+        "O2"
+      ],
+      "id": "q10"
+    }
+  ],
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights"
+    }
+  }
+}

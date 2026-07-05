@@ -121,6 +121,21 @@ Each generated question rotates through limiting-reagent / mass / leftover asks;
 named misconception, and a reject-list drops ambiguous variants (near-ties, no leftover, choices that
 collide at display precision). Changing `seed` regenerates the whole set; commit the new `derived/` with it.
 
+### `[yield]` — percent yield (optional, ADR-0029/0030)
+
+Turn a precipitation lesson into a percent-yield lesson. The **theoretical** yield is the precipitate mass
+ChemKernel already computes (the ledger at maximum extent); you author only the **actual** (measured) mass.
+
+```toml
+[yield]
+actual_mass_g = "0.276"   # the recovered mass; must be > 0 and ≤ the theoretical yield (else the build refuses)
+```
+
+ChemKernel emits a `result.percent_yield` block (theoretical, actual, and `percent = actual ÷ theoretical ×
+100`, reported to 0.1%) and the player renders a yield card. `check-ledger` re-derives the percent and
+confirms the yield is physical. The full precipitation machinery — equations, ledger, interactives, practice —
+comes for free; the yield card is the only addition.
+
 ### Other optional keys
 
 `tags` (array), `reference_links` (array of Atlas ids — they become links as the Atlas is built),

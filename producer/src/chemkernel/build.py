@@ -223,6 +223,25 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
     if solubility_basis is not None:
         solution["solubility_basis"] = solubility_basis
 
+    # percent yield (ADR-0029): the theoretical yield IS the precipitate mass — the ledger at maximum extent.
+    # The authored actual (measured) yield gives percent = actual ÷ theoretical × 100. Refuse a nonphysical
+    # yield: actual must be positive and no greater than theoretical (you cannot collect more than forms —
+    # that would break conservation of mass). Percent is a measured ratio, reported at 3 sig figs (ADR-0025).
+    yield_spec = spec.get("yield")
+    if yield_spec is not None:
+        theoretical = mass
+        actual = Fraction(Decimal(str(yield_spec["actual_mass_g"])))
+        if not (0 < actual <= theoretical):
+            raise BuildError(f"{ctx}: actual yield {actual} g must be > 0 and ≤ theoretical {theoretical} g")
+        percent = actual / theoretical * 100
+        solution["result"]["percent_yield"] = {
+            "theoretical_mass_g": _exact_decimal_str(theoretical),
+            "theoretical_display": str(to_decimal(theoretical, 3)),
+            "actual_mass_g": _exact_decimal_str(actual),
+            "actual_display": str(to_decimal(actual, 3)),
+            "percent_display": str(to_decimal(percent, 1)),   # a percent, reported to 0.1% (ADR-0025)
+        }
+
     # the interactive block: parity-verified closed forms for the sliders (ADR-0011). Optional — emitted only
     # for the supported single-precipitate double-displacement shape; the schema allows its absence.
     interactive = build_interactive(reactants, products, coeffs, spec["given"], data, net_left, net_right, ctx)

@@ -30,6 +30,7 @@ the **model-assumed** badge.
 | `ciaaw-2021-atomic-weights` | `data/elements.toml` atomic weights | `cited` | IUPAC/CIAAW abridged standard atomic weights, Atomic Weights 2021 report (table rev. 2024). Values are scientific facts (not copyrightable, Feist); © CIAAW 2007–2024 covers presentation only | accessed 2026-07-05 · https://www.ciaaw.org/abridged-atomic-weights.htm |
 | `iupac-periodic-table` | `data/elements.toml` group/period/block | `cited` | IUPAC periodic table (definitional element positions) | structural facts; used to place elements on the Valence Table |
 | `openstax-chemistry-2e` | `data/ions.toml` ion charges; `data/solubility.toml` rules | `cited` | OpenStax *Chemistry 2e*, CC BY 4.0 (ion charges; solubility rules from Table 4.1, §4.2) | common ion charges + solubility rules (universal teaching facts); ion *composition* is separately machine-checked in `data.py`; accessed 2026-07-05 |
+| `bipm-si-2019` | `data/constants.toml` Avogadro constant | `cited` | BIPM *SI Brochure* 9th ed. (2019); 26th CGPM (2018) redefinition, in force 20 May 2019 | N_A = 6.02214076×10²³ mol⁻¹, **exact by definition** (a defined SI value, no uncertainty); accessed 2026-07-05 · https://www.bipm.org/en/publications/si-brochure |
 
 ## Element-dataset decision (RESOLVED — ADR-0012)
 

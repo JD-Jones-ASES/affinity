@@ -1,0 +1,66 @@
+# Phase-1 item 4 flagship lesson (ADR-0029): percent yield on a gravimetric precipitation. Authored human
+# layer only — ChemKernel derives the balanced equation, the ledger, the theoretical (maximum) yield, and the
+# percent yield from the authored actual mass, and verifies all of it. The theoretical yield is the ledger at
+# maximum extent; the actual (recovered) yield is measured and falls short.
+#
+# Root keys must precede any [table]/[[array]] header, or TOML absorbs them into the preceding table.
+
+id = "percent-yield-zinc-carbonate"
+title = "Percent yield: how much of the theoretical maximum did we actually get?"
+slug = "zinc-carbonate-percent-yield"
+topic = "percent-yield"
+tags = ["stoichiometry", "percent-yield", "limiting-reagent", "precipitation", "gravimetric"]
+author = "Affinity"
+created = "2026-07-05"
+scenario = "In a gravimetric analysis, 25.0 mL of 0.100 M ZnCl2(aq) is mixed with 20.0 mL of 0.150 M Na2CO3(aq); the zinc carbonate precipitate is filtered, dried, and weighed. 0.276 g of ZnCO3 is recovered. What mass should form in theory, which reactant limits it, and what percent yield does the recovered solid represent?"
+
+reactants = ["ZnCl2(aq)", "Na2CO3(aq)"]
+products = ["ZnCO3(s)", "NaCl(aq)"]
+
+reference_links = ["percent-yield", "stoichiometry", "limiting-reagent", "extent-of-reaction", "molarity", "molar-mass", "net-ionic-equation", "precipitation", "solubility-rules", "conservation-of-mass", "carbonate"]
+
+# The measured yield (ADR-0029). Theoretical = the precipitate mass ChemKernel computes; percent is re-derived.
+[yield]
+actual_mass_g = "0.276"
+
+# Generated practice (ADR-0011): deterministic seeded variants of the same reaction.
+[practice]
+family = "precipitation_limiting_reagent_v1"
+seed = 88220417
+count = 6
+
+[[given]]
+species = "ZnCl2(aq)"
+volume_mL = "25.0"
+molarity_M = "0.100"
+
+[[given]]
+species = "Na2CO3(aq)"
+volume_mL = "20.0"
+molarity_M = "0.150"
+
+[[assumptions]]
+claim = "ZnCl2 and Na2CO3 are strong electrolytes and dissociate completely in water."
+kind = "model"
+
+[[assumptions]]
+claim = "ZnCO3 is treated as insoluble and precipitates completely (the theoretical yield)."
+kind = "rule"
+
+[[assumptions]]
+claim = "Solution volumes are additive."
+kind = "model"
+
+[misconception]
+claim = "The limiting reagent is whichever reactant has the smaller volume."
+refuted_by = "moles_and_extent_limits"
+
+[[visualizations]]
+kind = "beaker_species_view"
+mode = "interactive"
+annotate = ["free_ions_before_mixing", "solid_lattice_forms", "spectator_ions_remain_aqueous", "limiting_reagent_switch"]
+
+[[visualizations]]
+kind = "extent_bar"
+mode = "interactive"
+annotate = ["xi_limited_by_Zn", "CO3_left_over", "ZnCO3_mass_tracks_xi"]

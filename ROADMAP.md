@@ -70,6 +70,16 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   name/formula re-derivation branch in `validate-gyms`, a `nomenclature` Atlas concept, and the Valence Table
   to 15 elements (ADR-0027). **83 producer tests + 7 gates (2 gyms / 20 problems) + astro build (10 pages).**
   Covalent/acid naming and the flagship formula-mode hookup are deferred within item 2.
+- **Session 2026-07-05 (cont.) — Phase-1 item 4 FINISHED.** Landed the remaining item-4 pieces (ADR-0030):
+  the **`limiting_mass_v1`** gym (limiting reagent from two masses → max product mass; the star distractor
+  sizes the yield from the excess reagent), the **flagship percent-yield lesson**
+  (`percent-yield/zinc-carbonate-percent-yield`) reusing the precipitation pipeline (theoretical = precipitate
+  mass) + an authored `[yield]` block → a new optional `result.percent_yield` block (re-derived by
+  `check-ledger`; >100% refused; a yield card + the full equations/ledger/interactives/practice for free), and
+  the **Avogadro constant** as a curated, sourced, exact datum (`data/constants.toml`, `bipm-si-2019`).
+  **139 producer tests + 7 gates (6 gyms / 60 problems; 3 solutions) + astro build (15 pages).** Item 4 is
+  complete bar the *particle-count* drills (moles↔particles), deferred to Phase 2 (the datum is in place; the
+  drills need sci-notation display and pair with gas/molar-volume work). **3 lessons total** now.
 - **Session 2026-07-05 (cont.) — Phase-1 item 4 (part): the stoichiometry gyms.** Landed two gym families
   (ADR-0029): **`mass_stoichiometry_v1`** (grams → moles → mole ratio → moles → grams) and
   **`percent_yield_v1`** (theoretical yield, then actual ÷ theoretical × 100), both forward-generated from
@@ -156,7 +166,7 @@ boundary. Each item opens with its stress scenario and gets its own scope block 
 1. **Dimensional analysis gym** — endless generated quantity-algebra with visible unit cancellation. **← LANDED**
 2. **Formula & nomenclature engine** — ions, charges, compounds, acids, polyatomics, both directions. **← LANDED (ionic; covalent/acid deferred)**
 3. **Balancing engine** — inspection mode, conservation-matrix view, misconception modes; redox preview. **← LANDED**
-4. **Stoichiometry suite** — mass/volume/solution/particle stoich, limiting reagent, percent yield. **← IN PROGRESS (mass-stoich + percent-yield gyms landed; limiting-mass gym + percent-yield lesson + Avogadro deferred)**
+4. **Stoichiometry suite** — mass/volume/solution/particle stoich, limiting reagent, percent yield. **← LANDED (3 gym families + the percent-yield lesson + Avogadro datum; particle-count *drills* deferred to Phase 2)**
 5. **Valence Table flagship** — lenses, trend mode, formula mode, bonding mode, practice mode (brief §8).
 6. **Reaction families** — precipitation, acid-base, gas evolution, combustion, redox (Atlas-backed).
 
@@ -204,19 +214,25 @@ multiple-choice + the live tally on reveal); the polyatomic-preservation and com
 misconception *modes* as distinct UI (the corpus exercises both — SO₄/PO₄ as units, odd-coefficient
 combustion — the named distractors cover the traps).
 
-**Item 4 — stoichiometry suite — IN PROGRESS (2026-07-05, ADR-0029).** Stress scenario met as generated
-drills: **`mass_stoichiometry_v1`** (grams → moles → mole ratio → moles → grams) and **`percent_yield_v1`**
-(theoretical yield by mass stoichiometry, then actual ÷ theoretical × 100) both landed — forward-generated
-from clean mole amounts so every value is exact, over the balancing corpus's neutral reactions; the gate
-**re-verifies the equation balances** (reusing the item-3 verifier — the mole ratio is proven, not trusted)
-**and** re-derives the mass/percent numerically, with molar-mass consistency now enforced across the whole gym
-corpus. Named-mistake distractors (flipped/ignored ratio, grams→moles skipped; inverted, ×100 dropped,
-reactant-as-denominator). A `percent-yield` Atlas concept covers the regime-map row; the drill island's chain
-caption is now family-aware. **Deferred (item 4 continues):** `limiting_mass_v1` (limiting reagent from
-masses, not solutions); the flagship **percent-yield lesson** (topic slug `percent-yield` — needs the lesson
-pipeline generalised past single-precipitate double-displacement); the brief-§13.2 *extent-ledger* leg of the
-triple explanation on the gym drills (they carry the recipe + dimensional chain; the ledger view is the
-lesson's job). Particle-count stoichiometry lands here once the Avogadro constant is registered (SOURCES +
+**Item 4 — stoichiometry suite — LANDED (2026-07-05, ADR-0029 + ADR-0030).** Three gym families +
+the flagship lesson + the Avogadro datum. Gyms: **`mass_stoichiometry_v1`** (grams → moles → mole ratio →
+moles → grams), **`percent_yield_v1`** (theoretical yield, then actual ÷ theoretical × 100), and
+**`limiting_mass_v1`** (limiting reagent from two masses → max product mass; the star distractor sizes the
+yield from the *excess* reagent) — all forward-generated from clean mole amounts (exact), over the balancing
+corpus's neutral reactions; the gate **re-verifies each equation balances** (reusing the item-3 verifier — the
+mole ratio/limiting comparison is proven, not trusted) **and** re-derives the mass/percent/limiting-reagent
+numerically, with molar-mass consistency enforced across the whole gym corpus. The **flagship percent-yield
+lesson** (`percent-yield/zinc-carbonate-percent-yield`, ADR-0030) reuses the precipitation pipeline — the
+theoretical yield *is* the precipitate mass — plus an authored `[yield] actual_mass_g` → an optional
+`result.percent_yield` block (re-derived by `check-ledger`; nonphysical >100% refused); it inherits the three
+equations, ledger, both interactives, and generated practice for free, with a yield card as the only new
+render. The **Avogadro constant** is now a curated, sourced, exact datum (`data/constants.toml`,
+`bipm-si-2019`). Atlas: a `percent-yield` concept; the drill island's chain caption is family-aware.
+**Deferred to Phase 2:** the *particle-count* gym drills (moles↔particles — the datum is in place, but the
+drills need scientific-notation display and pair naturally with gas/molar-volume work); the brief-§13.2
+*extent-ledger* leg on the gym drills (they carry the recipe + dimensional chain); generalising `build.py`
+past single-precipitate double-displacement for a non-precipitation yield lesson. Particle-count stoichiometry
+lands once its display plumbing exists — the Avogadro constant is now registered (SOURCES +
 `data/`). Sequential reactions and mixture analysis deferred to Phase 2 unless trivial.
 
 **Item 5 — Valence Table flagship (brief §8).** Opens with a **data-curation session** (ADR-0006):
@@ -247,7 +263,7 @@ anchors the family.
 1. ~~Rendering polish + oracle tests + doc sweep + this roadmap~~ (this session).
 2. ~~Item 2 — nomenclature data + engine + gym families (+ Atlas nomenclature concept)~~ (landed).
 3. ~~Item 3 — balancing gym + conservation-matrix view~~ (landed; ADR-0028 — + a reusable JS formula parser).
-4. Item 4 — stoichiometry families (mass-stoich + percent-yield gyms **landed**; limiting-mass gym + the percent-yield lesson + Avogadro datum remain).
+4. ~~Item 4 — stoichiometry families + the percent-yield lesson (+ Avogadro datum)~~ (landed; ADR-0029/0030 — 3 gym families + the lesson + the datum; particle drills → Phase 2).
 5. Item 5a — element-property data curation (SOURCES + data/ + oracle cross-check).
 6. Item 5b — Valence Table lenses + trend/bonding/practice modes.
 7. Item 6 — reaction families (atlas kind + classifier + gym + the neutralization lesson).

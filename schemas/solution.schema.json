@@ -152,6 +152,19 @@
               "moles": { "type": "string" }
             }
           }
+        },
+        "percent_yield": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Optional (ADR-0029): actual vs. theoretical yield. Theoretical = the precipitate mass; percent re-derived by check-ledger.",
+          "required": ["theoretical_mass_g", "theoretical_display", "actual_mass_g", "actual_display", "percent_display"],
+          "properties": {
+            "theoretical_mass_g": { "type": "string" },
+            "theoretical_display": { "type": "string" },
+            "actual_mass_g": { "type": "string" },
+            "actual_display": { "type": "string" },
+            "percent_display": { "type": "string" }
+          }
         }
       }
     },

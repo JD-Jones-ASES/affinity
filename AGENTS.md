@@ -224,18 +224,26 @@ trap** (H₂O→H₂O₂, CO→CO₂, proven honest at emit time). A new **pure-
 (`scripts/validate/formula.mjs`, closing the ADR-0023 gap) re-parses every formula and re-proves the
 coefficients zero every element + charge row; `chempy` cross-checks the neutral corpus. The gym islands now
 present choices in a deterministic per-problem shuffle (producer still emits the correct choice first).
-**Item 4 (stoichiometry suite) is in progress** (ADR-0029): two gym families landed — `mass_stoichiometry_v1`
-(grams → moles → mole ratio → moles → grams) and `percent_yield_v1` (theoretical yield, then actual ÷
-theoretical × 100), both forward-generated from clean mole amounts (exact values) over the neutral reaction
-corpus. The gate **re-verifies each equation balances** (reusing item 3's `verifyBalance` — the mole ratio is
-proven, not trusted) **and** re-derives the mass/percent numerically; molar-mass consistency now spans the
-whole gym corpus. A `percent-yield` Atlas concept landed; the drill island's chain caption is family-aware.
-Item 4's `limiting_mass_v1` gym, the flagship percent-yield lesson, and the Avogadro datum remain.
-**Counters: 2 lessons + 5 gyms (dimensional analysis + ionic nomenclature + balancing + mass stoichiometry +
-percent yield; 50 verified problems), 1 Valence Table (15 elements) + 16 cross-linked concept entries (3
-rule-sourced, cited), 7 Node gates + CI + live Pages, 133 producer tests green; astro build = 13 pages.**
-**Phase 0 remains complete end to end**; Phase 1 is filling depth-first — items 4 (finishing) through 6 carry
-full scope blocks, an 8-session map, and a **Phase-1 definition of done** in the ROADMAP, with a review gate before Phase 2. See
+**Item 4 (stoichiometry suite) is DONE** (ADR-0029 + ADR-0030): three gym families —
+`mass_stoichiometry_v1` (grams → moles → mole ratio → moles → grams), `percent_yield_v1` (theoretical yield,
+then actual ÷ theoretical × 100), and `limiting_mass_v1` (limiting reagent from two masses → max product mass;
+the star distractor sizes the yield from the *excess* reagent) — all forward-generated from clean mole amounts
+(exact) over the neutral reaction corpus; the gate **re-verifies each equation balances** (reusing item 3's
+`verifyBalance`) **and** re-derives the number, with molar-mass consistency across the whole gym corpus. The
+**flagship percent-yield lesson** (`percent-yield/zinc-carbonate-percent-yield`) reuses the precipitation
+pipeline (theoretical yield = the precipitate mass) + an authored `[yield]` block → an optional
+`result.percent_yield` block (re-derived by `check-ledger`; >100% refused), inheriting equations/ledger/
+interactives/practice for free with a yield card added. The **Avogadro constant** is now a curated, sourced,
+exact datum (`data/constants.toml`, `bipm-si-2019`). A `percent-yield` Atlas concept landed; the drill
+island's chain caption is family-aware. **Deferred to Phase 2:** the *particle-count* drills (moles↔particles
+— the datum is in place, but they need sci-notation display and pair with gas/molar-volume work).
+**Counters: 3 lessons (2 precipitation + 1 percent-yield) + 6 gyms (dimensional analysis + ionic nomenclature
++ balancing + mass stoichiometry + percent yield + limiting reagent; 60 verified problems), 1 Valence Table
+(15 elements) + 16 cross-linked concept entries (3 rule-sourced, cited), 7 Node gates + CI + live Pages, 139
+producer tests green; astro build = 15 pages.**
+**Phase 0 remains complete end to end**; Phase 1 is filling depth-first — **items 5 (Valence Table flagship)
+and 6 (reaction families) remain**, each with full scope blocks, plus the 8-session map and a **Phase-1
+definition of done** in the ROADMAP, with a review gate before Phase 2. See
 [`ROADMAP.md`](./ROADMAP.md) and [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
 
 ## Where this might go next (paths for a future session)

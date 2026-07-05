@@ -44,10 +44,19 @@ class Ion:
 
 
 class ChemData:
-    def __init__(self, elements: dict[str, Element], ions: dict[str, Ion], sources: dict[str, str]):
+    def __init__(self, elements: dict[str, Element], ions: dict[str, Ion], sources: dict[str, str],
+                 constants: dict[str, Decimal] | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
+        self.constants = constants or {}
+
+    @property
+    def avogadro(self) -> Decimal:
+        """The Avogadro constant N_A in mol^-1, from data/constants.toml (exact, ADR-0006/0013)."""
+        if "avogadro" not in self.constants:
+            raise BuildError("Avogadro constant not loaded — is data/constants.toml present?")
+        return self.constants["avogadro"]
 
     @classmethod
     def load(cls, root: Path | None = None) -> "ChemData":
@@ -86,12 +95,27 @@ class ChemData:
             except KeyError as exc:
                 raise BuildError(f"data/ions.toml: bad entry for '{ion_id}': missing {exc}") from exc
 
+        # physical constants (optional file; ADR-0006). Values read as Decimal, never float.
+        constants: dict[str, Decimal] = {}
+        const_source = ""
+        const_path = d / "constants.toml"
+        if const_path.exists():
+            const_doc = tomllib.loads(const_path.read_text(encoding="utf-8"))
+            const_source = const_doc.get("source", "")
+            for key, v in const_doc.items():
+                if isinstance(v, dict) and "value" in v:
+                    try:
+                        constants[key] = Decimal(v["value"])
+                    except ArithmeticError as exc:
+                        raise BuildError(f"data/constants.toml: bad value for '{key}': {exc}") from exc
+
         sources = {
             "atomic_weight": el_doc.get("source", ""),
             "position": el_doc.get("position_source", ""),
             "ion_charge": ion_doc.get("charge_source", ""),
+            "constants": const_source,
         }
-        obj = cls(elements, ions, sources)
+        obj = cls(elements, ions, sources, constants)
         obj.validate()
         return obj
 

@@ -720,6 +720,78 @@ def _percent_yield_problem(reaction, rng, data, ctx):
     }
 
 
+def _limiting_mass_problem(reaction, rng, data, ctx):
+    """Limiting reagent from two reactant MASSES → the maximum (theoretical) product mass. None to reject."""
+    r_forms, p_forms, species = _species_of(reaction["reactants"], reaction["products"], ctx)
+    reactant_idx = [i for i, s in enumerate(species) if s["role"] == "reactant"]
+    product_idx = [i for i, s in enumerate(species) if s["role"] == "product"]
+    if len(reactant_idx) < 2:
+        return None
+    coeffs = balance(r_forms, p_forms, ctx)
+    ia, ib = sorted(rng.sample(reactant_idx, 2))
+    ti = rng.choice(product_idx)
+    na, nb = _fr(rng.choice(_STOICH_MOLES)), _fr(rng.choice(_STOICH_MOLES))
+    xa, xb = na / coeffs[ia], nb / coeffs[ib]                       # reaction extent each reactant can reach
+    if xa == xb:
+        return None                                                # need an unambiguous limiting reagent
+    Ma, Mb, Mt = (data.molar_mass(species[i]["formula"]) for i in (ia, ib, ti))
+    mass_a, mass_b = na * _fr(Ma), nb * _fr(Mb)
+    x_lim = min(xa, xb)
+    prod_mass = x_lim * coeffs[ti] * _fr(Mt)
+    if not all(_terminates(v) for v in (mass_a, mass_b, prod_mass)):
+        return None
+
+    li, ei = (ia, ib) if xa < xb else (ib, ia)                     # limiting / excess species indices
+    lim_f, exc_f, tgt_f = species[li]["formula"], species[ei]["formula"], species[ti]["formula"]
+    x_exc = max(xa, xb)
+    lim_moles = na if li == ia else nb
+    eq = _eq_str(species, coeffs)
+    ma, mb = _trim(_exact(mass_a)), _trim(_exact(mass_b))
+    prompt = (f"For {eq}: {ma} g of {species[ia]['formula']} is mixed with {mb} g of "
+              f"{species[ib]['formula']}. What is the maximum mass of {tgt_f} that can form?")
+    chain = [
+        {"value": _trim(_exact(mass_a if li == ia else mass_b)), "unit": "g", "note": f"{lim_f} (the limiting reagent)"},
+        {"value": _trim(_exact(lim_moles)), "unit": "mol", "note": f"÷ {_trim(str(Ma if li == ia else Mb))} g/mol"},
+        {"value": _trim(_exact(x_lim * coeffs[ti])), "unit": "mol",
+         "note": f"× ({coeffs[ti]} mol {tgt_f} / {coeffs[li]} mol {lim_f})"},
+        {"value": _trim(_exact(prod_mass)), "unit": "g", "note": f"× {_trim(str(Mt))} g/mol"},
+    ]
+    _verify_dims(Quantity.of(_trim(_exact(prod_mass)), "g"), "g", ctx)
+    wrongs = [
+        (x_exc * coeffs[ti] * _fr(Mt),
+         f"Used {exc_f} to size the yield, but it is in EXCESS — the limiting reagent {lim_f} (smaller "
+         f"moles ÷ coefficient) sets how much {tgt_f} forms."),
+        (lim_moles * coeffs[ti] * _fr(Mt),
+         f"Skipped {lim_f}'s coefficient — divide its moles by {coeffs[li]} to get the reaction extent first."),
+        ((xa + xb) * coeffs[ti] * _fr(Mt),
+         "Added both reactants' capacities — only the limiting reagent's extent counts, not the sum."),
+    ]
+    made = _numeric_choices(prod_mass, "g", wrongs)
+    if made is None:
+        return None
+    choices, correct = made
+    explain = (f"Compare reaction extents: {species[ia]['formula']} gives {_trim(_exact(xa))} mol, "
+               f"{species[ib]['formula']} gives {_trim(_exact(xb))} mol — {lim_f} is smaller, so it limits. "
+               f"Its extent × {coeffs[ti]} × {_trim(str(Mt))} g/mol = {_trim(_exact(prod_mass))} g {tgt_f}.")
+    return {
+        "kind": "limiting_mass", "prompt": prompt, "chain": chain, "target_unit": "g",
+        "answer": {"value": _exact(prod_mass), "unit": "g", "display": correct},
+        "derivation": {
+            "kind": "limiting_mass", "species": species, "coefficients": list(coeffs),
+            "reactants": [
+                {"index": ia, "formula": species[ia]["formula"], "coeff": coeffs[ia],
+                 "molar_mass_g_per_mol": _trim(str(Ma)), "mass_g": ma},
+                {"index": ib, "formula": species[ib]["formula"], "coeff": coeffs[ib],
+                 "molar_mass_g_per_mol": _trim(str(Mb)), "mass_g": mb},
+            ],
+            "target": {"index": ti, "formula": tgt_f, "coeff": coeffs[ti], "molar_mass_g_per_mol": _trim(str(Mt))},
+            "limiting_index": li,
+        },
+        "choices": choices, "explain": explain,
+        "subscript_tokens": sorted({s["formula"] for s in species if any(c.isdigit() for c in s["formula"])}),
+    }
+
+
 def _rotating_generator(problem_fn):
     """Shared driver for the stoichiometry families: rotate reactions, reject/dedupe, require `count`."""
     def generate(seed, count, data, ctx):
@@ -748,6 +820,7 @@ _FAMILIES = {
     "balancing_v1": _generate_balancing,
     "mass_stoichiometry_v1": _rotating_generator(_mass_stoich_problem),
     "percent_yield_v1": _rotating_generator(_percent_yield_problem),
+    "limiting_mass_v1": _rotating_generator(_limiting_mass_problem),
 }
 
 

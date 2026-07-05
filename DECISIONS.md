@@ -609,3 +609,38 @@ balancing-only. A `percent-yield` Atlas concept covers the regime-map row. **Def
 `limiting_mass_v1` (limiting reagent from masses), the flagship **percent-yield lesson** (topic
 `percent-yield`, which needs the lesson pipeline generalised past precipitation), and particle-count
 stoichiometry (needs the Avogadro constant registered as a sourced datum, SOURCES + `data/`).
+
+## ADR-0030 — Finishing item 4: percent-yield lesson (yield block), Avogadro datum, limiting-mass gym (2026-07-05)
+
+**Context.** ADR-0029 landed two stoichiometry gym families and named three deferred item-4 pieces: the
+`limiting_mass_v1` gym, the flagship **percent-yield lesson**, and registering the **Avogadro constant**. This
+ADR records how each landed. The limiting-mass gym is pure ADR-0029 pattern (a stoich family) and needs no new
+decision. The lesson and the datum do: the lesson introduces a new *lesson* facet (actual-vs-theoretical
+yield), and the datum is a new sourced dataset.
+
+**Decision.**
+1. **The percent-yield lesson reuses the precipitation pipeline rather than generalising it.** The theoretical
+   yield of a gravimetric precipitation *is* the precipitate mass the ledger already computes at maximum
+   extent — so a percent-yield lesson is a precipitation lesson (`ZnCl2 + Na2CO3 → ZnCO3(s) + 2 NaCl`, fresh
+   metal) plus an authored `[yield] actual_mass_g` and a new **optional `result.percent_yield` block**:
+   theoretical (= precipitate mass), the authored actual, and `percent = actual ÷ theoretical × 100`. The
+   producer **refuses a nonphysical yield** (actual ≤ 0 or > theoretical — you cannot collect more than forms,
+   ADR-0008). Percent is a measured ratio, emitted at 0.1% (ADR-0025); `check-ledger` re-derives it (and
+   confirms theoretical = precipitate mass, actual physical). The lesson inherits the full machinery — three
+   equations, ledger, both interactives, generated practice — **for free**; the yield card is the only new
+   render. The formal misconception register stays the reusable precipitation one (data-driven refutation
+   untouched); the *yield* misconception (a yield can't exceed 100%) lives inline in the yield card. Chosen
+   over generalising `build.py` to arbitrary (non-precipitation, mass-given) reactions — that larger
+   generalisation waits until a synthesis/combustion yield lesson genuinely needs it.
+2. **The Avogadro constant is a curated, sourced datum** (`data/constants.toml`, source `bipm-si-2019`),
+   loaded by `data.py` like every other constant — never hard-coded. It is **exact by the 2019 SI redefinition**
+   (N_A = 6.02214076×10²³ mol⁻¹), so it carries no uncertainty. This registers the ADR-0029 prerequisite.
+
+**Consequences.** Item 4's three gym families (`mass_stoichiometry_v1`, `percent_yield_v1`, `limiting_mass_v1`)
+and its flagship lesson are complete; the Atlas covers the stoichiometry/percent-yield regime-map rows. Three
+lessons total now (2 precipitation + 1 percent-yield). **One item-4 sliver stays deferred:** the *particle-count*
+gym drills (moles↔particles) — the Avogadro datum is now in place, but the drills need scientific-notation
+display plumbing the gym's decimal-chain rendering doesn't have, and they pair naturally with Phase-2 gas work
+(molar volume). The `result.percent_yield` block is the template for any future actual-vs-theoretical lesson;
+generalising `build.py` past single-precipitate double-displacement (for a non-precipitation yield lesson)
+remains future work.

@@ -83,6 +83,21 @@
     </div>
   </div>
 
+  <!-- percent yield: actual measured against the ledger's theoretical maximum (ADR-0029) -->
+  {#if s.result.percent_yield}
+    <div class="yieldcard">
+      <div class="yhead"><span class="badge machine"><span class="dot"></span>Percent yield</span> theoretical is the ledger's maximum extent — the actual falls short</div>
+      <div class="yflow">
+        <div class="ycell"><span class="yv">{s.result.percent_yield.theoretical_display}</span> <span class="yu">g</span><span class="yn">theoretical (max from the ledger)</span></div>
+        <span class="yop">→</span>
+        <div class="ycell"><span class="yv">{s.result.percent_yield.actual_display}</span> <span class="yu">g</span><span class="yn">actually recovered</span></div>
+        <span class="yop">=</span>
+        <div class="ycell big"><span class="yv">{s.result.percent_yield.percent_display}</span><span class="yu">%</span><span class="yn">actual ÷ theoretical × 100</span></div>
+      </div>
+      <p class="ynote">A real yield falls short of the theoretical maximum — side reactions, incomplete precipitation, losses on filtering — and can never exceed 100%: that would create matter from nothing.</p>
+    </div>
+  {/if}
+
   <!-- view tabs -->
   <div class="tabs" role="tablist">
     <button role="tab" aria-selected={tab === "equations"} onclick={() => (tab = "equations")}>Equations</button>
@@ -298,4 +313,16 @@
 
   .practicepanel { display: grid; gap: 0.8rem; }
   .practice-lede { margin: 0; font-size: 0.95rem; }
+
+  .yieldcard { background: var(--paper-2); border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: var(--radius); padding: 0.8rem 1.1rem; }
+  .yhead { font-size: 0.85rem; color: var(--ink-faint); display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.6rem; }
+  .yflow { display: flex; align-items: flex-start; gap: 0.6rem; flex-wrap: wrap; }
+  .ycell { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 0.45rem 0.7rem; text-align: center; min-width: 6rem; }
+  .ycell.big { border-color: color-mix(in srgb, var(--accent) 45%, transparent); background: var(--accent-soft); }
+  .yv { font-family: var(--font-mono); font-weight: 700; font-size: 1.15rem; }
+  .ycell.big .yv { color: var(--accent); }
+  .yu { font-family: var(--font-mono); color: var(--ink-faint); }
+  .yn { display: block; font-size: 0.7rem; color: var(--ink-faint); margin-top: 0.15rem; }
+  .yop { color: var(--ink-faint); font-size: 1.3rem; align-self: center; }
+  .ynote { margin: 0.6rem 0 0; font-size: 0.88rem; color: var(--ink-2); }
 </style>

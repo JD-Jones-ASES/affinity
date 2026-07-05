@@ -66,9 +66,13 @@ A `family` selects the generator in `chemkernel.gym.generate_gym`. Today:
   the given mass). Wrong choices are named ratio/conversion mistakes.
 - **`percent_yield_v1`** (ADR-0029) — given a reactant mass and the actual product mass, find percent yield:
   theoretical yield by mass stoichiometry, then actual ÷ theoretical × 100. The `derivation` adds
-  `actual_mass_g` + `theoretical_mass_g`. For both stoichiometry families `validate-gyms.mjs` **re-verifies
-  the equation balances** (the mole ratio is proven, not trusted) **and** re-derives the mass/percent
-  numerically in pure Node; a species' molar mass must be consistent everywhere it appears in the corpus.
+  `actual_mass_g` + `theoretical_mass_g`.
+- **`limiting_mass_v1`** (ADR-0029) — two reactant masses → which limits (the smaller reaction extent =
+  moles ÷ coefficient) and the maximum product mass. The `derivation` adds `reactants` (an array of two
+  stoichparts) + `limiting_index`; the star wrong option sizes the yield from the *excess* reagent. For all
+  three stoichiometry families `validate-gyms.mjs` **re-verifies the equation balances** (the mole ratio /
+  limiting comparison is proven, not trusted) **and** re-derives the number in pure Node; a species' molar
+  mass must be consistent everywhere it appears in the corpus.
 
 Adding a new procedural skill (limiting-reagent-from-mass, periodic trends, …) means adding a new `family` to
 `generate_gym` and, if it introduces a new answer shape, a per-kind branch to `validate-gyms.mjs` so the gate

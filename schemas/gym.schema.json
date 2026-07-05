@@ -62,7 +62,7 @@
             "required": ["kind"],
             "properties": {
               "kind": {
-                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield"]
+                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield", "limiting_mass"]
               },
               "inputs": {
                 "type": "object",
@@ -87,6 +87,8 @@
               "elements": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^[A-Z][a-z]?$" } },
               "given": { "$ref": "#/$defs/stoichpart" },
               "target": { "$ref": "#/$defs/stoichpart" },
+              "reactants": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/stoichpart" } },
+              "limiting_index": { "type": "integer", "minimum": 0 },
               "actual_mass_g": { "type": "string" },
               "theoretical_mass_g": { "type": "string" }
             }

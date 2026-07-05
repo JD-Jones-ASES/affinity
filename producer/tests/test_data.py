@@ -30,6 +30,13 @@ def test_atomic_weights_are_decimal_not_float():
         assert isinstance(el.atomic_weight, Decimal)
 
 
+def test_avogadro_constant_loaded_exact():
+    d = data()  # the 2019 SI redefinition fixed N_A exactly (ADR-0006); read as Decimal, never float
+    assert isinstance(d.avogadro, Decimal)
+    assert d.avogadro == Decimal("6.02214076e23")
+    assert d.sources["constants"] == "bipm-si-2019"
+
+
 def test_molar_mass_caco3_matches_hand_value():
     # 40.078 + 12.011 + 3*15.999 = 100.086  (brief quotes 100.09 to 2 dp)
     d = data()

@@ -1,0 +1,812 @@
+{
+  "id": "percent-yield-zinc-carbonate",
+  "title": "Percent yield: how much of the theoretical maximum did we actually get?",
+  "slug": "zinc-carbonate-percent-yield",
+  "topic": "percent-yield",
+  "tags": [
+    "stoichiometry",
+    "percent-yield",
+    "limiting-reagent",
+    "precipitation",
+    "gravimetric"
+  ],
+  "scenario": "In a gravimetric analysis, 25.0 mL of 0.100 M ZnCl2(aq) is mixed with 20.0 mL of 0.150 M Na2CO3(aq); the zinc carbonate precipitate is filtered, dried, and weighed. 0.276 g of ZnCO3 is recovered. What mass should form in theory, which reactant limits it, and what percent yield does the recovered solid represent?",
+  "regimes": [
+    {
+      "facet": "ledger",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "solubility",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "solution_behavior",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "ZnCl2 and Na2CO3 are strong electrolytes and dissociate completely in water.",
+      "kind": "model"
+    },
+    {
+      "claim": "ZnCO3 is treated as insoluble and precipitates completely (the theoretical yield).",
+      "kind": "rule"
+    },
+    {
+      "claim": "Solution volumes are additive.",
+      "kind": "model"
+    }
+  ],
+  "given": [
+    {
+      "species": "ZnCl2(aq)",
+      "volume_mL": "25.0",
+      "molarity_M": "0.100",
+      "moles": "0.0025"
+    },
+    {
+      "species": "Na2CO3(aq)",
+      "volume_mL": "20.0",
+      "molarity_M": "0.150",
+      "moles": "0.003"
+    }
+  ],
+  "equations": {
+    "molecular": {
+      "text": "ZnCl2(aq) + Na2CO3(aq) -> ZnCO3(s) + 2 NaCl(aq)",
+      "latex": "\\mathrm{ZnCl_{2}}\\,\\text{(aq)} + \\mathrm{Na_{2}CO_{3}}\\,\\text{(aq)} \\rightarrow \\mathrm{ZnCO_{3}}\\,\\text{(s)} + 2\\,\\mathrm{NaCl}\\,\\text{(aq)}"
+    },
+    "complete_ionic": {
+      "text": "Zn^2+ + 2 Cl^- + 2 Na^+ + CO3^2- -> ZnCO3 + 2 Na^+ + 2 Cl^-",
+      "latex": "\\mathrm{Zn}^{2+} + 2\\,\\mathrm{Cl}^{-} + 2\\,\\mathrm{Na}^{+} + \\mathrm{CO_{3}}^{2-} \\rightarrow \\mathrm{ZnCO_{3}} + 2\\,\\mathrm{Na}^{+} + 2\\,\\mathrm{Cl}^{-}"
+    },
+    "net_ionic": {
+      "text": "Zn^2+ + CO3^2- -> ZnCO3",
+      "latex": "\\mathrm{Zn}^{2+} + \\mathrm{CO_{3}}^{2-} \\rightarrow \\mathrm{ZnCO_{3}}"
+    },
+    "spectators": [
+      "Cl^-",
+      "Na^+"
+    ]
+  },
+  "ledger": {
+    "extent_symbol": "xi",
+    "extent_mol": "0.0025",
+    "limiting": [
+      "ZnCl2"
+    ],
+    "species": [
+      {
+        "id": "ZnCl2",
+        "latex": "\\mathrm{ZnCl_{2}}",
+        "phase": "aq",
+        "charge": 0,
+        "nu": -1,
+        "initial_mol": "0.0025",
+        "final_mol": "0",
+        "role": "limiting"
+      },
+      {
+        "id": "Na2CO3",
+        "latex": "\\mathrm{Na_{2}CO_{3}}",
+        "phase": "aq",
+        "charge": 0,
+        "nu": -1,
+        "initial_mol": "0.003",
+        "final_mol": "0.0005",
+        "role": "excess"
+      },
+      {
+        "id": "ZnCO3",
+        "latex": "\\mathrm{ZnCO_{3}}",
+        "phase": "s",
+        "charge": 0,
+        "nu": 1,
+        "initial_mol": "0",
+        "final_mol": "0.0025",
+        "role": "product"
+      },
+      {
+        "id": "NaCl",
+        "latex": "\\mathrm{NaCl}",
+        "phase": "aq",
+        "charge": 0,
+        "nu": 2,
+        "initial_mol": "0",
+        "final_mol": "0.005",
+        "role": "product"
+      }
+    ]
+  },
+  "dimensional_analysis": [
+    {
+      "target": "moles of ZnCl2(aq)",
+      "steps": [
+        {
+          "value": "25.0",
+          "unit": "mL",
+          "note": "given volume"
+        },
+        {
+          "value": "0.0250",
+          "unit": "L",
+          "note": "convert mL to L (÷ 1000)"
+        },
+        {
+          "value": "0.0025",
+          "unit": "mol",
+          "note": "× 0.100 mol/L"
+        }
+      ]
+    },
+    {
+      "target": "moles of Na2CO3(aq)",
+      "steps": [
+        {
+          "value": "20.0",
+          "unit": "mL",
+          "note": "given volume"
+        },
+        {
+          "value": "0.0200",
+          "unit": "L",
+          "note": "convert mL to L (÷ 1000)"
+        },
+        {
+          "value": "0.003",
+          "unit": "mol",
+          "note": "× 0.150 mol/L"
+        }
+      ]
+    }
+  ],
+  "result": {
+    "precipitate": {
+      "species": "ZnCO3",
+      "phase": "s",
+      "molar_mass_g_per_mol": "125.388",
+      "moles": "0.0025",
+      "mass_g": "0.31347",
+      "mass_g_display": "0.313"
+    },
+    "limiting_species": [
+      "ZnCl2"
+    ],
+    "leftover": [
+      {
+        "species": "Na2CO3",
+        "moles": "0.0005"
+      }
+    ],
+    "percent_yield": {
+      "theoretical_mass_g": "0.31347",
+      "theoretical_display": "0.313",
+      "actual_mass_g": "0.276",
+      "actual_display": "0.276",
+      "percent_display": "88.0"
+    }
+  },
+  "misconception": {
+    "claim": "The limiting reagent is whichever reactant has the smaller volume.",
+    "refuted_by": "moles_and_extent_limits"
+  },
+  "visualizations": [
+    {
+      "kind": "beaker_species_view",
+      "mode": "interactive",
+      "annotate": [
+        "free_ions_before_mixing",
+        "solid_lattice_forms",
+        "spectator_ions_remain_aqueous",
+        "limiting_reagent_switch"
+      ]
+    },
+    {
+      "kind": "extent_bar",
+      "mode": "interactive",
+      "annotate": [
+        "xi_limited_by_Zn",
+        "CO3_left_over",
+        "ZnCO3_mass_tracks_xi"
+      ]
+    }
+  ],
+  "reference_links": [
+    "percent-yield",
+    "stoichiometry",
+    "limiting-reagent",
+    "extent-of-reaction",
+    "molarity",
+    "molar-mass",
+    "net-ionic-equation",
+    "precipitation",
+    "solubility-rules",
+    "conservation-of-mass",
+    "carbonate"
+  ],
+  "checks": {
+    "atom_balance": true,
+    "charge_balance": true,
+    "unit_check": true,
+    "extent_nonnegative": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-05",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights",
+      "ion_charge": "openstax-chemistry-2e",
+      "solubility": "openstax-chemistry-2e"
+    }
+  },
+  "solubility_basis": {
+    "species": "ZnCO3",
+    "soluble": false,
+    "rule_id": "insol-carbonate",
+    "statement": "Carbonates are insoluble, except those of group 1 cations and ammonium.",
+    "source": "openstax-chemistry-2e"
+  },
+  "interactive": {
+    "params": [
+      {
+        "name": "v1",
+        "label": "V(ZnCl2)",
+        "species": "ZnCl2",
+        "kind": "volume",
+        "unit": "mL",
+        "min": "5",
+        "max": "50",
+        "default": "25.0",
+        "step": "0.5"
+      },
+      {
+        "name": "c1",
+        "label": "[ZnCl2]",
+        "species": "ZnCl2",
+        "kind": "concentration",
+        "unit": "M",
+        "min": "0.02",
+        "max": "0.30",
+        "default": "0.100",
+        "step": "0.005"
+      },
+      {
+        "name": "v2",
+        "label": "V(Na2CO3)",
+        "species": "Na2CO3",
+        "kind": "volume",
+        "unit": "mL",
+        "min": "5",
+        "max": "50",
+        "default": "20.0",
+        "step": "0.5"
+      },
+      {
+        "name": "c2",
+        "label": "[Na2CO3]",
+        "species": "Na2CO3",
+        "kind": "concentration",
+        "unit": "M",
+        "min": "0.02",
+        "max": "0.30",
+        "default": "0.150",
+        "step": "0.005"
+      }
+    ],
+    "closed_form_params": [
+      "v1",
+      "c1",
+      "v2",
+      "c2"
+    ],
+    "closed_form": {
+      "n_cation": "v1/1000*c1",
+      "n_anion": "v2/1000*c2",
+      "xi": "Math.min(v1/1000*c1, v2/1000*c2)",
+      "mass": "(Math.min(v1/1000*c1, v2/1000*c2))*125.388",
+      "leftover_cation": "(v1/1000*c1) - (Math.min(v1/1000*c1, v2/1000*c2))",
+      "leftover_anion": "(v2/1000*c2) - (Math.min(v1/1000*c1, v2/1000*c2))",
+      "n_spec_cation": "2*(v1/1000*c1)",
+      "n_spec_anion": "2*(v2/1000*c2)"
+    },
+    "cation": {
+      "id": "Zn^2+",
+      "source": "ZnCl2",
+      "per": 1,
+      "net_coeff": 1
+    },
+    "anion": {
+      "id": "CO3^2-",
+      "source": "Na2CO3",
+      "per": 1,
+      "net_coeff": 1
+    },
+    "product": {
+      "id": "ZnCO3",
+      "molar_mass": "125.388",
+      "phase": "s",
+      "net_coeff": 1
+    },
+    "spectators": [
+      {
+        "id": "Cl^-",
+        "source": "ZnCl2",
+        "per": 2,
+        "key": "n_spec_cation"
+      },
+      {
+        "id": "Na^+",
+        "source": "Na2CO3",
+        "per": 2,
+        "key": "n_spec_anion"
+      }
+    ],
+    "leftover_keys": {
+      "cation": "leftover_cation",
+      "anion": "leftover_anion"
+    },
+    "samples": [
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.100",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.0025",
+          "n_anion": "0.003",
+          "xi": "0.0025",
+          "mass": "0.31347",
+          "leftover_cation": "0",
+          "leftover_anion": "0.0005",
+          "n_spec_cation": "0.005",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.150",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.00375",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.376164",
+          "leftover_cation": "0.00075",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.0075",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.120",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.003",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.376164",
+          "leftover_cation": "0",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.006",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "50.0",
+          "c1": "0.100",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.005",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.376164",
+          "leftover_cation": "0.002",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.01",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "10.0",
+          "c1": "0.100",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.001",
+          "n_anion": "0.003",
+          "xi": "0.001",
+          "mass": "0.125388",
+          "leftover_cation": "0",
+          "leftover_anion": "0.002",
+          "n_spec_cation": "0.002",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.100",
+          "v2": "40.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.0025",
+          "n_anion": "0.006",
+          "xi": "0.0025",
+          "mass": "0.31347",
+          "leftover_cation": "0",
+          "leftover_anion": "0.0035",
+          "n_spec_cation": "0.005",
+          "n_spec_anion": "0.012"
+        }
+      },
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.100",
+          "v2": "10.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.0025",
+          "n_anion": "0.0015",
+          "xi": "0.0015",
+          "mass": "0.188082",
+          "leftover_cation": "0.001",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.005",
+          "n_spec_anion": "0.003"
+        }
+      },
+      {
+        "args": {
+          "v1": "30.0",
+          "c1": "0.200",
+          "v2": "30.0",
+          "c2": "0.100"
+        },
+        "expect": {
+          "n_cation": "0.006",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.376164",
+          "leftover_cation": "0.003",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.012",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "20.0",
+          "c1": "0.050",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.001",
+          "n_anion": "0.003",
+          "xi": "0.001",
+          "mass": "0.125388",
+          "leftover_cation": "0",
+          "leftover_anion": "0.002",
+          "n_spec_cation": "0.002",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "40.0",
+          "c1": "0.075",
+          "v2": "15.0",
+          "c2": "0.200"
+        },
+        "expect": {
+          "n_cation": "0.003",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.376164",
+          "leftover_cation": "0",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.006",
+          "n_spec_anion": "0.006"
+        }
+      }
+    ]
+  },
+  "practice": {
+    "family": "precipitation_limiting_reagent_v1",
+    "seed": 88220417,
+    "questions": [
+      {
+        "id": "q1",
+        "kind": "limiting",
+        "prompt": "25.0 mL of 0.250 M ZnCl2 is mixed with 10.0 mL of 0.050 M Na2CO3. Which reactant is the limiting reagent?",
+        "given": [
+          {
+            "species": "ZnCl2",
+            "volume_mL": "25.0",
+            "molarity_M": "0.250"
+          },
+          {
+            "species": "Na2CO3",
+            "volume_mL": "10.0",
+            "molarity_M": "0.050"
+          }
+        ],
+        "args": {
+          "v1": "25.0",
+          "c1": "0.250",
+          "v2": "10.0",
+          "c2": "0.050"
+        },
+        "answer": {
+          "display": "Na2CO3",
+          "value": "Na2CO3"
+        },
+        "choices": [
+          {
+            "display": "ZnCl2",
+            "correct": false,
+            "misconception": "Picking ZnCl2 by inspection — compare the moles of the reacting ion, not the volumes or concentrations alone."
+          },
+          {
+            "display": "Na2CO3",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "Neither — both are fully consumed",
+            "correct": false,
+            "misconception": "A limiting reagent runs out first; here one reactant is left over, so they are not both fully consumed."
+          }
+        ],
+        "explain": "Each reactant's capacity is its reacting-ion moles ÷ its net-ionic coefficient: ZnCl2 = 6.25 ÷ 1 = 6.25 mmol, Na2CO3 = 0.5 ÷ 1 = 0.5 mmol. Na2CO3 is smaller, so it limits."
+      },
+      {
+        "id": "q2",
+        "kind": "mass",
+        "prompt": "50.0 mL of 0.150 M ZnCl2 is mixed with 10.0 mL of 0.150 M Na2CO3. What mass of ZnCO3 precipitate forms?",
+        "given": [
+          {
+            "species": "ZnCl2",
+            "volume_mL": "50.0",
+            "molarity_M": "0.150"
+          },
+          {
+            "species": "Na2CO3",
+            "volume_mL": "10.0",
+            "molarity_M": "0.150"
+          }
+        ],
+        "args": {
+          "v1": "50.0",
+          "c1": "0.150",
+          "v2": "10.0",
+          "c2": "0.150"
+        },
+        "answer": {
+          "display": "0.188 g",
+          "value": "0.188"
+        },
+        "choices": [
+          {
+            "display": "0.188 g",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "0.940 g",
+            "correct": false,
+            "misconception": "Used ZnCl2, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
+          },
+          {
+            "display": "1.128 g",
+            "correct": false,
+            "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
+          }
+        ],
+        "explain": "ξ = 1.5 mmol (set by Na2CO3); mass = 1 × 1.5 mmol × 125.388 g/mol = 0.188 g."
+      },
+      {
+        "id": "q3",
+        "kind": "leftover",
+        "prompt": "25.0 mL of 0.200 M ZnCl2 is mixed with 50.0 mL of 0.150 M Na2CO3. After the reaction, how many mmol of the excess reactant remain?",
+        "given": [
+          {
+            "species": "ZnCl2",
+            "volume_mL": "25.0",
+            "molarity_M": "0.200"
+          },
+          {
+            "species": "Na2CO3",
+            "volume_mL": "50.0",
+            "molarity_M": "0.150"
+          }
+        ],
+        "args": {
+          "v1": "25.0",
+          "c1": "0.200",
+          "v2": "50.0",
+          "c2": "0.150"
+        },
+        "answer": {
+          "display": "2.5 mmol",
+          "value": "2.5"
+        },
+        "choices": [
+          {
+            "display": "2.5 mmol",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "7.5 mmol",
+            "correct": false,
+            "misconception": "That is all the Na2CO3 you started with — some of it reacts; only the surplus over the limiting reagent remains."
+          },
+          {
+            "display": "0 mmol",
+            "correct": false,
+            "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
+          }
+        ],
+        "explain": "Na2CO3 started at 7.5 mmol and 5 mmol reacted, leaving 2.5 mmol."
+      },
+      {
+        "id": "q4",
+        "kind": "limiting",
+        "prompt": "15.0 mL of 0.200 M ZnCl2 is mixed with 35.0 mL of 0.250 M Na2CO3. Which reactant is the limiting reagent?",
+        "given": [
+          {
+            "species": "ZnCl2",
+            "volume_mL": "15.0",
+            "molarity_M": "0.200"
+          },
+          {
+            "species": "Na2CO3",
+            "volume_mL": "35.0",
+            "molarity_M": "0.250"
+          }
+        ],
+        "args": {
+          "v1": "15.0",
+          "c1": "0.200",
+          "v2": "35.0",
+          "c2": "0.250"
+        },
+        "answer": {
+          "display": "ZnCl2",
+          "value": "ZnCl2"
+        },
+        "choices": [
+          {
+            "display": "ZnCl2",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "Na2CO3",
+            "correct": false,
+            "misconception": "Picking Na2CO3 by inspection — compare the moles of the reacting ion, not the volumes or concentrations alone."
+          },
+          {
+            "display": "Neither — both are fully consumed",
+            "correct": false,
+            "misconception": "A limiting reagent runs out first; here one reactant is left over, so they are not both fully consumed."
+          }
+        ],
+        "explain": "Each reactant's capacity is its reacting-ion moles ÷ its net-ionic coefficient: ZnCl2 = 3 ÷ 1 = 3 mmol, Na2CO3 = 8.75 ÷ 1 = 8.75 mmol. ZnCl2 is smaller, so it limits."
+      },
+      {
+        "id": "q5",
+        "kind": "mass",
+        "prompt": "10.0 mL of 0.200 M ZnCl2 is mixed with 50.0 mL of 0.050 M Na2CO3. What mass of ZnCO3 precipitate forms?",
+        "given": [
+          {
+            "species": "ZnCl2",
+            "volume_mL": "10.0",
+            "molarity_M": "0.200"
+          },
+          {
+            "species": "Na2CO3",
+            "volume_mL": "50.0",
+            "molarity_M": "0.050"
+          }
+        ],
+        "args": {
+          "v1": "10.0",
+          "c1": "0.200",
+          "v2": "50.0",
+          "c2": "0.050"
+        },
+        "answer": {
+          "display": "0.251 g",
+          "value": "0.251"
+        },
+        "choices": [
+          {
+            "display": "0.251 g",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "0.313 g",
+            "correct": false,
+            "misconception": "Used Na2CO3, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
+          },
+          {
+            "display": "0.564 g",
+            "correct": false,
+            "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
+          }
+        ],
+        "explain": "ξ = 2 mmol (set by ZnCl2); mass = 1 × 2 mmol × 125.388 g/mol = 0.251 g."
+      },
+      {
+        "id": "q6",
+        "kind": "leftover",
+        "prompt": "10.0 mL of 0.150 M ZnCl2 is mixed with 10.0 mL of 0.100 M Na2CO3. After the reaction, how many mmol of the excess reactant remain?",
+        "given": [
+          {
+            "species": "ZnCl2",
+            "volume_mL": "10.0",
+            "molarity_M": "0.150"
+          },
+          {
+            "species": "Na2CO3",
+            "volume_mL": "10.0",
+            "molarity_M": "0.100"
+          }
+        ],
+        "args": {
+          "v1": "10.0",
+          "c1": "0.150",
+          "v2": "10.0",
+          "c2": "0.100"
+        },
+        "answer": {
+          "display": "0.5 mmol",
+          "value": "0.5"
+        },
+        "choices": [
+          {
+            "display": "0.5 mmol",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "1.5 mmol",
+            "correct": false,
+            "misconception": "That is all the ZnCl2 you started with — some of it reacts; only the surplus over the limiting reagent remains."
+          },
+          {
+            "display": "0 mmol",
+            "correct": false,
+            "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
+          }
+        ],
+        "explain": "ZnCl2 started at 1.5 mmol and 1 mmol reacted, leaving 0.5 mmol."
+      }
+    ]
+  }
+}

@@ -152,6 +152,34 @@ function verifyStoich(rel, p, fail) {
   if (!close(Number(last.value), Number(p.answer.value))) fail(rel, `${p.id}: chain end ${last.value} != answer ${p.answer.value}`);
 }
 
+// limiting reagent from masses (ADR-0029): re-verify the balance, re-compute each reactant's reaction extent
+// (moles ÷ coefficient), confirm the emitted limiting reagent is the smaller one, and re-derive the maximum
+// product mass from that extent — independent of Python.
+function verifyLimiting(rel, p, fail) {
+  const d = p.derivation;
+  verifyBalance(rel, p.id, d.species, d.coefficients, fail);
+  if (!Array.isArray(d.reactants) || d.reactants.length < 2 || !d.target)
+    fail(rel, `${p.id}: limiting_mass derivation missing reactants/target`);
+  for (const part of [...d.reactants, d.target]) {
+    const sp = d.species[part.index];
+    if (!sp || sp.formula !== part.formula) fail(rel, `${p.id}: ${part.formula} not at species index ${part.index}`);
+    if (d.coefficients[part.index] !== part.coeff)
+      fail(rel, `${p.id}: ${part.formula} coeff ${part.coeff} != coefficients[${part.index}]=${d.coefficients[part.index]}`);
+  }
+  const extents = d.reactants.map((r) => (Number(r.mass_g) / Number(r.molar_mass_g_per_mol)) / r.coeff);
+  let minI = 0;
+  for (let i = 1; i < extents.length; i++) if (extents[i] < extents[minI]) minI = i;
+  if (d.reactants[minI].index !== d.limiting_index)
+    fail(rel, `${p.id}: limiting reagent is ${d.reactants[minI].formula} (index ${d.reactants[minI].index}), not emitted index ${d.limiting_index}`);
+  const theoretical = extents[minI] * d.target.coeff * Number(d.target.molar_mass_g_per_mol);
+  if (!close(theoretical, Number(p.answer.value)))
+    fail(rel, `${p.id}: product mass ${p.answer.value} != re-derived ${theoretical}`);
+  if (p.answer.unit !== p.target_unit) fail(rel, `${p.id}: answer unit '${p.answer.unit}' != target_unit '${p.target_unit}'`);
+  const last = p.chain[p.chain.length - 1];
+  if (last.unit !== p.target_unit) fail(rel, `${p.id}: chain ends in '${last.unit}', not target '${p.target_unit}'`);
+  if (!close(Number(last.value), Number(p.answer.value))) fail(rel, `${p.id}: chain end ${last.value} != answer ${p.answer.value}`);
+}
+
 const files = readdirSync(gymDir).filter((n) => n.endsWith(".gym.json"));
 if (files.length === 0) { console.log("validate-gyms: no *.gym.json — nothing to check."); process.exit(0); }
 
@@ -190,6 +218,9 @@ for (const name of files) {
     } else if (p.kind === "mass_stoichiometry" || p.kind === "percent_yield") {
       // 1s. stoichiometry: re-verify the balanced equation + re-derive the mass/percent numerically (ADR-0029)
       verifyStoich(rel, p, fail);
+    } else if (p.kind === "limiting_mass") {
+      // 1L. limiting reagent from masses: re-derive extents, confirm the limiter + the product mass (ADR-0029)
+      verifyLimiting(rel, p, fail);
     } else {
       // 1c. conversion: the answer re-derives from the raw inputs; units line up; the chain ends at the answer
       const got = rederive(p.kind, p.derivation.inputs, rel, p.id);
@@ -215,7 +246,7 @@ for (const name of files) {
     const mmPairs = [];
     if (p.derivation.inputs?.molar_mass_g_per_mol != null)
       mmPairs.push([p.derivation.inputs.substance, p.derivation.inputs.molar_mass_g_per_mol]);
-    for (const part of [p.derivation.given, p.derivation.target])
+    for (const part of [p.derivation.given, p.derivation.target, ...(p.derivation.reactants || [])])
       if (part?.molar_mass_g_per_mol != null) mmPairs.push([part.formula, part.molar_mass_g_per_mol]);
     for (const [sub, mm] of mmPairs) {
       if (molarMass.has(sub) && molarMass.get(sub) !== mm)

@@ -78,6 +78,21 @@ for (const file of files) {
     if (!near(Number(lo.moles), Number(lrow.final_mol)))
       fail(rel, `leftover ${lo.species} moles ${lo.moles} != ledger final ${lrow.final_mol}`);
   }
+
+  // percent yield (ADR-0029): the theoretical yield IS the precipitate mass; the reported percent must be
+  // actual ÷ theoretical × 100 (re-derived here, then rounded to the emitted 3-sig-fig display), and the
+  // actual yield must be physical (0 < actual ≤ theoretical — you cannot collect more than forms).
+  const py = sol.result.percent_yield;
+  if (py) {
+    if (!near(Number(py.theoretical_mass_g), Number(precip.mass_g)))
+      fail(rel, `theoretical yield ${py.theoretical_mass_g} != precipitate mass ${precip.mass_g}`);
+    const actual = Number(py.actual_mass_g), theo = Number(py.theoretical_mass_g);
+    if (!(actual > 0 && actual <= theo + TOL))
+      fail(rel, `actual yield ${py.actual_mass_g} must be > 0 and ≤ theoretical ${py.theoretical_mass_g}`);
+    const rePercent = (actual / theo) * 100;    // must round to the emitted display (reported to 0.1%)
+    if (Math.abs(rePercent - Number(py.percent_display)) > 0.05 + 1e-9)
+      fail(rel, `percent_display ${py.percent_display} != actual/theoretical*100 = ${rePercent.toFixed(4)}`);
+  }
 }
 
 console.log(`check-ledger: ${files.length} ledger(s), ${rows} row(s) satisfy n = n0 + ν·ξ and match the result.`);

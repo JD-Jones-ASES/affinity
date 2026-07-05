@@ -12,6 +12,7 @@
     solution_conversions_v1: "Follow the units — each factor cancels into the next:",
     mass_stoichiometry_v1: "Convert to moles, cross the mole ratio, convert back:",
     percent_yield_v1: "Theoretical yield first, then compare the actual:",
+    limiting_mass_v1: "From the limiting reagent, convert to the product mass:",
   };
   const chainLabel = CHAIN_LABELS[gym.family] ?? "Work through it, step by step:";
 
