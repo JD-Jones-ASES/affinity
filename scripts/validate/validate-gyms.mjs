@@ -42,6 +42,18 @@ function rederive(kind, i, rel, id) {
   }
 }
 
+// --- ionic nomenclature re-derivation (ADR-0027): re-run the charge crossover + name assembly in pure Node,
+// independent of the Python producer, from the emitted ion parts. No formula parser needed — crossover is
+// gcd arithmetic + string assembly, and the name is just cation + anion compound_names.
+const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) { [a, b] = [b, a % b]; } return a; };
+const MONO = /^[A-Z][a-z]?$/;
+const groupPart = (part, n) => (n === 1 ? part : (MONO.test(part) ? `${part}${n}` : `(${part})${n}`));
+function crossoverFormula(cat, an) {
+  const c = cat.charge, a = -an.charge;           // positive magnitudes
+  const g = gcd(c, a);
+  return groupPart(cat.formula_part, a / g) + groupPart(an.formula_part, c / g);
+}
+
 const files = readdirSync(gymDir).filter((n) => n.endsWith(".gym.json"));
 if (files.length === 0) { console.log("validate-gyms: no *.gym.json — nothing to check."); process.exit(0); }
 
@@ -59,20 +71,34 @@ for (const name of files) {
   ids.add(gym.id);
 
   for (const p of gym.problems) {
-    // 1. the answer re-derives from the raw inputs
     if (p.derivation.kind !== p.kind) fail(rel, `${p.id}: derivation.kind '${p.derivation.kind}' != problem kind '${p.kind}'`);
-    const got = rederive(p.kind, p.derivation.inputs, rel, p.id);
-    if (!Number.isFinite(got)) fail(rel, `${p.id}: re-derivation is not finite`);
-    if (!close(got, Number(p.answer.value)))
-      fail(rel, `${p.id}: answer ${p.answer.value} != re-derived ${got} (Δ=${Math.abs(got - Number(p.answer.value)).toExponential(2)})`);
 
-    // 2. units line up: answer unit == target, and the chain ends at the answer
-    if (p.answer.unit !== p.target_unit) fail(rel, `${p.id}: answer unit '${p.answer.unit}' != target_unit '${p.target_unit}'`);
-    const last = p.chain[p.chain.length - 1];
-    if (last.unit !== p.target_unit) fail(rel, `${p.id}: chain ends in '${last.unit}', not target '${p.target_unit}'`);
-    if (!close(Number(last.value), Number(p.answer.value))) fail(rel, `${p.id}: chain end ${last.value} != answer ${p.answer.value}`);
+    if (p.kind.startsWith("ionic_")) {
+      // 1n. nomenclature: re-derive name + formula independently and check the answer + prompt
+      const d = p.derivation;
+      if (!d.cation || !d.anion || d.formula == null || d.name == null)
+        fail(rel, `${p.id}: nomenclature derivation missing cation/anion/formula/name`);
+      const reName = `${d.cation.compound_name} ${d.anion.compound_name}`;
+      const reFormula = crossoverFormula(d.cation, d.anion);
+      if (reName !== d.name) fail(rel, `${p.id}: re-derived name '${reName}' != emitted '${d.name}'`);
+      if (reFormula !== d.formula) fail(rel, `${p.id}: re-derived formula '${reFormula}' != emitted '${d.formula}'`);
+      const want = p.kind === "ionic_formula_to_name" ? d.name : d.formula;
+      const other = p.kind === "ionic_formula_to_name" ? d.formula : d.name;
+      if (p.answer.value !== want) fail(rel, `${p.id}: answer '${p.answer.value}' != re-derived '${want}'`);
+      if (!p.prompt.includes(other)) fail(rel, `${p.id}: prompt does not contain the ${p.kind === "ionic_formula_to_name" ? "formula" : "name"} '${other}'`);
+    } else {
+      // 1c. conversion: the answer re-derives from the raw inputs; units line up; the chain ends at the answer
+      const got = rederive(p.kind, p.derivation.inputs, rel, p.id);
+      if (!Number.isFinite(got)) fail(rel, `${p.id}: re-derivation is not finite`);
+      if (!close(got, Number(p.answer.value)))
+        fail(rel, `${p.id}: answer ${p.answer.value} != re-derived ${got} (Δ=${Math.abs(got - Number(p.answer.value)).toExponential(2)})`);
+      if (p.answer.unit !== p.target_unit) fail(rel, `${p.id}: answer unit '${p.answer.unit}' != target_unit '${p.target_unit}'`);
+      const last = p.chain[p.chain.length - 1];
+      if (last.unit !== p.target_unit) fail(rel, `${p.id}: chain ends in '${last.unit}', not target '${p.target_unit}'`);
+      if (!close(Number(last.value), Number(p.answer.value))) fail(rel, `${p.id}: chain end ${last.value} != answer ${p.answer.value}`);
+    }
 
-    // 3. choices: exactly one correct, distinct displays, the correct one is the answer, wrong ones name a mistake
+    // 2. choices: exactly one correct, distinct displays, the correct one is the answer, wrong ones name a mistake
     const correct = p.choices.filter((c) => c.correct);
     if (correct.length !== 1) fail(rel, `${p.id}: ${correct.length} correct choices (want exactly 1)`);
     if (correct[0].display !== p.answer.display) fail(rel, `${p.id}: correct choice '${correct[0].display}' != answer.display '${p.answer.display}'`);
@@ -80,8 +106,8 @@ for (const name of files) {
     if (new Set(displays).size !== displays.length) fail(rel, `${p.id}: choice displays are not distinct`);
     for (const c of p.choices) if (!c.correct && !c.misconception) fail(rel, `${p.id}: a wrong choice has no named misconception`);
 
-    // 4. molar mass is consistent per substance across the whole corpus
-    const mm = p.derivation.inputs.molar_mass_g_per_mol;
+    // 3. molar mass is consistent per substance across the whole corpus (conversion problems only)
+    const mm = p.derivation.inputs?.molar_mass_g_per_mol;
     if (mm != null) {
       const sub = p.derivation.inputs.substance;
       if (molarMass.has(sub) && molarMass.get(sub) !== mm)

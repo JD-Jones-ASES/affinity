@@ -211,11 +211,15 @@ misconception by **capacity** (moles ÷ coefficient), and the practice explanati
 cancellation mistake. Formula typography is settled (ADR-0025): upright `\mathrm` LaTeX, Unicode
 sub/superscripts in all generated/authored prose (view-side `prettyText`/`renderGym`), ASCII in data and
 gate comparisons; independent **test oracles** (ADR-0026: chempy/periodictable dev-deps) cross-check the
-masses and both balances in pytest. **Counters: 2 lessons + 1 dimensional-analysis gym (10 verified
-conversions), 1 Valence Table + 14 cross-linked concept entries (2 rule-sourced, cited), 7 Node gates + CI +
-live Pages, 74 producer tests green; astro build = 9 pages.** **Phase 0 remains complete end to end**;
-Phase 1 is now open and filling depth-first — items 2–6 carry full scope blocks, an 8-session map, and a
-**Phase-1 definition of done** in the ROADMAP, with a review gate before Phase 2. See
+masses and both balances in pytest. **Item 2 (formula & nomenclature engine) landed** (ADR-0027): a second
+gym family `ionic_nomenclature_v1` (name↔formula both directions, the Stock system for variable-charge
+metals), a sourced `compound_name` on every ion + 6 new metals (K/Mg/Al/Fe/Cu/Zn, oracle-checked), the
+`chemkernel.nomenclature` engine, and a pure-Node re-derivation branch in `validate-gyms` (name by
+concatenation, formula by gcd crossover). **Counters: 2 lessons + 2 gyms (dimensional analysis + ionic
+nomenclature; 20 verified problems), 1 Valence Table (15 elements) + 15 cross-linked concept entries (3
+rule-sourced, cited), 7 Node gates + CI + live Pages, 83 producer tests green; astro build = 10 pages.**
+**Phase 0 remains complete end to end**; Phase 1 is filling depth-first — items 3–6 carry full scope blocks,
+an 8-session map, and a **Phase-1 definition of done** in the ROADMAP, with a review gate before Phase 2. See
 [`ROADMAP.md`](./ROADMAP.md) and [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
 
 ## Where this might go next (paths for a future session)

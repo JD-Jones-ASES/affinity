@@ -1,0 +1,14 @@
+# Chemical Atlas concept entry (ADR-0005). Naming is a sourced convention; the formula is machine-verified.
+id = "nomenclature"
+kind = "concept"
+title = "Nomenclature"
+term = "nomenclature"
+regime = "rule-sourced"
+source = "openstax-chemistry-2e"
+definition = "The rules for turning a formula into a name and back. An ionic compound is named cation-then-anion: the metal keeps its element name — or, for a variable-charge metal, its charge as a Roman numeral (the Stock system, $\\text{iron(III)}$) — and the nonmetal or polyatomic ion takes its -ide/-ate name. The formula is the reverse and is pure charge balance: the two ions' charges cross to whatever subscripts make the compound neutral, so $\\text{Fe}^{3+}$ and $\\text{SO}_4^{2-}$ give $\\text{Fe}_2(\\text{SO}_4)_3$. The names are sourced conventions; the assembled formula is machine-checked (charge crossover, verified neutral)."
+latex = "\\text{Fe}^{3+} + \\text{SO}_4^{2-} \\;\\rightarrow\\; \\text{Fe}_2(\\text{SO}_4)_3"
+related = [
+  { to = "polyatomic-ion", type = "uses" },
+  { to = "conservation-of-mass", type = "constrained-by" },
+]
+lessons = []

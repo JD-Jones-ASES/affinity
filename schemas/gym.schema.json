@@ -23,11 +23,13 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "kind", "prompt", "chain", "target_unit", "answer", "derivation", "choices", "explain"],
+        "$comment": "chain/target_unit are required for conversion problems, absent for nomenclature; the per-kind shape is enforced by validate-gyms.mjs.",
+        "required": ["id", "kind", "prompt", "answer", "derivation", "choices", "explain"],
         "properties": {
           "id": { "type": "string", "pattern": "^q[0-9]+$" },
           "kind": { "type": "string", "minLength": 1 },
           "prompt": { "type": "string", "minLength": 1 },
+          "subscript_tokens": { "type": "array", "items": { "type": "string" } },
           "chain": {
             "type": "array",
             "minItems": 2,
@@ -46,7 +48,7 @@
           "answer": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["value", "unit", "display"],
+            "required": ["value", "display"],
             "properties": {
               "value": { "type": "string" },
               "unit": { "type": "string" },
@@ -56,10 +58,11 @@
           "derivation": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["kind", "inputs"],
+            "$comment": "conversion kinds carry `inputs`; nomenclature kinds carry `cation`/`anion`/`formula`/`name`. validate-gyms re-derives each.",
+            "required": ["kind"],
             "properties": {
               "kind": {
-                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass"]
+                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula"]
               },
               "inputs": {
                 "type": "object",
@@ -73,7 +76,11 @@
                   "m_g": { "type": "string" },
                   "molar_mass_g_per_mol": { "type": "string" }
                 }
-              }
+              },
+              "cation": { "$ref": "#/$defs/ionpart" },
+              "anion": { "$ref": "#/$defs/ionpart" },
+              "formula": { "type": "string" },
+              "name": { "type": "string" }
             }
           },
           "choices": {
@@ -107,6 +114,19 @@
           "required": ["atomic_weight"],
           "properties": { "atomic_weight": { "type": "string" } }
         }
+      }
+    }
+  },
+  "$defs": {
+    "ionpart": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "formula_part", "charge", "compound_name"],
+      "properties": {
+        "id": { "type": "string" },
+        "formula_part": { "type": "string" },
+        "charge": { "type": "integer" },
+        "compound_name": { "type": "string" }
       }
     }
   }

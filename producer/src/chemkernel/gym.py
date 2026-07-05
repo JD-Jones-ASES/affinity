@@ -23,6 +23,8 @@ from decimal import Context, Decimal, ROUND_HALF_UP, localcontext
 from fractions import Fraction
 
 from . import BuildError, __version__
+from .nomenclature import (assemble_with, base_cation_name, formula_ionic, greek, is_variable,
+                          name_ionic, other_charge_names, roman)
 from .units import Quantity
 
 # recognizable salts whose molar mass resolves from data/ (each parses + is built from known elements)
@@ -223,13 +225,7 @@ def _problem(kind, sub, molar_mass, rng, ctx):
     }
 
 
-def generate_gym(spec: dict, data, ctx: str = "") -> dict:
-    """Build a verified gym problem set from an authored spec (deterministic in `seed`)."""
-    family = spec.get("family")
-    if family != "solution_conversions_v1":
-        raise BuildError(f"{ctx}: unknown gym family '{family}'")
-    seed, count = int(spec["seed"]), int(spec.get("count", 8))
-
+def _generate_conversions(seed, count, data, ctx):
     molar_mass = {s: data.molar_mass(s) for s in _SUBSTANCES}   # sourced, and separately tested
     rng = random.Random(seed)
     problems: list[dict] = []
@@ -248,9 +244,134 @@ def generate_gym(spec: dict, data, ctx: str = "") -> dict:
         seen.add(fingerprint)
         q["id"] = f"q{len(problems) + 1}"
         problems.append(q)
-
     if len(problems) < count:
         raise BuildError(f"{ctx}: gym could not generate {count} non-rejected problems at seed {seed}")
+    return problems
+
+
+# ------------------------------ ionic nomenclature (item 2, ADR-0027) ------------------------------
+
+_DIRECTIONS = ["formula_to_name", "name_to_formula"]
+
+
+def _nomenclature_problem(direction, cation, anion, data, ctx):
+    """One ionic name↔formula problem, or None to reject (collapsed distractors)."""
+    try:
+        formula, n_cat, n_an = formula_ionic(cation, anion, ctx)
+    except BuildError:
+        return None
+    name = name_ionic(cation, anion, ctx)
+    c, a = cation.charge, -anion.charge                 # positive charge magnitudes
+    variable = is_variable(cation, data.ions)
+    base = base_cation_name(cation, data)
+
+    if variable:
+        others = other_charge_names(cation, data.ions)
+        name_wrongs = [(f"{base} {anion.compound_name}",
+                        "Dropped the Roman numeral — a variable-charge metal must state its charge (the Stock system).")]
+        if others:
+            name_wrongs.insert(0, (f"{others[0]} {anion.compound_name}",
+                                   "Wrong oxidation state — the anion fixes the metal's charge here; check which Stock numeral balances it."))
+    else:
+        name_wrongs = [
+            (f"{base}({roman(c)}) {anion.compound_name}",
+             "Added a Roman numeral to a fixed-charge metal — only variable-charge metals take one."),
+            (f"{greek(n_cat, drop_mono=False)}{base} {greek(n_an, drop_mono=False)}{anion.compound_name}",
+             "Used Greek prefixes (mono-, di-, tri-) — those name covalent molecules, not ionic compounds."),
+        ]
+
+    formula_wrongs = [
+        (assemble_with(cation, c, anion, a),
+         "Used each ion's own charge as its subscript — you CROSS the charges (each subscript is the other ion's charge)."),
+        (assemble_with(cation, 1, anion, 1),
+         f"Combined one-to-one — the charges (+{c}, −{a}) don't cancel one-for-one; balance them."),
+    ]
+
+    if direction == "formula_to_name":
+        prompt = f"What is the name of {formula}?"
+        answer, wrongs = name, name_wrongs
+        subscript = [formula, cation.id, anion.id]
+        if variable:
+            explain = (f"Charge balance sets the metal: {n_an}×{anion.compound_name} gives {n_an * a}− total, "
+                       f"matched by {n_cat}×{cation.id} — so {formula} is {name}.")
+        else:
+            explain = (f"{cation.id} is the cation and {anion.id} the anion; a fixed-charge metal needs no "
+                       f"numeral, so {formula} is {name}.")
+    else:
+        prompt = f"Write the formula for {name}."
+        answer, wrongs = formula, formula_wrongs
+        subscript = [formula] + [w for w, _ in formula_wrongs] + [cation.id, anion.id]
+        explain = (f"{cation.id} and {anion.id} cross their charges: {n_cat}×{cation.formula} to "
+                   f"{n_an}×({anion.compound_name}) gives the neutral {formula}.")
+
+    seen = {answer}
+    choices = [{"display": answer, "correct": True, "misconception": None}]
+    for disp, why in wrongs:
+        if disp in seen:
+            return None                                  # a distractor collapsed onto another choice — reject
+        seen.add(disp)
+        choices.append({"display": disp, "correct": False, "misconception": why})
+    if len(choices) != 3:
+        return None
+
+    return {
+        "kind": f"ionic_{direction}",
+        "prompt": prompt,
+        "answer": {"value": answer, "display": answer},
+        "derivation": {
+            "kind": f"ionic_{direction}",
+            "cation": {"id": cation.id, "formula_part": cation.formula, "charge": cation.charge,
+                       "compound_name": cation.compound_name},
+            "anion": {"id": anion.id, "formula_part": anion.formula, "charge": anion.charge,
+                      "compound_name": anion.compound_name},
+            "formula": formula,
+            "name": name,
+        },
+        "choices": choices,
+        "explain": explain,
+        "subscript_tokens": subscript,
+    }
+
+
+def _generate_nomenclature(seed, count, data, ctx):
+    cations = sorted((i for i in data.ions.values() if i.charge > 0 and i.compound_name and i.id != "H^+"),
+                     key=lambda i: i.id)
+    anions = sorted((i for i in data.ions.values() if i.charge < 0 and i.compound_name), key=lambda i: i.id)
+    rng = random.Random(seed)
+    problems: list[dict] = []
+    seen: set = set()
+    attempts = 0
+    while len(problems) < count and attempts < 8000:
+        attempts += 1
+        direction = _DIRECTIONS[len(problems) % len(_DIRECTIONS)]
+        q = _nomenclature_problem(direction, rng.choice(cations), rng.choice(anions), data, ctx)
+        if q is None:
+            continue
+        fingerprint = (q["kind"], q["prompt"])
+        if fingerprint in seen:
+            continue
+        seen.add(fingerprint)
+        q["id"] = f"q{len(problems) + 1}"
+        problems.append(q)
+    if len(problems) < count:
+        raise BuildError(f"{ctx}: nomenclature gym could not generate {count} problems at seed {seed}")
+    return problems
+
+
+_FAMILIES = {
+    "solution_conversions_v1": _generate_conversions,
+    "ionic_nomenclature_v1": _generate_nomenclature,
+}
+
+
+def generate_gym(spec: dict, data, ctx: str = "") -> dict:
+    """Build a verified gym problem set from an authored spec (deterministic in `seed`)."""
+    family = spec.get("family")
+    generator = _FAMILIES.get(family)
+    if generator is None:
+        raise BuildError(f"{ctx}: unknown gym family '{family}'")
+    seed, count = int(spec["seed"]), int(spec.get("count", 8))
+    problems = generator(seed, count, data, ctx)
 
     return {
         "kind": "gym",

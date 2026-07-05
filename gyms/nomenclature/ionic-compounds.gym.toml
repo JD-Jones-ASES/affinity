@@ -1,0 +1,14 @@
+# A procedural gym (Phase 1 item 2, ADR-0024/0027). ChemKernel generates the problems: it names each ionic
+# compound from the sourced ion names (compound_name) and assembles its formula by verified charge crossover,
+# both directions. Every wrong option is a named nomenclature mistake, not a random string.
+
+id = "nomenclature-ionic-compounds"
+title = "Naming ionic compounds: formula ↔ name"
+slug = "ionic-compounds"
+topic = "nomenclature"
+family = "ionic_nomenclature_v1"
+seed = 8175003
+count = 10
+blurb = "Name an ionic compound from its formula, and write the formula from the name — both directions, including the Stock system (iron(III), copper(I)) for variable-charge metals. The formula is assembled by machine-verified charge crossover; every wrong option is a specific naming mistake (wrong oxidation state, charges used as subscripts, or covalent prefixes on an ionic compound)."
+skills = ["cation name + anion (-ide / -ate) name", "Stock Roman numerals for variable-charge metals", "charge crossover: each subscript is the other ion's charge", "polyatomic ions kept as a unit with parentheses"]
+reference_links = ["nomenclature", "polyatomic-ion", "dimensional-analysis"]

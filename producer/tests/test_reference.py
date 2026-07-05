@@ -19,11 +19,14 @@ def _data():
 def test_valence_table_shape():
     t = build_valence_table(_data())
     assert t["kind"] == "valence-table" and t["id"] == "valence-table"
-    assert len(t["elements"]) == 9
+    assert len(t["elements"]) == 15                          # 9 Phase-0 + K,Mg,Al,Fe,Cu,Zn (item 2)
     assert t["highlight"] == ["Ca", "Na"]
     ca = next(e for e in t["elements"] if e["symbol"] == "Ca")
     assert ca["common_ion"]["id"] == "Ca^2+" and ca["common_ion"]["charge"] == 2
-    # C/N/P/S have no monatomic ion in the dataset
+    # a variable-charge metal shows its lowest charge deterministically (Fe²⁺, not Fe³⁺)
+    fe = next(e for e in t["elements"] if e["symbol"] == "Fe")
+    assert fe["common_ion"]["id"] == "Fe^2+"
+    # C and P have no monatomic ion in the dataset (N and S now do — nitride, sulfide)
     carbon = next(e for e in t["elements"] if e["symbol"] == "C")
     assert "common_ion" not in carbon
     assert {p["id"] for p in t["polyatomic"]} >= {"CO3^2-", "SO4^2-", "NO3^-"}

@@ -3,6 +3,29 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 1 — 2026-07-05 — item 2: the formula & nomenclature engine
+
+- **Ionic nomenclature, both directions** (ADR-0027). A new gym family `ionic_nomenclature_v1`: name a
+  compound from its formula and write the formula from its name, including the **Stock system** for
+  variable-charge metals (iron(III), copper(I)). Each wrong option is a named mistake — wrong oxidation
+  state, each ion's own charge used as its subscript, or covalent prefixes on an ionic compound.
+- **Data curation.** `data/elements.toml` += K, Mg, Al, Fe, Cu, Zn (CIAAW weights, each cross-checked
+  against the `periodictable` oracle); `data/ions.toml` += the transition-metal ions (Fe²⁺/Fe³⁺, Cu⁺/Cu²⁺),
+  Zn²⁺, K⁺, Mg²⁺, Al³⁺, and the monatomic anions sulfide/nitride — plus a sourced **`compound_name`** on
+  every ion (the name it takes in a compound). **15 elements, 23 ions.**
+- **Engine.** `chemkernel.nomenclature` — `name_ionic` (cation + anion compound_name) + `formula_ionic`
+  (verified charge crossover, reusing `reference.assemble_formula`); the Stock-numeral and covalent-prefix
+  helpers drive the distractors.
+- **Verification.** The gym schema generalized to two problem shapes (optional chain/unit; a `subscript_tokens`
+  array; a `derivation` that carries ion parts for nomenclature). `validate-gyms.mjs` re-derives every
+  nomenclature answer **in pure Node** — the name by concatenation, the **formula by re-running the gcd
+  crossover** — independent of the Python producer. The Valence Table now shows 15 elements (variable metals
+  pick their lowest charge deterministically); a new `nomenclature` Atlas concept links the gym.
+- **83 producer tests** (+9: nomenclature module + gym family) + **7 gates** (validate-gyms = **2 gyms / 20
+  problems** re-derived, validate-reference = 16, check-katex = 88) + **astro build (10 pages)** green.
+  In-browser: the nomenclature drill renders both directions with subscripted formulas (NaNO₃, Ca₃(PO₄)₂,
+  FeCl₃) while names stay plain; conversion gym + Valence Table (now with Fe/Cu/Zn) regress clean.
+
 ## Phase 1 — 2026-07-05 — formula typography, test oracles, doc sweep, roadmap overhaul
 
 - **Formula rendering (ADR-0025, brief §6.1).** Producer LaTeX is now **upright** (`\mathrm{CaCl_{2}}`,

@@ -8,7 +8,9 @@
 # Group/period/block are the definitional IUPAC periodic-table positions — source `iupac-periodic-table`.
 #
 # N, S, P are included beyond the six Phase-0 elements so every ion in ions.toml is composed of known
-# elements (the load-time self-check in data.py depends on this).
+# elements (the load-time self-check in data.py depends on this). K, Mg, Al, Fe, Cu, Zn were added for the
+# nomenclature engine (Phase 1 item 2) — Fe and Cu carry variable charges (the Stock system). Every added
+# weight is cross-checked against the `periodictable` oracle in tests/test_oracle.py (ADR-0026).
 
 source = "ciaaw-2021-atomic-weights"
 position_source = "iupac-periodic-table"
@@ -90,3 +92,59 @@ uncertainty = "0.004"
 group = 2
 period = 4
 block = "s"
+
+# --- added for the nomenclature engine (Phase 1 item 2) ---
+
+[elements.Mg]
+Z = 12
+name = "magnesium"
+atomic_weight = "24.305"
+uncertainty = "0.002"
+group = 2
+period = 3
+block = "s"
+
+[elements.Al]
+Z = 13
+name = "aluminum"
+atomic_weight = "26.982"
+uncertainty = "0.001"
+group = 13
+period = 3
+block = "p"
+
+[elements.K]
+Z = 19
+name = "potassium"
+atomic_weight = "39.098"
+uncertainty = "0.001"
+group = 1
+period = 4
+block = "s"
+
+[elements.Fe]
+Z = 26
+name = "iron"
+atomic_weight = "55.845"
+uncertainty = "0.002"
+group = 8
+period = 4
+block = "d"
+
+[elements.Cu]
+Z = 29
+name = "copper"
+atomic_weight = "63.546"
+uncertainty = "0.003"
+group = 11
+period = 4
+block = "d"
+
+[elements.Zn]
+Z = 30
+name = "zinc"
+atomic_weight = "65.38"
+uncertainty = "0.02"
+group = 12
+period = 4
+block = "d"

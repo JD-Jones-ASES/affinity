@@ -1,9 +1,8 @@
 <script>
-  // The dimensional-analysis gym (Phase 1, ADR-0024): a drill over producer-generated, machine-verified
-  // conversion problems. Pick an answer → the star feature reveals: the CANCELLATION CHAIN (each factor shown
-  // as a step whose units cancel into the next), whether you were right, and — for a wrong pick — exactly which
-  // cancellation mistake it was. Computes nothing; every value and every distractor came from the producer and
-  // was re-derived by validate-gyms.mjs.
+  // The generic gym drill (Phase 1, ADR-0024): steps producer-generated, machine-verified problems from any
+  // family. Pick an answer → the reveal shows the worked reasoning (the CANCELLATION CHAIN for conversion
+  // gyms, when present) and, for a wrong pick, exactly which named mistake it was. Computes nothing; every
+  // value and every distractor came from the producer and was re-derived by validate-gyms.mjs.
   let { gym } = $props();
   const problems = gym.problems;
 
@@ -56,16 +55,18 @@
 
     {#if picked !== null}
       <div class="reveal">
-        <div class="chain-label">Follow the units — each factor cancels into the next:</div>
-        <div class="chain-flow">
-          {#each q.chain as st, i}
-            <div class="cq">
-              <span class="cv">{st.value}</span><span class="cu">{st.unit}</span>
-              <span class="cn">{st.note}</span>
-            </div>
-            {#if i < q.chain.length - 1}<span class="arrow">→</span>{/if}
-          {/each}
-        </div>
+        {#if q.chain}
+          <div class="chain-label">Follow the units — each factor cancels into the next:</div>
+          <div class="chain-flow">
+            {#each q.chain as st, i}
+              <div class="cq">
+                <span class="cv">{st.value}</span><span class="cu">{st.unit}</span>
+                <span class="cn">{st.note}</span>
+              </div>
+              {#if i < q.chain.length - 1}<span class="arrow">→</span>{/if}
+            {/each}
+          </div>
+        {/if}
         <p class="explain"><span class="tag">Why</span> {q.explain}</p>
         <button class="next" onclick={next}>{idx + 1 < problems.length ? "Next problem →" : "See results →"}</button>
       </div>

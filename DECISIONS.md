@@ -497,3 +497,34 @@ redundant proof in the spirit of the two-layer Python/Node verification (ADR-000
 flagship needs new element properties (electronegativity, radii, ionization energies), the data still gets
 curated into `data/` from a primary source per ADR-0006 — with `mendeleev` available as an oracle to
 cross-check the transcription, which is exactly the failure mode oracles catch.
+
+## ADR-0027 — Ionic nomenclature: sourced compound names + pure-Node name/formula re-derivation (2026-07-05)
+
+**Context.** Phase-1 item 2 (formula & nomenclature engine) needs name↔formula in both directions. Naming
+is a sourced convention (regime 3); the formula an ion pair assembles into is charge balance (regime 1,
+already machine-verified by `reference.assemble_formula`). But the gym honesty model (ADR-0024) has the Node
+gate *re-derive every answer in pure Node* — and nomenclature answers are strings (names, formulas), while
+the gate has no JS chemistry engine (no formula parser — ADR-0023 left that as future work). The question
+was how to keep the CI-re-proves guarantee for string answers.
+
+**Decision.** (1) **Data:** each ion in `data/ions.toml` gains a sourced `compound_name` — the name it takes
+inside a compound (element name for a fixed-charge cation, element + Stock Roman numeral for a variable-
+charge metal `iron(III)`, -ide/-ate for anions). Six metals were added to `data/elements.toml` (K, Mg, Al,
+Fe, Cu, Zn; weights cross-checked against the `periodictable` oracle, ADR-0026), Fe and Cu carrying variable
+charges. (2) **Engine:** `chemkernel.nomenclature` is the single source of truth — `name_ionic` = cation +
+anion `compound_name`; the formula is `assemble_formula` (verified crossover). (3) **Gate:** the nomenclature
+gym emits, per problem, the structured ion parts (`id`, `formula_part`, `charge`, `compound_name`) plus the
+`formula` and `name`. `validate-gyms.mjs` re-derives **both independently in pure Node** — the name by
+concatenation, the **formula by re-running the gcd charge-crossover + group-string assembly** (integer
+arithmetic + string ops, no parser) — and checks them against the emitted values and the answer, plus that
+the prompt states the other representation. Every wrong choice is a *named* mistake (wrong Stock numeral,
+each ion's own charge used as its subscript, covalent prefixes on an ionic compound).
+
+**Consequences.** The gym schema generalized to two problem shapes: `chain`/`target_unit`/`answer.unit`
+optional; `derivation` carries either numeric `inputs` (conversions) or `cation`/`anion`/`formula`/`name`
+(nomenclature); a `subscript_tokens` array tells the view which formula tokens to Unicode-subscript
+(ADR-0025) — names have no digits so they pass through untouched. Composition stays regime-1 machine-verified
+(crossover); names stay regime-3 sourced. The Valence Table shows one ion per element (lowest charge for a
+variable metal, deterministically); full oxidation-state display is an item-5 (flagship) enhancement. This
+is the template for items 3–6: a new gym family = a Python generator + a `validate-gyms` re-derivation
+branch, not new plumbing.

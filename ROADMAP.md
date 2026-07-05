@@ -64,6 +64,12 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   lesson balances — **74 producer tests**). Doc sweep (architecture as-built to 7 gates/gym, README status)
   and this roadmap's **Phase-1 scope blocks, session map, and definition of done** landed; scope decision:
   Phase 1 + Atlas breadth first, **Phase 2 opens only on owner review**.
+- **Session 2026-07-05 (cont.) — Phase-1 item 2: formula & nomenclature engine (ionic).** Landed the second
+  gym family `ionic_nomenclature_v1` (name↔formula both directions, Stock system), a sourced `compound_name`
+  on every ion + 6 new metals (oracle-checked), the `chemkernel.nomenclature` engine, a pure-Node
+  name/formula re-derivation branch in `validate-gyms`, a `nomenclature` Atlas concept, and the Valence Table
+  to 15 elements (ADR-0027). **83 producer tests + 7 gates (2 gyms / 20 problems) + astro build (10 pages).**
+  Covalent/acid naming and the flagship formula-mode hookup are deferred within item 2.
 
 ---
 
@@ -126,7 +132,7 @@ items 1–6), the model-bearing topics as Phase 2+ (brief items 7–10) — so e
 boundary. Each item opens with its stress scenario and gets its own scope block when its phase opens:
 
 1. **Dimensional analysis gym** — endless generated quantity-algebra with visible unit cancellation. **← LANDED**
-2. **Formula & nomenclature engine** — ions, charges, compounds, acids, polyatomics, both directions.
+2. **Formula & nomenclature engine** — ions, charges, compounds, acids, polyatomics, both directions. **← LANDED (ionic; covalent/acid deferred)**
 3. **Balancing engine** — inspection mode, conservation-matrix view, misconception modes; redox preview.
 4. **Stoichiometry suite** — mass/volume/solution/particle stoich, limiting reagent, percent yield.
 5. **Valence Table flagship** — lenses, trend mode, formula mode, bonding mode, practice mode (brief §8).
@@ -145,19 +151,17 @@ new pipeline. Deferred inside item 1 (revisit with item 4 and Phase 2 gases): pa
 (needs the Avogadro constant registered as a sourced datum), gas-volume conversions, density/percent-
 composition chains, and multi-path "diagnose the invalid conversion" drills (brief §13.1).
 
-**Item 2 — formula & nomenclature engine (next up).** Stress scenario: *name↔formula in both directions
-across ionic (mono- and polyatomic), covalent-prefix, and acid species* — e.g. iron(III) sulfate ↔
-Fe₂(SO₄)₃. Scope: (a) extend `data/ions.toml` with systematic names + a curated compound/acid naming
-dataset (OpenStax-cited, ADR-0006 — names are regime-3 conventions; compositions stay machine-checked);
-(b) a `nomenclature.py` rules module (crossover already exists in `reference.py::assemble_formula`; naming
-rules: -ide/-ate/-ite, Roman-numeral charges, covalent prefixes, hydro-/-ic/-ous acids); (c) gym families
-both directions (`ionic_nomenclature_v1`, `covalent_nomenclature_v1`, `acid_nomenclature_v1`), distractors
-= the named misconceptions (charge ≠ subscript; prefixes on ionic compounds; splitting polyatomics);
-(d) gate note: name answers can't be re-derived numerically — `validate-gyms` grows a data-driven branch
-that checks name↔formula pairs against the **emitted name table** (the dataset travels in the gym JSON, so
-Node re-checks pairs without a JS chemistry engine); (e) Valence-Table **formula mode** hooks (click two
-ions → neutral formula, already built) get naming attached. Transition metals with variable charges enter
-the ion dataset here (Fe²⁺/Fe³⁺, Cu⁺/Cu²⁺, …).
+**Item 2 — formula & nomenclature engine — LANDED (2026-07-05, ionic; ADR-0027).** Stress scenario met:
+name↔formula both directions across ionic mono- and polyatomic species incl. the Stock system (iron(III)
+sulfate ↔ Fe₂(SO₄)₃). Shipped: a sourced `compound_name` on every ion + 6 new metals (K/Mg/Al/Fe/Cu/Zn,
+oracle-checked; Fe/Cu variable-charge); `chemkernel.nomenclature` (name = cation+anion compound_name; formula
+= verified crossover); the `ionic_nomenclature_v1` gym family (both directions, named-mistake distractors —
+wrong Stock numeral / own-charge subscripts / covalent prefixes); a pure-Node re-derivation branch in
+`validate-gyms` (name by concatenation, formula by gcd crossover); a `nomenclature` Atlas concept; the
+Valence Table grew to 15 elements. **Deferred to a follow-up:** covalent-prefix naming
+(`covalent_nomenclature_v1` — needs a binary-molecular dataset) and acid naming (`acid_nomenclature_v1`);
+attaching naming to the Valence-Table formula mode (with item 5); full variable-charge display on the lens
+(item 5).
 
 **Item 3 — balancing engine.** Stress scenario: *a hard conservation-matrix balance* (e.g. combustion with
 odd coefficients) plus the "never mutate subscripts" misconception made to fail visibly. Scope: a

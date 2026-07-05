@@ -40,7 +40,13 @@
       "atomic_weight": "14.007",
       "group": 15,
       "period": 2,
-      "block": "p"
+      "block": "p",
+      "common_ion": {
+        "id": "N^3-",
+        "charge": -3,
+        "name": "nitride",
+        "latex": "\\mathrm{N}^{3-}"
+      }
     },
     {
       "symbol": "O",
@@ -73,6 +79,36 @@
       }
     },
     {
+      "symbol": "Mg",
+      "Z": 12,
+      "name": "magnesium",
+      "atomic_weight": "24.305",
+      "group": 2,
+      "period": 3,
+      "block": "s",
+      "common_ion": {
+        "id": "Mg^2+",
+        "charge": 2,
+        "name": "magnesium ion",
+        "latex": "\\mathrm{Mg}^{2+}"
+      }
+    },
+    {
+      "symbol": "Al",
+      "Z": 13,
+      "name": "aluminum",
+      "atomic_weight": "26.982",
+      "group": 13,
+      "period": 3,
+      "block": "p",
+      "common_ion": {
+        "id": "Al^3+",
+        "charge": 3,
+        "name": "aluminum ion",
+        "latex": "\\mathrm{Al}^{3+}"
+      }
+    },
+    {
       "symbol": "P",
       "Z": 15,
       "name": "phosphorus",
@@ -88,7 +124,13 @@
       "atomic_weight": "32.06",
       "group": 16,
       "period": 3,
-      "block": "p"
+      "block": "p",
+      "common_ion": {
+        "id": "S^2-",
+        "charge": -2,
+        "name": "sulfide",
+        "latex": "\\mathrm{S}^{2-}"
+      }
     },
     {
       "symbol": "Cl",
@@ -106,6 +148,21 @@
       }
     },
     {
+      "symbol": "K",
+      "Z": 19,
+      "name": "potassium",
+      "atomic_weight": "39.098",
+      "group": 1,
+      "period": 4,
+      "block": "s",
+      "common_ion": {
+        "id": "K^+",
+        "charge": 1,
+        "name": "potassium ion",
+        "latex": "\\mathrm{K}^{+}"
+      }
+    },
+    {
       "symbol": "Ca",
       "Z": 20,
       "name": "calcium",
@@ -118,6 +175,51 @@
         "charge": 2,
         "name": "calcium ion",
         "latex": "\\mathrm{Ca}^{2+}"
+      }
+    },
+    {
+      "symbol": "Fe",
+      "Z": 26,
+      "name": "iron",
+      "atomic_weight": "55.845",
+      "group": 8,
+      "period": 4,
+      "block": "d",
+      "common_ion": {
+        "id": "Fe^2+",
+        "charge": 2,
+        "name": "iron(II) ion",
+        "latex": "\\mathrm{Fe}^{2+}"
+      }
+    },
+    {
+      "symbol": "Cu",
+      "Z": 29,
+      "name": "copper",
+      "atomic_weight": "63.546",
+      "group": 11,
+      "period": 4,
+      "block": "d",
+      "common_ion": {
+        "id": "Cu^+",
+        "charge": 1,
+        "name": "copper(I) ion",
+        "latex": "\\mathrm{Cu}^{+}"
+      }
+    },
+    {
+      "symbol": "Zn",
+      "Z": 30,
+      "name": "zinc",
+      "atomic_weight": "65.38",
+      "group": 12,
+      "period": 4,
+      "block": "d",
+      "common_ion": {
+        "id": "Zn^2+",
+        "charge": 2,
+        "name": "zinc ion",
+        "latex": "\\mathrm{Zn}^{2+}"
       }
     }
   ],

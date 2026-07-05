@@ -113,13 +113,22 @@ export function renderSolution(sol) {
   return s;
 }
 
-// Gym view prep: subscript each problem's substance token in its prompt/explanation (brief §6.1). Chains and
-// choices are numeric+unit only (no formulas) — verified against the generator.
+// Gym view prep: subscript the formula tokens the producer emitted (brief §6.1, ADR-0025). Conversion
+// problems carry a single substance token; nomenclature problems carry `subscript_tokens` (the compound
+// formula + distractor formulas + ion ids). Prompt, explanation, AND choices go through prettyText — names
+// (no digits) pass through untouched, formulas get subscripted, measurement numbers are never matched.
 export function renderGym(gym) {
   const g = structuredClone(gym);
   g.problems = g.problems.map((p) => {
-    const tokens = [p.derivation?.inputs?.substance];
-    return { ...p, prompt: prettyText(p.prompt, tokens), explain: prettyText(p.explain, tokens) };
+    const tokens = p.subscript_tokens?.length
+      ? p.subscript_tokens
+      : [p.derivation?.inputs?.substance].filter(Boolean);
+    return {
+      ...p,
+      prompt: prettyText(p.prompt, tokens),
+      explain: prettyText(p.explain, tokens),
+      choices: p.choices.map((c) => ({ ...c, display: prettyText(c.display, tokens) })),
+    };
   });
   return g;
 }

@@ -53,8 +53,15 @@ def assemble_formula(cation, anion, ctx: str = "") -> tuple[str, int, int]:
 
 def build_valence_table(data) -> dict:
     """Emit the Valence Table from data/ — elements in IUPAC positions, sourced ion charges, verified salts."""
-    monatomic_by_element = {ion.element: ion for ion in data.ions.values()
-                            if ion.kind == "monatomic" and ion.element}
+    # one common ion per element for the lens; for a variable-charge metal (Fe, Cu) pick the lowest charge
+    # deterministically (Fe²⁺, Cu⁺). Showing every oxidation state is an item-5 (flagship) enhancement.
+    monatomic_by_element: dict = {}
+    for ion in data.ions.values():
+        if ion.kind != "monatomic" or not ion.element:
+            continue
+        cur = monatomic_by_element.get(ion.element)
+        if cur is None or (abs(ion.charge), ion.id) < (abs(cur.charge), cur.id):
+            monatomic_by_element[ion.element] = ion
 
     elements = []
     for sym, el in sorted(data.elements.items(), key=lambda kv: kv[1].Z):

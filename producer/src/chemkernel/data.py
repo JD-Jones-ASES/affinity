@@ -40,6 +40,7 @@ class Ion:
     name: str
     kind: str
     element: str | None = None
+    compound_name: str | None = None   # the name this ion takes inside a compound (ADR-0027); None if unused
 
 
 class ChemData:
@@ -80,6 +81,7 @@ class ChemData:
                     name=v["name"],
                     kind=v["kind"],
                     element=v.get("element"),
+                    compound_name=v.get("compound_name"),
                 )
             except KeyError as exc:
                 raise BuildError(f"data/ions.toml: bad entry for '{ion_id}': missing {exc}") from exc

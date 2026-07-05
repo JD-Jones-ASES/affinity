@@ -5,17 +5,24 @@
 # datum. data.py verifies at load that every formula parses and is built from elements in elements.toml,
 # so the composition of each ion is machine-checked even though the charge is sourced.
 #
+# `compound_name` (ADR-0027) is the name the ion contributes inside an ionic compound — the element name for
+# fixed-charge cations (`sodium`), element name + Stock Roman numeral for variable-charge metals
+# (`iron(III)`), and the -ide/-ate/-ite name for anions (`chloride`, `sulfate`). It is a sourced naming
+# convention (same source as the charges); the *formula* the two ions assemble into is machine-verified by
+# charge crossover (chemkernel.reference.assemble_formula).
+#
 # Table keys are the species id in the house caret charge form (house-conventions §Notation), quoted
 # because `^`/`+` are not TOML bare-key characters.
 
 charge_source = "openstax-chemistry-2e"
 
-# --- monatomic ions (element links back to elements.toml) ---
+# --- monatomic cations (element links back to elements.toml) ---
 
 [ions."H^+"]
 formula = "H"
 charge = 1
 name = "hydrogen ion"
+compound_name = "hydrogen"
 kind = "monatomic"
 element = "H"
 
@@ -23,20 +30,91 @@ element = "H"
 formula = "Na"
 charge = 1
 name = "sodium ion"
+compound_name = "sodium"
 kind = "monatomic"
 element = "Na"
+
+[ions."K^+"]
+formula = "K"
+charge = 1
+name = "potassium ion"
+compound_name = "potassium"
+kind = "monatomic"
+element = "K"
+
+[ions."Mg^2+"]
+formula = "Mg"
+charge = 2
+name = "magnesium ion"
+compound_name = "magnesium"
+kind = "monatomic"
+element = "Mg"
 
 [ions."Ca^2+"]
 formula = "Ca"
 charge = 2
 name = "calcium ion"
+compound_name = "calcium"
 kind = "monatomic"
 element = "Ca"
+
+[ions."Zn^2+"]
+formula = "Zn"
+charge = 2
+name = "zinc ion"
+compound_name = "zinc"
+kind = "monatomic"
+element = "Zn"
+
+[ions."Al^3+"]
+formula = "Al"
+charge = 3
+name = "aluminum ion"
+compound_name = "aluminum"
+kind = "monatomic"
+element = "Al"
+
+# --- variable-charge (Stock system) metal cations: the element carries more than one common charge ---
+
+[ions."Fe^2+"]
+formula = "Fe"
+charge = 2
+name = "iron(II) ion"
+compound_name = "iron(II)"
+kind = "monatomic"
+element = "Fe"
+
+[ions."Fe^3+"]
+formula = "Fe"
+charge = 3
+name = "iron(III) ion"
+compound_name = "iron(III)"
+kind = "monatomic"
+element = "Fe"
+
+[ions."Cu^+"]
+formula = "Cu"
+charge = 1
+name = "copper(I) ion"
+compound_name = "copper(I)"
+kind = "monatomic"
+element = "Cu"
+
+[ions."Cu^2+"]
+formula = "Cu"
+charge = 2
+name = "copper(II) ion"
+compound_name = "copper(II)"
+kind = "monatomic"
+element = "Cu"
+
+# --- monatomic anions (element root + -ide) ---
 
 [ions."Cl^-"]
 formula = "Cl"
 charge = -1
 name = "chloride"
+compound_name = "chloride"
 kind = "monatomic"
 element = "Cl"
 
@@ -44,8 +122,25 @@ element = "Cl"
 formula = "O"
 charge = -2
 name = "oxide"
+compound_name = "oxide"
 kind = "monatomic"
 element = "O"
+
+[ions."S^2-"]
+formula = "S"
+charge = -2
+name = "sulfide"
+compound_name = "sulfide"
+kind = "monatomic"
+element = "S"
+
+[ions."N^3-"]
+formula = "N"
+charge = -3
+name = "nitride"
+compound_name = "nitride"
+kind = "monatomic"
+element = "N"
 
 # --- polyatomic ions ---
 
@@ -53,46 +148,54 @@ element = "O"
 formula = "OH"
 charge = -1
 name = "hydroxide"
+compound_name = "hydroxide"
 kind = "polyatomic"
 
 [ions."NH4^+"]
 formula = "NH4"
 charge = 1
 name = "ammonium"
+compound_name = "ammonium"
 kind = "polyatomic"
 
 [ions."NO3^-"]
 formula = "NO3"
 charge = -1
 name = "nitrate"
+compound_name = "nitrate"
 kind = "polyatomic"
 
 [ions."CO3^2-"]
 formula = "CO3"
 charge = -2
 name = "carbonate"
+compound_name = "carbonate"
 kind = "polyatomic"
 
 [ions."HCO3^-"]
 formula = "HCO3"
 charge = -1
 name = "hydrogen carbonate"
+compound_name = "hydrogen carbonate"
 kind = "polyatomic"
 
 [ions."SO4^2-"]
 formula = "SO4"
 charge = -2
 name = "sulfate"
+compound_name = "sulfate"
 kind = "polyatomic"
 
 [ions."PO4^3-"]
 formula = "PO4"
 charge = -3
 name = "phosphate"
+compound_name = "phosphate"
 kind = "polyatomic"
 
 [ions."C2H3O2^-"]
 formula = "C2H3O2"
 charge = -1
 name = "acetate"
+compound_name = "acetate"
 kind = "polyatomic"

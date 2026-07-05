@@ -13,6 +13,7 @@ from chemkernel.gym import generate_gym
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT / "gyms" / "dimensional-analysis" / "solution-conversions.gym.toml"
+SPEC_NOMENCLATURE = ROOT / "gyms" / "nomenclature" / "ionic-compounds.gym.toml"
 
 _TARGET = {
     "volume_molarity_to_moles": "mol", "moles_molarity_to_volume": "mL", "mass_to_moles": "mol",
@@ -88,3 +89,45 @@ def test_unknown_family_refused():
     spec["family"] = "not_a_real_family"
     with pytest.raises(BuildError):
         generate_gym(spec, ChemData.load(ROOT), "x")
+
+
+# ------------------------------ ionic nomenclature family (item 2) ------------------------------
+
+def _nom_gym(seed=None):
+    spec = dict(tomllib.loads(SPEC_NOMENCLATURE.read_text(encoding="utf-8")))
+    if seed is not None:
+        spec["seed"] = seed
+    return generate_gym(spec, ChemData.load(ROOT), spec["id"])
+
+
+def test_nomenclature_shape_and_both_directions():
+    g = _nom_gym()
+    assert g["family"] == "ionic_nomenclature_v1"
+    assert len(g["problems"]) == 10
+    assert {p["kind"] for p in g["problems"]} == {"ionic_formula_to_name", "ionic_name_to_formula"}
+    for p in g["problems"]:
+        assert "chain" not in p and "unit" not in p["answer"]          # nomenclature carries no numeric chain
+        assert p["subscript_tokens"]                                    # tokens for view-side subscripting
+        assert sum(1 for c in p["choices"] if c["correct"]) == 1
+        assert len({c["display"] for c in p["choices"]}) == len(p["choices"])
+        for c in p["choices"]:
+            assert c["correct"] or c["misconception"]
+
+
+def test_nomenclature_answers_match_engine():
+    from chemkernel.nomenclature import formula_ionic, name_ionic
+    data = ChemData.load(ROOT)
+    for p in _nom_gym()["problems"]:
+        d = p["derivation"]
+        cat, an = data.ions[d["cation"]["id"]], data.ions[d["anion"]["id"]]
+        assert name_ionic(cat, an) == d["name"]                        # engine reproduces the emitted name
+        assert formula_ionic(cat, an)[0] == d["formula"]               # and the emitted formula
+        want = d["name"] if p["kind"] == "ionic_formula_to_name" else d["formula"]
+        other = d["formula"] if p["kind"] == "ionic_formula_to_name" else d["name"]
+        assert p["answer"]["value"] == want
+        assert other in p["prompt"]                                    # the prompt states the other representation
+
+
+def test_nomenclature_deterministic():
+    assert _nom_gym() == _nom_gym()
+    assert _nom_gym(seed=99)["problems"] != _nom_gym()["problems"]

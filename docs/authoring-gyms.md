@@ -42,9 +42,17 @@ A `family` selects the generator in `chemkernel.gym.generate_gym`. Today:
 - **`solution_conversions_v1`** — volume · molarity · moles · mass conversions in five kinds
   (`volume_molarity_to_moles`, `moles_molarity_to_volume`, `mass_to_moles`, `moles_to_mass`,
   `volume_molarity_to_mass`), drawn over a small set of recognizable salts whose molar mass comes from
-  `data/` (sourced). Adding a new procedural skill (nomenclature, balancing, stoichiometry) means adding a
-  new `family` to `generate_gym` — and, if it introduces a new answer shape, a per-kind branch to
-  `validate-gyms.mjs` so the gate can re-derive it. It does **not** mean new plumbing.
+  `data/` (sourced). Numeric answers; the gate re-derives each from the raw inputs.
+- **`ionic_nomenclature_v1`** (ADR-0027) — name ↔ formula for ionic compounds, both directions
+  (`ionic_formula_to_name`, `ionic_name_to_formula`), including the Stock system for variable-charge metals.
+  Names come from each ion's sourced `compound_name`; the formula from verified charge crossover. These
+  problems carry no numeric `chain`; their `derivation` holds the ion parts, and `subscript_tokens` lists the
+  formula tokens the view should Unicode-subscript. `validate-gyms.mjs` re-derives the name (concatenation)
+  and the formula (gcd crossover) in pure Node.
+
+Adding a new procedural skill (balancing, stoichiometry, …) means adding a new `family` to `generate_gym`
+and, if it introduces a new answer shape, a per-kind branch to `validate-gyms.mjs` so the gate can re-derive
+it. It does **not** mean new plumbing.
 
 ## What ChemKernel guarantees (so you don't author it)
 
