@@ -109,7 +109,9 @@ def _parse_body(body: str, raw: str, where: str) -> dict[str, int]:
 
 
 def _to_latex(body: str, charge: int, phase: str | None) -> str:
-    out = re.sub(r"(\d+)", r"_{\1}", body)
+    # Upright element symbols per IUPAC (ADR-0025): the formula body renders in \mathrm, never math italic.
+    # Subscripts/charges are digits and signs (unaffected by the roman font); the phase keeps \text.
+    out = r"\mathrm{" + re.sub(r"(\d+)", r"_{\1}", body) + "}"
     if charge:
         magnitude = abs(charge)
         sign = "+" if charge > 0 else "-"

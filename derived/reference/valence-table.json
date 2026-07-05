@@ -21,7 +21,7 @@
         "id": "H^+",
         "charge": 1,
         "name": "hydrogen ion",
-        "latex": "H^{+}"
+        "latex": "\\mathrm{H}^{+}"
       }
     },
     {
@@ -54,7 +54,7 @@
         "id": "O^2-",
         "charge": -2,
         "name": "oxide",
-        "latex": "O^{2-}"
+        "latex": "\\mathrm{O}^{2-}"
       }
     },
     {
@@ -69,7 +69,7 @@
         "id": "Na^+",
         "charge": 1,
         "name": "sodium ion",
-        "latex": "Na^{+}"
+        "latex": "\\mathrm{Na}^{+}"
       }
     },
     {
@@ -102,7 +102,7 @@
         "id": "Cl^-",
         "charge": -1,
         "name": "chloride",
-        "latex": "Cl^{-}"
+        "latex": "\\mathrm{Cl}^{-}"
       }
     },
     {
@@ -117,7 +117,7 @@
         "id": "Ca^2+",
         "charge": 2,
         "name": "calcium ion",
-        "latex": "Ca^{2+}"
+        "latex": "\\mathrm{Ca}^{2+}"
       }
     }
   ],
@@ -127,56 +127,56 @@
       "formula": "OH",
       "charge": -1,
       "name": "hydroxide",
-      "latex": "OH^{-}"
+      "latex": "\\mathrm{OH}^{-}"
     },
     {
       "id": "NH4^+",
       "formula": "NH4",
       "charge": 1,
       "name": "ammonium",
-      "latex": "NH_{4}^{+}"
+      "latex": "\\mathrm{NH_{4}}^{+}"
     },
     {
       "id": "NO3^-",
       "formula": "NO3",
       "charge": -1,
       "name": "nitrate",
-      "latex": "NO_{3}^{-}"
+      "latex": "\\mathrm{NO_{3}}^{-}"
     },
     {
       "id": "CO3^2-",
       "formula": "CO3",
       "charge": -2,
       "name": "carbonate",
-      "latex": "CO_{3}^{2-}"
+      "latex": "\\mathrm{CO_{3}}^{2-}"
     },
     {
       "id": "HCO3^-",
       "formula": "HCO3",
       "charge": -1,
       "name": "hydrogen carbonate",
-      "latex": "HCO_{3}^{-}"
+      "latex": "\\mathrm{HCO_{3}}^{-}"
     },
     {
       "id": "SO4^2-",
       "formula": "SO4",
       "charge": -2,
       "name": "sulfate",
-      "latex": "SO_{4}^{2-}"
+      "latex": "\\mathrm{SO_{4}}^{2-}"
     },
     {
       "id": "PO4^3-",
       "formula": "PO4",
       "charge": -3,
       "name": "phosphate",
-      "latex": "PO_{4}^{3-}"
+      "latex": "\\mathrm{PO_{4}}^{3-}"
     },
     {
       "id": "C2H3O2^-",
       "formula": "C2H3O2",
       "charge": -1,
       "name": "acetate",
-      "latex": "C_{2}H_{3}O_{2}^{-}"
+      "latex": "\\mathrm{C_{2}H_{3}O_{2}}^{-}"
     }
   ],
   "charge_balance": [
@@ -186,7 +186,7 @@
       "cation_n": 1,
       "anion_n": 1,
       "formula": "CaCO3",
-      "latex": "CaCO_{3}",
+      "latex": "\\mathrm{CaCO_{3}}",
       "note": "1×(+2) + 1×(−2) = 0"
     },
     {
@@ -195,7 +195,7 @@
       "cation_n": 2,
       "anion_n": 1,
       "formula": "Na2CO3",
-      "latex": "Na_{2}CO_{3}",
+      "latex": "\\mathrm{Na_{2}CO_{3}}",
       "note": "2×(+1) + 1×(−2) = 0"
     },
     {
@@ -204,7 +204,7 @@
       "cation_n": 1,
       "anion_n": 2,
       "formula": "CaCl2",
-      "latex": "CaCl_{2}",
+      "latex": "\\mathrm{CaCl_{2}}",
       "note": "1×(+2) + 2×(−1) = 0"
     },
     {
@@ -213,7 +213,7 @@
       "cation_n": 1,
       "anion_n": 1,
       "formula": "NaCl",
-      "latex": "NaCl",
+      "latex": "\\mathrm{NaCl}",
       "note": "1×(+1) + 1×(−1) = 0"
     },
     {
@@ -222,7 +222,7 @@
       "cation_n": 3,
       "anion_n": 2,
       "formula": "Ca3(PO4)2",
-      "latex": "Ca_{3}(PO_{4})_{2}",
+      "latex": "\\mathrm{Ca_{3}(PO_{4})_{2}}",
       "note": "3×(+2) + 2×(−3) = 0"
     },
     {
@@ -231,7 +231,7 @@
       "cation_n": 3,
       "anion_n": 1,
       "formula": "Na3PO4",
-      "latex": "Na_{3}PO_{4}",
+      "latex": "\\mathrm{Na_{3}PO_{4}}",
       "note": "3×(+1) + 1×(−3) = 0"
     }
   ],

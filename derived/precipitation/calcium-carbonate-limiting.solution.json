@@ -55,15 +55,15 @@
   "equations": {
     "molecular": {
       "text": "CaCl2(aq) + Na2CO3(aq) -> CaCO3(s) + 2 NaCl(aq)",
-      "latex": "CaCl_{2}\\,\\text{(aq)} + Na_{2}CO_{3}\\,\\text{(aq)} \\rightarrow CaCO_{3}\\,\\text{(s)} + 2\\,NaCl\\,\\text{(aq)}"
+      "latex": "\\mathrm{CaCl_{2}}\\,\\text{(aq)} + \\mathrm{Na_{2}CO_{3}}\\,\\text{(aq)} \\rightarrow \\mathrm{CaCO_{3}}\\,\\text{(s)} + 2\\,\\mathrm{NaCl}\\,\\text{(aq)}"
     },
     "complete_ionic": {
       "text": "Ca^2+ + 2 Cl^- + 2 Na^+ + CO3^2- -> CaCO3 + 2 Na^+ + 2 Cl^-",
-      "latex": "Ca^{2+} + 2\\,Cl^{-} + 2\\,Na^{+} + CO_{3}^{2-} \\rightarrow CaCO_{3} + 2\\,Na^{+} + 2\\,Cl^{-}"
+      "latex": "\\mathrm{Ca}^{2+} + 2\\,\\mathrm{Cl}^{-} + 2\\,\\mathrm{Na}^{+} + \\mathrm{CO_{3}}^{2-} \\rightarrow \\mathrm{CaCO_{3}} + 2\\,\\mathrm{Na}^{+} + 2\\,\\mathrm{Cl}^{-}"
     },
     "net_ionic": {
       "text": "Ca^2+ + CO3^2- -> CaCO3",
-      "latex": "Ca^{2+} + CO_{3}^{2-} \\rightarrow CaCO_{3}"
+      "latex": "\\mathrm{Ca}^{2+} + \\mathrm{CO_{3}}^{2-} \\rightarrow \\mathrm{CaCO_{3}}"
     },
     "spectators": [
       "Cl^-",
@@ -79,7 +79,7 @@
     "species": [
       {
         "id": "CaCl2",
-        "latex": "CaCl_{2}",
+        "latex": "\\mathrm{CaCl_{2}}",
         "phase": "aq",
         "charge": 0,
         "nu": -1,
@@ -89,7 +89,7 @@
       },
       {
         "id": "Na2CO3",
-        "latex": "Na_{2}CO_{3}",
+        "latex": "\\mathrm{Na_{2}CO_{3}}",
         "phase": "aq",
         "charge": 0,
         "nu": -1,
@@ -99,7 +99,7 @@
       },
       {
         "id": "CaCO3",
-        "latex": "CaCO_{3}",
+        "latex": "\\mathrm{CaCO_{3}}",
         "phase": "s",
         "charge": 0,
         "nu": 1,
@@ -109,7 +109,7 @@
       },
       {
         "id": "NaCl",
-        "latex": "NaCl",
+        "latex": "\\mathrm{NaCl}",
         "phase": "aq",
         "charge": 0,
         "nu": 2,

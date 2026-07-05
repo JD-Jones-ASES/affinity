@@ -13,7 +13,11 @@ build-reference = "chemkernel.build:build_reference_main"
 build-gyms = "chemkernel.build:build_gyms_main"
 
 [dependency-groups]
-dev = ["pytest>=8.0"]
+dev = [
+    "chempy>=0.10.1",
+    "periodictable>=2.1.0",
+    "pytest>=8.0",
+]
 
 [build-system]
 requires = ["hatchling"]

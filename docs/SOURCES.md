@@ -44,6 +44,8 @@ Chemistry 2e** (CC BY 4.0). All three registered above. Still deferred until a l
 
 ## Conventions for adding an entry
 
+0. Test **oracles** (ADR-0026: `chempy`, `periodictable` as dev-dependencies cross-checking the engine) are
+   *not* register entries — the register records shipped values; oracles verify and never supply one.
 1. Register the source here (id, version, license, conditions) in the same session that lands the data.
 2. Put the data under `data/` with the source id embedded in the file (provenance travels with the data).
 3. Values used in lessons/Atlas entries reference the source id; the gate enforces resolution.

@@ -79,7 +79,7 @@
 
   {#if phase === "before"}
     <svg viewBox="0 0 440 250" role="img" aria-label="Two beakers of free ions before mixing">
-      {#each [{ x: 20, w: 170, label: spec1.source, ions: `${catId} + ${spec1Id}` }, { x: 250, w: 170, label: spec2.source, ions: `${anId} + ${spec2Id}` }] as bk}
+      {#each [{ x: 20, w: 170, label: prettyIon(spec1.source), ions: `${catId} + ${spec1Id}` }, { x: 250, w: 170, label: prettyIon(spec2.source), ions: `${anId} + ${spec2Id}` }] as bk}
         <path d={`M${bk.x} 55 L${bk.x} 215 Q${bk.x} 225 ${bk.x + 10} 225 L${bk.x + bk.w - 10} 225 Q${bk.x + bk.w} 225 ${bk.x + bk.w} 215 L${bk.x + bk.w} 55`} class="glass" />
         <line x1={bk.x} y1={65} x2={bk.x + bk.w} y2={65} class="liquid-top" />
         <text x={bk.x + bk.w / 2} y={244} class="beaker-lbl" text-anchor="middle">{bk.label}(aq) — free ions</text>
@@ -88,8 +88,8 @@
       {#each rightPts as p}<circle cx={p.x} cy={p.y} r="6" class={p.cls} />{/each}
     </svg>
     <p class="annot">In solution these salts are <strong>free ions</strong> — {catId} and {spec1Id} drifting
-      apart on the left, {anId} and {spec2Id} on the right. There are no intact {spec1.source} or
-      {spec2.source} molecules floating around; that is the misconception this view kills.</p>
+      apart on the left, {anId} and {spec2Id} on the right. There are no intact {prettyIon(spec1.source)} or
+      {prettyIon(spec2.source)} molecules floating around; that is the misconception this view kills.</p>
   {:else}
     <svg viewBox="0 0 440 250" role="img" aria-label="One beaker after mixing: solid precipitate plus spectator ions">
       <path d="M120 45 L120 215 Q120 225 130 225 L330 225 Q340 225 340 215 L340 45" class="glass" />
@@ -120,7 +120,7 @@
   <div class="sliders">
     {#each ix.params as p}
       <label>
-        <span class="pname">{p.label} = {vals[p.name]}{p.unit === "M" ? "" : " "}{p.unit}</span>
+        <span class="pname">{prettyIon(p.label)} = {vals[p.name]}{p.unit === "M" ? "" : " "}{p.unit}</span>
         <input type="range" min={Number(p.min)} max={Number(p.max)} step={Number(p.step)} bind:value={vals[p.name]} />
       </label>
     {/each}

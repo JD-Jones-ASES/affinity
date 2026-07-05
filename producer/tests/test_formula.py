@@ -10,7 +10,7 @@ def test_simple_binary():
     f = parse_formula("CaCl2")
     assert f.counts == {"Ca": 1, "Cl": 2}
     assert f.charge == 0 and f.phase is None
-    assert f.latex == "CaCl_{2}"
+    assert f.latex == r"\mathrm{CaCl_{2}}"        # upright per ADR-0025
 
 
 def test_polyatomic_counts():
@@ -22,7 +22,7 @@ def test_polyatomic_counts():
 def test_parentheses_group_multiplies():
     f = parse_formula("Ca(OH)2")
     assert f.counts == {"Ca": 1, "O": 2, "H": 2}
-    assert f.latex == "Ca(OH)_{2}"
+    assert f.latex == r"\mathrm{Ca(OH)_{2}}"
 
 
 def test_nested_and_polyatomic_multiplier():
@@ -39,7 +39,7 @@ def test_cation_charge():
 def test_polyatomic_anion_charge_and_latex():
     f = parse_formula("CO3^2-")
     assert f.counts == {"C": 1, "O": 3} and f.charge == -2
-    assert f.latex == "CO_{3}^{2-}"
+    assert f.latex == r"\mathrm{CO_{3}}^{2-}"     # charge superscripts the upright group
 
 
 def test_phase_stripped():

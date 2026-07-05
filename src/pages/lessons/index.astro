@@ -2,9 +2,17 @@
 import Base from "../../layouts/Base.astro";
 import { withBase } from "../../lib/withBase.js";
 import { inline } from "../../lib/katex.js";
+import { prettyText } from "../../lib/view.js";
 
 const mods = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
-const lessons = Object.values(mods).map((m) => m.default);
+// scenario typography: subscript each lesson's known formula tokens (ADR-0025 / brief §6.1)
+const stripPhase = (id) => String(id).replace(/\((?:s|l|g|aq)\)$/, "");
+const tokensOf = (l) => [
+  ...(l.given ?? []).flatMap((g) => [g.species, stripPhase(g.species)]),
+  l.result?.precipitate?.species,
+];
+const lessons = Object.values(mods).map((m) => m.default)
+  .map((l) => ({ ...l, scenarioHtml: inline(prettyText(l.scenario, tokensOf(l))) }));
 
 // Group by topic; topics render alphabetically, lessons by title within each. Resilient to any count — a new
 // derived/ file appears here automatically.
@@ -37,7 +45,7 @@ const titleCase = (s) => s.split("-").map((w) => w[0].toUpperCase() + w.slice(1)
                 <span class="title">{l.title}</span>
                 <span class="badge machine"><span class="dot"></span>verified</span>
               </div>
-              <p class="scenario" set:html={inline(l.scenario)} />
+              <p class="scenario" set:html={l.scenarioHtml} />
             </a>
           </li>
         ))}

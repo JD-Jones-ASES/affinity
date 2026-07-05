@@ -2,15 +2,17 @@
 import Base from "../../layouts/Base.astro";
 import DimensionalGym from "../../islands/DimensionalGym.svelte";
 import { withBase } from "../../lib/withBase.js";
+import { renderGym } from "../../lib/view.js";
 
 // One page per committed gym (ADR-0024). The producer is the source of truth; this page renders it — no
-// chemistry happens here. The gym JSON carries no LaTeX, so it goes straight to the island (no view transform).
+// chemistry happens here. The only view transform is typography: renderGym subscripts the substance tokens.
 export function getStaticPaths() {
   const all = import.meta.glob("../../../derived/gyms/*.gym.json", { eager: true });
   return Object.values(all).map((m) => ({ params: { slug: m.default.slug }, props: { gym: m.default } }));
 }
 
-const { gym } = Astro.props;
+const { gym: gymRaw } = Astro.props;
+const gym = renderGym(gymRaw);   // build-time view prep: Unicode subscripts in prompts/explanations
 
 // Concept chips → the Atlas, mirroring the lesson page.
 const refs = import.meta.glob("../../../derived/reference/*.json", { eager: true });

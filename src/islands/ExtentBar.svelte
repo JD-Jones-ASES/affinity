@@ -95,7 +95,7 @@
   <div class="sliders">
     {#each ix.params as p}
       <label>
-        <span class="pname">{p.label} = {vals[p.name]}{p.unit === "M" ? "" : " "}{p.unit}</span>
+        <span class="pname">{prettyIon(p.label)} = {vals[p.name]}{p.unit === "M" ? "" : " "}{p.unit}</span>
         <input type="range" min={Number(p.min)} max={Number(p.max)} step={Number(p.step)} bind:value={vals[p.name]} />
       </label>
     {/each}

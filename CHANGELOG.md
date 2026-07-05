@@ -3,6 +3,33 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 1 — 2026-07-05 — formula typography, test oracles, doc sweep, roadmap overhaul
+
+- **Formula rendering (ADR-0025, brief §6.1).** Producer LaTeX is now **upright** (`\mathrm{CaCl_{2}}`,
+  IUPAC style — was math italic); every equation, ledger row, and Valence-Table symbol regenerated. All
+  generated/authored prose — practice prompts/choices/explanations, gym drills, lesson scenarios,
+  assumption claims, misconception claims, slider labels, beaker captions — now renders **Unicode
+  sub/superscripts** (CaCl₂, Ca²⁺) via the new view-side `prettyText` (longest-first replaceAll of exactly
+  the producer's formula tokens, `$…$`-math-safe) + `renderGym`; measurement numbers untouched by
+  construction; committed `derived/` stays ASCII so the parity/gym gates are untouched. Display sig-fig
+  policy settled (closes architecture Q7): ledger exact, derived results 3 sig figs, givens echoed.
+- **Independent test oracles (ADR-0026).** `chempy` + `periodictable` as dev-dependencies;
+  `tests/test_oracle.py` cross-checks every curated atomic weight (periodictable), every corpus molar mass
+  (chempy), and both lesson balances (`balance_stoichiometry` reproduces 1:1:1:2 and 3:2:1:6). Oracles
+  verify, never supply — runtime values still come only from cited `data/`.
+- **Doc sweep.** architecture.md brought to as-built (gyms in the pipeline/module-map/gates table; **seven**
+  gates; current counters; Q4 given an explicit decision trigger; Q7 resolved); README status updated
+  (Phase 0 complete / Phase 1 in progress; Gym listed); house-conventions gained the typography rule;
+  SOURCES notes that oracles are not register entries.
+- **ROADMAP overhaul.** Phase-1 items 2–6 got full scope blocks (nomenclature data+engine+families;
+  balancing gym with conservation-matrix view; stoichiometry suite + percent-yield lesson; Valence-Table
+  data curation then lenses/modes; reaction families + atlas kind + classifier), a proposed 8-session map,
+  and an explicit **Phase-1 definition of done** ("relatively complete procedural course": every Phase-0/1
+  regime-map row covered, 4+ lessons, all instruments landed, review gate before Phase 2).
+- **74 producer tests (+4 oracle) + 7 gates + astro build (9 pages) green**; both lessons + gym verified
+  in-browser (subscripts everywhere, 31 upright `\mathrm` KaTeX nodes / 0 italic on the lesson page,
+  0.250 g / 0.310 g regressions intact).
+
 ## Phase 1 — 2026-07-05 — OPEN: the dimensional-analysis gym (a generated-problem instrument)
 
 - **Phase 1 opened** by the owner ("the more problems we solve, the easier filling in granular lessons

@@ -5,12 +5,13 @@ the **design contract written before implementation** (bootstrap, 2026-07-05): P
 it, flip its sections from *planned* to *as-built* as they land, and record divergences as ADRs. Once
 `schemas/` exists it is the single source of truth for data shapes; this doc narrates them.
 
-## Pipeline (planned)
+## Pipeline
 
 ```
 problems/<topic>/<slug>.problem.toml ─┐
 reference/**/*.toml                  ─┼─►  ChemKernel (uv, LOCAL)   ─►  derived/<topic>/<slug>.solution.json
-data/** (curated datasets)           ─┘                                 derived/reference/*.json
+gyms/<topic>/<slug>.gym.toml         ─┤                                 derived/reference/*.json
+data/** (curated datasets)           ─┘                                 derived/gyms/<slug>.gym.json
                                                                         derived/assets/**        (COMMITTED)
                                                                              │
                                             scripts/validate/*.mjs ─────────┤  (Ajv + cross-checks + parity
@@ -19,31 +20,33 @@ data/** (curated datasets)           ─┘                                 deri
                                             Astro + Svelte player (steps the JSON; no runtime chemistry)
 ```
 
-Entry points (mirroring the sibling's `[project.scripts]` pattern): `build-problems` and
-`build-reference`, invoked as `uv --project producer run <entry>`; chained by npm scripts exactly as in
-the sibling: `prepare:data` = `produce` + `validate`; `build` = `validate` + `astro build`.
+Entry points (mirroring the sibling's `[project.scripts]` pattern): `build-problems`, `build-reference`,
+and `build-gyms` (ADR-0024), invoked as `uv --project producer run <entry>`; chained by npm scripts exactly
+as in the sibling: `prepare:data` = `produce` + `validate`; `build` = `validate` + `astro build`.
 
 The load-bearing invariant: **ChemKernel refuses to emit** an object that fails any check below
 (ADR-0008). CI re-gates the committed output with Node-only checks. A green build certifies both layers.
 
-**As-built so far (2026-07-05).** The pipeline runs end to end — compute → emit → verify → **present**. The
-engine: `data/` (element, ion, solubility datasets, ADR-0012/0017); `chemkernel.data`/`formula`/`balance`/
-`units`/`extent`/`reaction`/`solubility`/`build` (ADR-0012–0019); and `chemkernel.interactive` (ADR-0022) —
-derives parity-verified closed forms for the sliders. Emit + verify: `problems/**/*.problem.toml` →
-`derived/**/*.solution.json` (committed) → `schemas/solution.schema.json` (ADR-0020, now with an optional
-`interactive` block) checked by **five Node gates** — `validate-solutions` (Ajv + honesty), `check-ledger`
-(re-derives n = n₀ + ν·ξ), `check-parity` (re-proves the browser's JS closed forms against the engine),
-`check-katex`, `scan-text` (ADR-0023) — via `package.json`. Present: the **player** (ADR-0021) — an Astro
-static site + Svelte islands (`src/`) rendering the committed JSON: `lessons/[slug].astro` +
+**As-built (2026-07-05 — Phase 0 complete, Phase 1 open).** The pipeline runs end to end — compute → emit →
+verify → **present**. The engine: `data/` (element, ion, solubility datasets, ADR-0012/0017);
+`chemkernel.data`/`formula`/`balance`/`units`/`extent`/`reaction`/`solubility`/`build` (ADR-0012–0019);
+`chemkernel.interactive` (ADR-0022) — parity-verified closed forms for the sliders; `chemkernel.practice`
+(deterministic solver-verified variants); `chemkernel.reference` (the Atlas builder); and `chemkernel.gym`
+(ADR-0024) — the Phase-1 generated-drill producer. Emit + verify: `problems/**/*.problem.toml` →
+`derived/**/*.solution.json`, `reference/**/*.toml` → `derived/reference/*.json`, `gyms/**/*.gym.toml` →
+`derived/gyms/*.gym.json` (all committed), pinned by `schemas/solution.schema.json` (ADR-0020, with optional
+`interactive`/`practice` blocks), `schemas/{reference,valence-table}.schema.json`, and
+`schemas/gym.schema.json` — checked by **seven Node gates** (table below) via `package.json`. Present: the
+**player** (ADR-0021) — an Astro static site + Svelte islands (`src/`): `lessons/[slug].astro` +
 `SolutionPlayer.svelte` step scenario → three equations → dimensional chains → species ledger → result, with
-the three honesty badges, the misconception register, and **both interactives** (`ExtentBar`,
-`BeakerSpecies`) whose limiting-reagent switch runs on the parity-verified closed forms, plus a **Practice**
-tab (`practice.py` → `PracticeQuestion.svelte`). The spec format is documented (`docs/authoring-problems.md`)
-and **CI deploys to GitHub Pages** (`.github/workflows/deploy.yml`, live at `/affinity`). The **Chemical
-Atlas** exists (`reference.py` → `derived/reference/`): the Valence Table periodic lens + two concept
-entries, gated by `validate-reference`. **62 producer tests + 6 Node gates + `astro build` (6 pages) + the
-live CI run green. Phase 0 is complete end to end** — engine → emit → verify → present → deploy — and stops
-for owner review.
+the three honesty badges, the (coefficient-aware) misconception register, **both interactives** (`ExtentBar`,
+`BeakerSpecies`) whose limiting-reagent switch runs on the parity-verified closed forms, and a **Practice**
+tab (`PracticeQuestion.svelte`); `gym/[slug].astro` + `DimensionalGym.svelte` run the drill sets;
+`reference/` hosts the Atlas + Valence Table. Spec formats are documented (`docs/authoring-problems.md`,
+`docs/authoring-gyms.md`) and **CI deploys to GitHub Pages** (`.github/workflows/deploy.yml`, live at
+`/affinity`). Independent **test oracles** (ADR-0026: `chempy`, `periodictable` as dev-deps) cross-check the
+molar masses and balancer in pytest. **Current counters: 2 lessons + 1 gym (10 drills), 1 Valence Table + 14
+concept entries, 74 producer tests + 7 Node gates + `astro build` (9 pages) + live CI/Pages green.**
 
 ## ChemKernel module map (brief §6)
 
@@ -61,6 +64,7 @@ for owner review.
 | `interactive.py` | derives the optional interactive block: slider params + JS closed forms + engine-computed sample points; multiplicities from `dissociate`/`net_ionic`; single-precipitate double-displacement only, else omitted | **built** (ADR-0022) |
 | `practice.py` generator | deterministic seeded variants off the reaction → solver-verified answers + misconception distractors; reject-list (near-ties, no leftover, colliding displays); reuses `interactive` multiplicities | **built** (ADR-0022, one family) |
 | `reference.py` Atlas builder | Valence Table projection of `data/` (elements + sourced charges) + charge-crossover salt assembly (verified neutral); authored concept entries; `build-reference` entry point | **built** (brief §10/§16) |
+| `gym.py` drill generator | authored `gyms/**/*.gym.toml` → deterministic generated problem sets; exact Fractions (non-terminating rejected); each conversion's dimensions re-proven through `units.py`; named-mistake distractors; `build-gyms` entry point | **built** (ADR-0024, one family) |
 | reaction classifier | precipitation/acid-base/gas-evolution/combustion/redox/… + required conditions | Phase 1 |
 | equilibrium / kinetics / thermo / electrochem | ICE-as-ledger, rate laws, energy ledger, electron ledger | Phase 2+ |
 
@@ -104,12 +108,13 @@ New, chemistry-native (no sibling equivalent): the formula parser, the balancer 
 dissociation/net-ionic transformer, the Extent solver/ledger, the curated data layer, and the practice
 reject-list.
 
-## Verification gates (planned)
+## Verification gates (all built — seven)
 
 | Gate | Checks |
 |---|---|
 | validate-solutions | **built** (ADR-0020): Ajv schema; every `checks.*` true; path matches topic/slug; unique ids; rule-sourced regime needs a cited `solubility_basis.source`; ledger integrity (limiting rows final_mol 0, extent > 0, ν signs); precipitate is a solid ledger row; provenance sources non-empty |
 | validate-reference | **built**: each `derived/reference/*.json` schema-valid by `kind` (`valence-table`/`concept`); unique ids; concept `related` edges + `lessons` slugs resolve; every charge-balance salt's ions come from the table |
+| validate-gyms | **built** (ADR-0024): each `derived/gyms/*.gym.json` Ajv-valid; every problem's answer **re-derived in pure Node** from its raw `derivation.inputs`; answer unit == target == chain end; exactly one correct choice; distinct displays; wrong choices name a mistake; molar mass consistent per substance across the corpus |
 | check-ledger | **built** (ADR-0023): re-derives every row's final amount as n = n₀ + ν·ξ from the committed initial/coefficient/extent (independent of Python), checks role/sign consistency, and matches the reported result (precipitate moles, leftovers). Atom/charge re-check by element counts is future (needs counts in the emitted ledger or a JS parser) |
 | check-parity | **built** (ADR-0023, ADR-0022): recompiles the exported JS closed forms and re-evaluates them at the embedded engine-computed sample points within tolerance; cross-checks the default slider setting against the committed static answer; **re-derives every practice answer** in Node from those closed forms (mass/leftover numerically, limiting by capacity) and asserts exactly-one-correct + distinct choices |
 | check-katex | **built** (ADR-0023): every LaTeX string renders through KaTeX with `throwOnError:true` |
@@ -125,6 +130,13 @@ paint-verification. Interactive islands evaluate only the producer's exported, p
 (ADR-0022) — no runtime chemistry. Nested Svelte islands (the interactives inside `SolutionPlayer`) require
 `svelte({ compilerOptions: { css: "injected" } })` in `astro.config.mjs` or their scoped CSS is silently
 dropped (known trap #2) — set, and confirmed rendering in the browser.
+
+**Formula typography (ADR-0025).** Producer LaTeX is upright (`\mathrm{CaCl_{2}}`, IUPAC). Generated and
+authored prose (practice prompts/choices/explanations, gym drills, scenarios, assumption claims) gets
+Unicode sub/superscripts at build time via `view.js` `prettyText` — a longest-first `replaceAll` of exactly
+the formula tokens the producer emitted, skipping `$…$` math — so measurement numbers are never touched and
+the committed `derived/` stays ASCII (the parity/gym gates compare those strings). Gym pages go through
+`renderGym` the same way lessons go through `renderSolution`.
 
 ## Practice generation policy
 
@@ -143,9 +155,12 @@ solubility claims, ambiguous sig figs, unbalanced templates.
 3. ~~**Parser scope v0**~~ — **RESOLVED (ADR-0014):** elements/subscripts/parentheses/charge/phase in;
    hydrates and isotopes deferred.
 4. **Regime-4 badge** — does mechanistic/interpretive content need a fourth badge, or model-assumed + an
-   interpretive marker (ADR-0003 leaves this open)?
+   interpretive marker (ADR-0003 leaves this open)? **Still open by design — decide when the first
+   `mechanistic`-regime Atlas entry or lesson facet actually ships** (none has; the reference schema
+   reserves the enum value).
 5. ~~**Schema granularity**~~ — **RESOLVED (ADR-0020):** one `solution.schema.json` with optional blocks.
 6. ~~**Solubility-rule encoding**~~ — **RESOLVED (ADR-0017):** `data/solubility.toml`, precedence-ordered
    rules from OpenStax Table 4.1; `classify()` returns the governing rule id for citation.
-7. **Sig-fig policy** — computation exact, display rounded; where the policy lives (house-conventions) and
-   how the practice generator avoids ambiguous-rounding items.
+7. ~~**Sig-fig policy**~~ — **RESOLVED (ADR-0025):** ledger exact; derived results at 3 significant
+   figures; givens echoed at stated precision; policy lives in house-conventions §Numeric representation;
+   the practice reject-list already drops ambiguous-rounding items.

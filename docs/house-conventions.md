@@ -1,7 +1,7 @@
 # House conventions
 
-Will be baked into ChemKernel and the player. **Changing any of these is an ADR-level decision.** Items
-marked *(open)* are settled in Phase 0 alongside the architecture open-questions list.
+Will be baked into ChemKernel and the player. **Changing any of these is an ADR-level decision.** (All
+formerly *(open)* items are now settled; the last, display sig-figs, closed with ADR-0025.)
 
 ## Units & quantities
 
@@ -22,6 +22,12 @@ marked *(open)* are settled in Phase 0 alongside the architecture open-questions
   always carries it (ADR-0002).
 - Subscripts are formula structure, coefficients are amounts — the distinction is load-bearing everywhere
   (misconception register); nothing in the toolchain may ever "balance" by mutating a subscript.
+- **Formula typography (ADR-0025).** Three layers, one look: (1) data/interchange stays ASCII (`CaCl2`,
+  caret charges) — the schemas, gates, and specs never see typography; (2) producer LaTeX renders element
+  symbols **upright** (`\mathrm{CaCl_{2}}`, IUPAC style — never math italic; phases keep `\text{(aq)}`);
+  (3) prose and generated practice/gym text get **Unicode sub/superscripts** (CaCl₂, Ca²⁺) applied at
+  build time by the view layer (`prettyIon`/`prettyText`), only to the exact tokens the producer emitted —
+  measurement numbers are never touched.
 
 ## Chemistry defaults
 
@@ -37,10 +43,10 @@ marked *(open)* are settled in Phase 0 alongside the architecture open-questions
 ## Numeric representation & significant figures
 
 Computation is **exact and never float** (ADR-0013): `Decimal` for masses/amounts, exact rationals for
-balancing. Display rounding is a separate, emit-time concern. Display sig-fig policy is still provisional
-*(open — architecture Q7)*: working default is to carry exact values in the ledger, render 3 significant
-figures for derived results, and echo given-value precision. The practice generator must never produce
-items whose correctness hinges on ambiguous rounding.
+balancing. Display rounding is a separate, emit-time concern. Display sig-fig policy **(settled — ADR-0025,
+closing architecture Q7)**: carry exact values in the ledger; render derived results to **3 significant
+figures**; echo given-value precision when restating givens. The practice generator must never produce
+items whose correctness hinges on ambiguous rounding (reject-list enforced).
 
 ## Naming
 

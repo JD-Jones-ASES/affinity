@@ -56,15 +56,15 @@
   "equations": {
     "molecular": {
       "text": "3 CaCl2(aq) + 2 Na3PO4(aq) -> Ca3(PO4)2(s) + 6 NaCl(aq)",
-      "latex": "3\\,CaCl_{2}\\,\\text{(aq)} + 2\\,Na_{3}PO_{4}\\,\\text{(aq)} \\rightarrow Ca_{3}(PO_{4})_{2}\\,\\text{(s)} + 6\\,NaCl\\,\\text{(aq)}"
+      "latex": "3\\,\\mathrm{CaCl_{2}}\\,\\text{(aq)} + 2\\,\\mathrm{Na_{3}PO_{4}}\\,\\text{(aq)} \\rightarrow \\mathrm{Ca_{3}(PO_{4})_{2}}\\,\\text{(s)} + 6\\,\\mathrm{NaCl}\\,\\text{(aq)}"
     },
     "complete_ionic": {
       "text": "3 Ca^2+ + 6 Cl^- + 6 Na^+ + 2 PO4^3- -> Ca3(PO4)2 + 6 Na^+ + 6 Cl^-",
-      "latex": "3\\,Ca^{2+} + 6\\,Cl^{-} + 6\\,Na^{+} + 2\\,PO_{4}^{3-} \\rightarrow Ca_{3}(PO_{4})_{2} + 6\\,Na^{+} + 6\\,Cl^{-}"
+      "latex": "3\\,\\mathrm{Ca}^{2+} + 6\\,\\mathrm{Cl}^{-} + 6\\,\\mathrm{Na}^{+} + 2\\,\\mathrm{PO_{4}}^{3-} \\rightarrow \\mathrm{Ca_{3}(PO_{4})_{2}} + 6\\,\\mathrm{Na}^{+} + 6\\,\\mathrm{Cl}^{-}"
     },
     "net_ionic": {
       "text": "3 Ca^2+ + 2 PO4^3- -> Ca3(PO4)2",
-      "latex": "3\\,Ca^{2+} + 2\\,PO_{4}^{3-} \\rightarrow Ca_{3}(PO_{4})_{2}"
+      "latex": "3\\,\\mathrm{Ca}^{2+} + 2\\,\\mathrm{PO_{4}}^{3-} \\rightarrow \\mathrm{Ca_{3}(PO_{4})_{2}}"
     },
     "spectators": [
       "Cl^-",
@@ -80,7 +80,7 @@
     "species": [
       {
         "id": "CaCl2",
-        "latex": "CaCl_{2}",
+        "latex": "\\mathrm{CaCl_{2}}",
         "phase": "aq",
         "charge": 0,
         "nu": -3,
@@ -90,7 +90,7 @@
       },
       {
         "id": "Na3PO4",
-        "latex": "Na_{3}PO_{4}",
+        "latex": "\\mathrm{Na_{3}PO_{4}}",
         "phase": "aq",
         "charge": 0,
         "nu": -2,
@@ -100,7 +100,7 @@
       },
       {
         "id": "Ca3(PO4)2",
-        "latex": "Ca_{3}(PO_{4})_{2}",
+        "latex": "\\mathrm{Ca_{3}(PO_{4})_{2}}",
         "phase": "s",
         "charge": 0,
         "nu": 1,
@@ -110,7 +110,7 @@
       },
       {
         "id": "NaCl",
-        "latex": "NaCl",
+        "latex": "\\mathrm{NaCl}",
         "phase": "aq",
         "charge": 0,
         "nu": 6,

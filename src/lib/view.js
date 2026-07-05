@@ -27,15 +27,43 @@ export function phaseTag(p) {
   return PHASE[p] ?? "";
 }
 
+// Replace known formula tokens inside generated/authored prose with their Unicode form (CaCl2 → CaCl₂).
+// Only the exact tokens the producer used are touched (longest first, plain replaceAll — no regex), so
+// measurement numbers ("50.0 mL", "0.100 M") are never subscripted; $…$ math segments are left for KaTeX.
+// Typography only; the identities came from the producer and the committed derived/ stays ASCII (the
+// parity/gym gates compare those strings).
+export function prettyText(text, tokens) {
+  if (text == null) return text;
+  const toks = [...new Set(tokens)].filter(Boolean).sort((a, b) => b.length - a.length);
+  return String(text)
+    .split(/(\$[^$]+\$)/g)
+    .map((part) => {
+      if (part.length > 2 && part.startsWith("$") && part.endsWith("$")) return part;
+      let out = part;
+      for (const tok of toks) out = out.replaceAll(tok, prettyIon(tok));
+      return out;
+    })
+    .join("");
+}
+
 // Deep-clone the solution and attach *Html / *Pretty fields the islands render. The raw scenario is dropped
 // after rendering so authoring markup ($…$, **emphasis**) never ships in the hydration props.
 export function renderSolution(sol) {
   const s = structuredClone(sol);
 
-  s.scenarioHtml = inline(s.scenario);
+  // the lesson's known formula tokens (given species with and without phase, precipitate, leftovers) — used
+  // to subscript authored/generated prose without ever touching measurement numbers
+  const stripPhase = (id) => String(id).replace(/\((?:s|l|g|aq)\)$/, "");
+  const lessonTokens = [
+    ...(s.given ?? []).flatMap((g) => [g.species, stripPhase(g.species)]),
+    s.result?.precipitate?.species,
+    ...(s.result?.leftover ?? []).map((l) => l.species),
+  ];
+
+  s.scenarioHtml = inline(prettyText(s.scenario, lessonTokens));
   delete s.scenario;
 
-  s.assumptions = (s.assumptions ?? []).map((a) => ({ ...a, claimHtml: inline(a.claim) }));
+  s.assumptions = (s.assumptions ?? []).map((a) => ({ ...a, claimHtml: inline(prettyText(a.claim, lessonTokens)) }));
 
   for (const key of ["molecular", "complete_ionic", "net_ionic"]) {
     s.equations[key].html = tex(s.equations[key].latex);
@@ -50,12 +78,15 @@ export function renderSolution(sol) {
   }));
   s.ledger.limitingPretty = (s.ledger.limiting ?? []).map(prettyIon);
 
-  s.result.precipitate.symbolHtml = tex(s.result.precipitate.species.replace(/(\d+)/g, "_{$1}"), false);
+  // reuse the producer's (upright, ADR-0025) LaTeX from the matching ledger row rather than rebuilding it
+  const precipRow = s.ledger.species.find((r) => r.id === s.result.precipitate.species);
+  s.result.precipitate.symbolHtml = precipRow ? precipRow.symbolHtml
+    : tex(s.result.precipitate.species.replace(/(\d+)/g, "_{$1}"), false);
   s.result.precipitate.idPretty = prettyIon(s.result.precipitate.species);
   s.result.limiting_speciesPretty = (s.result.limiting_species ?? []).map(prettyIon);
   s.result.leftover = (s.result.leftover ?? []).map((l) => ({ ...l, idPretty: prettyIon(l.species) }));
 
-  if (s.misconception) s.misconception.claimHtml = inline(s.misconception.claim);
+  if (s.misconception) s.misconception.claimHtml = inline(prettyText(s.misconception.claim, lessonTokens));
   if (s.solubility_basis) {
     s.solubility_basis.statementHtml = inline(s.solubility_basis.statement);
     s.solubility_basis.idPretty = prettyIon(s.solubility_basis.species);
@@ -63,7 +94,34 @@ export function renderSolution(sol) {
 
   s.given = (s.given ?? []).map((g) => ({ ...g, idPretty: prettyIon(g.species) }));
 
+  // Practice text: subscript the formula tokens the generator embedded (brief §6.1). The token set is the
+  // interactive block's — the same identities the practice generator drew from.
+  if (s.practice && s.interactive) {
+    const tokens = [s.interactive.cation.source, s.interactive.anion.source, s.interactive.product.id];
+    s.practice.questions = s.practice.questions.map((q) => ({
+      ...q,
+      prompt: prettyText(q.prompt, tokens),
+      explain: prettyText(q.explain, tokens),
+      choices: q.choices.map((c) => ({
+        ...c,
+        display: prettyText(c.display, tokens),
+        misconception: prettyText(c.misconception, tokens),
+      })),
+    }));
+  }
+
   return s;
+}
+
+// Gym view prep: subscript each problem's substance token in its prompt/explanation (brief §6.1). Chains and
+// choices are numeric+unit only (no formulas) — verified against the generator.
+export function renderGym(gym) {
+  const g = structuredClone(gym);
+  g.problems = g.problems.map((p) => {
+    const tokens = [p.derivation?.inputs?.substance];
+    return { ...p, prompt: prettyText(p.prompt, tokens), explain: prettyText(p.explain, tokens) };
+  });
+  return g;
 }
 
 // Deep-render the Valence Table's LaTeX to HTML (build-time) so the ValenceTable island ships no KaTeX.

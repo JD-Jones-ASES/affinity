@@ -2,8 +2,10 @@
 
 **A beginning-chemistry portal where the verification system is the product.**
 
-**Status:** pre-release — documentation and architecture contracts only; the build starts with Phase 0
-(see [`ROADMAP.md`](./ROADMAP.md)). See [`AGENTS.md`](./AGENTS.md) to work the repo.
+**Status:** Phase 0 complete — two machine-verified lessons, the Chemical Atlas (Valence Table + concept
+graph), and generated practice are live; Phase 1 (the procedural core: gyms, nomenclature, balancing,
+stoichiometry, the Valence Table flagship) is in progress (see [`ROADMAP.md`](./ROADMAP.md)). See
+[`AGENTS.md`](./AGENTS.md) to work the repo.
 
 ## The idea in three lines
 
@@ -12,11 +14,13 @@ Chemistry is species accounting plus electron structure under energy constraints
 tables, kinetics, thermochemistry, and electrochemistry; every lesson is a view of it. Nothing ships
 unless a machine checked it, a registered source backs it, or a disclosed model assumption labels it.
 
-## What's inside (when built)
+## What's inside
 
 - **Lessons** that reconcile six views of one scenario: setup, macroscopic observation, symbol register,
   species ledger, particle/electronic view, and evidence view — with a misconception register that makes
   the canonical wrong move visibly fail.
+- **The Gym** — procedural drills generated and machine-verified at build time (dimensional analysis first;
+  nomenclature, balancing, and stoichiometry to follow), every wrong option a named mistake.
 - **The Chemical Atlas** — species, formulas, reactions, and a typed concept graph; breadth to the
   lessons' depth.
 - **The Valence Table** — a periodic table that is a database visualization, pattern explainer, and

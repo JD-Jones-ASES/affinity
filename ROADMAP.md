@@ -57,6 +57,13 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   each answer re-derived in pure Node, each wrong choice a named cancellation mistake. **70 producer tests +
   7 gates + astro build (9 pages) + live Pages.** Items 2–6 (nomenclature, balancing, stoichiometry, the
   Valence Table flagship, reaction families) inherit the instrument.
+- **Session 2026-07-05 (cont.) — rendering + oracles + planning overhaul.** Formula typography settled
+  (ADR-0025): producer LaTeX now upright (`\mathrm`), generated practice/gym/scenario prose gets Unicode
+  sub/superscripts view-side (brief §6.1), display sig-figs finalized (closes architecture Q7). Independent
+  **test oracles** added (ADR-0026: `chempy` + `periodictable` dev-deps cross-check molar masses + both
+  lesson balances — **74 producer tests**). Doc sweep (architecture as-built to 7 gates/gym, README status)
+  and this roadmap's **Phase-1 scope blocks, session map, and definition of done** landed; scope decision:
+  Phase 1 + Atlas breadth first, **Phase 2 opens only on owner review**.
 
 ---
 
@@ -134,19 +141,108 @@ family `solution_conversions_v1` generates 10 deterministic problems across five
 (non-terminating candidates rejected), each conversion's dimensions are re-checked through the units engine,
 and each wrong choice is a named cancellation mistake. **Items 2–6 inherit this instrument** — a new item adds
 a `family` to `generate_gym` (and a per-kind branch to `validate-gyms` when a new answer shape appears), not a
-new pipeline.
+new pipeline. Deferred inside item 1 (revisit with item 4 and Phase 2 gases): particle/Avogadro conversions
+(needs the Avogadro constant registered as a sourced datum), gas-volume conversions, density/percent-
+composition chains, and multi-path "diagnose the invalid conversion" drills (brief §13.1).
+
+**Item 2 — formula & nomenclature engine (next up).** Stress scenario: *name↔formula in both directions
+across ionic (mono- and polyatomic), covalent-prefix, and acid species* — e.g. iron(III) sulfate ↔
+Fe₂(SO₄)₃. Scope: (a) extend `data/ions.toml` with systematic names + a curated compound/acid naming
+dataset (OpenStax-cited, ADR-0006 — names are regime-3 conventions; compositions stay machine-checked);
+(b) a `nomenclature.py` rules module (crossover already exists in `reference.py::assemble_formula`; naming
+rules: -ide/-ate/-ite, Roman-numeral charges, covalent prefixes, hydro-/-ic/-ous acids); (c) gym families
+both directions (`ionic_nomenclature_v1`, `covalent_nomenclature_v1`, `acid_nomenclature_v1`), distractors
+= the named misconceptions (charge ≠ subscript; prefixes on ionic compounds; splitting polyatomics);
+(d) gate note: name answers can't be re-derived numerically — `validate-gyms` grows a data-driven branch
+that checks name↔formula pairs against the **emitted name table** (the dataset travels in the gym JSON, so
+Node re-checks pairs without a JS chemistry engine); (e) Valence-Table **formula mode** hooks (click two
+ions → neutral formula, already built) get naming attached. Transition metals with variable charges enter
+the ion dataset here (Fe²⁺/Fe³⁺, Cu⁺/Cu²⁺, …).
+
+**Item 3 — balancing engine.** Stress scenario: *a hard conservation-matrix balance* (e.g. combustion with
+odd coefficients) plus the "never mutate subscripts" misconception made to fail visibly. Scope: a
+`balancing_v1` gym family (unbalanced equation → pick/enter coefficients; the producer emits the
+conservation matrix so the player can show per-element tallies live); misconception modes (brief §13.3):
+subscript-mutation trap choices, polyatomic-preservation view, combustion quick-pattern; every learner move
+re-proven by the per-element tally (data emitted, arithmetic in the island is integer addition only —
+within the no-runtime-chemistry rule since the matrix is producer-derived). Redox half-reactions preview
+only (full redox is Phase 2). New answer shape → new `validate-gyms` branch (re-balance in Node via the
+emitted matrix: verify the answer vector zeroes every element row).
+
+**Item 4 — stoichiometry suite.** Stress scenario: *percent yield on a mass→mass path* (extends the ledger
+with an actual-vs-theoretical comparison). Scope: gym families `mass_stoichiometry_v1` (mass→moles→ratio→
+moles→mass across a balanced equation), `limiting_mass_v1` (limiting reagent from masses, not solutions),
+`percent_yield_v1`; one flagship **percent-yield lesson** (topic slug `percent-yield`); each generated
+problem carries the brief-§13.2 triple explanation — recipe (coefficients), dimensional chain, and extent
+ledger. Particle-count stoichiometry lands here once the Avogadro constant is registered (SOURCES +
+`data/`). Sequential reactions and mixture analysis deferred to Phase 2 unless trivial.
+
+**Item 5 — Valence Table flagship (brief §8).** Opens with a **data-curation session** (ADR-0006):
+electronegativity (Pauling), atomic/ionic radii, first ionization energy — primary-sourced (NIST/CIAAW),
+registered in SOURCES, cross-checked against the `mendeleev` oracle (ADR-0026); likely widen the element
+set beyond the current 9 (target: main-group Z ≤ 20 + the transition metals item 2 introduced). Then the
+lenses (valence electrons, ion charges, electronegativity, radius, ionization energy — each with the
+brief-§8.1 pattern panel: what pattern / why / exceptions / where it shows up) and the modes: **trend mode**
+(click a group/period → build-time-computed trend graph), **formula mode** (built — gets naming from item
+2), **bonding mode** (electronegativity difference → polarity spectrum + ionic/covalent warning),
+**practice mode** (a `periodic_trends_v1` gym family generated *from the same data*: which is larger,
+predict the ion, order by IE).
+
+**Item 6 — reaction families (brief §10.4).** Stress scenario: *classify + predict products for the six
+core families* — precipitation, acid-base neutralization, gas evolution, combustion, redox
+(oxidation-state level), single/double replacement. Scope: the **reaction-atlas entry kind**
+(`schemas/reference.schema.json` grows `kind: "reaction-family"`: general form, required conditions,
+misconceptions, 3–5 machine-verified example reactions, particle+ledger views); a `reaction-classifier`
+module (`chemkernel.reaction` grows family detection: acid-base needs H⁺ transfer bookkeeping, gas
+evolution needs the decomposition table — both curated datasets, cited); a `reaction_families_v1` gym
+family (given reactants → predict products / classify family / name the spectators). The
+`interactive`/`practice` emitters generalize past single-precipitate double-displacement here (acid-base
+neutralization is the first new shape). A second flagship lesson (acid-base titration-free neutralization)
+anchors the family.
+
+### Proposed session map (one reviewable increment each)
+
+1. ~~Rendering polish + oracle tests + doc sweep + this roadmap~~ (this session).
+2. Item 2 — nomenclature data + engine + gym families (+ Atlas nomenclature concept).
+3. Item 3 — balancing gym + conservation-matrix view.
+4. Item 4 — stoichiometry families + the percent-yield lesson (+ Avogadro datum).
+5. Item 5a — element-property data curation (SOURCES + data/ + oracle cross-check).
+6. Item 5b — Valence Table lenses + trend/bonding/practice modes.
+7. Item 6 — reaction families (atlas kind + classifier + gym + the neutralization lesson).
+8. Atlas breadth audit: species-atlas + formula-sheet entry kinds; fill every Phase-0/1 regime-map row;
+   **Phase-1 definition-of-done check → stop for owner review** (Phase 2 is the owner's to open).
+
+Sequencing rationale: 2→3→4 build the procedural chain in teaching order on the existing instrument;
+5 needs its own data session first; 6 is the largest (new reaction shapes) and benefits from everything
+before it. The Atlas breadth-fill runs inside every session (each item ships its concepts), with session 8
+as the sweep that catches what slipped.
+
+### Phase-1 definition of done ("relatively complete procedural course")
+
+- All six items landed with their gym families, flagship instruments, and lessons as scoped above.
+- **Every Phase-0/1 topic row in [`docs/regime-map.md`](./docs/regime-map.md) shows coverage** (lesson,
+  gym, and/or atlas — no "—" in the phase-0/1 tier): measurement/dimensional analysis, atoms & atomic
+  mass, mole & molar mass, ions & formula writing, nomenclature, periodic table & trends, balancing,
+  reaction classes, stoichiometry, limiting reagents, percent yield, solutions & molarity, precipitation.
+- The Atlas carries all four brief-§10 entry kinds (periodic lens ✓, concepts ✓, reaction families,
+  species entries) — the formula/equation sheet may open with Phase 2 (its formulas are mostly
+  model-bearing).
+- 4+ lessons total; every lesson keeps the misconception register + ledger view; all gates green; deployed.
+- **Then stop for owner review before Phase 2.**
 
 ## Phase 2+ — the model-bearing topics (sketch)
 
 Gases + thermochemistry (energy ledger), bonding & structure (Lewis, VSEPR, polarity, IMFs), equilibrium &
 acid-base (ICE = ledger with reversible extent), kinetics ($d\xi/dt$), electrochemistry (electron ledger,
-$\Delta G = -nFE$). Sequenced after Phase 1 review; not scoped yet.
+$\Delta G = -nFE$). Sequenced after Phase 1 review; not scoped yet — opening Phase 2 is the owner's call
+(scope decision 2026-07-05).
 
 ## Parallel track — the Chemical Atlas breadth-fill
 
 As in the sibling: lessons go deep, the reference goes broad. Species atlas, formula/equation sheet,
 reaction atlas, concept graph (typed edges, brief §10.5) fill breadth-first alongside whatever phase is
-open. Status: not started; coverage dashboard in [`docs/regime-map.md`](./docs/regime-map.md).
+open. Status: **14 concept entries + the Valence Table**; reaction-family and species entry kinds arrive
+with Phase-1 items 6 and 8; coverage dashboard in [`docs/regime-map.md`](./docs/regime-map.md).
 
 ## Out of scope (v1)
 

@@ -448,3 +448,52 @@ engine + sourced molar masses (no new dataset). Particle/Avogadro conversions ar
 constant is registered as a sourced datum. The units engine verifies *dimensions*; the exact *values* are
 Fraction-exact in the producer and re-derived numerically (float tolerance) by the Node gate — consistent
 with how `check-parity` trusts emitted literals and anchors them to engine-computed expectations.
+
+## ADR-0025 — Formula display conventions: upright LaTeX, Unicode prose subscripts, sig-fig policy settled (2026-07-05)
+
+**Context.** Brief §6.1 mandates proper sub/superscripts wherever formulas render. As built, three layers
+disagreed: producer LaTeX rendered element symbols in KaTeX's default math italic (𝐶𝑎𝐶𝑙₂ — wrong for
+chemistry; IUPAC wants upright), hand-authored concept entries already used upright `\text{…}`, and the
+generated practice/gym prose showed raw ASCII (`CaCl2`). Separately, the display sig-fig policy had been
+provisional since bootstrap (architecture Q7). The gates constrain the fix: `check-parity`/`validate-gyms`
+compare display strings inside committed `derived/`, so typography must not mutate the data layer.
+
+**Decision.** One convention, three layers (house-conventions §Notation):
+1. **Data/interchange stays ASCII** — specs, schemas, derived JSON, and gate comparisons keep `CaCl2` /
+   caret charges. Typography never enters the contract layer.
+2. **Producer LaTeX is upright**: `formula._to_latex` wraps the body in `\mathrm{…}` (phases keep
+   `\text{(aq)}`); every equation, ledger row, and Valence-Table symbol inherits.
+3. **Prose gets Unicode sub/superscripts at build time, view-side**: `view.js` gained `prettyText(text,
+   tokens)` — longest-first `replaceAll` of the exact formula tokens the producer emitted (practice: the
+   interactive block's cation/anion/product ids; gym: each problem's `derivation.inputs.substance`; lesson
+   scenario/assumptions/misconception: the given/precipitate/leftover species), skipping `$…$` math
+   segments. Measurement numbers are untouchable by construction; no regex, no prose parsing.
+Also settled: **display sig-figs (closes architecture Q7)** — ledger exact, derived results at 3 significant
+figures, givens echoed at their stated precision; the practice reject-list already enforces
+no-ambiguous-rounding.
+
+**Consequences.** All `derived/` LaTeX regenerated once (`check-katex` re-proves all strings). The islands
+stay plain-text (Unicode needs no `{@html}`); hydration payload unchanged. New generators must emit ASCII
+tokens and let the view subscript them — a generator that pre-formats display strings would break the
+Node re-derivation gates and is therefore wrong by contract, not just by style.
+
+## ADR-0026 — External chemistry libraries are verification oracles only (2026-07-05)
+
+**Context.** The owner asked whether Python chemistry libraries should be used. Candidates: `chempy`
+(SymPy-based `balance_stoichiometry`, formula-parsed molar masses), `periodictable` (element masses),
+`mendeleev` (element properties). ADR-0006/0012/0013 already commit the product to curated, cited `data/`
+and exact arithmetic — an external library at runtime would smuggle in unsourced values and floats.
+
+**Decision.** External chemistry libraries enter the project **only as dev-dependency test oracles**
+(`pyproject` dependency-group `dev`; never `[project]` dependencies; never imported by `chemkernel`
+modules). `tests/test_oracle.py` cross-checks: every curated CIAAW atomic weight against `periodictable`;
+every corpus substance's molar mass against `chempy`'s independent parser+table; both lesson balances
+against `chempy.balance_stoichiometry`. Loose tolerances (different atomic-weight editions), `importorskip`
+so a failed optional install degrades to skip rather than break the suite. They are not SOURCES.md register
+entries — the register records *shipped* values; oracles verify, they never supply.
+
+**Consequences.** The engine is now double-checked by an independent implementation on every test run —
+redundant proof in the spirit of the two-layer Python/Node verification (ADR-0008). When the Valence-Table
+flagship needs new element properties (electronegativity, radii, ionization energies), the data still gets
+curated into `data/` from a primary source per ADR-0006 — with `mendeleev` available as an oracle to
+cross-check the transcription, which is exactly the failure mode oracles catch.

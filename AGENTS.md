@@ -208,11 +208,15 @@ misconception by **capacity** (moles ÷ coefficient), and the practice explanati
 `DimensionalGym` island reveals the unit-cancellation chain on each pick). The first family
 `solution_conversions_v1` generates 10 deterministic, units-engine-verified conversions
 (volume·molarity·moles·mass); each value is exact (non-terminating rejected) and each wrong choice is a named
-cancellation mistake. **Counters: 2 lessons + 1 dimensional-analysis gym (10 verified conversions), 1 Valence
-Table + 14 cross-linked concept entries (2 rule-sourced, cited), 7 Node gates + CI + live Pages, 70 producer
-tests green; astro build = 9 pages.** **Phase 0 remains complete end to end**; Phase 1 is now open and filling
-depth-first (items 2–6 inherit the gym instrument). See [`ROADMAP.md`](./ROADMAP.md) and
-[`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
+cancellation mistake. Formula typography is settled (ADR-0025): upright `\mathrm` LaTeX, Unicode
+sub/superscripts in all generated/authored prose (view-side `prettyText`/`renderGym`), ASCII in data and
+gate comparisons; independent **test oracles** (ADR-0026: chempy/periodictable dev-deps) cross-check the
+masses and both balances in pytest. **Counters: 2 lessons + 1 dimensional-analysis gym (10 verified
+conversions), 1 Valence Table + 14 cross-linked concept entries (2 rule-sourced, cited), 7 Node gates + CI +
+live Pages, 74 producer tests green; astro build = 9 pages.** **Phase 0 remains complete end to end**;
+Phase 1 is now open and filling depth-first — items 2–6 carry full scope blocks, an 8-session map, and a
+**Phase-1 definition of done** in the ROADMAP, with a review gate before Phase 2. See
+[`ROADMAP.md`](./ROADMAP.md) and [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
 
 ## Where this might go next (paths for a future session)
 
