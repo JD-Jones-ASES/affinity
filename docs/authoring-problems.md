@@ -103,6 +103,22 @@ annotate = ["xi_limited_by_Ca", "CO3_left_over", "CaCO3_mass_tracks_xi"]
 Whether the sliders actually appear depends on the producer emitting a verified `interactive` block (below) —
 a declaration alone does not fabricate an instrument.
 
+### `[practice]` — generated practice (optional)
+
+Deterministic, solver-verified variants (brief §6.8). Requires the reaction to also emit an interactive block
+(the practice generator reuses its engine-derived multiplicities).
+
+```toml
+[practice]
+family = "precipitation_limiting_reagent_v1"
+seed = 20260705    # fixed seed → byte-identical variants every build (ADR-0008)
+count = 6          # the producer refuses to emit if it can't generate this many non-rejected variants
+```
+
+Each generated question rotates through limiting-reagent / mass / leftover asks; every wrong choice is a
+named misconception, and a reject-list drops ambiguous variants (near-ties, no leftover, choices that
+collide at display precision). Changing `seed` regenerates the whole set; commit the new `derived/` with it.
+
 ### Other optional keys
 
 `tags` (array), `reference_links` (array of Atlas ids — they become links as the Atlas is built),

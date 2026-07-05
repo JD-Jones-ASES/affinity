@@ -27,6 +27,7 @@ from .data import ChemData
 from .extent import solve_extent, species_mass_g, to_decimal
 from .formula import Formula, parse_formula
 from .interactive import build_interactive
+from .practice import generate_practice
 from .reaction import complete_ionic, net_ionic
 from .solubility import Solubility
 from .units import Quantity
@@ -225,6 +226,18 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
     interactive = build_interactive(reactants, products, coeffs, spec["given"], data, net_left, net_right, ctx)
     if interactive is not None:
         solution["interactive"] = interactive
+
+    # generated practice (ADR-0011, brief §6.8): deterministic solver-verified variants off the same reaction.
+    # Optional; needs the interactive block (shares its engine-derived multiplicities). Refuses to emit fewer
+    # than the requested count (a build failure beats silently short-changing practice).
+    practice_spec = spec.get("practice")
+    if practice_spec and interactive is not None:
+        practice = generate_practice(interactive, int(practice_spec["seed"]),
+                                     int(practice_spec.get("count", 4)), ctx)
+        if practice is None:
+            raise BuildError(f"{ctx}: practice generator could not produce {practice_spec.get('count', 4)} "
+                             f"non-rejected variants at seed {practice_spec['seed']}")
+        solution["practice"] = practice
 
     return solution, f"{spec['topic']}/{spec['slug']}.solution.json"
 

@@ -522,5 +522,281 @@
         }
       }
     ]
+  },
+  "practice": {
+    "family": "precipitation_limiting_reagent_v1",
+    "seed": 20260705,
+    "questions": [
+      {
+        "id": "q1",
+        "kind": "limiting",
+        "prompt": "35.0 mL of 0.250 M CaCl2 is mixed with 30.0 mL of 0.100 M Na2CO3. Which reactant is the limiting reagent?",
+        "given": [
+          {
+            "species": "CaCl2",
+            "volume_mL": "35.0",
+            "molarity_M": "0.250"
+          },
+          {
+            "species": "Na2CO3",
+            "volume_mL": "30.0",
+            "molarity_M": "0.100"
+          }
+        ],
+        "args": {
+          "v1": "35.0",
+          "c1": "0.250",
+          "v2": "30.0",
+          "c2": "0.100"
+        },
+        "answer": {
+          "display": "Na2CO3",
+          "value": "Na2CO3"
+        },
+        "choices": [
+          {
+            "display": "CaCl2",
+            "correct": false,
+            "misconception": "Picking CaCl2 by inspection — compare the moles of the reacting ion, not the volumes or concentrations alone."
+          },
+          {
+            "display": "Na2CO3",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "Neither — both are fully consumed",
+            "correct": false,
+            "misconception": "A limiting reagent runs out first; here one reactant is left over, so they are not both fully consumed."
+          }
+        ],
+        "explain": "n(CaCl2) = 8.75 mmol of the reacting ion, n(Na2CO3) = 3 mmol. Na2CO3 supplies fewer, so it limits."
+      },
+      {
+        "id": "q2",
+        "kind": "mass",
+        "prompt": "35.0 mL of 0.200 M CaCl2 is mixed with 15.0 mL of 0.100 M Na2CO3. What mass of CaCO3 precipitate forms?",
+        "given": [
+          {
+            "species": "CaCl2",
+            "volume_mL": "35.0",
+            "molarity_M": "0.200"
+          },
+          {
+            "species": "Na2CO3",
+            "volume_mL": "15.0",
+            "molarity_M": "0.100"
+          }
+        ],
+        "args": {
+          "v1": "35.0",
+          "c1": "0.200",
+          "v2": "15.0",
+          "c2": "0.100"
+        },
+        "answer": {
+          "display": "0.150 g",
+          "value": "0.150"
+        },
+        "choices": [
+          {
+            "display": "0.150 g",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "0.701 g",
+            "correct": false,
+            "misconception": "Used CaCl2, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
+          },
+          {
+            "display": "0.851 g",
+            "correct": false,
+            "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
+          }
+        ],
+        "explain": "ξ = 1.5 mmol (set by Na2CO3); mass = 1 × 1.5 mmol × 100.086000 g/mol = 0.150 g."
+      },
+      {
+        "id": "q3",
+        "kind": "leftover",
+        "prompt": "15.0 mL of 0.100 M CaCl2 is mixed with 50.0 mL of 0.200 M Na2CO3. After the reaction, how many mmol of the excess reactant remain?",
+        "given": [
+          {
+            "species": "CaCl2",
+            "volume_mL": "15.0",
+            "molarity_M": "0.100"
+          },
+          {
+            "species": "Na2CO3",
+            "volume_mL": "50.0",
+            "molarity_M": "0.200"
+          }
+        ],
+        "args": {
+          "v1": "15.0",
+          "c1": "0.100",
+          "v2": "50.0",
+          "c2": "0.200"
+        },
+        "answer": {
+          "display": "8.5 mmol",
+          "value": "8.5"
+        },
+        "choices": [
+          {
+            "display": "8.5 mmol",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "10 mmol",
+            "correct": false,
+            "misconception": "That is all the Na2CO3 you started with — some of it reacts; only the surplus over the limiting reagent remains."
+          },
+          {
+            "display": "0 mmol",
+            "correct": false,
+            "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
+          }
+        ],
+        "explain": "Na2CO3 started at 10 mmol and 1.5 mmol reacted, leaving 8.5 mmol."
+      },
+      {
+        "id": "q4",
+        "kind": "limiting",
+        "prompt": "20.0 mL of 0.100 M CaCl2 is mixed with 15.0 mL of 0.250 M Na2CO3. Which reactant is the limiting reagent?",
+        "given": [
+          {
+            "species": "CaCl2",
+            "volume_mL": "20.0",
+            "molarity_M": "0.100"
+          },
+          {
+            "species": "Na2CO3",
+            "volume_mL": "15.0",
+            "molarity_M": "0.250"
+          }
+        ],
+        "args": {
+          "v1": "20.0",
+          "c1": "0.100",
+          "v2": "15.0",
+          "c2": "0.250"
+        },
+        "answer": {
+          "display": "CaCl2",
+          "value": "CaCl2"
+        },
+        "choices": [
+          {
+            "display": "CaCl2",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "Na2CO3",
+            "correct": false,
+            "misconception": "Na2CO3 has the smaller volume, but volume alone doesn't decide it — convert to moles first."
+          },
+          {
+            "display": "Neither — both are fully consumed",
+            "correct": false,
+            "misconception": "A limiting reagent runs out first; here one reactant is left over, so they are not both fully consumed."
+          }
+        ],
+        "explain": "n(CaCl2) = 2 mmol of the reacting ion, n(Na2CO3) = 3.75 mmol. CaCl2 supplies fewer, so it limits."
+      },
+      {
+        "id": "q5",
+        "kind": "mass",
+        "prompt": "10.0 mL of 0.150 M CaCl2 is mixed with 20.0 mL of 0.050 M Na2CO3. What mass of CaCO3 precipitate forms?",
+        "given": [
+          {
+            "species": "CaCl2",
+            "volume_mL": "10.0",
+            "molarity_M": "0.150"
+          },
+          {
+            "species": "Na2CO3",
+            "volume_mL": "20.0",
+            "molarity_M": "0.050"
+          }
+        ],
+        "args": {
+          "v1": "10.0",
+          "c1": "0.150",
+          "v2": "20.0",
+          "c2": "0.050"
+        },
+        "answer": {
+          "display": "0.100 g",
+          "value": "0.100"
+        },
+        "choices": [
+          {
+            "display": "0.100 g",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "0.150 g",
+            "correct": false,
+            "misconception": "Used CaCl2, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
+          },
+          {
+            "display": "0.250 g",
+            "correct": false,
+            "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
+          }
+        ],
+        "explain": "ξ = 1 mmol (set by Na2CO3); mass = 1 × 1 mmol × 100.086000 g/mol = 0.100 g."
+      },
+      {
+        "id": "q6",
+        "kind": "leftover",
+        "prompt": "40.0 mL of 0.200 M CaCl2 is mixed with 15.0 mL of 0.200 M Na2CO3. After the reaction, how many mmol of the excess reactant remain?",
+        "given": [
+          {
+            "species": "CaCl2",
+            "volume_mL": "40.0",
+            "molarity_M": "0.200"
+          },
+          {
+            "species": "Na2CO3",
+            "volume_mL": "15.0",
+            "molarity_M": "0.200"
+          }
+        ],
+        "args": {
+          "v1": "40.0",
+          "c1": "0.200",
+          "v2": "15.0",
+          "c2": "0.200"
+        },
+        "answer": {
+          "display": "5 mmol",
+          "value": "5"
+        },
+        "choices": [
+          {
+            "display": "5 mmol",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "8 mmol",
+            "correct": false,
+            "misconception": "That is all the CaCl2 you started with — some of it reacts; only the surplus over the limiting reagent remains."
+          },
+          {
+            "display": "0 mmol",
+            "correct": false,
+            "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
+          }
+        ],
+        "explain": "CaCl2 started at 8 mmol and 3 mmol reacted, leaving 5 mmol."
+      }
+    ]
   }
 }

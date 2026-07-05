@@ -8,11 +8,13 @@
   // block of parity-verified closed forms (ADR-0008/0011); a static build without it renders the full chain.
   import ExtentBar from "./ExtentBar.svelte";
   import BeakerSpecies from "./BeakerSpecies.svelte";
+  import PracticeQuestion from "./PracticeQuestion.svelte";
 
   let { solution } = $props();
   const s = solution;
 
   const hasInteractive = !!s.interactive;
+  const hasPractice = !!s.practice?.questions?.length;
   let tab = $state("equations");
 
   // The concrete answers, pulled from the verified result (never recomputed here).
@@ -71,6 +73,9 @@
     {#if hasInteractive}
       <button role="tab" aria-selected={tab === "beaker"} onclick={() => (tab = "beaker")}>Beaker</button>
       <button role="tab" aria-selected={tab === "extent"} onclick={() => (tab = "extent")}>Extent</button>
+    {/if}
+    {#if hasPractice}
+      <button role="tab" aria-selected={tab === "practice"} onclick={() => (tab = "practice")}>Practice</button>
     {/if}
   </div>
 
@@ -143,6 +148,14 @@
   {:else if tab === "extent" && hasInteractive}
     <div class="panel" role="tabpanel" aria-label="Extent bar">
       <ExtentBar interactive={s.interactive} precipitateSymbol={precip.idPretty} />
+    </div>
+  {:else if tab === "practice" && hasPractice}
+    <div class="panel practicepanel" role="tabpanel" aria-label="Practice">
+      <p class="practice-lede muted">Generated variants of this reaction, each solver-verified. Wrong options are
+        common misconceptions, not random numbers — pick one to see why. ({s.practice.questions.length} questions.)</p>
+      {#each s.practice.questions as q (q.id)}
+        <PracticeQuestion question={q} />
+      {/each}
     </div>
   {/if}
 
@@ -257,4 +270,7 @@
   .akind { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; padding: 0.05rem 0.35rem; border-radius: 5px; margin-right: 0.3rem; }
   .akind.model { background: var(--model-soft); color: var(--model); }
   .akind.rule { background: var(--sourced-soft); color: var(--sourced); }
+
+  .practicepanel { display: grid; gap: 0.8rem; }
+  .practice-lede { margin: 0; font-size: 0.95rem; }
 </style>

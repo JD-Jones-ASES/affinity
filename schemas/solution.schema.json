@@ -269,6 +269,69 @@
         }
       }
     },
+    "practice": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional generated practice (ADR-0011, brief §6.8): deterministic solver-verified variants. Answers re-derived in Node via the interactive closed forms (check-parity).",
+      "required": ["family", "seed", "questions"],
+      "properties": {
+        "family": { "type": "string" },
+        "seed": { "type": "integer" },
+        "questions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "kind", "prompt", "given", "args", "answer", "choices", "explain"],
+            "properties": {
+              "id": { "type": "string" },
+              "kind": { "enum": ["limiting", "mass", "leftover"] },
+              "prompt": { "type": "string", "minLength": 1 },
+              "given": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["species", "volume_mL", "molarity_M"],
+                  "properties": {
+                    "species": { "type": "string" },
+                    "volume_mL": { "type": "string" },
+                    "molarity_M": { "type": "string" }
+                  }
+                }
+              },
+              "args": { "type": "object", "additionalProperties": { "type": "string" } },
+              "answer": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["display", "value"],
+                "properties": {
+                  "display": { "type": "string" },
+                  "value": { "type": "string" }
+                }
+              },
+              "choices": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["display", "correct"],
+                  "properties": {
+                    "display": { "type": "string" },
+                    "correct": { "type": "boolean" },
+                    "misconception": { "type": ["string", "null"] }
+                  }
+                }
+              },
+              "explain": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
     "checks": {
       "type": "object",
       "additionalProperties": false,

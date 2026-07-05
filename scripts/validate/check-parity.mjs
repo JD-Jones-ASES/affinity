@@ -28,7 +28,7 @@ function compile(expr, params) {
   return new Function(...params, `"use strict"; return (${expr});`);
 }
 
-const close = (got, want) => Math.abs(got - want) <= ATOL + RTOL * Math.abs(want);
+const close = (got, want, atol = ATOL, rtol = RTOL) => Math.abs(got - want) <= atol + rtol * Math.abs(want);
 
 const derived = join(ROOT, "derived");
 let files = [];
@@ -45,12 +45,16 @@ const fail = (file, msg) => {
 };
 
 let checked = 0;
+let practiceChecked = 0;
 let withBlock = 0;
 for (const file of files) {
   const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
   const sol = JSON.parse(readFileSync(file, "utf8"));
   const ix = sol.interactive;
-  if (!ix) continue;
+  if (!ix) {
+    if (sol.practice) fail(rel, "practice block present but no interactive block to re-derive its answers");
+    continue;
+  }
   withBlock++;
 
   const params = ix.closed_form_params;
@@ -91,6 +95,41 @@ for (const file of files) {
   const massDefault = fns.mass(...defArgs);
   if (!close(massDefault, Number(sol.result.precipitate.mass_g)))
     fail(rel, `default mass ${massDefault} != committed precipitate mass_g ${sol.result.precipitate.mass_g}`);
+
+  // practice: re-derive every generated answer in Node from the parity-verified closed forms (ADR-0011).
+  // The stated display values are rounded, so numeric answers are checked at display tolerance.
+  if (sol.practice) {
+    const DTOL = 1e-3; // grams to 3 decimals / mmol trimmed — half-ULP slack
+    for (const q of sol.practice.questions) {
+      const qa = params.map((p) => {
+        if (!(p in q.args)) fail(rel, `practice ${q.id}: missing arg '${p}'`);
+        return Number(q.args[p]);
+      });
+      const correct = q.choices.filter((c) => c.correct);
+      if (correct.length !== 1) fail(rel, `practice ${q.id}: ${correct.length} correct choices (want exactly 1)`);
+      if (correct[0].display !== q.answer.display)
+        fail(rel, `practice ${q.id}: correct choice '${correct[0].display}' != answer '${q.answer.display}'`);
+      const displays = q.choices.map((c) => c.display);
+      if (new Set(displays).size !== displays.length)
+        fail(rel, `practice ${q.id}: choice displays are not distinct`);
+
+      if (q.kind === "mass") {
+        if (!close(Number(q.answer.value), fns.mass(...qa), DTOL, DTOL))
+          fail(rel, `practice ${q.id}: mass answer ${q.answer.value} != closed-form ${fns.mass(...qa)}`);
+      } else if (q.kind === "leftover") {
+        const leftMol = Math.max(fns.leftover_cation(...qa), fns.leftover_anion(...qa));
+        if (!close(Number(q.answer.value), leftMol * 1000, DTOL, DTOL))
+          fail(rel, `practice ${q.id}: leftover answer ${q.answer.value} mmol != closed-form ${leftMol * 1000}`);
+      } else if (q.kind === "limiting") {
+        const capCat = fns.n_cation(...qa) / ix.cation.net_coeff;
+        const capAn = fns.n_anion(...qa) / ix.anion.net_coeff;
+        const limits = capCat < capAn ? ix.cation.source : ix.anion.source;
+        if (q.answer.value !== limits)
+          fail(rel, `practice ${q.id}: limiting answer '${q.answer.value}' != closed-form '${limits}'`);
+      }
+      practiceChecked++;
+    }
+  }
 }
 
-console.log(`check-parity: ${withBlock} interactive block(s), ${checked} closed-form point(s) match the engine.`);
+console.log(`check-parity: ${withBlock} interactive block(s), ${checked} closed-form point(s) + ${practiceChecked} practice answer(s) match the engine.`);

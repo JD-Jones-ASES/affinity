@@ -43,9 +43,11 @@ def test_build_is_deterministic_across_hash_seeds():
     )
 
     def run(seed: int) -> str:
-        env = dict(os.environ, PYTHONHASHSEED=str(seed))
+        # PYTHONIOENCODING=utf-8 so the subprocess stdout matches how build.py actually writes the artifact
+        # (_write_json uses utf-8, ensure_ascii=False); Windows' default cp1252 stdout can't encode ξ etc.
+        env = dict(os.environ, PYTHONHASHSEED=str(seed), PYTHONIOENCODING="utf-8")
         r = subprocess.run([sys.executable, "-c", prog, str(SPEC), str(ROOT)],
-                           capture_output=True, text=True, env=env)
+                           capture_output=True, text=True, encoding="utf-8", env=env)
         assert r.returncode == 0, r.stderr
         return r.stdout
 
