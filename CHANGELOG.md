@@ -3,6 +3,29 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 0 — 2026-07-05 — the Chemical Atlas + Valence Table (Phase 0 COMPLETE)
+
+- **The reference layer.** `chemkernel.reference`: `build_valence_table` projects `data/` — elements in
+  their IUPAC positions + the sourced monatomic ion charges + the polyatomic ions — and emits
+  **machine-verified charge-balance salts**: a cation+anion pair's neutral formula is assembled by charge
+  crossover and re-checked (neutral + composition), so CaCO₃/Na₂CO₃/CaCl₂/NaCl (the lesson's four salts) are
+  *derived* from the table, not asserted. `build_reference_entry` emits authored concept entries. New
+  `build-reference` entry point → `derived/reference/*.json`; `npm run produce` runs both builders.
+- **Content:** two authored concepts (`limiting-reagent`, `extent-of-reaction`), cross-linked (a minimal
+  typed concept graph) and tied to the lesson. `schemas/valence-table.schema.json` +
+  `schemas/reference.schema.json`. New **`validate-reference.mjs`** gate (Ajv by `kind`; `related` edges and
+  `lessons` slugs resolve; charge-balance ions come from the table); `check-katex` extended to reference
+  LaTeX + inline definition math (now **32 strings**).
+- **Player:** `ValenceTable.svelte` — the periodic lens: a group×period grid; click an element for its
+  common ion + the sourced charge + why; click a polyatomic to watch neutral formulas fall out of charge
+  balance; Ca/Na highlighted. `reference/` index + `reference/valence-table/` pages; **Reference** added to
+  the nav; the lesson's concept chips now link into the Atlas. Delivers both brief-§16 reference targets
+  (verified in-browser: "click Ca → why Ca²⁺", "click carbonate → how CaCO₃ follows from charge balance").
+- **Verification:** 62 producer tests (+5 reference: table shape, the four salts, crossover incl. parenthesised
+  `Ca(NO3)2`, concept build) + **6 Node gates** + `astro build` (6 pages) + the live CI run all green.
+- **Phase 0 is COMPLETE** — every brief-§16 definition-of-done item is met, end to end, and deployed. Stops
+  here for owner review before Phase 1.
+
 ## Phase 0 (in progress) — 2026-07-05 — practice generator, authoring guide, CI/Pages (site live)
 
 - **Generated practice (ADR-0022, brief §6.8):** `chemkernel.practice.generate_practice` builds the

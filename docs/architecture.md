@@ -39,9 +39,11 @@ static site + Svelte islands (`src/`) rendering the committed JSON: `lessons/[sl
 the three honesty badges, the misconception register, and **both interactives** (`ExtentBar`,
 `BeakerSpecies`) whose limiting-reagent switch runs on the parity-verified closed forms, plus a **Practice**
 tab (`practice.py` → `PracticeQuestion.svelte`). The spec format is documented (`docs/authoring-problems.md`)
-and **CI deploys to GitHub Pages** (`.github/workflows/deploy.yml`, live at `/affinity`). **57 producer tests
-+ 5 Node gates + `astro build` (4 pages) + the live CI run green.** What remains: only the Chemical Atlas +
-the Valence Table periodic lens (opens `reference/`), then Phase 0 stops for owner review.
+and **CI deploys to GitHub Pages** (`.github/workflows/deploy.yml`, live at `/affinity`). The **Chemical
+Atlas** exists (`reference.py` → `derived/reference/`): the Valence Table periodic lens + two concept
+entries, gated by `validate-reference`. **62 producer tests + 6 Node gates + `astro build` (6 pages) + the
+live CI run green. Phase 0 is complete end to end** — engine → emit → verify → present → deploy — and stops
+for owner review.
 
 ## ChemKernel module map (brief §6)
 
@@ -58,6 +60,7 @@ the Valence Table periodic lens (opens `reference/`), then Phase 0 stops for own
 | `build.py` orchestration | authored `problems/**/*.problem.toml` → engine → verified `derived/<topic>/<slug>.solution.json`; entry point `build-problems`; exact decimal strings | **built** (ADR-0019) |
 | `interactive.py` | derives the optional interactive block: slider params + JS closed forms + engine-computed sample points; multiplicities from `dissociate`/`net_ionic`; single-precipitate double-displacement only, else omitted | **built** (ADR-0022) |
 | `practice.py` generator | deterministic seeded variants off the reaction → solver-verified answers + misconception distractors; reject-list (near-ties, no leftover, colliding displays); reuses `interactive` multiplicities | **built** (ADR-0022, one family) |
+| `reference.py` Atlas builder | Valence Table projection of `data/` (elements + sourced charges) + charge-crossover salt assembly (verified neutral); authored concept entries; `build-reference` entry point | **built** (brief §10/§16) |
 | reaction classifier | precipitation/acid-base/gas-evolution/combustion/redox/… + required conditions | Phase 1 |
 | equilibrium / kinetics / thermo / electrochem | ICE-as-ledger, rate laws, energy ledger, electron ledger | Phase 2+ |
 
@@ -106,7 +109,7 @@ reject-list.
 | Gate | Checks |
 |---|---|
 | validate-solutions | **built** (ADR-0020): Ajv schema; every `checks.*` true; path matches topic/slug; unique ids; rule-sourced regime needs a cited `solubility_basis.source`; ledger integrity (limiting rows final_mol 0, extent > 0, ν signs); precipitate is a solid ledger row; provenance sources non-empty |
-| validate-reference | Atlas JSON schema-valid; concept-graph edges resolve; every empirical value carries a source id resolving in `docs/SOURCES.md` |
+| validate-reference | **built**: each `derived/reference/*.json` schema-valid by `kind` (`valence-table`/`concept`); unique ids; concept `related` edges + `lessons` slugs resolve; every charge-balance salt's ions come from the table |
 | check-ledger | **built** (ADR-0023): re-derives every row's final amount as n = n₀ + ν·ξ from the committed initial/coefficient/extent (independent of Python), checks role/sign consistency, and matches the reported result (precipitate moles, leftovers). Atom/charge re-check by element counts is future (needs counts in the emitted ledger or a JS parser) |
 | check-parity | **built** (ADR-0023, ADR-0022): recompiles the exported JS closed forms and re-evaluates them at the embedded engine-computed sample points within tolerance; cross-checks the default slider setting against the committed static answer; **re-derives every practice answer** in Node from those closed forms (mass/leftover numerically, limiting by capacity) and asserts exactly-one-correct + distinct choices |
 | check-katex | **built** (ADR-0023): every LaTeX string renders through KaTeX with `throwOnError:true` |

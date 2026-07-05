@@ -11,15 +11,15 @@ dashboard; phases are defined in [`ROADMAP.md`](../ROADMAP.md).
 | measurement, units, dimensional analysis | 1 | 1 | — |
 | atoms, isotopes, average atomic mass | 1, 3 | 1 | — |
 | mole concept & molar mass | 1, 3 | 1 | — |
-| ions & formula writing | 1, 3 | 1 | — |
+| ions & formula writing | 1, 3 | 1 | atlas (Valence Table — charge-balance formulas) |
 | nomenclature (ionic, covalent, acids) | 1, 3 | 1 | — |
-| periodic table & periodic trends | 3, 4 | 1 | — |
+| periodic table & periodic trends | 3, 4 | 1 | atlas (Valence Table lens — positions + ion charges) |
 | balancing equations | 1 | 1 | — |
 | reaction classes | 3, 4 | 1 | — |
 | stoichiometry (mass/volume/solution/particle) | 1 | 1 | — |
-| limiting reagents | 1, 2 | **0** | — (Phase 0 target) |
+| limiting reagents | 1, 2 | **0** | **lesson, practice, atlas** (Phase 0 slice — complete) |
 | percent yield | 1, 2 | 1 | — |
-| solutions & molarity | 1, 2 | **0** | — (Phase 0 target) |
+| solutions & molarity | 1, 2 | **0** | **lesson** (dimensional chain in the Phase 0 slice) |
 | precipitation & net ionic equations | 1, 2, 3 | **0** | — (Phase 0 target) |
 | gases (ideal-gas model) | 1, 2 | 2+ | — |
 | thermochemistry & calorimetry | 2, 3 | 2+ | — |

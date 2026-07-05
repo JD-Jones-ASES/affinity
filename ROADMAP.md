@@ -11,8 +11,9 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   protocol, eleven founding ADRs (ADR-0001…0011), architecture design contract with open questions,
   house conventions, regime map seeded across all v1 topics, SOURCES register, licenses, private GitHub
   repo. No code, no content.
-- **Phase 0 — the vertical slice — IN PROGRESS** (opened 2026-07-05). ChemKernel compute + chemistry
-  engine landed and tested: element/ion/solubility datasets (ADR-0012/0017), formula parser + molar mass,
+- **Phase 0 — the vertical slice — COMPLETE** (2026-07-05), pending owner review. All eight scope items
+  landed and verified end to end; the site is built and deployed. ChemKernel compute + chemistry engine:
+  element/ion/solubility datasets (ADR-0012/0017), formula parser + molar mass,
   balancer (ADR-0014), units/quantity engine (ADR-0015), Extent solver → species ledger (ADR-0016),
   dissociation + complete/net ionic transforms (ADR-0018), sourced solubility classifier (ADR-0017) —
   exact arithmetic throughout (ADR-0013). The **whole Phase 0 chemistry** runs end to end: molecular →
@@ -30,8 +31,12 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   distractors, re-derived in Node from the parity-verified closed forms (ADR-0022, brief §6.8). The spec
   format is documented (`docs/authoring-problems.md`) and **CI deploys to GitHub Pages** (`deploy.yml`, live
   at `/affinity`; repo stays private on the owner's Educator plan, ADR-0010). **57 producer tests + 5 Node
-  gates + CI + live Pages green.** The **one remaining Phase-0 build is the Chemical Atlas entry + the
-  Valence Table periodic lens (item 7)**; then Phase 0 is complete and stops for owner review.
+  gates + CI + live Pages green.** The **Chemical Atlas** now exists too (item 7): the Valence Table periodic
+  lens (click an element for its common ion; click a polyatomic to see neutral formulas fall out of charge
+  balance — the four lesson salts assembled by crossover and machine-verified) + two cross-linked concept
+  entries, gated by `validate-reference`. **62 producer tests + 6 Node gates + astro build (6 pages) + live
+  Pages.** Every item of the brief-§16 definition of done is met. **Phase 0 is complete — stop for owner
+  review** before opening Phase 1.
 
 ---
 
@@ -54,8 +59,9 @@ check-parity, check-katex, scan-text)**, **5 (the player + both interactives —
 beaker/species view, with the limiting-reagent switch driven by parity-verified closed forms)**, **6 (the
 practice generator + Practice tab)**, and **8 (the authoring guide `docs/authoring-problems.md` + the CI
 `deploy.yml`, live on GitHub Pages)** are complete and tested; the authored Phase-0 spec, its verified
-`derived/` JSON, and the Astro/Svelte site are committed and deployed. **Not yet built:** only item 7 (the
-Chemical Atlas entry + the Valence Table periodic lens) — after which Phase 0 stops for owner review.
+`derived/` JSON, and the Astro/Svelte site are committed and deployed. **Item 7 (the Chemical Atlas entry +
+the Valence Table periodic lens)** is now done too — **all eight scope items complete.** Phase 0 stops here
+for owner review.
 
 **Scope.**
 1. `data/`: minimal element dataset (Ca, Cl, Na, C, O, H) + common-ion and polyatomic-ion entries, source

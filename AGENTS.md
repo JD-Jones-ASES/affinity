@@ -171,13 +171,15 @@ at its URL even though the repo is private (private/access-controlled Pages need
 
 ## Current state
 
-**Phase 0 in progress (opened 2026-07-05).** Bootstrap docs shipped, then the full ChemKernel compute +
-chemistry engine: `data/` (element/ion/solubility datasets, ADR-0012/0017) and the `chemkernel` package —
+**Phase 0 COMPLETE (2026-07-05), pending owner review.** All eight scope items landed, verified, and
+deployed. Bootstrap docs shipped, then the full ChemKernel compute + chemistry engine: `data/` (element/ion/
+solubility datasets, ADR-0012/0017) and the `chemkernel` package —
 `data`, `formula` (ADR-0014), `balance` (ADR-0014), `units` (ADR-0015), `extent` (species ledger, the
 ADR-0002 pivot, ADR-0016), `reaction` (dissociation + complete/net ionic, ADR-0018), `solubility` (sourced
 classifier, ADR-0017), `build` (orchestrator + `build-problems` entry point, ADR-0019), `interactive`
 (parity-verified closed forms for the sliders, ADR-0022), `practice` (deterministic solver-verified
-variants, brief §6.8) — all exact Decimal/Fraction, never float (ADR-0013). The **emit → verify → present pipeline is live end to end**: the authored spec
+variants, brief §6.8), `reference` (the Valence Table projection + charge-crossover salt assembly + concept
+entries) — all exact Decimal/Fraction, never float (ADR-0013). The **emit → verify → present pipeline is live end to end**: the authored spec
 `problems/precipitation/calcium-carbonate-limiting.problem.toml` builds to a committed, schema-valid
 `derived/…solution.json` (`schemas/solution.schema.json`, ADR-0020), passes **five Node gates**
 (`validate-solutions`, `check-ledger`, `check-parity`, `check-katex`, `scan-text`), and **renders as an
@@ -186,13 +188,15 @@ species ledger → result, shows the three honesty badges + the misconception re
 interactives** — the extent bar and the beaker/species view — whose **limiting-reagent switch** runs on the
 parity-verified closed forms (ADR-0022). The lesson also renders a **Practice** tab (6 solver-verified
 variants with misconception distractors, brief §6.8), the spec format is documented
-(`docs/authoring-problems.md`), and **CI deploys to GitHub Pages** (live). Molecular → complete ionic → net
-ionic (spectators Na⁺/Cl⁻), carbonate rule cited, ledger, Ca²⁺ limiting, 0.250 g CaCO₃. **Counters: 1 built
-+ rendered lesson (with practice), 0 Atlas entries, 5 Node gates + CI + live Pages, 57 producer tests
-green.** The engine + emit + verify + **player** + practice + CI layers all exist; **the only remaining
-Phase-0 build is the Chemical Atlas entry + the Valence Table periodic lens (item 7).** See
-[`ROADMAP.md`](./ROADMAP.md) for what remains and [`docs/architecture.md`](./docs/architecture.md) (§as-built)
-for module status.
+(`docs/authoring-problems.md`), **CI deploys to GitHub Pages** (live), and the **Chemical Atlas** exists —
+the **Valence Table** periodic lens (click an element for its common ion; click a polyatomic to see neutral
+formulas fall out of charge balance; the four lesson salts assembled by crossover + machine-verified) plus
+two cross-linked concept entries, gated by `validate-reference`. Molecular → complete ionic → net ionic
+(spectators Na⁺/Cl⁻), carbonate rule cited, ledger, Ca²⁺ limiting, 0.250 g CaCO₃. **Counters: 1 built +
+rendered lesson (with practice), 1 Valence Table + 2 concept entries, 6 Node gates + CI + live Pages, 62
+producer tests green.** **Phase 0 is complete end to end** — every brief-§16 definition-of-done item is met;
+**stop for owner review** before Phase 1. See [`ROADMAP.md`](./ROADMAP.md) and
+[`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
 
 ## Where this might go next (paths for a future session)
 
@@ -200,19 +204,21 @@ Phase 0 is the only sanctioned build track until it lands and is reviewed (brief
 tested: (a) element/ion/solubility datasets + SOURCES; (b) parser + balancer; (c) units/quantity engine;
 (d) dissociation + net-ionic transforms + solubility classifier; (e) Extent solver → species ledger; (f)
 the solution schema + `build.py` + the **five-gate** Node suite (validate-solutions, check-ledger,
-check-parity, check-katex, scan-text); (g) the **player** — Astro static + Svelte islands rendering
-`derived/…solution.json` with **both interactives** (extent bar + beaker/species view; the limiting-reagent
-switch works, ADR-0021/0022); (h) the rounded-out gate suite; (i) the **practice generator**
-(`precipitation_limiting_reagent_v1`, solver-verified variants + reject-list + Practice tab, brief §6.8);
-(k) `docs/authoring-problems.md`; and **CI/Pages** (`deploy.yml`, live at `/affinity`, ADR-0010) — **all
-landed and verified.** The **one remaining Phase-0 build is (j) the Chemical Atlas** entry + the **Valence
-Table** periodic lens — opens `reference/` (authored TOML) + `derived/reference/` + a `build-reference` entry
-point + `reference.schema.json` + a `validate-reference` gate + player pages (reference index; the periodic
-lens island highlighting common-ion charges, Ca and Na), per brief §16's "click Ca in the table" / "click
-carbonate" targets. After it lands, Phase 0 is **complete → stop for owner review** (ROADMAP). Docs-only
-sessions are always in season. When picking up the player/practice for a *second* lesson, note the
-interactive+practice emitters (`chemkernel.interactive`/`practice`) currently support only single-precipitate
-double-displacement; other reaction shapes render statically (the blocks are omitted, by design).
+check-parity, check-katex, scan-text); (g) the **player** with **both interactives**; (h) the gate suite;
+(i) the **practice generator** + Practice tab; (j) the **Chemical Atlas** (Valence Table lens +
+`build-reference` + `reference.schema.json`/`valence-table.schema.json` + `validate-reference` + two concept
+entries); (k) `docs/authoring-problems.md`; and **CI/Pages** (live at `/affinity`) — **all eight items
+landed and verified. Phase 0 is complete.**
+
+**Next is owner review** (ADR-0010 publish already done — Pages is live). After review, per ROADMAP: **Phase 1
+— the procedural core** (dimensional-analysis gym, formula/nomenclature engine, balancing engine,
+stoichiometry suite, the Valence Table flagship, reaction families) and/or the **Atlas breadth-fill**
+(more species/reactions/concept-graph edges, `docs/regime-map.md` is the coverage dashboard). Do not open
+Phase 1 scope autonomously — that is a phase boundary the owner opens. Docs-only sessions are always in
+season. **Extending Phase 0** (a second lesson, more Atlas entries) is fair game and inherits the settled
+contracts; note the `interactive`/`practice` emitters (`chemkernel.interactive`/`practice`) currently support
+only single-precipitate double-displacement — other reaction shapes render statically (the blocks are
+omitted, by design).
 
 **Known traps (1 and 2 bit the sibling; 3 and 4 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested
