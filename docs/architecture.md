@@ -26,11 +26,15 @@ the sibling: `prepare:data` = `produce` + `validate`; `build` = `validate` + `as
 The load-bearing invariant: **ChemKernel refuses to emit** an object that fails any check below
 (ADR-0008). CI re-gates the committed output with Node-only checks. A green build certifies both layers.
 
-**As-built so far (2026-07-05).** The bottom of the stack exists and is tested: `data/` (curated element +
-ion datasets, ADR-0012), `chemkernel.data` (loader + molar mass + load-time self-check), `chemkernel.formula`
-(the parser, ADR-0014), `chemkernel.balance` (the balancer, ADR-0014). 23 producer tests green
-(`uv --project producer run pytest`). No `build.py`, schema, gates, or entry points yet — the modules are a
-library. Next: units engine → dissociation/net-ionic → Extent solver/ledger → schema → gates.
+**As-built so far (2026-07-05).** The compute core exists and is tested: `data/` (curated element + ion
+datasets, ADR-0012); `chemkernel.data` (loader + molar mass + load-time self-check); `chemkernel.formula`
+(parser, ADR-0014); `chemkernel.balance` (balancer, ADR-0014); `chemkernel.units` (Quantity engine,
+ADR-0015); `chemkernel.extent` (Extent solver → species ledger, ADR-0016). **37 producer tests green**
+(`uv --project producer run pytest`). The Phase 0 scenario runs end to end in the library — moles from
+volume×molarity, balanced equation, ledger, limiting reagent, 0.250 g CaCO₃ — matching the brief. No
+`build.py`, schema, gates, or entry points yet: the modules are a library, not yet wired to authored specs
+or emitted JSON. Next: dissociation/net-ionic transformer (needs the solubility ruleset, Q6) → the
+solution schema → `build.py` → Node gates.
 
 ## ChemKernel module map (brief §6)
 
@@ -39,10 +43,10 @@ library. Next: units engine → dissociation/net-ionic → Extent solver/ledger 
 | `formula.py` parser | formula string → element-count vector, charge, phase, display LaTeX (pure; no data) | **built** (ADR-0014) |
 | `data.py` data layer | loads `data/` datasets; molar mass; the only path to empirical values (ADR-0006); self-validates on load | **built** (ADR-0012) |
 | `balance.py` balancer | element+charge conservation matrix over ℚ → SymPy null space → smallest positive integer coefficients; re-verified; fails on ambiguity | **built** (ADR-0014) |
-| units engine | dimensional analysis: track/cancel units through every step; reject invalid conversions; emit visible chains | Phase 0 (next) |
+| `units.py` engine | `Quantity` over an amount/mass/volume `Dim` basis; exact Decimal; units cancel through ×/÷; rejects invalid conversions (numeric dimensional-analysis chain) | **built** (ADR-0015) |
+| `extent.py` solver | initial moles → per-reactant extent limits → limiting reagent(s) → species ledger with leftovers; exact Fraction; refuses negative amounts | **built** (ADR-0016) |
 | dissociation + net-ionic | strong-electrolyte transformer, spectator identification, complete/net ionic equations | Phase 0 (next) |
-| Extent solver | initial moles → per-reactant extent limits → limiting reagent → species ledger with leftovers | Phase 0 |
-| proofs | atom/charge conservation (in balancer already), unit homogeneity, nonnegative amounts; SymPy-backed where symbolic | Phase 0 |
+| proofs | atom/charge conservation (in `balance.py`) and nonnegative extent (in `extent.py`) done; unit homogeneity of reference formulas (SymPy `dims.py`) with the Atlas | partly built |
 | practice generator | template + constraints + misconception target → solver-verified variants with derivation trees; reject-list enforced | Phase 0 (one family) |
 | reaction classifier | precipitation/acid-base/gas-evolution/combustion/redox/… + required conditions | Phase 1 |
 | equilibrium / kinetics / thermo / electrochem | ICE-as-ledger, rate laws, energy ledger, electron ledger | Phase 2+ |

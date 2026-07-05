@@ -230,3 +230,43 @@ Subscripts are never mutated; only coefficients are chosen.
 to `[1,1,1]` (charge row load-bearing). 23 producer tests cover parser, dataset, and balancer with
 independent hand-checked values. The "do not change subscripts" misconception mode (brief §13.3) is a
 natural extension since the engine structurally cannot touch subscripts.
+
+## ADR-0015 — Quantity & units engine: exact Decimal over an amount/mass/volume basis (2026-07-05)
+
+**Context.** The dimensional-analysis chain is a first-class Phase 0 deliverable (brief §6.6, §16): moles =
+molarity × volume, mass = moles × molar mass, with units tracked and cancelled. It must be exact
+(ADR-0013) and reject invalid conversions.
+
+**Decision.** A `Quantity` (`chemkernel.units`) carries an exact `Decimal` magnitude plus a `Dim` vector
+over a three-component chemistry basis — **amount [mol], mass [g], volume [L]**. Multiplication and
+division add/subtract `Dim`s (units cancel automatically); a dimension mismatch on convert/add raises
+`BuildError`. Unit labels resolve through a small registry (mol, mmol, g, kg, mg, L, mL, M ≡ mol/L, g/mol,
+dimensionless). Pressure/energy/temperature/charge dimensions are **deferred** to gases/thermo/electrochem
+(add basis components then). Symbolic dimensional homogeneity of *reference formulas* (PV=nRT etc.) is a
+separate future concern — adapt the sibling's `dims.py` (SymPy SI 7-vector) when the Atlas formula sheet
+lands; the two needs are not conflated.
+
+**Consequences.** The numeric dimensional-analysis chain is exact and machine-checked. Adding a unit = one
+registry row. Non-terminating ratios are kept out of this engine (it does terminating-decimal
+conversions); exact fractional arithmetic lives in the extent solver.
+
+## ADR-0016 — Extent solver & species ledger: the pivot object, in exact Fraction (2026-07-05)
+
+**Context.** ADR-0002 named the species ledger over reaction extent as ChemKernel's central object but
+left its concrete shape and solving method open. Every downstream view (limiting reagent, leftovers,
+product mass, ICE tables later) renders from it.
+
+**Decision.** `chemkernel.extent.solve_extent` takes (Formula, initial-moles) pairs for reactants and
+products plus `balance()`'s coefficients, and returns a `Ledger` of `LedgerRow`s
+(species, phase, charge, signed ν, initial_mol, final_mol, role). It computes ξ_max = min over reactants of
+n_{i,0}/coeff_i, marks the argmin(s) limiting (ties allowed → list), and sets every amount via
+n_i = n_{i,0} + ν_i·ξ. Arithmetic is exact **`Fraction`** (ADR-0013) so fractional extents never round;
+display uses a separate `to_decimal(value, places)` helper (Q7 sig-figs still open). The solver **refuses
+to emit** a ledger with any negative amount (the nonnegative-extent guard, ADR-0008). It is
+species-agnostic: the molecular equation, the net ionic equation, or a complete ionic equation with
+spectators at ν=0 all run through the same machine.
+
+**Consequences.** The Phase 0 scenario reproduces the brief end to end — ξ = 0.00250 mol, CaCl₂ limiting,
+0.00050 mol CO₃²⁻ leftover, 0.250 g CaCO₃ — from both the molecular and net-ionic forms. ICE tables
+(reversible extent) and the electron ledger are later extensions of this row shape, not new machinery.
+14 further tests (units + extent); 37 producer tests total.
