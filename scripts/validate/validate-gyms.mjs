@@ -9,6 +9,7 @@ import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
+import { parseFormula } from "./formula.mjs";
 
 const ROOT = process.cwd();
 const gymDir = join(ROOT, "derived", "gyms");
@@ -54,6 +55,66 @@ function crossoverFormula(cat, an) {
   return groupPart(cat.formula_part, a / g) + groupPart(an.formula_part, c / g);
 }
 
+// --- balancing re-verification (ADR-0028): re-parse each species formula in pure Node (formula.mjs), confirm
+// the emitted counts+charge match that independent parse, then verify the emitted coefficient vector zeroes
+// every element row AND the charge row of the conservation matrix (the definition of a balanced equation),
+// is all-positive and reduced (gcd 1), and reconstructs to the emitted answer. No null-space solve — Python
+// owns uniqueness (balance() requires a 1-D null space); the gate proves the emitted answer is a true,
+// reduced balance of the exact formulas shown to the student.
+const eqSide = (species, coeffs, role) =>
+  species.map((s, i) => [s, coeffs[i]]).filter(([s]) => s.role === role)
+    .map(([s, c]) => (c === 1 ? "" : `${c} `) + s.formula).join(" + ");
+const reconstructEquation = (species, coeffs, arrow) =>
+  `${eqSide(species, coeffs, "reactant")} ${arrow} ${eqSide(species, coeffs, "product")}`;
+
+function verifyBalancing(rel, p, fail) {
+  const d = p.derivation;
+  if (!Array.isArray(d.species) || !Array.isArray(d.coefficients))
+    fail(rel, `${p.id}: balancing derivation missing species/coefficients`);
+  const n = d.species.length;
+  if (d.coefficients.length !== n) fail(rel, `${p.id}: ${d.coefficients.length} coefficients for ${n} species`);
+
+  // each formula re-parses to exactly the emitted counts + charge (two independent parsers must agree)
+  const els = new Set();
+  for (const s of d.species) {
+    let parsed;
+    try { parsed = parseFormula(s.formula); }
+    catch (e) { fail(rel, `${p.id}: cannot parse species '${s.formula}': ${e.message}`); }
+    if (parsed.charge !== s.charge) fail(rel, `${p.id}: '${s.formula}' charge ${parsed.charge} != emitted ${s.charge}`);
+    const a = parsed.counts, b = s.counts;
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    for (const k of keys) {
+      if ((a[k] || 0) !== (b[k] || 0)) fail(rel, `${p.id}: '${s.formula}' count ${k}=${a[k] || 0} != emitted ${b[k] || 0}`);
+      els.add(k);
+    }
+  }
+
+  // the coefficient vector conserves every element and the total charge (matrix · coeffs = 0)
+  const rows = [...els].sort().concat("charge");
+  for (const key of rows) {
+    let left = 0, right = 0;
+    d.species.forEach((s, i) => {
+      const amt = (key === "charge" ? s.charge : (s.counts[key] || 0)) * d.coefficients[i];
+      if (s.role === "reactant") left += amt; else right += amt;
+    });
+    if (left !== right) fail(rel, `${p.id}: ${key} not conserved (${left} vs ${right}) — not balanced`);
+  }
+
+  // smallest positive integers: every coefficient ≥ 1 and the whole vector is reduced (gcd 1)
+  if (d.coefficients.some((c) => !Number.isInteger(c) || c < 1))
+    fail(rel, `${p.id}: coefficients must be positive integers, got [${d.coefficients}]`);
+  if (d.coefficients.reduce((a, b) => gcd(a, b)) !== 1)
+    fail(rel, `${p.id}: coefficients [${d.coefficients}] are not reduced (common factor)`);
+
+  // the answer reconstructs from species + coefficients: CSV value, "→" display, and the correct choice
+  const csv = d.coefficients.join(",");
+  if (p.answer.value !== csv) fail(rel, `${p.id}: answer.value '${p.answer.value}' != coefficients '${csv}'`);
+  const eq = reconstructEquation(d.species, d.coefficients, "→");
+  if (p.answer.display !== eq) fail(rel, `${p.id}: answer.display '${p.answer.display}' != reconstructed '${eq}'`);
+  if (!p.prompt.includes(reconstructEquation(d.species, d.species.map(() => 1), "→")))
+    fail(rel, `${p.id}: prompt does not contain the skeletal (all-coefficient-1) equation`);
+}
+
 const files = readdirSync(gymDir).filter((n) => n.endsWith(".gym.json"));
 if (files.length === 0) { console.log("validate-gyms: no *.gym.json — nothing to check."); process.exit(0); }
 
@@ -86,6 +147,9 @@ for (const name of files) {
       const other = p.kind === "ionic_formula_to_name" ? d.formula : d.name;
       if (p.answer.value !== want) fail(rel, `${p.id}: answer '${p.answer.value}' != re-derived '${want}'`);
       if (!p.prompt.includes(other)) fail(rel, `${p.id}: prompt does not contain the ${p.kind === "ionic_formula_to_name" ? "formula" : "name"} '${other}'`);
+    } else if (p.kind === "balancing") {
+      // 1b. balancing: re-parse the formulas, verify the coefficients zero every element + charge row (ADR-0028)
+      verifyBalancing(rel, p, fail);
     } else {
       // 1c. conversion: the answer re-derives from the raw inputs; units line up; the chain ends at the answer
       const got = rederive(p.kind, p.derivation.inputs, rel, p.id);

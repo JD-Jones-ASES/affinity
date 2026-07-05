@@ -28,6 +28,41 @@
     if (q.choices[i].correct) return "correct";
     return i === picked ? "wrong" : "dim";
   };
+
+  // Present the choices in a stable, non-trivial order (the producer always emits the correct choice first;
+  // showing them in emission order would give the answer away). A deterministic permutation seeded by the
+  // problem id is identical on the server and the client, so there is no hydration mismatch — and picking
+  // still uses each choice's original index, so scoring/reveal are unaffected.
+  function seededOrder(id, n) {
+    let h = 2166136261 >>> 0;
+    for (let k = 0; k < id.length; k++) { h ^= id.charCodeAt(k); h = Math.imul(h, 16777619); }
+    const rnd = () => {
+      h += 0x6d2b79f5; let t = Math.imul(h ^ (h >>> 15), 1 | h);
+      t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const a = Array.from({ length: n }, (_, i) => i);
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+  const order = $derived(finished ? [] : seededOrder(q.id, q.choices.length));
+
+  // Balancing gyms (ADR-0028) carry the conservation matrix; tally every element (and charge) with the correct
+  // coefficients to show both sides come out equal. Pure integer addition over producer-emitted data — the
+  // island computes no chemistry, it re-adds a matrix ChemKernel already derived and validate-gyms re-proved.
+  function conservation(prob) {
+    const { species, coefficients: co, elements } = prob.derivation;
+    const keys = [...elements];
+    if (species.some((s) => s.charge !== 0)) keys.push("charge");
+    return keys.map((key) => {
+      let left = 0, right = 0;
+      species.forEach((s, i) => {
+        const amt = (key === "charge" ? s.charge : (s.counts[key] || 0)) * co[i];
+        if (s.role === "reactant") left += amt; else right += amt;
+      });
+      return { key: key === "charge" ? "charge" : key, left, right };
+    });
+  }
 </script>
 
 <div class="gym">
@@ -40,7 +75,8 @@
     <p class="prompt">{q.prompt}</p>
 
     <ul class="choices" role="list">
-      {#each q.choices as c, i}
+      {#each order as i (i)}
+        {@const c = q.choices[i]}
         <li>
           <button class={`choice ${choiceClass(i)}`} onclick={() => pick(i)} disabled={picked !== null}>
             <span class="mark" aria-hidden="true">{picked !== null && c.correct ? "✓" : picked === i && !c.correct ? "✗" : ""}</span>
@@ -67,6 +103,22 @@
             {/each}
           </div>
         {/if}
+        {#if q.derivation?.species}
+          <div class="chain-label">Every element balances with the correct coefficients:</div>
+          <table class="tally">
+            <thead><tr><th>{q.derivation.species.some((s) => s.charge !== 0) ? "element / charge" : "element"}</th><th>reactants</th><th>products</th><th aria-label="balanced"></th></tr></thead>
+            <tbody>
+              {#each conservation(q) as row}
+                <tr>
+                  <td class="el">{row.key}</td>
+                  <td class="num">{row.left}</td>
+                  <td class="num">{row.right}</td>
+                  <td class="ok" aria-hidden="true">✓</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        {/if}
         <p class="explain"><span class="tag">Why</span> {q.explain}</p>
         <button class="next" onclick={next}>{idx + 1 < problems.length ? "Next problem →" : "See results →"}</button>
       </div>
@@ -74,7 +126,7 @@
   {:else}
     <div class="results">
       <div class="big">{score} / {problems.length}</div>
-      <p class="muted">{score === problems.length ? "Perfect — every unit cancelled." : "Units are a skill; run it again and watch the cancellations."}</p>
+      <p class="muted">{score === problems.length ? "Perfect run — every one checks out." : "Practice builds fluency — run it again."}</p>
       <button class="next" onclick={restart}>Run the gym again ↻</button>
     </div>
   {/if}
@@ -109,6 +161,14 @@
   .cu { font-family: var(--font-mono); color: var(--accent); margin-left: 0.25rem; }
   .cn { display: block; font-size: 0.7rem; color: var(--ink-faint); margin-top: 0.15rem; }
   .arrow { color: var(--ink-faint); font-size: 1.2rem; align-self: center; }
+
+  .tally { border-collapse: collapse; font-family: var(--font-mono); font-size: 0.88rem; }
+  .tally th { text-align: left; font-weight: 600; color: var(--ink-faint); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.02em; padding: 0.15rem 0.9rem 0.3rem 0; }
+  .tally td { padding: 0.15rem 0.9rem 0.15rem 0; border-top: 1px solid var(--line); }
+  .tally .el { color: var(--ink-2); font-weight: 600; }
+  .tally .num { text-align: right; color: var(--ink); }
+  .tally .ok { color: var(--accent); font-weight: 700; }
+
   .explain { margin: 0; font-size: 0.9rem; color: var(--ink-2); }
   .tag { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; color: var(--accent); background: var(--accent-soft); padding: 0.05rem 0.4rem; border-radius: 5px; margin-right: 0.4rem; }
 

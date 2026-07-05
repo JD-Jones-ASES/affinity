@@ -70,6 +70,17 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   name/formula re-derivation branch in `validate-gyms`, a `nomenclature` Atlas concept, and the Valence Table
   to 15 elements (ADR-0027). **83 producer tests + 7 gates (2 gyms / 20 problems) + astro build (10 pages).**
   Covalent/acid naming and the flagship formula-mode hookup are deferred within item 2.
+- **Session 2026-07-05 (cont.) — Phase-1 item 3: the balancing engine.** Landed the third gym family
+  `balancing_v1` (ADR-0028): a curated skeletal-reaction corpus (synthesis · combustion · decomposition ·
+  single/double replacement · acid-base · net-ionic) each **balanced by the engine**, emitting the
+  **conservation matrix** so the `DimensionalGym` island shows a **live per-element + charge tally** (integer
+  addition over producer data). Distractors are named mistakes — a coefficient that throws a stated element
+  off, and the **subscript-mutation trap** (H₂O→H₂O₂, CO→CO₂, proven honest at emit time). New verifiers: a
+  **pure-JS formula parser** (`scripts/validate/formula.mjs`, closing the ADR-0023 gap) re-parses every
+  formula and re-proves the coefficients zero every element + charge row; `chempy` cross-checks the neutral
+  corpus. Also fixed the gym islands' choice ordering (deterministic per-problem shuffle — the producer emits
+  the correct choice first). **100 producer tests + 7 gates (3 gyms / 30 problems) + astro build (11 pages).**
+  Deferred: redox half-reactions (Phase 2); a free coefficient-entry mode.
 
 ---
 
@@ -133,7 +144,7 @@ boundary. Each item opens with its stress scenario and gets its own scope block 
 
 1. **Dimensional analysis gym** — endless generated quantity-algebra with visible unit cancellation. **← LANDED**
 2. **Formula & nomenclature engine** — ions, charges, compounds, acids, polyatomics, both directions. **← LANDED (ionic; covalent/acid deferred)**
-3. **Balancing engine** — inspection mode, conservation-matrix view, misconception modes; redox preview.
+3. **Balancing engine** — inspection mode, conservation-matrix view, misconception modes; redox preview. **← LANDED**
 4. **Stoichiometry suite** — mass/volume/solution/particle stoich, limiting reagent, percent yield.
 5. **Valence Table flagship** — lenses, trend mode, formula mode, bonding mode, practice mode (brief §8).
 6. **Reaction families** — precipitation, acid-base, gas evolution, combustion, redox (Atlas-backed).
@@ -163,15 +174,24 @@ Valence Table grew to 15 elements. **Deferred to a follow-up:** covalent-prefix 
 attaching naming to the Valence-Table formula mode (with item 5); full variable-charge display on the lens
 (item 5).
 
-**Item 3 — balancing engine.** Stress scenario: *a hard conservation-matrix balance* (e.g. combustion with
-odd coefficients) plus the "never mutate subscripts" misconception made to fail visibly. Scope: a
-`balancing_v1` gym family (unbalanced equation → pick/enter coefficients; the producer emits the
-conservation matrix so the player can show per-element tallies live); misconception modes (brief §13.3):
-subscript-mutation trap choices, polyatomic-preservation view, combustion quick-pattern; every learner move
-re-proven by the per-element tally (data emitted, arithmetic in the island is integer addition only —
-within the no-runtime-chemistry rule since the matrix is producer-derived). Redox half-reactions preview
-only (full redox is Phase 2). New answer shape → new `validate-gyms` branch (re-balance in Node via the
-emitted matrix: verify the answer vector zeroes every element row).
+**Item 3 — balancing engine — LANDED (2026-07-05, ADR-0028).** Stress scenario met: a hard
+conservation-matrix balance (propane/ethane combustion with odd coefficients) plus the "never mutate a
+subscript" misconception made to fail visibly. Shipped: a `balancing_v1` gym family over a curated
+skeletal-reaction corpus (synthesis, combustion, decomposition, single/double replacement, acid-base,
+net-ionic), each **balanced by the engine** (`balance()`'s null space, not authored coefficients); the
+producer emits the **conservation matrix** (per-species element counts + charge) + the coefficient answer,
+so the `DimensionalGym` island shows a **live per-element (and charge) tally** by integer addition over
+producer data — no runtime chemistry. Distractors are named mistakes: a coefficient perturbation that throws
+a stated element off, and the **subscript-mutation trap** (H₂O→H₂O₂, CO→CO₂ — a different real substance,
+proven deceptive-and-formula-changing at emit time). New verifiers: a **JS formula parser**
+(`scripts/validate/formula.mjs`, closing the ADR-0023 gap) lets `validate-gyms.mjs` re-parse every formula
+and re-prove the coefficients zero every element + charge row (positive, gcd 1, reconstructs to the answer);
+`chempy` cross-checks the neutral corpus (ADR-0026). Also fixed: the gym islands now present choices in a
+deterministic per-problem shuffle (the producer emits the correct choice first). **Deferred:** redox
+half-reaction balancing + electron bookkeeping (Phase 2); a free coefficient-*entry* mode (this ships
+multiple-choice + the live tally on reveal); the polyatomic-preservation and combustion-quick-pattern
+misconception *modes* as distinct UI (the corpus exercises both — SO₄/PO₄ as units, odd-coefficient
+combustion — the named distractors cover the traps).
 
 **Item 4 — stoichiometry suite.** Stress scenario: *percent yield on a mass→mass path* (extends the ledger
 with an actual-vs-theoretical comparison). Scope: gym families `mass_stoichiometry_v1` (mass→moles→ratio→
@@ -207,8 +227,8 @@ anchors the family.
 ### Proposed session map (one reviewable increment each)
 
 1. ~~Rendering polish + oracle tests + doc sweep + this roadmap~~ (this session).
-2. Item 2 — nomenclature data + engine + gym families (+ Atlas nomenclature concept).
-3. Item 3 — balancing gym + conservation-matrix view.
+2. ~~Item 2 — nomenclature data + engine + gym families (+ Atlas nomenclature concept)~~ (landed).
+3. ~~Item 3 — balancing gym + conservation-matrix view~~ (landed; ADR-0028 — + a reusable JS formula parser).
 4. Item 4 — stoichiometry families + the percent-yield lesson (+ Avogadro datum).
 5. Item 5a — element-property data curation (SOURCES + data/ + oracle cross-check).
 6. Item 5b — Valence Table lenses + trend/bonding/practice modes.
@@ -245,7 +265,7 @@ $\Delta G = -nFE$). Sequenced after Phase 1 review; not scoped yet — opening P
 
 As in the sibling: lessons go deep, the reference goes broad. Species atlas, formula/equation sheet,
 reaction atlas, concept graph (typed edges, brief §10.5) fill breadth-first alongside whatever phase is
-open. Status: **14 concept entries + the Valence Table**; reaction-family and species entry kinds arrive
+open. Status: **15 concept entries + the Valence Table**; reaction-family and species entry kinds arrive
 with Phase-1 items 6 and 8; coverage dashboard in [`docs/regime-map.md`](./docs/regime-map.md).
 
 ## Out of scope (v1)

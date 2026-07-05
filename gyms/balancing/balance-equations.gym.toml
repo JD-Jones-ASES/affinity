@@ -1,0 +1,16 @@
+# A procedural gym (Phase 1 item 3, ADR-0024/0028). ChemKernel generates the problems: it BALANCES each
+# skeletal reaction with the engine (the rational null space of the conservation matrix, ADR-0014) — never
+# authored coefficients — and emits that matrix so the player can tally every element live. Every wrong option
+# is a named mistake: a coefficient that throws an element off, or the classic subscript-mutation trap (a
+# different real substance that only *looks* balanced). Subscripts are never touched; only coefficients change.
+
+id = "balancing-core-equations"
+title = "Balancing equations: coefficients from conservation"
+slug = "balance-equations"
+topic = "balancing"
+family = "balancing_v1"
+seed = 5140033
+count = 10
+blurb = "Pick the balanced equation — then watch every element tally to equal counts on both sides. ChemKernel balances each reaction as the one integer solution of the conservation matrix, so the answer is derived, not guessed. Wrong options are named mistakes: a coefficient that leaves an element unbalanced, or the classic trap of changing a subscript (which silently swaps in a different substance). Coefficients balance the equation; subscripts define the compound and never change."
+skills = ["coefficients balance an equation; subscripts define the compound", "count atoms of every element on both sides", "conserve charge too (net-ionic equations)", "smallest whole-number coefficients", "spot the subscript-mutation trap"]
+reference_links = ["balancing-equations", "conservation-of-mass", "stoichiometry"]

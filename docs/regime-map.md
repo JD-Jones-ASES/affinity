@@ -14,7 +14,7 @@ dashboard; phases are defined in [`ROADMAP.md`](../ROADMAP.md).
 | ions & formula writing | 1, 3 | 1 | **gym** (nomenclature, both directions) + atlas (Valence Table; polyatomic-ion) |
 | nomenclature (ionic, covalent, acids) | 1, 3 | **1** | **gym** (ionic, both directions — Stock system) + atlas (nomenclature concept) |
 | periodic table & periodic trends | 3, 4 | 1 | atlas (Valence Table lens — positions + ion charges) |
-| balancing equations | 1 | 1 | atlas (balancing-equations concept) |
+| balancing equations | 1 | **1** | **gym** (balancing, conservation-matrix + charge tally) + atlas (balancing-equations concept) |
 | reaction classes | 3, 4 | 1 | atlas (precipitation, net-ionic, solubility-rules, dissociation, spectator-ion concepts) |
 | stoichiometry (mass/volume/solution/particle) | 1 | 1 | atlas (stoichiometry, conservation-of-mass concepts) |
 | limiting reagents | 1, 2 | **0** | **2 lessons, practice, atlas** (Phase 0 slice + non-1:1 phosphate) |

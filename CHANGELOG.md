@@ -3,6 +3,32 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 1 — 2026-07-05 — item 3: the balancing engine
+
+- **Balancing gym, `balancing_v1`** (ADR-0028). Pick the balanced equation, then watch **every element (and
+  charge) tally to equal counts on both sides**. A curated skeletal-reaction corpus — synthesis, combustion
+  (incl. odd-coefficient propane/ethane), decomposition, single/double replacement, acid-base, and charged
+  net-ionic — each **balanced by the engine** (`balance()`'s conservation-matrix null space, ADR-0014), never
+  authored coefficients. The producer emits the conservation matrix (per-species element counts + charge), so
+  the drill island shows the tally by **integer addition over producer data** — no runtime chemistry.
+- **Named-mistake distractors.** A coefficient perturbation that throws a *stated* element off ("that leaves
+  O unbalanced — 2 on the left, 4 on the right"), and the classic **subscript-mutation trap**: a different
+  real substance (H₂O→H₂O₂ peroxide, CO→CO₂ dioxide) that only *looks* balanced without coefficients — the
+  producer refuses to ship a trap unless it proves the trap atom-balances **and** changed a formula.
+- **A pure-JS formula parser** (`scripts/validate/formula.mjs`) — a faithful grammar-v0 port, closing the
+  ADR-0023 future-work gap. `validate-gyms.mjs` re-parses every emitted formula, cross-checks its counts +
+  charge against the emitted matrix, then verifies the coefficient vector **zeroes every element row and the
+  charge row**, is all-positive and reduced (gcd 1), and reconstructs to the emitted answer — the answer is
+  re-proved a true, reduced balance of the exact formulas shown, in pure Node. Proven non-vacuous (breaking a
+  coefficient, an emitted count, a formula, or the answer CSV each fails the gate loud).
+- **Choice ordering fixed (all gyms).** The drill islands now present choices in a deterministic per-problem
+  shuffle (seeded by the problem id — server/client agree, no hydration mismatch); the producer still emits
+  the correct choice first and the gate stays position-agnostic.
+- **100 producer tests** (+17: 5 balancing gym + 12 `chempy` corpus balance cross-checks, ADR-0026) +
+  **7 gates** (validate-gyms = **3 gyms / 30 problems** re-derived) + **astro build (11 pages)** green.
+  In-browser: the balancing drill renders the tally (elements + a charge row for net-ionic), the H₂O₂/CO₂
+  subscript traps with their misconceptions, and the shuffled choices; conversions/nomenclature regress clean.
+
 ## Phase 1 — 2026-07-05 — item 2: the formula & nomenclature engine
 
 - **Ionic nomenclature, both directions** (ADR-0027). A new gym family `ionic_nomenclature_v1`: name a

@@ -127,7 +127,11 @@ export function renderGym(gym) {
       ...p,
       prompt: prettyText(p.prompt, tokens),
       explain: prettyText(p.explain, tokens),
-      choices: p.choices.map((c) => ({ ...c, display: prettyText(c.display, tokens) })),
+      choices: p.choices.map((c) => ({
+        ...c,
+        display: prettyText(c.display, tokens),
+        misconception: prettyText(c.misconception, tokens),
+      })),
     };
   });
   return g;

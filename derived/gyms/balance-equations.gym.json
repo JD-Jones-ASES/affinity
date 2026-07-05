@@ -1,0 +1,815 @@
+{
+  "kind": "gym",
+  "id": "balancing-core-equations",
+  "title": "Balancing equations: coefficients from conservation",
+  "slug": "balance-equations",
+  "topic": "balancing",
+  "family": "balancing_v1",
+  "seed": 5140033,
+  "blurb": "Pick the balanced equation — then watch every element tally to equal counts on both sides. ChemKernel balances each reaction as the one integer solution of the conservation matrix, so the answer is derived, not guessed. Wrong options are named mistakes: a coefficient that leaves an element unbalanced, or the classic trap of changing a subscript (which silently swaps in a different substance). Coefficients balance the equation; subscripts define the compound and never change.",
+  "skills": [
+    "coefficients balance an equation; subscripts define the compound",
+    "count atoms of every element on both sides",
+    "conserve charge too (net-ionic equations)",
+    "smallest whole-number coefficients",
+    "spot the subscript-mutation trap"
+  ],
+  "reference_links": [
+    "balancing-equations",
+    "conservation-of-mass",
+    "stoichiometry"
+  ],
+  "problems": [
+    {
+      "kind": "balancing",
+      "prompt": "Balance:  H2 + O2 → H2O",
+      "answer": {
+        "value": "2,1,2",
+        "display": "2 H2 + O2 → 2 H2O"
+      },
+      "derivation": {
+        "kind": "balancing",
+        "archetype": "synthesis",
+        "species": [
+          {
+            "formula": "H2",
+            "role": "reactant",
+            "counts": {
+              "H": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          1,
+          2
+        ],
+        "elements": [
+          "H",
+          "O"
+        ]
+      },
+      "choices": [
+        {
+          "display": "2 H2 + O2 → 2 H2O",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "H2 + O2 → H2O2",
+          "correct": false,
+          "misconception": "You balanced oxygen by changing a subscript — but H2O2 (hydrogen peroxide) is a different substance from H2O (water). Coefficients balance an equation; subscripts define the compound and must never be changed."
+        },
+        {
+          "display": "H2 + O2 → 2 H2O",
+          "correct": false,
+          "misconception": "That leaves H unbalanced — 2 on the left, 4 on the right. Fix it with the coefficients; the subscripts stay put."
+        }
+      ],
+      "explain": "Coefficients — never subscripts — balance the equation. 2 H2 + O2 → 2 H2O conserves every atom (H 4=4; O 2=2); ChemKernel derives them as the single integer solution of the conservation matrix.",
+      "subscript_tokens": [
+        "H2",
+        "H2O",
+        "H2O2",
+        "O2"
+      ],
+      "id": "q1"
+    },
+    {
+      "kind": "balancing",
+      "prompt": "Balance:  C + O2 → CO",
+      "answer": {
+        "value": "2,1,2",
+        "display": "2 C + O2 → 2 CO"
+      },
+      "derivation": {
+        "kind": "balancing",
+        "archetype": "combustion",
+        "species": [
+          {
+            "formula": "C",
+            "role": "reactant",
+            "counts": {
+              "C": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          1,
+          2
+        ],
+        "elements": [
+          "C",
+          "O"
+        ]
+      },
+      "choices": [
+        {
+          "display": "2 C + O2 → 2 CO",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "C + O2 → CO2",
+          "correct": false,
+          "misconception": "You balanced oxygen by changing a subscript — but CO2 (carbon dioxide) is a different substance from CO (carbon monoxide). Only the coefficients out front may change; the formula CO stays CO."
+        },
+        {
+          "display": "3 C + O2 → 2 CO",
+          "correct": false,
+          "misconception": "That leaves C unbalanced — 3 on the left, 2 on the right. Fix it with the coefficients; the subscripts stay put."
+        }
+      ],
+      "explain": "Coefficients — never subscripts — balance the equation. 2 C + O2 → 2 CO conserves every atom (C 2=2; O 2=2); ChemKernel derives them as the single integer solution of the conservation matrix.",
+      "subscript_tokens": [
+        "CO2",
+        "O2"
+      ],
+      "id": "q2"
+    },
+    {
+      "kind": "balancing",
+      "prompt": "Balance:  C3H8 + O2 → CO2 + H2O",
+      "answer": {
+        "value": "1,5,3,4",
+        "display": "C3H8 + 5 O2 → 3 CO2 + 4 H2O"
+      },
+      "derivation": {
+        "kind": "balancing",
+        "archetype": "combustion",
+        "species": [
+          {
+            "formula": "C3H8",
+            "role": "reactant",
+            "counts": {
+              "C": 3,
+              "H": 8
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO2",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          5,
+          3,
+          4
+        ],
+        "elements": [
+          "C",
+          "H",
+          "O"
+        ]
+      },
+      "choices": [
+        {
+          "display": "C3H8 + 5 O2 → 3 CO2 + 4 H2O",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "C3H8 + 4 O2 → 3 CO2 + 4 H2O",
+          "correct": false,
+          "misconception": "That leaves O unbalanced — 8 on the left, 10 on the right. Fix it with the coefficients; the subscripts stay put."
+        },
+        {
+          "display": "C3H8 + 6 O2 → 3 CO2 + 4 H2O",
+          "correct": false,
+          "misconception": "That leaves O unbalanced — 12 on the left, 10 on the right. Fix it with the coefficients; the subscripts stay put."
+        }
+      ],
+      "explain": "Coefficients — never subscripts — balance the equation. C3H8 + 5 O2 → 3 CO2 + 4 H2O conserves every atom (C 3=3; H 8=8; O 10=10); ChemKernel derives them as the single integer solution of the conservation matrix.",
+      "subscript_tokens": [
+        "C3H8",
+        "CO2",
+        "H2O",
+        "O2"
+      ],
+      "id": "q3"
+    },
+    {
+      "kind": "balancing",
+      "prompt": "Balance:  CaCl2 + Na3PO4 → Ca3(PO4)2 + NaCl",
+      "answer": {
+        "value": "3,2,1,6",
+        "display": "3 CaCl2 + 2 Na3PO4 → Ca3(PO4)2 + 6 NaCl"
+      },
+      "derivation": {
+        "kind": "balancing",
+        "archetype": "double replacement",
+        "species": [
+          {
+            "formula": "CaCl2",
+            "role": "reactant",
+            "counts": {
+              "Ca": 1,
+              "Cl": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Na3PO4",
+            "role": "reactant",
+            "counts": {
+              "Na": 3,
+              "P": 1,
+              "O": 4
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Ca3(PO4)2",
+            "role": "product",
+            "counts": {
+              "Ca": 3,
+              "P": 2,
+              "O": 8
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaCl",
+            "role": "product",
+            "counts": {
+              "Na": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          3,
+          2,
+          1,
+          6
+        ],
+        "elements": [
+          "Ca",
+          "Cl",
+          "Na",
+          "O",
+          "P"
+        ]
+      },
+      "choices": [
+        {
+          "display": "3 CaCl2 + 2 Na3PO4 → Ca3(PO4)2 + 6 NaCl",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "3 CaCl2 + 2 Na3PO4 → 2 Ca3(PO4)2 + 6 NaCl",
+          "correct": false,
+          "misconception": "That leaves Ca unbalanced — 3 on the left, 6 on the right. Fix it with the coefficients; the subscripts stay put."
+        },
+        {
+          "display": "2 CaCl2 + 2 Na3PO4 → Ca3(PO4)2 + 6 NaCl",
+          "correct": false,
+          "misconception": "That leaves Ca unbalanced — 2 on the left, 3 on the right. Fix it with the coefficients; the subscripts stay put."
+        }
+      ],
+      "explain": "Coefficients — never subscripts — balance the equation. 3 CaCl2 + 2 Na3PO4 → Ca3(PO4)2 + 6 NaCl conserves every atom (Ca 3=3; Cl 6=6; Na 6=6; O 8=8; P 2=2); ChemKernel derives them as the single integer solution of the conservation matrix.",
+      "subscript_tokens": [
+        "Ca3(PO4)2",
+        "CaCl2",
+        "Na3PO4"
+      ],
+      "id": "q4"
+    },
+    {
+      "kind": "balancing",
+      "prompt": "Balance:  Al + O2 → Al2O3",
+      "answer": {
+        "value": "4,3,2",
+        "display": "4 Al + 3 O2 → 2 Al2O3"
+      },
+      "derivation": {
+        "kind": "balancing",
+        "archetype": "synthesis",
+        "species": [
+          {
+            "formula": "Al",
+            "role": "reactant",
+            "counts": {
+              "Al": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Al2O3",
+            "role": "product",
+            "counts": {
+              "Al": 2,
+              "O": 3
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          4,
+          3,
+          2
+        ],
+        "elements": [
+          "Al",
+          "O"
+        ]
+      },
+      "choices": [
+        {
+          "display": "4 Al + 3 O2 → 2 Al2O3",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "4 Al + 3 O2 → Al2O3",
+          "correct": false,
+          "misconception": "That leaves Al unbalanced — 4 on the left, 2 on the right. Fix it with the coefficients; the subscripts stay put."
+        },
+        {
+          "display": "3 Al + 3 O2 → 2 Al2O3",
+          "correct": false,
+          "misconception": "That leaves Al unbalanced — 3 on the left, 4 on the right. Fix it with the coefficients; the subscripts stay put."
+        }
+      ],
+      "explain": "Coefficients — never subscripts — balance the equation. 4 Al + 3 O2 → 2 Al2O3 conserves every atom (Al 4=4; O 6=6); ChemKernel derives them as the single integer solution of the conservation matrix.",
+      "subscript_tokens": [
+        "Al2O3",
+        "O2"
+      ],
+      "id": "q5"
+    },
+    {
+      "kind": "balancing",
+      "prompt": "Balance:  NaOH + H2SO4 → Na2SO4 + H2O",
+      "answer": {
+        "value": "2,1,1,2",
+        "display": "2 NaOH + H2SO4 → Na2SO4 + 2 H2O"
+      },
+      "derivation": {
+        "kind": "balancing",
+        "archetype": "acid-base neutralization",
+        "species": [
+          {
+            "formula": "NaOH",
+            "role": "reactant",
+            "counts": {
+              "Na": 1,
+              "O": 1,
+              "H": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2SO4",
+            "role": "reactant",
+            "counts": {
+              "H": 2,
+              "S": 1,
+              "O": 4
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Na2SO4",
+            "role": "product",
+            "counts": {
+              "Na": 2,
+              "S": 1,
+              "O": 4
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          1,
+          1,
+          2
+        ],
+        "elements": [
+          "H",
+          "Na",
+          "O",
+          "S"
+        ]
+      },
+      "choices": [
+        {
+          "display": "2 NaOH + H2SO4 → Na2SO4 + 2 H2O",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "2 NaOH + H2SO4 → 2 Na2SO4 + 2 H2O",
+          "correct": false,
+          "misconception": "That leaves Na unbalanced — 2 on the left, 4 on the right. Fix it with the coefficients; the subscripts stay put."
+        },
+        {
+          "display": "NaOH + H2SO4 → Na2SO4 + 2 H2O",
+          "correct": false,
+          "misconception": "That leaves H unbalanced — 3 on the left, 4 on the right. Fix it with the coefficients; the subscripts stay put."
+        }
+      ],
+      "explain": "Coefficients — never subscripts — balance the equation. 2 NaOH + H2SO4 → Na2SO4 + 2 H2O conserves every atom (H 4=4; Na 2=2; O 6=6; S 1=1); ChemKernel derives them as the single integer solution of the conservation matrix.",
+      "subscript_tokens": [
+        "H2O",
+        "H2SO4",
+        "Na2SO4"
+      ],
+      "id": "q6"
+    },
+    {
+      "kind": "balancing",
+      "prompt": "Balance:  Ca^2+ + PO4^3- → Ca3(PO4)2",
+      "answer": {
+        "value": "3,2,1",
+        "display": "3 Ca^2+ + 2 PO4^3- → Ca3(PO4)2"
+      },
+      "derivation": {
+        "kind": "balancing",
+        "archetype": "net-ionic precipitation",
+        "species": [
+          {
+            "formula": "Ca^2+",
+            "role": "reactant",
+            "counts": {
+              "Ca": 1
+            },
+            "charge": 2
+          },
+          {
+            "formula": "PO4^3-",
+            "role": "reactant",
+            "counts": {
+              "P": 1,
+              "O": 4
+            },
+            "charge": -3
+          },
+          {
+            "formula": "Ca3(PO4)2",
+            "role": "product",
+            "counts": {
+              "Ca": 3,
+              "P": 2,
+              "O": 8
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          3,
+          2,
+          1
+        ],
+        "elements": [
+          "Ca",
+          "O",
+          "P"
+        ]
+      },
+      "choices": [
+        {
+          "display": "3 Ca^2+ + 2 PO4^3- → Ca3(PO4)2",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "4 Ca^2+ + 2 PO4^3- → Ca3(PO4)2",
+          "correct": false,
+          "misconception": "That leaves Ca unbalanced — 4 on the left, 3 on the right. Fix it with the coefficients; the subscripts stay put."
+        },
+        {
+          "display": "3 Ca^2+ + 3 PO4^3- → Ca3(PO4)2",
+          "correct": false,
+          "misconception": "That leaves O unbalanced — 12 on the left, 8 on the right. Fix it with the coefficients; the subscripts stay put."
+        }
+      ],
+      "explain": "Coefficients — never subscripts — balance the equation. 3 Ca^2+ + 2 PO4^3- → Ca3(PO4)2 conserves every atom (Ca 3=3; O 8=8; P 2=2; charge 0=0); ChemKernel derives them as the single integer solution of the conservation matrix.",
+      "subscript_tokens": [
+        "Ca3(PO4)2",
+        "Ca^2+",
+        "PO4^3-"
+      ],
+      "id": "q7"
+    },
+    {
+      "kind": "balancing",
+      "prompt": "Balance:  Ca^2+ + CO3^2- → CaCO3",
+      "answer": {
+        "value": "1,1,1",
+        "display": "Ca^2+ + CO3^2- → CaCO3"
+      },
+      "derivation": {
+        "kind": "balancing",
+        "archetype": "net-ionic precipitation",
+        "species": [
+          {
+            "formula": "Ca^2+",
+            "role": "reactant",
+            "counts": {
+              "Ca": 1
+            },
+            "charge": 2
+          },
+          {
+            "formula": "CO3^2-",
+            "role": "reactant",
+            "counts": {
+              "C": 1,
+              "O": 3
+            },
+            "charge": -2
+          },
+          {
+            "formula": "CaCO3",
+            "role": "product",
+            "counts": {
+              "Ca": 1,
+              "C": 1,
+              "O": 3
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          1,
+          1
+        ],
+        "elements": [
+          "C",
+          "Ca",
+          "O"
+        ]
+      },
+      "choices": [
+        {
+          "display": "Ca^2+ + CO3^2- → CaCO3",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "2 Ca^2+ + CO3^2- → CaCO3",
+          "correct": false,
+          "misconception": "That leaves Ca unbalanced — 2 on the left, 1 on the right. Fix it with the coefficients; the subscripts stay put."
+        },
+        {
+          "display": "Ca^2+ + 2 CO3^2- → CaCO3",
+          "correct": false,
+          "misconception": "That leaves C unbalanced — 2 on the left, 1 on the right. Fix it with the coefficients; the subscripts stay put."
+        }
+      ],
+      "explain": "Coefficients — never subscripts — balance the equation. Ca^2+ + CO3^2- → CaCO3 conserves every atom (C 1=1; Ca 1=1; O 3=3; charge 0=0); ChemKernel derives them as the single integer solution of the conservation matrix.",
+      "subscript_tokens": [
+        "CO3^2-",
+        "CaCO3",
+        "Ca^2+"
+      ],
+      "id": "q8"
+    },
+    {
+      "kind": "balancing",
+      "prompt": "Balance:  C2H6 + O2 → CO2 + H2O",
+      "answer": {
+        "value": "2,7,4,6",
+        "display": "2 C2H6 + 7 O2 → 4 CO2 + 6 H2O"
+      },
+      "derivation": {
+        "kind": "balancing",
+        "archetype": "combustion",
+        "species": [
+          {
+            "formula": "C2H6",
+            "role": "reactant",
+            "counts": {
+              "C": 2,
+              "H": 6
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO2",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          7,
+          4,
+          6
+        ],
+        "elements": [
+          "C",
+          "H",
+          "O"
+        ]
+      },
+      "choices": [
+        {
+          "display": "2 C2H6 + 7 O2 → 4 CO2 + 6 H2O",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "3 C2H6 + 7 O2 → 4 CO2 + 6 H2O",
+          "correct": false,
+          "misconception": "That leaves C unbalanced — 6 on the left, 4 on the right. Fix it with the coefficients; the subscripts stay put."
+        },
+        {
+          "display": "2 C2H6 + 7 O2 → 4 CO2 + 7 H2O",
+          "correct": false,
+          "misconception": "That leaves H unbalanced — 12 on the left, 14 on the right. Fix it with the coefficients; the subscripts stay put."
+        }
+      ],
+      "explain": "Coefficients — never subscripts — balance the equation. 2 C2H6 + 7 O2 → 4 CO2 + 6 H2O conserves every atom (C 4=4; H 12=12; O 14=14); ChemKernel derives them as the single integer solution of the conservation matrix.",
+      "subscript_tokens": [
+        "C2H6",
+        "CO2",
+        "H2O",
+        "O2"
+      ],
+      "id": "q9"
+    },
+    {
+      "kind": "balancing",
+      "prompt": "Balance:  Fe + O2 → Fe2O3",
+      "answer": {
+        "value": "4,3,2",
+        "display": "4 Fe + 3 O2 → 2 Fe2O3"
+      },
+      "derivation": {
+        "kind": "balancing",
+        "archetype": "synthesis",
+        "species": [
+          {
+            "formula": "Fe",
+            "role": "reactant",
+            "counts": {
+              "Fe": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "O2",
+            "role": "reactant",
+            "counts": {
+              "O": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Fe2O3",
+            "role": "product",
+            "counts": {
+              "Fe": 2,
+              "O": 3
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          4,
+          3,
+          2
+        ],
+        "elements": [
+          "Fe",
+          "O"
+        ]
+      },
+      "choices": [
+        {
+          "display": "4 Fe + 3 O2 → 2 Fe2O3",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "4 Fe + 3 O2 → 3 Fe2O3",
+          "correct": false,
+          "misconception": "That leaves Fe unbalanced — 4 on the left, 6 on the right. Fix it with the coefficients; the subscripts stay put."
+        },
+        {
+          "display": "Fe + O2 → Fe2O3",
+          "correct": false,
+          "misconception": "That leaves Fe unbalanced — 1 on the left, 2 on the right. Fix it with the coefficients; the subscripts stay put."
+        }
+      ],
+      "explain": "Coefficients — never subscripts — balance the equation. 4 Fe + 3 O2 → 2 Fe2O3 conserves every atom (Fe 4=4; O 6=6); ChemKernel derives them as the single integer solution of the conservation matrix.",
+      "subscript_tokens": [
+        "Fe2O3",
+        "O2"
+      ],
+      "id": "q10"
+    }
+  ],
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights"
+    }
+  }
+}

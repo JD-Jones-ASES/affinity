@@ -20,11 +20,16 @@ import pytest
 from chemkernel.balance import balance
 from chemkernel.data import ChemData
 from chemkernel.formula import parse_formula
+from chemkernel.gym import _REACTIONS
 
 chempy = pytest.importorskip("chempy")
 periodictable = pytest.importorskip("periodictable")
 
 ROOT = Path(__file__).resolve().parents[2]
+
+# the balancing gym's neutral corpus (ADR-0028) — chempy parses element formulas, not caret-charge net-ionic
+_NEUTRAL_REACTIONS = [r for r in _REACTIONS
+                      if not any("^" in f for f in r["reactants"] + r["products"])]
 
 # every substance the corpus uses (gym salts ∪ lesson species)
 _SUBSTANCES = ["NaCl", "CaCl2", "Na2CO3", "CaCO3", "Na3PO4", "Ca3(PO4)2"]
@@ -59,6 +64,17 @@ def test_molar_masses_match_chempy():
 ])
 def test_balancer_matches_chempy(reactants, products):
     """Our conservation-matrix balancer and chempy's SymPy balancer agree exactly."""
+    ours = balance([parse_formula(s) for s in reactants], [parse_formula(s) for s in products])
+    r_or, p_or = chempy.balance_stoichiometry(set(reactants), set(products))
+    oracle = [int(r_or[s]) for s in reactants] + [int(p_or[s]) for s in products]
+    assert ours == oracle
+
+
+@pytest.mark.parametrize("reaction", _NEUTRAL_REACTIONS,
+                         ids=[" + ".join(r["reactants"]) for r in _NEUTRAL_REACTIONS])
+def test_gym_balancing_corpus_matches_chempy(reaction):
+    """Every neutral reaction the balancing gym ships (ADR-0028) balances identically under chempy."""
+    reactants, products = reaction["reactants"], reaction["products"]
     ours = balance([parse_formula(s) for s in reactants], [parse_formula(s) for s in products])
     r_or, p_or = chempy.balance_stoichiometry(set(reactants), set(products))
     oracle = [int(r_or[s]) for s in reactants] + [int(p_or[s]) for s in products]

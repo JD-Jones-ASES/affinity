@@ -528,3 +528,50 @@ optional; `derivation` carries either numeric `inputs` (conversions) or `cation`
 variable metal, deterministically); full oxidation-state display is an item-5 (flagship) enhancement. This
 is the template for items 3–6: a new gym family = a Python generator + a `validate-gyms` re-derivation
 branch, not new plumbing.
+
+## ADR-0028 — Balancing gym: emit the conservation matrix; re-parse + re-balance in pure Node (2026-07-05)
+
+**Context.** Phase-1 item 3 (the balancing engine) needs a gym family where the learner picks the balanced
+equation and *sees every element tally*. The answer shape is new — a coefficient vector over a set of
+species, not a number or a string — so it needs its own emission + a new `validate-gyms` re-derivation
+branch (ADR-0024's template). Two honesty questions: (1) the player must show a live per-element tally
+without computing chemistry at runtime (ADR-0008); (2) the Node gate must re-prove the answer is a true
+balance of the *exact formulas shown to the student*, but ADR-0023 had deferred a JS formula parser, so the
+gate had no independent way to get element counts from a formula string. The stress scenario is a hard
+conservation-matrix balance (combustion with odd coefficients) plus the "never mutate a subscript"
+misconception made to fail visibly (brief §13.3).
+
+**Decision.** A `balancing_v1` family in `chemkernel.gym` over a **curated skeletal-reaction corpus**
+spanning the archetypes a first course balances (synthesis, combustion, decomposition, single/double
+replacement, acid-base, net-ionic). Each reaction is **balanced by the engine** (`balance()`'s rational
+null space, ADR-0014) — never authored coefficients — and the problem emits the **conservation matrix as
+per-species element counts + charge** (the columns), the coefficient vector (the answer, as a CSV
+`answer.value`), and the balanced-equation `answer.display`. Distractors are **named mistakes**: a
+coefficient perturbation that throws a specific element off (the misconception states which, and by how
+much — data-driven from the tally), and, where genuinely deceptive, the **subscript-mutation trap** — a
+*different real substance* (H₂O→H₂O₂, CO→CO₂) that makes the atoms look balanced without coefficients;
+the producer refuses to ship a trap unless it proves the trap atom-balances **and** changed a formula.
+Two verifiers, independent of the Python producer:
+1. A **JS formula parser** `scripts/validate/formula.mjs` (a faithful port of grammar v0) — closing the
+   ADR-0023 future-work gap. `validate-gyms.mjs` re-parses every emitted species formula, cross-checks the
+   re-derived counts + charge against the emitted matrix (two independent parsers must agree), then verifies
+   the coefficient vector **zeroes every element row and the charge row**, is all-positive and reduced
+   (gcd 1), and reconstructs to the emitted answer. No null-space solve — Python owns uniqueness (`balance()`
+   requires a 1-D null space); the gate proves the emitted answer is a true, reduced balance of the exact
+   shown formulas.
+2. The **player** (`DimensionalGym`) renders the tally as **integer addition over the emitted matrix** ×
+   the correct coefficients — no runtime chemistry, the same "step producer data" discipline as the ledger.
+Also fixed here (view-only, no data churn): the gym islands now present choices in a **deterministic
+per-problem shuffle** (seeded by the problem id, so server and client agree — no hydration mismatch), because
+the producer always emits the correct choice first; picking still uses each choice's original index, and the
+Node gate was already position-agnostic (it `filter`s for the correct choice). The corpus's neutral reactions
+are cross-checked against `chempy.balance_stoichiometry` as an oracle (ADR-0026).
+
+**Consequences.** Item 3 lands as a new family + a new gate branch + a reusable JS parser — no new plumbing,
+per ADR-0024. The JS parser is now available to any future gate needing element counts from a formula string
+(e.g. the ADR-0023 ledger atom/charge re-check). The tally view generalises the drill island to a third
+problem shape (conversions have a `chain`, nomenclature neither, balancing a `species`/`coefficients` matrix)
+without touching the conversion/nomenclature paths. Redox (half-reaction balancing, electron bookkeeping) is
+still Phase 2; this family balances by atom + total-charge conservation only. The corpus is data — extending
+it is adding a row, and a reaction with a clean subscript-mutation trap adds a `trap` (proven honest at emit
+time).

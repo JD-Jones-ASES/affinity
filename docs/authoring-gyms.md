@@ -49,10 +49,19 @@ A `family` selects the generator in `chemkernel.gym.generate_gym`. Today:
   problems carry no numeric `chain`; their `derivation` holds the ion parts, and `subscript_tokens` lists the
   formula tokens the view should Unicode-subscript. `validate-gyms.mjs` re-derives the name (concatenation)
   and the formula (gcd crossover) in pure Node.
+- **`balancing_v1`** (ADR-0028) — balance a skeletal equation. Drawn from a curated reaction corpus inside
+  `chemkernel.gym` (synthesis, combustion, decomposition, single/double replacement, acid-base, net-ionic),
+  each **balanced by the engine** (`balance()`, not authored coefficients). The `derivation` carries the
+  **conservation matrix** — per-species element `counts` + `charge` and the answer `coefficients` — so the
+  player can tally every element (and charge) live by integer addition. `answer.value` is the coefficient CSV;
+  wrong choices are named coefficient mistakes plus, where apt, the subscript-mutation trap. `validate-gyms.mjs`
+  re-parses each formula with the JS parser (`scripts/validate/formula.mjs`) and re-proves the coefficients
+  zero every element + charge row (positive, gcd 1, reconstructs to the answer) — no Python. A reaction with a
+  clean trap carries a `trap` in the corpus; the producer proves it atom-balances and changed a formula.
 
-Adding a new procedural skill (balancing, stoichiometry, …) means adding a new `family` to `generate_gym`
-and, if it introduces a new answer shape, a per-kind branch to `validate-gyms.mjs` so the gate can re-derive
-it. It does **not** mean new plumbing.
+Adding a new procedural skill (stoichiometry, periodic trends, …) means adding a new `family` to
+`generate_gym` and, if it introduces a new answer shape, a per-kind branch to `validate-gyms.mjs` so the gate
+can re-derive it. It does **not** mean new plumbing.
 
 ## What ChemKernel guarantees (so you don't author it)
 
