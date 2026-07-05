@@ -1,0 +1,51 @@
+# Build the static Astro site and deploy it to GitHub Pages.
+# No Python in CI. ChemKernel runs locally; the verified solution JSON (derived/) is committed. CI runs the
+# five Node gates (schema + ledger + parity + KaTeX + provider-agnostic scan) via `npm run build`, then
+# `astro build`. A gate failure fails the deploy. Project base is /affinity (see astro.config.mjs).
+#
+# The owner's GitHub Educator plan allows Pages from this PRIVATE repo without making it public (ADR-0010).
+# Enabled via repo Settings → Pages (Source: GitHub Actions).
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One concurrent deploy; let an in-progress run finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # npm install (not `npm ci`): the committed lockfile is generated on Windows and may omit some
+      # Linux-only optional native deps; install reconciles them (known trap #1).
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
