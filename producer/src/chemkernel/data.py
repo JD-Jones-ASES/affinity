@@ -52,7 +52,7 @@ class ChemData:
     def __init__(self, elements: dict[str, Element], ions: dict[str, Ion], sources: dict[str, str],
                  constants: dict[str, Decimal] | None = None, bonding: dict | None = None,
                  constant_units: dict[str, str] | None = None, specific_heats: dict | None = None,
-                 formation_enthalpies: dict | None = None):
+                 formation_enthalpies: dict | None = None, vsepr: dict | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
@@ -63,6 +63,9 @@ class ChemData:
         # standard enthalpies of formation (ADR-0043), keyed "formula(phase)" (H2O differs by state) ->
         # {name, element (bool), value (Decimal, kJ/mol)}. The energy ledger sums ν·ΔH_f° for Hess's law.
         self.formation_enthalpies = formation_enthalpies or {}
+        # VSEPR geometry table (ADR-0044), keyed (domains, lone_pairs) -> the sourced geometry names + angle.
+        # The molecule Atlas looks up the machine-derived domain count in this sourced table (regime-3 naming).
+        self.vsepr = vsepr or {}
 
     @property
     def avogadro(self) -> Decimal:
@@ -195,6 +198,26 @@ class ChemData:
                 except (KeyError, ArithmeticError) as exc:
                     raise BuildError(f"data/formation-enthalpies.toml: bad entry {v!r}: {exc}") from exc
 
+        # VSEPR geometry table (optional file; ADR-0006/0044). The domain-count → geometry naming convention
+        # (regime-3, OpenStax §7.6) the molecule Atlas keys into; the domain count itself is machine-derived.
+        # Keyed (domains, lone_pairs) so a molecule's verified structure resolves to exactly one row.
+        vsepr: dict = {}
+        vsepr_source = ""
+        vsepr_path = d / "vsepr.toml"
+        if vsepr_path.exists():
+            vsepr_doc = tomllib.loads(vsepr_path.read_text(encoding="utf-8"))
+            vsepr_source = vsepr_doc.get("source", "")
+            for g in vsepr_doc.get("geometries", []):
+                try:
+                    key = (int(g["domains"]), int(g["lone_pairs"]))
+                    if key in vsepr:
+                        raise BuildError(f"data/vsepr.toml: duplicate geometry for {key}")
+                    vsepr[key] = {"electron_geometry": g["electron_geometry"],
+                                  "molecular_shape": g["molecular_shape"], "ideal_angle": g["ideal_angle"],
+                                  "angle_note": g.get("angle_note")}
+                except (KeyError, ValueError) as exc:
+                    raise BuildError(f"data/vsepr.toml: bad entry {g!r}: {exc}") from exc
+
         sources = {
             "atomic_weight": el_doc.get("source", ""),
             "position": el_doc.get("position_source", ""),
@@ -206,9 +229,10 @@ class ChemData:
             "bonding": bonding.get("source", ""),
             "specific_heats": sh_source,
             "formation_enthalpies": fe_source,
+            "vsepr": vsepr_source,
         }
         obj = cls(elements, ions, sources, constants, bonding, constant_units, specific_heats,
-                  formation_enthalpies)
+                  formation_enthalpies, vsepr)
         obj.validate()
         return obj
 

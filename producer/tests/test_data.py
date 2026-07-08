@@ -146,3 +146,14 @@ def test_new_group_1_2_17_common_ions_present():
         assert d.ions[iid].charge == ch
         assert d.ions[iid].element == el
         assert el in d.elements  # composition machine-checked by validate() on load
+
+
+def test_vsepr_table_loaded_and_sourced():
+    d = data()
+    # the sourced VSEPR table (ADR-0044), keyed (domains, lone_pairs) → the geometry names + ideal angle
+    assert d.sources["vsepr"] == "openstax-chemistry-2e"
+    assert d.vsepr[(2, 0)]["molecular_shape"] == "linear" and d.vsepr[(2, 0)]["ideal_angle"] == "180°"
+    assert d.vsepr[(4, 0)]["electron_geometry"] == "tetrahedral"
+    assert d.vsepr[(4, 1)]["molecular_shape"] == "trigonal pyramidal"
+    assert d.vsepr[(4, 2)]["molecular_shape"] == "bent"        # water's shape
+    assert (5, 0) not in d.vsepr                               # expanded octets deferred

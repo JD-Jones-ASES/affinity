@@ -1,0 +1,151 @@
+{
+  "kind": "molecule",
+  "id": "molecule-ammonium",
+  "title": "Ammonium ion",
+  "formula": "NH4^+",
+  "latex": "\\mathrm{NH_{4}}^{+}",
+  "names": [
+    "ammonium",
+    "ammonium ion"
+  ],
+  "charge": 1,
+  "valence_electrons": 8,
+  "valence_breakdown": [
+    {
+      "symbol": "H",
+      "count": 4,
+      "per_atom": 1,
+      "subtotal": 4
+    },
+    {
+      "symbol": "N",
+      "count": 1,
+      "per_atom": 5,
+      "subtotal": 5
+    }
+  ],
+  "electron_check": {
+    "bonding": 8,
+    "nonbonding": 0,
+    "total": 8
+  },
+  "atoms": [
+    {
+      "id": "N1",
+      "element": "N",
+      "lone_pairs": 0,
+      "bond_order_sum": 4,
+      "formal_charge": 1
+    },
+    {
+      "id": "H1",
+      "element": "H",
+      "lone_pairs": 0,
+      "bond_order_sum": 1,
+      "formal_charge": 0
+    },
+    {
+      "id": "H2",
+      "element": "H",
+      "lone_pairs": 0,
+      "bond_order_sum": 1,
+      "formal_charge": 0
+    },
+    {
+      "id": "H3",
+      "element": "H",
+      "lone_pairs": 0,
+      "bond_order_sum": 1,
+      "formal_charge": 0
+    },
+    {
+      "id": "H4",
+      "element": "H",
+      "lone_pairs": 0,
+      "bond_order_sum": 1,
+      "formal_charge": 0
+    }
+  ],
+  "bonds": [
+    {
+      "a": "N1",
+      "b": "H1",
+      "order": 1,
+      "between": [
+        "H",
+        "N"
+      ],
+      "delta_en": "0.84",
+      "bond_class": "polar-covalent",
+      "polar": true
+    },
+    {
+      "a": "N1",
+      "b": "H2",
+      "order": 1,
+      "between": [
+        "H",
+        "N"
+      ],
+      "delta_en": "0.84",
+      "bond_class": "polar-covalent",
+      "polar": true
+    },
+    {
+      "a": "N1",
+      "b": "H3",
+      "order": 1,
+      "between": [
+        "H",
+        "N"
+      ],
+      "delta_en": "0.84",
+      "bond_class": "polar-covalent",
+      "polar": true
+    },
+    {
+      "a": "N1",
+      "b": "H4",
+      "order": 1,
+      "between": [
+        "H",
+        "N"
+      ],
+      "delta_en": "0.84",
+      "bond_class": "polar-covalent",
+      "polar": true
+    }
+  ],
+  "geometry": {
+    "central": "N1",
+    "central_element": "N",
+    "domains": 4,
+    "lone_pairs": 0,
+    "electron_geometry": "tetrahedral",
+    "molecular_shape": "tetrahedral",
+    "ideal_angle": "109.5°",
+    "source": "openstax-chemistry-2e"
+  },
+  "summary": "A polyatomic cation, eight valence electrons: nitrogen contributes five and four hydrogens one each, minus one for the +1 charge. Four N–H bonds, no lone pairs — a symmetric tetrahedron. The formal charge tells the story: nitrogen owns half of four bonding pairs (4 electrons) against its 5 group electrons, so its formal charge is 5 − 4 = +1, and every hydrogen is 0 — the ion's +1 sits on nitrogen. This is ammonia with its lone pair donated to a proton, turning the pyramid into a tetrahedron.",
+  "source": "openstax-chemistry-2e",
+  "en_source": "openstax-chemistry-2e",
+  "bonding_source": "openstax-chemistry-2e",
+  "related": [
+    {
+      "to": "lewis-structure",
+      "type": "concept"
+    },
+    {
+      "to": "vsepr",
+      "type": "concept"
+    },
+    {
+      "to": "molecule-ammonia",
+      "type": "fourth bond ← lone pair"
+    }
+  ],
+  "lessons": [],
+  "notes": [
+    "The +1 charge is a property of the whole ion, so molecular polarity (a neutral-molecule idea) is not stated here — the formal-charge sum, +1, equals the ion charge, and that is the machine-checked claim."
+  ]
+}

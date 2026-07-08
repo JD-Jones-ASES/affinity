@@ -70,6 +70,12 @@ function referenceLatex(ref) {
     (ref.rearrangements ?? []).forEach((r, i) => out.push([`rearrangements[${i}]`, r]));
     out.push(...inlineMath("summary", ref.summary));
     if (ref.domain) out.push(...inlineMath("domain", ref.domain));
+  } else if (ref.kind === "molecule") {
+    // ADR-0044: the molecule's formula symbol, plus any inline $…$ in the authored summary / polarity reason / notes
+    if (ref.latex) out.push(["latex", ref.latex]);
+    out.push(...inlineMath("summary", ref.summary));
+    if (ref.polarity_reason) out.push(...inlineMath("polarity_reason", ref.polarity_reason));
+    (ref.notes ?? []).forEach((n, i) => out.push(...inlineMath(`notes[${i}]`, n)));
   }
   return out;
 }

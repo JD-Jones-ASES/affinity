@@ -8,13 +8,20 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 ## Status
 
 - **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed; Phase 2 (the
-  model-bearing tier) is filling depth-first on **gases + thermochemistry**. Landed so far: the **formula/equation
-  sheet** (ADR-0039), the **`gas_laws_v1` gym** (ADR-0040), the **gas-stoichiometry lesson** (ADR-0041), the
-  **calorimetry gym** (ADR-0042 — q=mcΔT), and the **energy-ledger lesson** (ADR-0043 — the ledger drives an energy
-  q=ΔH_rxn·ξ via Hess's law, with generated practice + a **Hess/enthalpy formula-sheet entry**). **Next inside Phase 2:**
-  the rest of the model-bearing topics (bonding, equilibrium/acid-base, kinetics, electrochemistry), each opening with
-  its stress scenario. Counters live in `AGENTS.md ## Current state`; per-increment detail in
-  [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+  model-bearing tier) has landed its **gases + thermochemistry** tiers and has now **opened bonding & structure**.
+  Landed: the **formula/equation sheet** (ADR-0039), **`gas_laws_v1` gym** (ADR-0040), **gas-stoichiometry lesson**
+  (ADR-0041), **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043 — q=ΔH_rxn·ξ via Hess's law, with
+  practice + Hess formula entry), and the **bonding tier opener** (ADR-0044 — the Lewis electron-ledger engine +
+  `molecule` Atlas kind). **Next inside Phase 2:** the rest of bonding (a Lewis gym, a structure lesson, IMFs), then
+  equilibrium/acid-base, kinetics, electrochemistry, each opening with its stress scenario. Counters live in
+  `AGENTS.md ## Current state`; per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) +
+  [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+- **Bonding & structure tier — OPENED** (2026-07-08, ADR-0044): the **Lewis electron-ledger engine** (`chemkernel.structure`)
+  + the **`molecule` Atlas kind**. The electron ledger — valence total, octet/duet, formal charge, their conservation —
+  is exact integer arithmetic, **machine-checked** (the gate re-derives it all in pure Node); VSEPR geometry keys a
+  sourced table (`data/vsepr.toml`) on the machine-derived domain count; bond ΔEN reuses the sourced electronegativities;
+  molecular polarity is authored + disclosed (model-assumed, neutral molecules only). 6 molecules (H₂O/CO₂/NH₃/CH₄/CH₂O/NH₄⁺)
+  + 2 concepts (`lewis-structure`, `vsepr`); `/reference/molecules/`. The Atlas's 5th reference surface.
 - **Energy-ledger lesson — LANDED** (2026-07-08, ADR-0043): `thermochemistry/methane-combustion-enthalpy` — the ledger
   drives an **energy** (q=ΔH_rxn·ξ; CH₄ + 2 O₂ → CO₂ + 2 H₂O). ΔH_rxn is **Hess's law** over sourced ΔH_f°
   (`data/formation-enthalpies.toml`, OpenStax Appendix G), exact Decimal arithmetic; `build.py` gains a fourth
@@ -326,13 +333,23 @@ rest sequences after, each with its own scope block when its increment opens.
   endothermic / multi-step Hess-cycle lessons; and within calorimetry, initial/final-temperature framing
   ($\Delta T = T_f - T_i$) + cooling (negative $q$) drills.
 
-**Then (each its own increment, sketch):** bonding & structure (Lewis, VSEPR, polarity, IMFs; the Valence Table's
-bonding mode is seeded, ADR-0033); equilibrium & acid-base (ICE table = the ledger with reversible extent —
-$n_i = n_{i,0} + \nu_i\xi$ solved for the $\xi$ that satisfies mass action; K, Q, pH, weak acids, buffers,
-titration curves); kinetics ($d\xi/dt$, rate laws, integrated rate laws, half-life); electrochemistry (oxidation
-numbers — completing the free-element redox flag from ADR-0035 — electron ledger, $E^\circ$, $\Delta G=-nFE$,
-Nernst). Further formula-sheet entries (Hess, $pH=-\log[H^+]$, $K_w$, $\Delta G=\Delta H-T\Delta S$, Nernst) land
-with their topics.
+**Bonding & structure tier — OPENED (2026-07-08, ADR-0044):** the **Lewis electron-ledger engine**
+(`chemkernel.structure`) + the **`molecule` Atlas kind** — the electron-structure counterpart of the species ledger.
+The valence total, octets, formal charges, and their conservation are **machine-checked** (exact integer accounting,
+re-derived in pure Node); the **VSEPR geometry** keys a sourced table (`data/vsepr.toml`, OpenStax §7.6) on the
+machine-derived electron-domain count; **bond ΔEN** reuses the sourced Pauling values + `data/bonding.toml`;
+**molecular polarity** is authored + disclosed (model-assumed, neutral molecules only). 6 molecules
+(H₂O/CO₂/NH₃/CH₄/CH₂O/NH₄⁺) + the `lewis-structure`/`vsepr` concepts; `/reference/molecules/`. **Deferred within:**
+octet exceptions (electron-deficient BeH₂/BF₃, expanded PCl₅/SF₆); resonance (CO₃²⁻/NO₃⁻ — equivalent-structure
+handling); a `lewis_structures_v1` gym (generated valence-electron/formal-charge/domain counting drills, the
+balancing-gym pattern); a bonding & structure lesson (the deep vertical slice); IMFs (build on molecular polarity).
+
+**Then (each its own increment, sketch):** the rest of bonding (above); equilibrium & acid-base (ICE table = the ledger
+with reversible extent — $n_i = n_{i,0} + \nu_i\xi$ solved for the $\xi$ that satisfies mass action; K, Q, pH, weak
+acids, buffers, titration curves); kinetics ($d\xi/dt$, rate laws, integrated rate laws, half-life); electrochemistry
+(oxidation numbers — completing the free-element redox flag from ADR-0035 — electron ledger, $E^\circ$,
+$\Delta G=-nFE$, Nernst). Further formula-sheet entries ($pH=-\log[H^+]$, $K_w$, $\Delta G=\Delta H-T\Delta S$, Nernst)
+land with their topics.
 
 **Definition of done (a reviewable Phase-2 boundary):** deferred to the opening tier's close — at minimum the
 gas/thermo tier lands its gym(s) + at least one gas or calorimetry lesson (misconception register + ledger view
@@ -343,10 +360,11 @@ disclosure, and all gates stay green + deployed. The full Phase-2 DoD firms up a
 
 As in the sibling: lessons go deep, the reference goes broad. Species atlas, formula/equation sheet,
 reaction atlas, concept graph (typed edges, brief §10.5) fill breadth-first alongside whatever phase is
-open. Status: **all four brief-§10 Atlas kinds now ship** — periodic lens (Valence Table), concepts,
-reaction families (ADR-0035), species (ADR-0038), and the **formula/equation sheet** (ADR-0039, the Phase-2
-opener) — plus the typed-edge concept graph woven through every entry's `related` links. Counts live in
-`AGENTS.md ## Current state`; coverage dashboard in [`docs/regime-map.md`](./docs/regime-map.md).
+open. Status: **all four brief-§10 Atlas kinds ship, plus a fifth structural surface** — periodic lens (Valence
+Table), concepts, reaction families (ADR-0035), species (ADR-0038), the **formula/equation sheet** (ADR-0039), and
+now the **`molecule` structure kind** (ADR-0044 — Lewis electron ledgers + VSEPR) — plus the typed-edge concept graph
+woven through every entry's `related` links. Counts live in `AGENTS.md ## Current state`; coverage dashboard in
+[`docs/regime-map.md`](./docs/regime-map.md).
 
 ## Out of scope (v1)
 

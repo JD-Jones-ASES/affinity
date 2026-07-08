@@ -1,0 +1,52 @@
+kind = "molecule"
+id = "molecule-water"
+title = "Water"
+formula = "H2O"
+names = ["water", "dihydrogen monoxide"]
+central = "O1"
+summary = "Eight valence electrons: two O–H bonding pairs and two lone pairs on oxygen. Four electron domains around O make the electron geometry tetrahedral, but the two lone pairs push the two bonds together into a bent molecule. Because the shape is bent, the two polar O–H bond dipoles do not cancel — water is the archetypal polar molecule, and that net dipole is why it dissolves salts and boils far higher than its mass predicts."
+source = "openstax-chemistry-2e"
+polarity = "polar"
+polarity_reason = "The molecule is bent, so the two polar O–H bond dipoles (ΔEN 1.24) add rather than cancel — a net dipole points from the H side toward oxygen."
+lessons = []
+
+[[atoms]]
+id = "O1"
+element = "O"
+lone_pairs = 2
+
+[[atoms]]
+id = "H1"
+element = "H"
+lone_pairs = 0
+
+[[atoms]]
+id = "H2"
+element = "H"
+lone_pairs = 0
+
+[[bonds]]
+a = "O1"
+b = "H1"
+order = 1
+
+[[bonds]]
+a = "O1"
+b = "H2"
+order = 1
+
+[[related]]
+to = "lewis-structure"
+type = "concept"
+
+[[related]]
+to = "vsepr"
+type = "concept"
+
+[[related]]
+to = "molecule-carbon-dioxide"
+type = "contrast — bent-polar vs linear-nonpolar"
+
+[[related]]
+to = "water"
+type = "species"

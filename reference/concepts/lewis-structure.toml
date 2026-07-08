@@ -1,0 +1,17 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0044). The Lewis electron ledger — the electron-structure
+# counterpart of the species ledger. Ledger-exact: the accounting (valence total, octet, formal charge) is
+# exact integer arithmetic the machine checks. Bare keys only (inline related array); TOML trap #4 N/A.
+id = "lewis-structure"
+kind = "concept"
+title = "Lewis structures and the electron ledger"
+term = "Lewis structure"
+regime = "ledger-exact"
+definition = "A bookkeeping of a molecule's **valence electrons** into bonding pairs (shared) and lone pairs (unshared). It is an electron ledger, the exact counterpart of the species ledger: start from the total valence electrons $V = \\sum(\\text{group electrons}) - \\text{charge}$, then place them so that every atom reaches a full shell — a **duet** for hydrogen, an **octet** for the rest — with $2\\times(\\text{bonds}) + 2\\times(\\text{lone pairs}) = V$ (electrons are conserved, none invented). Each atom's **formal charge** $= V_{\\text{atom}} - (\\text{nonbonding electrons}) - \\tfrac{1}{2}(\\text{bonding electrons})$, and the formal charges must sum to the molecular charge. Every one of these is exact integer arithmetic — ChemKernel refuses a structure that fails to conserve electrons, complete an octet, or sum its formal charges to the charge. The **octet model itself** (that atoms seek eight) is the disclosed assumption; the accounting on top of it is machine-checked."
+latex = "\\text{FC} = V_{\\text{atom}} - N_{\\text{nonbonding}} - \\tfrac{1}{2}B_{\\text{bonding}}"
+related = [
+  { to = "vsepr", type = "leads-to" },
+  { to = "electronegativity", type = "see-also" },
+  { to = "periodic-trends", type = "depends-on" },
+  { to = "conservation-of-mass", type = "see-also" },
+]
+lessons = []

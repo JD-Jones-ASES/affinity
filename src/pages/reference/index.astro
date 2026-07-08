@@ -10,6 +10,7 @@ const concepts = all.filter((r) => r.kind === "concept").map(renderConcept).sort
 const reactionFamilies = all.filter((r) => r.kind === "reaction-family");
 const exampleCount = reactionFamilies.reduce((n, f) => n + f.examples.length, 0);
 const speciesEntries = all.filter((r) => r.kind === "species");
+const moleculeEntries = all.filter((r) => r.kind === "molecule");
 const formulaEntries = all.filter((r) => r.kind === "formula");
 
 const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
@@ -44,6 +45,15 @@ const conceptTitle = Object.fromEntries(concepts.map((c) => [c.id, c.title]));
       <p class="muted">The {speciesEntries.length} compounds, elemental molecules, and ions that recur across the
         lessons — each with its composition, charge, and molar mass <strong>derived and re-summed by the
         engine</strong> from the sourced atomic weights.</p>
+    </a>
+  )}
+
+  {moleculeEntries.length > 0 && (
+    <a class="tablecard" href={withBase("/reference/molecules/")}>
+      <div class="tc-head"><h2>Molecules &amp; structure →</h2></div>
+      <p class="muted">{moleculeEntries.length} small molecules as <strong>electron ledgers</strong> — valence
+        total, octets, and formal charges <strong>derived and machine-checked</strong> — each with its VSEPR
+        shape and polarity. Why CO₂ is nonpolar but H₂O is not.</p>
     </a>
   )}
 

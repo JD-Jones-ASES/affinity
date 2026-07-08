@@ -1,0 +1,58 @@
+kind = "molecule"
+id = "molecule-formaldehyde"
+title = "Formaldehyde"
+formula = "CH2O"
+names = ["formaldehyde", "methanal"]
+central = "C1"
+summary = "Twelve valence electrons: two C–H single bonds, one C=O double bond, and two lone pairs on oxygen. Carbon has three electron domains (two single bonds and one double bond count as three domains) and no lone pairs, so the molecule is trigonal planar, angles near 120°. Unlike carbon dioxide, the three bonds are not identical: the strong C=O dipole (ΔEN 0.89) is not balanced by the two weak C–H dipoles (ΔEN 0.35), so the flat molecule has a net dipole toward oxygen — it is polar. Geometry alone does not settle polarity; the bonds have to match too."
+source = "openstax-chemistry-2e"
+polarity = "polar"
+polarity_reason = "Trigonal planar, but the bonds differ: the strong C=O dipole is not cancelled by the two weak C–H dipoles, leaving a net dipole toward oxygen."
+lessons = []
+
+[[atoms]]
+id = "C1"
+element = "C"
+lone_pairs = 0
+
+[[atoms]]
+id = "O1"
+element = "O"
+lone_pairs = 2
+
+[[atoms]]
+id = "H1"
+element = "H"
+lone_pairs = 0
+
+[[atoms]]
+id = "H2"
+element = "H"
+lone_pairs = 0
+
+[[bonds]]
+a = "C1"
+b = "O1"
+order = 2
+
+[[bonds]]
+a = "C1"
+b = "H1"
+order = 1
+
+[[bonds]]
+a = "C1"
+b = "H2"
+order = 1
+
+[[related]]
+to = "lewis-structure"
+type = "concept"
+
+[[related]]
+to = "vsepr"
+type = "concept"
+
+[[related]]
+to = "molecule-carbon-dioxide"
+type = "trigonal-planar-polar vs linear-nonpolar"

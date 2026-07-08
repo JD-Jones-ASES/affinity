@@ -1,0 +1,67 @@
+kind = "molecule"
+id = "molecule-ammonium"
+title = "Ammonium ion"
+formula = "NH4^+"
+names = ["ammonium", "ammonium ion"]
+central = "N1"
+summary = "A polyatomic cation, eight valence electrons: nitrogen contributes five and four hydrogens one each, minus one for the +1 charge. Four N–H bonds, no lone pairs — a symmetric tetrahedron. The formal charge tells the story: nitrogen owns half of four bonding pairs (4 electrons) against its 5 group electrons, so its formal charge is 5 − 4 = +1, and every hydrogen is 0 — the ion's +1 sits on nitrogen. This is ammonia with its lone pair donated to a proton, turning the pyramid into a tetrahedron."
+source = "openstax-chemistry-2e"
+notes = ["The +1 charge is a property of the whole ion, so molecular polarity (a neutral-molecule idea) is not stated here — the formal-charge sum, +1, equals the ion charge, and that is the machine-checked claim."]
+lessons = []
+
+[[atoms]]
+id = "N1"
+element = "N"
+lone_pairs = 0
+
+[[atoms]]
+id = "H1"
+element = "H"
+lone_pairs = 0
+
+[[atoms]]
+id = "H2"
+element = "H"
+lone_pairs = 0
+
+[[atoms]]
+id = "H3"
+element = "H"
+lone_pairs = 0
+
+[[atoms]]
+id = "H4"
+element = "H"
+lone_pairs = 0
+
+[[bonds]]
+a = "N1"
+b = "H1"
+order = 1
+
+[[bonds]]
+a = "N1"
+b = "H2"
+order = 1
+
+[[bonds]]
+a = "N1"
+b = "H3"
+order = 1
+
+[[bonds]]
+a = "N1"
+b = "H4"
+order = 1
+
+[[related]]
+to = "lewis-structure"
+type = "concept"
+
+[[related]]
+to = "vsepr"
+type = "concept"
+
+[[related]]
+to = "molecule-ammonia"
+type = "fourth bond ← lone pair"

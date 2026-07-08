@@ -1,0 +1,131 @@
+{
+  "kind": "molecule",
+  "id": "molecule-ammonia",
+  "title": "Ammonia",
+  "formula": "NH3",
+  "latex": "\\mathrm{NH_{3}}",
+  "names": [
+    "ammonia"
+  ],
+  "charge": 0,
+  "valence_electrons": 8,
+  "valence_breakdown": [
+    {
+      "symbol": "H",
+      "count": 3,
+      "per_atom": 1,
+      "subtotal": 3
+    },
+    {
+      "symbol": "N",
+      "count": 1,
+      "per_atom": 5,
+      "subtotal": 5
+    }
+  ],
+  "electron_check": {
+    "bonding": 6,
+    "nonbonding": 2,
+    "total": 8
+  },
+  "atoms": [
+    {
+      "id": "N1",
+      "element": "N",
+      "lone_pairs": 1,
+      "bond_order_sum": 3,
+      "formal_charge": 0
+    },
+    {
+      "id": "H1",
+      "element": "H",
+      "lone_pairs": 0,
+      "bond_order_sum": 1,
+      "formal_charge": 0
+    },
+    {
+      "id": "H2",
+      "element": "H",
+      "lone_pairs": 0,
+      "bond_order_sum": 1,
+      "formal_charge": 0
+    },
+    {
+      "id": "H3",
+      "element": "H",
+      "lone_pairs": 0,
+      "bond_order_sum": 1,
+      "formal_charge": 0
+    }
+  ],
+  "bonds": [
+    {
+      "a": "N1",
+      "b": "H1",
+      "order": 1,
+      "between": [
+        "H",
+        "N"
+      ],
+      "delta_en": "0.84",
+      "bond_class": "polar-covalent",
+      "polar": true
+    },
+    {
+      "a": "N1",
+      "b": "H2",
+      "order": 1,
+      "between": [
+        "H",
+        "N"
+      ],
+      "delta_en": "0.84",
+      "bond_class": "polar-covalent",
+      "polar": true
+    },
+    {
+      "a": "N1",
+      "b": "H3",
+      "order": 1,
+      "between": [
+        "H",
+        "N"
+      ],
+      "delta_en": "0.84",
+      "bond_class": "polar-covalent",
+      "polar": true
+    }
+  ],
+  "geometry": {
+    "central": "N1",
+    "central_element": "N",
+    "domains": 4,
+    "lone_pairs": 1,
+    "electron_geometry": "tetrahedral",
+    "molecular_shape": "trigonal pyramidal",
+    "ideal_angle": "109.5°",
+    "source": "openstax-chemistry-2e",
+    "angle_note": "the lone pair compresses the actual angle to about 107°"
+  },
+  "summary": "Eight valence electrons: three N–H bonding pairs and one lone pair on nitrogen. Four electron domains make the electron geometry tetrahedral, but with one lone pair the molecular shape is trigonal pyramidal — a tripod with the lone pair on top. The pyramid is not symmetric top-to-bottom, so the three polar N–H dipoles plus the lone pair give a net dipole: ammonia is polar. Contrast the ammonium ion, where a fourth N–H bond replaces the lone pair and the shape becomes a symmetric tetrahedron.",
+  "source": "openstax-chemistry-2e",
+  "en_source": "openstax-chemistry-2e",
+  "bonding_source": "openstax-chemistry-2e",
+  "related": [
+    {
+      "to": "lewis-structure",
+      "type": "concept"
+    },
+    {
+      "to": "vsepr",
+      "type": "concept"
+    },
+    {
+      "to": "molecule-ammonium",
+      "type": "lone pair → fourth bond"
+    }
+  ],
+  "lessons": [],
+  "polarity": "polar",
+  "polarity_reason": "The molecule is trigonal pyramidal (not planar), so the three N–H bond dipoles and the lone pair do not cancel — a net dipole points through the nitrogen toward the lone pair."
+}

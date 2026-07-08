@@ -3,6 +3,35 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — bonding & structure tier opened: the Lewis electron-ledger engine + molecule Atlas kind (ADR-0044)
+
+The next Phase-2 tier opens with its machine-checkable instrument. The Lewis structure is an **electron ledger** — the
+electron-structure counterpart of the species ledger — and its accounting is exact integer arithmetic, so it wears the
+machine-checked badge.
+
+- **Engine** (`chemkernel/structure.py`): `build_molecule_entry` verifies an authored structure (atoms + lone pairs +
+  bonds) and refuses to emit unless the **valence total** (Σ group electrons − charge), **electron conservation**
+  (2·bonds + 2·lone pairs = V), every **octet/duet**, and every **formal charge** (Σ = molecular charge) check out.
+  The **VSEPR geometry** keys a new sourced table (`data/vsepr.toml`, OpenStax §7.6) on the machine-derived domain
+  count; **bond ΔEN** re-uses the sourced electronegativities + `data/bonding.toml`; **molecular polarity** is authored
+  + disclosed (model-assumed), stated only for neutral molecules.
+- **Atlas kind `molecule`** (`schemas/molecule.schema.json`; ids kind-prefixed `molecule-*` so a molecule and its
+  same-named species coexist + cross-link). Six molecules: **H₂O** (bent, polar) vs **CO₂** (linear — polar bonds,
+  nonpolar molecule), **NH₃**/**CH₄**, **CH₂O** (trigonal planar, polar), **NH₄⁺** (the +1 formal charge on N). Two
+  concepts: `lewis-structure` (ledger-exact anchor), `vsepr` (rule-sourced). The Atlas now has a 5th reference surface.
+- **Gate:** `validate-reference` re-derives the **whole electron ledger in pure Node** (valence total, per-atom
+  octet/formal charge, conservation, domain count) + re-derives every bond's ΔEN from the table's electronegativities
+  and re-classifies it; `check-katex` gains the molecule branch. **7-way tamper-tested** (corrupt a formal charge /
+  valence total / bond ΔEN / geometry domains / electron_check / bond class / polarity on an ion — each caught).
+- **Player:** `/reference/molecules/` — the electron-ledger table, VSEPR shape, per-bond ΔEN, polarity, each under its
+  own badge — plus an Atlas-index card ("why CO₂ is nonpolar but H₂O is not").
+- **Verification:** **293 producer tests** (+15: `test_structure.py` + a vsepr-load test); **validate-reference = 60**
+  (+8); check-katex = **497**; 7 gates green; **26 pages** (+1); `derived/` byte-stable across two rebuilds, no existing
+  derived changed. In-browser: CO₂ shows all four facet badges + "polar bonds, nonpolar molecule"; NH₄⁺ shows the charge
+  subtraction and the +1 formal charge on N with no polarity (it's an ion); no console errors.
+- **Deferred within the tier:** octet exceptions (BeH₂/BF₃/PCl₅/SF₆); resonance (CO₃²⁻/NO₃⁻); a `lewis_structures_v1`
+  gym (generated counting drills); a bonding & structure lesson; IMFs.
+
 ## Phase 2 — 2026-07-08 — Hess's-law formula-sheet entry (ADR-0043, 3rd increment)
 
 The reference backbone the energy-ledger lesson links to — the 9th formula/equation-sheet entry.

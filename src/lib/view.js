@@ -264,6 +264,34 @@ export function renderFormula(f) {
   return r;
 }
 
+// Render a molecule entry (ADR-0044): the formula symbol renders from the producer's upright LaTeX; the
+// electron ledger (valence total, per-atom formal charge, octet) and the domain count are exact integers from
+// the engine — presentation only. Formal charges display with an explicit sign; bonds are grouped by type
+// (C=O ×2) for a compact ΔEN row; the summary/polarity/notes may carry inline $…$ + the molecule's formula.
+const _BOND_MARK = { 1: "–", 2: "=", 3: "≡" };
+const _fcDisplay = (q) => (q > 0 ? `+${q}` : q < 0 ? `−${Math.abs(q)}` : "0");
+export function renderMolecule(m) {
+  const r = structuredClone(m);
+  const toks = [m.formula];
+  r.latexHtml = tex(m.latex, false);
+  r.formulaPretty = prettyIon(m.formula);
+  r.summaryHtml = inline(prettyText(m.summary, toks));
+  r.polarityReasonHtml = m.polarity_reason ? inline(prettyText(m.polarity_reason, toks)) : null;
+  r.notesHtml = (m.notes ?? []).map((n) => inline(prettyText(n, toks)));
+  r.atoms = m.atoms.map((a) => ({ ...a, fcDisplay: _fcDisplay(a.formal_charge) }));
+  // group the connectivity into distinct bond TYPES for display (identical C=O bonds collapse to one row ×2)
+  const byType = new Map();
+  for (const b of m.bonds) {
+    const key = `${b.between.join("-")}|${b.order}`;
+    const cur = byType.get(key);
+    if (cur) cur.count += 1;
+    else byType.set(key, { label: `${b.between[0]}${_BOND_MARK[b.order] ?? "–"}${b.between[1]}`,
+                           order: b.order, delta_en: b.delta_en, bond_class: b.bond_class, polar: b.polar, count: 1 });
+  }
+  r.bondTypes = [...byType.values()];
+  return r;
+}
+
 // Render a concept entry (definition may carry inline $…$; latex is a standalone display formula).
 export function renderConcept(c) {
   return {

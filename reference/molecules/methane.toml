@@ -1,0 +1,64 @@
+kind = "molecule"
+id = "molecule-methane"
+title = "Methane"
+formula = "CH4"
+names = ["methane"]
+central = "C1"
+summary = "Eight valence electrons: four C–H bonding pairs, no lone pairs. Four electron domains and no lone pairs give a symmetric tetrahedron, bond angles 109.5°. The C–H bond is barely polar (ΔEN 0.35, on the nonpolar side of the guideline), and the four identical bonds point to the corners of a tetrahedron, so their small dipoles cancel — methane is nonpolar twice over: nearly nonpolar bonds arranged symmetrically."
+source = "openstax-chemistry-2e"
+polarity = "nonpolar"
+polarity_reason = "Four identical C–H bonds point to the corners of a symmetric tetrahedron, so any bond dipoles cancel; the C–H bond is nearly nonpolar to begin with (ΔEN 0.35)."
+lessons = []
+
+[[atoms]]
+id = "C1"
+element = "C"
+lone_pairs = 0
+
+[[atoms]]
+id = "H1"
+element = "H"
+lone_pairs = 0
+
+[[atoms]]
+id = "H2"
+element = "H"
+lone_pairs = 0
+
+[[atoms]]
+id = "H3"
+element = "H"
+lone_pairs = 0
+
+[[atoms]]
+id = "H4"
+element = "H"
+lone_pairs = 0
+
+[[bonds]]
+a = "C1"
+b = "H1"
+order = 1
+
+[[bonds]]
+a = "C1"
+b = "H2"
+order = 1
+
+[[bonds]]
+a = "C1"
+b = "H3"
+order = 1
+
+[[bonds]]
+a = "C1"
+b = "H4"
+order = 1
+
+[[related]]
+to = "lewis-structure"
+type = "concept"
+
+[[related]]
+to = "vsepr"
+type = "concept"

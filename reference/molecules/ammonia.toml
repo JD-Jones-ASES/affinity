@@ -1,0 +1,58 @@
+kind = "molecule"
+id = "molecule-ammonia"
+title = "Ammonia"
+formula = "NH3"
+names = ["ammonia"]
+central = "N1"
+summary = "Eight valence electrons: three N–H bonding pairs and one lone pair on nitrogen. Four electron domains make the electron geometry tetrahedral, but with one lone pair the molecular shape is trigonal pyramidal — a tripod with the lone pair on top. The pyramid is not symmetric top-to-bottom, so the three polar N–H dipoles plus the lone pair give a net dipole: ammonia is polar. Contrast the ammonium ion, where a fourth N–H bond replaces the lone pair and the shape becomes a symmetric tetrahedron."
+source = "openstax-chemistry-2e"
+polarity = "polar"
+polarity_reason = "The molecule is trigonal pyramidal (not planar), so the three N–H bond dipoles and the lone pair do not cancel — a net dipole points through the nitrogen toward the lone pair."
+lessons = []
+
+[[atoms]]
+id = "N1"
+element = "N"
+lone_pairs = 1
+
+[[atoms]]
+id = "H1"
+element = "H"
+lone_pairs = 0
+
+[[atoms]]
+id = "H2"
+element = "H"
+lone_pairs = 0
+
+[[atoms]]
+id = "H3"
+element = "H"
+lone_pairs = 0
+
+[[bonds]]
+a = "N1"
+b = "H1"
+order = 1
+
+[[bonds]]
+a = "N1"
+b = "H2"
+order = 1
+
+[[bonds]]
+a = "N1"
+b = "H3"
+order = 1
+
+[[related]]
+to = "lewis-structure"
+type = "concept"
+
+[[related]]
+to = "vsepr"
+type = "concept"
+
+[[related]]
+to = "molecule-ammonium"
+type = "lone pair → fourth bond"

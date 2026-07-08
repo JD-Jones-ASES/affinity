@@ -1,0 +1,20 @@
+{
+  "kind": "concept",
+  "id": "vsepr",
+  "title": "Molecular geometry (VSEPR) and polarity",
+  "term": "VSEPR",
+  "definition": "Valence-shell electron-pair repulsion: the electron domains around a central atom — each bond (single, double, or triple counts as one) and each lone pair — spread out as far apart as possible, and that fixes the shape. Count the **domains**: 2 → linear (180°), 3 → trigonal planar (120°), 4 → tetrahedral (109.5°). Lone pairs keep the electron geometry but bend the visible **molecular shape** (a 4-domain atom with one lone pair is trigonal pyramidal, with two is bent) and squeeze the angle a little. Shape then decides **polarity**: add up the bond dipoles as vectors — if the molecule is symmetric enough that they cancel (linear CO2, tetrahedral CH4) it is nonpolar; if they do not (bent H2O, pyramidal NH3) it is polar. Polar bonds do not force a polar molecule; the geometry has the final say. The domain count is machine-derived from the Lewis structure; the geometry names and the ideal angles are the sourced convention, and the net-polarity conclusion is a disclosed model.",
+  "related": [
+    {
+      "to": "lewis-structure",
+      "type": "depends-on"
+    },
+    {
+      "to": "electronegativity",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [],
+  "regime": "rule-sourced",
+  "source": "openstax-chemistry-2e"
+}

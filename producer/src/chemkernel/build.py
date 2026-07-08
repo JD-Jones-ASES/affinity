@@ -34,6 +34,7 @@ from .reactivity import AcidBase, Decomposition
 from .reference import (build_formula_entry, build_reaction_family, build_reference_entry,
                         build_species_entry, build_valence_table)
 from .solubility import Solubility
+from .structure import build_molecule_entry
 from .units import Quantity
 
 _REGIME_NAME = {"ledger": "ledger-exact", "solubility": "rule-sourced",
@@ -570,6 +571,8 @@ def build_reference_main(argv: list[str] | None = None) -> int:
                 entry = build_species_entry(spec, data, ctx)
             elif kind == "formula":
                 entry = build_formula_entry(spec, data, ctx)
+            elif kind == "molecule":
+                entry = build_molecule_entry(spec, data, ctx)
             else:
                 entry = build_reference_entry(spec, ctx)
         except BuildError as e:

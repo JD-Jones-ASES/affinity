@@ -1288,3 +1288,61 @@ concept + `formula-calorimetry`. `validate-reference` = **52 objects** (was 51);
 tests (+1); the entry is 4-way tamper-tested (corrupt a term dimension / force non-homogeneity / empty the model
 assumption / dangling lesson — each caught). **Deferred** (unchanged): endothermic / multi-step (Hess-cycle) lessons;
 the gas lesson's slider interactive; further sheet entries (pH, K, ΔG, Nernst) land with their topics.
+
+## ADR-0044 — Open the bonding & structure tier: the Lewis electron-ledger engine + the `molecule` Atlas kind (2026-07-08)
+
+**Context.** The next Phase-2 tier (brief §17.8, the flagged next increment) is **bonding & structure** — Lewis
+structures, VSEPR geometry, molecular polarity, IMFs. It needs its own opener, and the house method opens a tier with
+its machine-checkable instrument (as the reaction classifier opened item 6, ADR-0035, and the formula sheet opened
+Phase 2, ADR-0039). The question was *what in bonding is machine-checkable* — because "the verification system is the
+product," a tier that shipped only sourced/interpretive claims would be off-thesis. The answer sits in the project's
+own thesis (AGENTS.md): chemistry is "species accounting **plus electron structure**." The species ledger accounts for
+atoms over extent; bonding's core is an **electron ledger** — valence-electron accounting into bonds and lone pairs —
+and that accounting is **exact integer arithmetic**: regime-1, machine-checked. The regime map already anticipated this
+(the *Lewis structures* row is tagged regimes **1, 4**: ledger-exact accounting + the interpretive model).
+
+**Decision.** Open the tier with the **Lewis electron-ledger engine** (`chemkernel.structure`), exposed first as the
+`molecule` Atlas kind (the reference surface a later gym + lesson will link to). Honesty is **layered, not mixed** —
+the three badges do distinct work over one molecule:
+1. **The electron ledger — machine-checked (regime-1).** The author supplies the connectivity (atoms with lone pairs +
+   a bond list — the Lewis *model* is a modeling choice); the engine **derives and verifies** the accounting and
+   **refuses to emit** any structure that fails (ADR-0008), exactly as `balance()` refuses a non-balancing reaction:
+   (a) **valence total** $V = \sum(\text{group valence electrons}) - \text{charge}$ (the group rule is
+   `reference.valence_electrons`, ADR-0033; a d-block atom with no defined count is refused — it can't be Lewis-
+   accounted); (b) **electron conservation** $2\cdot\Sigma(\text{bond order}) + 2\cdot\Sigma(\text{lone pairs}) = V$;
+   (c) **octet/duet** per atom (H → 2, else 8 — strict; electron-deficient/expanded octets deferred); (d) **formal
+   charge** per atom $= V_\text{atom} - 2\,\text{lp} - \Sigma\text{order}$, and $\Sigma\text{FC} = \text{charge}$ (this
+   last is implied by conservation — a defensive check). The authored atom multiset must reproduce the formula's
+   composition, so the structure is provably *this* molecule.
+2. **VSEPR geometry — rule-sourced (regime-3).** The **electron-domain count** (bonded neighbours + lone pairs on the
+   central atom) is machine-derived; it **keys a sourced table** `data/vsepr.toml` (OpenStax *Chemistry 2e* §7.6:
+   2→linear/180°, 3→trigonal planar/120°, 4→tetrahedral/109.5°, with lone-pair shape variants) for the geometry
+   *names* + ideal angle. A domain/lone-pair combination outside the table (expanded octets; the trivially-linear
+   4-domain/3-lone-pair diatomic) is refused, not guessed.
+3. **Bond ΔEN — data-sourced (regime-3).** Each bond's electronegativity difference is computed from the sourced
+   Pauling values and classified against the sourced ΔEN thresholds (`data/bonding.toml`) — the same path the Valence
+   Table's bonding mode uses (ADR-0033).
+4. **Molecular polarity — model-assumed (regime-2), authored + disclosed.** The polar/nonpolar verdict is a
+   dipole-cancellation argument over the geometry; it is **authored with a disclosed reason**, never claimed as a
+   machine proof, and stated **only for neutral molecules** (a charged ion carries a net charge, not a molecular
+   dipole — polarity is forbidden on ions). The machine-checked bond ΔEN + the sourced geometry *support* it.
+
+**Consequences.** A 6-molecule opening corpus that teaches the tier's core contrasts: **H₂O** (bent, polar) vs **CO₂**
+(linear — *polar bonds, nonpolar molecule*, the marquee case); **NH₃** (trigonal pyramidal, polar) and **CH₄**
+(tetrahedral, nonpolar); **CH₂O** (trigonal planar, polar — geometry alone doesn't settle polarity, the terminal atoms
+must match); **NH₄⁺** (tetrahedral cation — the formal charge **+1 sits on N**, and the formal-charge sum equals the
+ion charge, the machine-checked claim for a charged species). Two concepts: `lewis-structure` (ledger-exact — the
+electron-ledger anchor) and `vsepr` (rule-sourced). New (additive): `chemkernel.structure`, `schemas/molecule.schema.json`,
+`data/vsepr.toml` (a `vsepr` source facet). The molecule Atlas ids are **kind-prefixed `molecule-*`** (as formulas are
+`formula-*`, reactions `reaction-*`) so a molecule and its same-named species entry coexist and cross-link (molecule-water
+↔ the water species). Gates: **`validate-reference` re-derives the entire electron ledger in pure Node** (valence total,
+per-atom octet/formal charge, conservation, domain count) + re-derives bond ΔEN from the table's electronegativities and
+re-classifies it — 7-way tamper-tested (corrupt a formal charge / valence total / bond ΔEN / geometry domains /
+electron_check / bond class / add polarity to an ion — each caught); `check-katex` gains the molecule branch. The player
+gains `/reference/molecules/` (the electron-ledger table, VSEPR shape, per-bond ΔEN, polarity — each under its own
+badge) + an Atlas-index card. **293 producer tests** (+15 — `test_structure.py` + a vsepr-load test); **validate-reference
+= 60 objects** (+8: 6 molecules + 2 concepts); check-katex = **497**; **26 pages** (+1); `derived/` byte-stable; no
+existing derived changed. **Deferred within the tier:** octet exceptions (electron-deficient BeH₂/BF₃, expanded PCl₅/SF₆),
+resonance (CO₃²⁻/NO₃⁻ — needs equivalent-structure handling), a `lewis_structures_v1` gym (generated counting drills off
+the corpus — valence electrons / formal charge / domain count, the balancing-gym pattern), a bonding & structure lesson
+(the deep vertical slice), and IMFs (which build on molecular polarity).

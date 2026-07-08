@@ -1,0 +1,60 @@
+# Curated VSEPR geometry table (ADR-0006, ADR-0044). The valence-shell electron-pair repulsion mapping the
+# molecule Atlas applies: an electron-domain count (steric number) + the number of lone pairs on the central
+# atom → the electron-domain geometry, the molecular shape, and the ideal bond angle. A TEACHING MODEL — the
+# domain COUNT is machine-derived from the verified Lewis structure (regime-1 electron accounting), but the
+# NAMES and the ideal angle are the sourced VSEPR convention (regime-3), so they live here as data and the
+# player/producer never hard-codes a geometry.
+#
+# Source `openstax-chemistry-2e` (OpenStax *Chemistry 2e*, §7.6 "Molecular Structure and Polarity", CC BY 4.0
+# — see docs/SOURCES.md): 2 domains → linear 180°, 3 → trigonal planar 120°, 4 → tetrahedral 109.5°; a lone
+# pair on the central atom keeps the electron-domain geometry but changes the molecular shape (bent, trigonal
+# pyramidal). The `ideal_angle` is the electron-domain angle; lone pairs occupy more space and compress the
+# actual angle below it (H2O ≈ 104.5°, NH3 ≈ 107°) — the entry's `angle_note` carries that caveat where it
+# applies. Expanded octets (5–6 domains: PCl5, SF6) are deferred with the expanded-octet Lewis handling.
+
+source = "openstax-chemistry-2e"
+
+[[geometries]]
+domains = 2
+lone_pairs = 0
+electron_geometry = "linear"
+molecular_shape = "linear"
+ideal_angle = "180°"
+
+[[geometries]]
+domains = 3
+lone_pairs = 0
+electron_geometry = "trigonal planar"
+molecular_shape = "trigonal planar"
+ideal_angle = "120°"
+
+[[geometries]]
+domains = 3
+lone_pairs = 1
+electron_geometry = "trigonal planar"
+molecular_shape = "bent"
+ideal_angle = "120°"
+angle_note = "the lone pair compresses the actual angle below 120°"
+
+[[geometries]]
+domains = 4
+lone_pairs = 0
+electron_geometry = "tetrahedral"
+molecular_shape = "tetrahedral"
+ideal_angle = "109.5°"
+
+[[geometries]]
+domains = 4
+lone_pairs = 1
+electron_geometry = "tetrahedral"
+molecular_shape = "trigonal pyramidal"
+ideal_angle = "109.5°"
+angle_note = "the lone pair compresses the actual angle to about 107°"
+
+[[geometries]]
+domains = 4
+lone_pairs = 2
+electron_geometry = "tetrahedral"
+molecular_shape = "bent"
+ideal_angle = "109.5°"
+angle_note = "two lone pairs compress the actual angle to about 104.5°"

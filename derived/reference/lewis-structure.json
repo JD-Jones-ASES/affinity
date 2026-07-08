@@ -1,0 +1,28 @@
+{
+  "kind": "concept",
+  "id": "lewis-structure",
+  "title": "Lewis structures and the electron ledger",
+  "term": "Lewis structure",
+  "definition": "A bookkeeping of a molecule's **valence electrons** into bonding pairs (shared) and lone pairs (unshared). It is an electron ledger, the exact counterpart of the species ledger: start from the total valence electrons $V = \\sum(\\text{group electrons}) - \\text{charge}$, then place them so that every atom reaches a full shell — a **duet** for hydrogen, an **octet** for the rest — with $2\\times(\\text{bonds}) + 2\\times(\\text{lone pairs}) = V$ (electrons are conserved, none invented). Each atom's **formal charge** $= V_{\\text{atom}} - (\\text{nonbonding electrons}) - \\tfrac{1}{2}(\\text{bonding electrons})$, and the formal charges must sum to the molecular charge. Every one of these is exact integer arithmetic — ChemKernel refuses a structure that fails to conserve electrons, complete an octet, or sum its formal charges to the charge. The **octet model itself** (that atoms seek eight) is the disclosed assumption; the accounting on top of it is machine-checked.",
+  "related": [
+    {
+      "to": "vsepr",
+      "type": "leads-to"
+    },
+    {
+      "to": "electronegativity",
+      "type": "see-also"
+    },
+    {
+      "to": "periodic-trends",
+      "type": "depends-on"
+    },
+    {
+      "to": "conservation-of-mass",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [],
+  "regime": "ledger-exact",
+  "latex": "\\text{FC} = V_{\\text{atom}} - N_{\\text{nonbonding}} - \\tfrac{1}{2}B_{\\text{bonding}}"
+}

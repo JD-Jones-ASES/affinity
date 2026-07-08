@@ -1,0 +1,115 @@
+{
+  "kind": "molecule",
+  "id": "molecule-carbon-dioxide",
+  "title": "Carbon dioxide",
+  "formula": "CO2",
+  "latex": "\\mathrm{CO_{2}}",
+  "names": [
+    "carbon dioxide"
+  ],
+  "charge": 0,
+  "valence_electrons": 16,
+  "valence_breakdown": [
+    {
+      "symbol": "C",
+      "count": 1,
+      "per_atom": 4,
+      "subtotal": 4
+    },
+    {
+      "symbol": "O",
+      "count": 2,
+      "per_atom": 6,
+      "subtotal": 12
+    }
+  ],
+  "electron_check": {
+    "bonding": 8,
+    "nonbonding": 8,
+    "total": 16
+  },
+  "atoms": [
+    {
+      "id": "C1",
+      "element": "C",
+      "lone_pairs": 0,
+      "bond_order_sum": 4,
+      "formal_charge": 0
+    },
+    {
+      "id": "O1",
+      "element": "O",
+      "lone_pairs": 2,
+      "bond_order_sum": 2,
+      "formal_charge": 0
+    },
+    {
+      "id": "O2",
+      "element": "O",
+      "lone_pairs": 2,
+      "bond_order_sum": 2,
+      "formal_charge": 0
+    }
+  ],
+  "bonds": [
+    {
+      "a": "C1",
+      "b": "O1",
+      "order": 2,
+      "between": [
+        "C",
+        "O"
+      ],
+      "delta_en": "0.89",
+      "bond_class": "polar-covalent",
+      "polar": true
+    },
+    {
+      "a": "C1",
+      "b": "O2",
+      "order": 2,
+      "between": [
+        "C",
+        "O"
+      ],
+      "delta_en": "0.89",
+      "bond_class": "polar-covalent",
+      "polar": true
+    }
+  ],
+  "geometry": {
+    "central": "C1",
+    "central_element": "C",
+    "domains": 2,
+    "lone_pairs": 0,
+    "electron_geometry": "linear",
+    "molecular_shape": "linear",
+    "ideal_angle": "180°",
+    "source": "openstax-chemistry-2e"
+  },
+  "summary": "Sixteen valence electrons: two C=O double bonds and two lone pairs on each oxygen. Carbon has two electron domains (the two double bonds) and no lone pairs, so the molecule is linear. Each C=O bond is polar (ΔEN 0.89), but the two bond dipoles point in exactly opposite directions along the linear axis and cancel — so CO2 has polar bonds yet is a nonpolar molecule. That is the lesson water inverts: shape decides.",
+  "source": "openstax-chemistry-2e",
+  "en_source": "openstax-chemistry-2e",
+  "bonding_source": "openstax-chemistry-2e",
+  "related": [
+    {
+      "to": "lewis-structure",
+      "type": "concept"
+    },
+    {
+      "to": "vsepr",
+      "type": "concept"
+    },
+    {
+      "to": "molecule-water",
+      "type": "contrast — linear-nonpolar vs bent-polar"
+    },
+    {
+      "to": "carbon-dioxide",
+      "type": "species"
+    }
+  ],
+  "lessons": [],
+  "polarity": "nonpolar",
+  "polarity_reason": "The molecule is linear, so the two equal, opposite C=O bond dipoles cancel exactly — polar bonds, but no net molecular dipole."
+}

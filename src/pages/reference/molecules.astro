@@ -1,0 +1,199 @@
+---
+import Base from "../../layouts/Base.astro";
+import { withBase } from "../../lib/withBase.js";
+import { renderMolecule } from "../../lib/view.js";
+
+const refs = import.meta.glob("../../../derived/reference/*.json", { eager: true });
+const all = Object.values(refs).map((m) => m.default);
+const molecules = all.filter((r) => r.kind === "molecule").map(renderMolecule)
+  .sort((a, b) => a.title.localeCompare(b.title));
+
+const BOND_LABEL = { "nonpolar-covalent": "nonpolar covalent", "polar-covalent": "polar covalent", ionic: "ionic" };
+
+// cross-link routing by entry kind (concepts → /reference/, molecules → here, species → /reference/species/, …)
+const refTitle = Object.fromEntries(all.map((r) => [r.id, r.title]));
+const refKind = Object.fromEntries(all.map((r) => [r.id, r.kind]));
+const hrefFor = (id) =>
+  refKind[id] === "molecule" ? withBase(`/reference/molecules/#${id}`)
+  : refKind[id] === "species" ? withBase(`/reference/species/#${id}`)
+  : refKind[id] === "reaction-family" ? withBase(`/reference/reactions/#${id}`)
+  : refKind[id] === "formula" ? withBase(`/reference/formulas/#${id}`)
+  : refKind[id] === "valence-table" ? withBase(`/reference/valence-table/`)
+  : withBase(`/reference/#${id}`);
+const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
+const lessonTitle = Object.fromEntries(Object.values(sols).map((m) => [m.default.slug, m.default.title]));
+---
+
+<Base title="Molecules — Affinity" description="The molecule atlas: each small molecule's Lewis electron ledger (valence total, octet, formal charge — machine-checked) with its VSEPR geometry and polarity.">
+  <p class="crumb"><a href={withBase("/reference/")}>← Chemical Atlas</a></p>
+  <h1>Molecules &amp; structure</h1>
+  <p class="muted lede">The Lewis structure is an <strong>electron ledger</strong> — the exact counterpart of
+    the species ledger, but counting valence electrons instead of atoms. For each molecule the engine
+    <strong>derives and checks</strong> the accounting: the valence-electron total, that every atom completes
+    an octet (a duet for H), each atom's formal charge, and that the formal charges sum to the molecular
+    charge. It refuses any structure that fails. The <strong>shape</strong> then follows from the
+    electron-domain count (VSEPR, sourced), and the shape decides <strong>polarity</strong> — a disclosed
+    model conclusion. Bond ΔEN comes from the <a href={withBase("/reference/valence-table/")}>Valence
+    Table</a>'s electronegativities.</p>
+
+  <nav class="jump">
+    {molecules.map((m) => <a href={`#${m.id}`}>{m.formulaPretty}</a>)}
+  </nav>
+
+  {molecules.map((m) => (
+    <article class="mol" id={m.id}>
+      <div class="m-head">
+        <div class="m-title">
+          <span class="sym" set:html={m.latexHtml} />
+          <h3>{m.title}</h3>
+        </div>
+        <span class="badges">
+          {m.charge !== 0 && <span class="charge">charge {m.charge > 0 ? `+${m.charge}` : m.charge}</span>}
+          {m.polarity && <span class={`pol ${m.polarity}`}>{m.polarity}</span>}
+        </span>
+      </div>
+
+      {m.names.length > 1 && <p class="aka">Also: {m.names.slice(1).join(" · ")}</p>}
+
+      <div class="section">
+        <div class="s-head">
+          <span class="lbl">Electron ledger</span>
+          <span class="badge machine"><span class="dot"></span>machine-checked</span>
+        </div>
+        <p class="valence">
+          {m.valence_breakdown.map((b, i) => (
+            <>{i > 0 && " + "}<span class="mono">{b.symbol} {b.count}×{b.per_atom} = {b.subtotal}</span></>
+          ))}
+          {m.charge !== 0 && <span class="mono"> {m.charge > 0 ? "−" : "+"} {Math.abs(m.charge)} (charge)</span>}
+          <span class="arrow"> → </span>
+          <strong class="mono">{m.valence_electrons} valence electrons</strong>
+        </p>
+        <p class="echeck mono">Placed: {m.electron_check.bonding} bonding
+          ({m.electron_check.bonding / 2} shared {m.electron_check.bonding / 2 === 1 ? "pair" : "pairs"})
+          + {m.electron_check.nonbonding} nonbonding
+          ({m.electron_check.nonbonding / 2} lone {m.electron_check.nonbonding / 2 === 1 ? "pair" : "pairs"})
+          = {m.electron_check.total} ✓</p>
+        <table class="atoms">
+          <thead><tr><th>Atom</th><th>Lone pairs</th><th>Bonds (Σ order)</th><th>Formal charge</th></tr></thead>
+          <tbody>
+            {m.atoms.map((a) => (
+              <tr>
+                <td class="el">{a.element}<span class="aid">{a.id}</span></td>
+                <td class="num">{a.lone_pairs}</td>
+                <td class="num">{a.bond_order_sum}</td>
+                <td class={`num fc${a.formal_charge !== 0 ? " nz" : ""}`}>{a.fcDisplay}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid2">
+        <div class="section">
+          <div class="s-head">
+            <span class="lbl">Shape (VSEPR)</span>
+            <span class="badge sourced"><span class="dot"></span>geometry: {m.geometry.source}</span>
+          </div>
+          <p class="geo">
+            <strong>{m.geometry.domains} electron domains</strong>
+            ({m.geometry.domains - m.geometry.lone_pairs} bonding + {m.geometry.lone_pairs} lone)
+            → electron geometry <strong>{m.geometry.electron_geometry}</strong>,
+            shape <strong>{m.geometry.molecular_shape}</strong>.
+          </p>
+          <p class="angle mono">ideal angle {m.geometry.ideal_angle}{m.geometry.angle_note ? ` — ${m.geometry.angle_note}` : ""}</p>
+        </div>
+
+        <div class="section">
+          <div class="s-head">
+            <span class="lbl">Bonds (ΔEN)</span>
+            <span class="badge sourced"><span class="dot"></span>EN: {m.en_source}</span>
+          </div>
+          <ul class="bonds">
+            {m.bondTypes.map((b) => (
+              <li>
+                <span class="btype mono">{b.label}{b.count > 1 ? ` ×${b.count}` : ""}</span>
+                <span class="bmeta">ΔEN {b.delta_en} · {BOND_LABEL[b.bond_class]}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {m.polarity && (
+        <div class="section pol-sec">
+          <div class="s-head">
+            <span class="lbl">Molecular polarity</span>
+            <span class="badge model"><span class="dot"></span>model-assumed</span>
+          </div>
+          <p><strong class={`pol ${m.polarity}`}>{m.polarity}</strong> <span set:html={m.polarityReasonHtml} /></p>
+        </div>
+      )}
+
+      <p class="summary" set:html={m.summaryHtml} />
+      {m.notesHtml.length > 0 && <ul class="notes">{m.notesHtml.map((n) => <li set:html={n} />)}</ul>}
+
+      {(m.related.length > 0 || m.lessons.length > 0) && (
+        <div class="links">
+          {m.related.length > 0 && (
+            <span class="ln">Related: {m.related.map((e, i) => (
+              <>{i > 0 && ", "}<a href={hrefFor(e.to)}>{refTitle[e.to] ?? e.to}</a>
+                <span class="etype"> ({e.type})</span></>
+            ))}</span>
+          )}
+          {m.lessons.length > 0 && (
+            <span class="ln">Lessons: {m.lessons.map((sl, i) => (
+              <>{i > 0 && ", "}<a href={withBase(`/lessons/${sl}/`)}>{lessonTitle[sl] ?? sl}</a></>
+            ))}</span>
+          )}
+        </div>
+      )}
+    </article>
+  ))}
+
+  <style>
+    .crumb { font-size: 0.9rem; margin: 0 0 0.4rem; }
+    h1 { font-size: 1.9rem; margin-bottom: 0.3rem; }
+    .lede { max-width: 52rem; }
+    .jump { display: flex; flex-wrap: wrap; gap: 0.4rem 0.7rem; margin: 1rem 0 1.6rem; font-size: 0.9rem; }
+    .jump a { padding: 0.15rem 0.55rem; background: var(--paper-2); border: 1px solid var(--line); border-radius: 999px; }
+    .jump a:hover { border-color: var(--accent); text-decoration: none; }
+    .mol { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.3rem; margin: 1.1rem 0; scroll-margin-top: 5rem; }
+    .m-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .m-title { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap; }
+    .sym { font-size: 1.3rem; }
+    .m-title h3 { margin: 0; font-size: 1.2rem; }
+    .badges { display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; }
+    .charge { font-size: 0.78rem; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 0.05rem 0.4rem; color: var(--ink-2); }
+    .pol { font-size: 0.8rem; font-weight: 600; text-transform: lowercase; padding: 0.05rem 0.45rem; border-radius: 999px; }
+    .pol.polar { background: var(--model-soft); color: var(--model); }
+    .pol.nonpolar { background: var(--paper-sunk); color: var(--ink-2); }
+    .aka { font-size: 0.86rem; color: var(--ink-faint); margin: 0.3rem 0 0; }
+    .section { margin: 0.9rem 0; }
+    .s-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.35rem; flex-wrap: wrap; }
+    .s-head .lbl { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
+    .mono { font-variant-numeric: tabular-nums; font-family: var(--mono, monospace); }
+    .valence { margin: 0.2rem 0; font-size: 0.94rem; }
+    .valence .arrow { color: var(--ink-faint); }
+    .echeck { font-size: 0.86rem; color: var(--ink-2); margin: 0.2rem 0 0.5rem; }
+    .atoms { border-collapse: collapse; font-size: 0.9rem; width: auto; min-width: 24rem; }
+    .atoms th, .atoms td { text-align: left; padding: 0.25rem 1rem 0.25rem 0; border-bottom: 1px solid var(--line); }
+    .atoms thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); font-weight: 600; }
+    .atoms .el { font-weight: 600; }
+    .atoms .aid { font-size: 0.7rem; color: var(--ink-faint); margin-left: 0.35rem; font-weight: 400; }
+    .atoms .num { font-variant-numeric: tabular-nums; }
+    .atoms .fc.nz { color: var(--accent); font-weight: 600; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+    @media (max-width: 34rem) { .grid2 { grid-template-columns: 1fr; } }
+    .geo { margin: 0.2rem 0; font-size: 0.92rem; }
+    .angle { font-size: 0.84rem; color: var(--ink-faint); margin: 0.2rem 0 0; }
+    .bonds { list-style: none; margin: 0.2rem 0 0; padding: 0; }
+    .bonds li { display: flex; gap: 0.6rem; align-items: baseline; padding: 0.12rem 0; font-size: 0.9rem; }
+    .btype { font-weight: 600; min-width: 4rem; }
+    .bmeta { color: var(--ink-2); }
+    .pol-sec p { margin: 0.2rem 0; font-size: 0.92rem; color: var(--ink-2); }
+    .summary { color: var(--ink-2); margin: 0.7rem 0 0; max-width: 56rem; }
+    .notes { margin: 0.5rem 0 0; padding-left: 1.1rem; color: var(--ink-faint); font-size: 0.88rem; }
+    .links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; font-size: 0.86rem; color: var(--ink-faint); margin-top: 0.8rem; border-top: 1px solid var(--line); padding-top: 0.5rem; }
+    .etype { font-style: italic; }
+  </style>
+</Base>

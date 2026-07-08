@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://affinity/schemas/molecule.schema.json",
+  "title": "Affinity Chemical Atlas molecule entry",
+  "description": "One molecule's Lewis electron ledger + VSEPR geometry (ADR-0044). The electron accounting — valence total, per-atom octet/duet, formal charge, and their conservation — is DERIVED from the authored atoms + bonds and machine-checked (the gate re-derives every integer in pure Node). The VSEPR geometry keys the sourced table on the machine-derived domain count; bond ΔEN comes from the sourced electronegativities; molecular polarity is authored + disclosed (model-assumed). additionalProperties:false everywhere.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "id", "title", "formula", "latex", "names", "charge", "valence_electrons", "valence_breakdown", "electron_check", "atoms", "bonds", "geometry", "summary", "source", "en_source", "bonding_source", "related", "lessons"],
+  "properties": {
+    "kind": { "const": "molecule" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "formula": { "type": "string", "minLength": 1, "$comment": "phase-less formula; the atoms must reproduce its composition" },
+    "latex": { "type": "string", "minLength": 1 },
+    "names": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "charge": { "type": "integer" },
+    "valence_electrons": { "type": "integer", "minimum": 0, "$comment": "Σ group valence electrons − charge (machine-derived)" },
+    "valence_breakdown": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["symbol", "count", "per_atom", "subtotal"],
+        "properties": {
+          "symbol": { "type": "string", "pattern": "^[A-Z][a-z]?$" },
+          "count": { "type": "integer", "minimum": 1 },
+          "per_atom": { "type": "integer", "minimum": 1, "$comment": "the element's group valence-electron count" },
+          "subtotal": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "electron_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bonding", "nonbonding", "total"],
+      "properties": {
+        "bonding": { "type": "integer", "minimum": 0, "$comment": "2·Σ(bond order)" },
+        "nonbonding": { "type": "integer", "minimum": 0, "$comment": "2·Σ(lone pairs)" },
+        "total": { "type": "integer", "minimum": 0, "$comment": "must equal valence_electrons" }
+      }
+    },
+    "atoms": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "element", "lone_pairs", "bond_order_sum", "formal_charge"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "element": { "type": "string", "pattern": "^[A-Z][a-z]?$" },
+          "lone_pairs": { "type": "integer", "minimum": 0 },
+          "bond_order_sum": { "type": "integer", "minimum": 0, "$comment": "Σ orders of bonds incident to this atom" },
+          "formal_charge": { "type": "integer" }
+        }
+      }
+    },
+    "bonds": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["a", "b", "order", "between", "delta_en", "bond_class", "polar"],
+        "properties": {
+          "a": { "type": "string", "minLength": 1 },
+          "b": { "type": "string", "minLength": 1 },
+          "order": { "type": "integer", "minimum": 1 },
+          "between": {
+            "type": "array", "minItems": 2, "maxItems": 2,
+            "items": { "type": "string", "pattern": "^[A-Z][a-z]?$" }
+          },
+          "delta_en": { "type": "string", "minLength": 1, "$comment": "|EN(a) − EN(b)|, re-derived from the sourced Pauling values" },
+          "bond_class": { "enum": ["nonpolar-covalent", "polar-covalent", "ionic"] },
+          "polar": { "type": "boolean" }
+        }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["central", "central_element", "domains", "lone_pairs", "electron_geometry", "molecular_shape", "ideal_angle", "source"],
+      "properties": {
+        "central": { "type": "string", "minLength": 1 },
+        "central_element": { "type": "string", "pattern": "^[A-Z][a-z]?$" },
+        "domains": { "type": "integer", "minimum": 2, "$comment": "bonded neighbours + lone pairs on the central atom (machine-derived)" },
+        "lone_pairs": { "type": "integer", "minimum": 0 },
+        "electron_geometry": { "type": "string", "minLength": 1 },
+        "molecular_shape": { "type": "string", "minLength": 1 },
+        "ideal_angle": { "type": "string", "minLength": 1 },
+        "angle_note": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1, "$comment": "the VSEPR table source; resolves to docs/SOURCES.md" }
+      }
+    },
+    "polarity": { "enum": ["polar", "nonpolar"], "$comment": "authored + disclosed (model-assumed); only for neutral molecules" },
+    "polarity_reason": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string", "minLength": 1 },
+    "source": { "type": "string", "minLength": 1, "$comment": "the geometry/model source; resolves to a docs/SOURCES.md row" },
+    "en_source": { "type": "string", "minLength": 1, "$comment": "the electronegativity source behind the bond ΔEN" },
+    "bonding_source": { "type": "string", "minLength": 1, "$comment": "the ΔEN-class threshold source" },
+    "notes": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "related": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["to", "type"],
+        "properties": {
+          "to": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "type": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "lessons": { "type": "array", "items": { "type": "string" } }
+  }
+}
