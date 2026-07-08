@@ -11,17 +11,19 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   model-bearing tier) has landed its **gases + thermochemistry** tiers and has now **opened bonding & structure**.
   Landed: the **formula/equation sheet** (ADR-0039), **`gas_laws_v1` gym** (ADR-0040), **gas-stoichiometry lesson**
   (ADR-0041), **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043 — q=ΔH_rxn·ξ via Hess's law, with
-  practice + Hess formula entry), and the **bonding tier opener** (ADR-0044 — the Lewis electron-ledger engine +
-  `molecule` Atlas kind). **Next inside Phase 2:** the rest of bonding (a Lewis gym, a structure lesson, IMFs), then
-  equilibrium/acid-base, kinetics, electrochemistry, each opening with its stress scenario. Counters live in
+  practice + Hess formula entry), and the **bonding tier** (ADR-0044 — the Lewis electron-ledger engine +
+  `molecule` Atlas kind + the **`lewis_structures_v1` gym**). **Next inside Phase 2:** the rest of bonding (a structure
+  lesson, IMFs), then equilibrium/acid-base, kinetics, electrochemistry, each opening with its stress scenario. Counters live in
   `AGENTS.md ## Current state`; per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) +
   [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
-- **Bonding & structure tier — OPENED** (2026-07-08, ADR-0044): the **Lewis electron-ledger engine** (`chemkernel.structure`)
-  + the **`molecule` Atlas kind**. The electron ledger — valence total, octet/duet, formal charge, their conservation —
-  is exact integer arithmetic, **machine-checked** (the gate re-derives it all in pure Node); VSEPR geometry keys a
-  sourced table (`data/vsepr.toml`) on the machine-derived domain count; bond ΔEN reuses the sourced electronegativities;
-  molecular polarity is authored + disclosed (model-assumed, neutral molecules only). 6 molecules (H₂O/CO₂/NH₃/CH₄/CH₂O/NH₄⁺)
-  + 2 concepts (`lewis-structure`, `vsepr`); `/reference/molecules/`. The Atlas's 5th reference surface.
+- **Bonding & structure tier — OPEN** (2026-07-08, ADR-0044): the **Lewis electron-ledger engine** (`chemkernel.structure`,
+  `compute_ledger`) + the **`molecule` Atlas kind** + the **`lewis_structures_v1` gym**. The electron ledger — valence
+  total, octet/duet, formal charge, their conservation — is exact integer arithmetic, **machine-checked** (the gate
+  re-derives it all in pure Node); VSEPR geometry keys a sourced table (`data/vsepr.toml`) on the machine-derived domain
+  count; bond ΔEN reuses the sourced electronegativities; molecular polarity is authored + disclosed (model-assumed,
+  neutral molecules only). 6 molecules (H₂O/CO₂/NH₃/CH₄/CH₂O/NH₄⁺) + 2 concepts (`lewis-structure`, `vsepr`);
+  `/reference/molecules/`; the gym drills valence total / electron domains (free-entry) + molecular geometry (categorical)
+  off the shared engine (gym family #11). The Atlas's 5th reference surface. **Next in-tier:** a structure lesson + IMFs.
 - **Energy-ledger lesson — LANDED** (2026-07-08, ADR-0043): `thermochemistry/methane-combustion-enthalpy` — the ledger
   drives an **energy** (q=ΔH_rxn·ξ; CH₄ + 2 O₂ → CO₂ + 2 H₂O). ΔH_rxn is **Hess's law** over sourced ΔH_f°
   (`data/formation-enthalpies.toml`, OpenStax Appendix G), exact Decimal arithmetic; `build.py` gains a fourth
@@ -333,16 +335,18 @@ rest sequences after, each with its own scope block when its increment opens.
   endothermic / multi-step Hess-cycle lessons; and within calorimetry, initial/final-temperature framing
   ($\Delta T = T_f - T_i$) + cooling (negative $q$) drills.
 
-**Bonding & structure tier — OPENED (2026-07-08, ADR-0044):** the **Lewis electron-ledger engine**
-(`chemkernel.structure`) + the **`molecule` Atlas kind** — the electron-structure counterpart of the species ledger.
-The valence total, octets, formal charges, and their conservation are **machine-checked** (exact integer accounting,
-re-derived in pure Node); the **VSEPR geometry** keys a sourced table (`data/vsepr.toml`, OpenStax §7.6) on the
-machine-derived electron-domain count; **bond ΔEN** reuses the sourced Pauling values + `data/bonding.toml`;
-**molecular polarity** is authored + disclosed (model-assumed, neutral molecules only). 6 molecules
-(H₂O/CO₂/NH₃/CH₄/CH₂O/NH₄⁺) + the `lewis-structure`/`vsepr` concepts; `/reference/molecules/`. **Deferred within:**
-octet exceptions (electron-deficient BeH₂/BF₃, expanded PCl₅/SF₆); resonance (CO₃²⁻/NO₃⁻ — equivalent-structure
-handling); a `lewis_structures_v1` gym (generated valence-electron/formal-charge/domain counting drills, the
-balancing-gym pattern); a bonding & structure lesson (the deep vertical slice); IMFs (build on molecular polarity).
+**Bonding & structure tier — OPEN (2026-07-08, ADR-0044):** the **Lewis electron-ledger engine**
+(`chemkernel.structure`, `compute_ledger`) + the **`molecule` Atlas kind** + the **`lewis_structures_v1` gym** — the
+electron-structure counterpart of the species ledger. The valence total, octets, formal charges, and their conservation
+are **machine-checked** (exact integer accounting, re-derived in pure Node); the **VSEPR geometry** keys a sourced table
+(`data/vsepr.toml`, OpenStax §7.6) on the machine-derived electron-domain count; **bond ΔEN** reuses the sourced Pauling
+values + `data/bonding.toml`; **molecular polarity** is authored + disclosed (model-assumed, neutral molecules only). 6
+molecules (H₂O/CO₂/NH₃/CH₄/CH₂O/NH₄⁺) + the `lewis-structure`/`vsepr` concepts; `/reference/molecules/`. The gym drills
+valence total / electron domains (free-entry) + molecular geometry (categorical, the electron-domain-geometry distractor)
+off the shared engine — the counting practice for the ledger. **Deferred within:** octet exceptions (electron-deficient
+BeH₂/BF₃, expanded PCl₅/SF₆); resonance (CO₃²⁻/NO₃⁻ — equivalent-structure handling); a bonding & structure lesson (the
+deep vertical slice); IMFs (build on molecular polarity); a formal-charge gym drill (wants nonzero-FC molecules, i.e.
+resonance).
 
 **Then (each its own increment, sketch):** the rest of bonding (above); equilibrium & acid-base (ICE table = the ledger
 with reversible extent — $n_i = n_{i,0} + \nu_i\xi$ solved for the $\xi$ that satisfies mass action; K, Q, pH, weak

@@ -33,7 +33,7 @@ const close = (got, want) => Math.abs(got - want) <= ATOL + RTOL * Math.abs(want
 const NUMERIC_KINDS = new Set([
   "volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass",
   "volume_molarity_to_mass", "mass_stoichiometry", "percent_yield", "limiting_mass",
-  "gas_ideal", "gas_combined", "calorimetry",
+  "gas_ideal", "gas_combined", "calorimetry", "lewis_valence", "lewis_domains",
 ]);
 
 // re-derive an answer purely from the raw inputs — the same arithmetic a student does, unit by unit
@@ -303,6 +303,53 @@ function verifyCalorimetry(rel, p, fail) {
     fail(rel, `${p.id}: chain end ${last.value} != answer ${p.answer.value}`);
 }
 
+// --- Lewis structures (Phase 2 bonding, ADR-0044): re-derive the electron ledger's counting answers in pure
+// Node from the emitted structure (atoms + bonds). The valence total re-sums each atom's group valence electrons
+// (from valence-table.json, the same source the molecule Atlas uses) minus the charge; the electron-domain count
+// re-adds the central atom's bonded neighbours + lone pairs. The geometry kind re-checks the domain/lone-pair
+// count that keys the sourced VSEPR shape, and that the correct choice IS that shape.
+function verifyLewis(rel, p, fail) {
+  const { bySym } = valenceTable(rel);
+  const d = p.derivation.lewis;
+  if (!d || !Array.isArray(d.atoms) || !Array.isArray(d.bonds))
+    fail(rel, `${p.id}: lewis derivation missing atoms/bonds`);
+  const elementOf = new Map(), lonePairs = new Map();
+  for (const a of d.atoms) { elementOf.set(a.id, a.element); lonePairs.set(a.id, a.lone_pairs); }
+  if (!elementOf.has(d.central)) fail(rel, `${p.id}: central '${d.central}' is not an atom`);
+  const orderSum = new Map(d.atoms.map((a) => [a.id, 0]));
+  const neighbours = new Map(d.atoms.map((a) => [a.id, 0]));
+  for (const b of d.bonds) {
+    if (!elementOf.has(b.a) || !elementOf.has(b.b)) fail(rel, `${p.id}: bond references unknown atom(s)`);
+    orderSum.set(b.a, orderSum.get(b.a) + b.order); orderSum.set(b.b, orderSum.get(b.b) + b.order);
+    neighbours.set(b.a, neighbours.get(b.a) + 1); neighbours.set(b.b, neighbours.get(b.b) + 1);
+  }
+  let valence = -d.charge;
+  for (const a of d.atoms) {
+    const el = bySym.get(a.element);
+    if (!el || el.valence_electrons == null) fail(rel, `${p.id}: '${a.element}' has no valence electrons in the table`);
+    valence += el.valence_electrons;
+  }
+  const domains = neighbours.get(d.central) + lonePairs.get(d.central);
+
+  if (p.kind === "lewis_valence") {
+    if (Number(p.answer.value) !== valence) fail(rel, `${p.id}: valence answer ${p.answer.value} != re-derived ${valence}`);
+  } else if (p.kind === "lewis_domains") {
+    if (Number(p.answer.value) !== domains) fail(rel, `${p.id}: domains answer ${p.answer.value} != re-derived ${domains}`);
+  } else { // lewis_geometry — the domain count keys the sourced shape; re-derive the count, trust the naming
+    if (d.domains !== domains) fail(rel, `${p.id}: geometry domains ${d.domains} != re-derived ${domains}`);
+    if (d.lone_pairs !== lonePairs.get(d.central)) fail(rel, `${p.id}: geometry lone_pairs ${d.lone_pairs} != central's ${lonePairs.get(d.central)}`);
+    if (p.answer.value !== d.molecular_shape) fail(rel, `${p.id}: answer '${p.answer.value}' != shape '${d.molecular_shape}'`);
+    const correct = p.choices.find((c) => c.correct);
+    if (correct.display !== d.molecular_shape) fail(rel, `${p.id}: correct choice '${correct.display}' != shape '${d.molecular_shape}'`);
+  }
+  if (p.mode === "numeric") {                                  // unit + chain consistency (as the other numeric kinds)
+    if (p.answer.unit !== p.target_unit) fail(rel, `${p.id}: answer unit '${p.answer.unit}' != target_unit '${p.target_unit}'`);
+    const last = p.chain[p.chain.length - 1];
+    if (last.unit !== p.target_unit) fail(rel, `${p.id}: chain ends in '${last.unit}', not target '${p.target_unit}'`);
+    if (Number(last.value) !== Number(p.answer.value)) fail(rel, `${p.id}: chain end ${last.value} != answer ${p.answer.value}`);
+  }
+}
+
 const files = readdirSync(gymDir).filter((n) => n.endsWith(".gym.json"));
 if (files.length === 0) { console.log("validate-gyms: no *.gym.json — nothing to check."); process.exit(0); }
 
@@ -360,6 +407,9 @@ for (const name of files) {
     } else if (p.kind === "calorimetry") {
       // 1h. calorimetry (ADR-0042): re-derive q = m·c·ΔT numerically from the emitted values + the sourced c
       verifyCalorimetry(rel, p, fail);
+    } else if (p.kind === "lewis_valence" || p.kind === "lewis_domains" || p.kind === "lewis_geometry") {
+      // 1w. Lewis structures (ADR-0044): re-derive the valence total + electron-domain count from the structure
+      verifyLewis(rel, p, fail);
     } else {
       // 1c. conversion: the answer re-derives from the raw inputs; units line up; the chain ends at the answer
       const got = rederive(p.kind, p.derivation.inputs, rel, p.id);

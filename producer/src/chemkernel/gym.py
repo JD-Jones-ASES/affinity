@@ -31,6 +31,7 @@ from .balance import balance
 from .formula import parse_formula
 from .nomenclature import (assemble_with, base_cation_name, formula_ionic, greek, is_variable,
                           name_ionic, other_charge_names, roman)
+from .structure import compute_ledger
 from .units import Quantity
 
 # recognizable salts whose molar mass resolves from data/ (each parses + is built from known elements)
@@ -1663,6 +1664,221 @@ def _generate_calorimetry(seed, count, data, ctx):
     return problems
 
 
+# ------------------------------ Lewis structures (Phase 2 bonding, ADR-0044) ------------------------------
+#
+# Generated electron-counting drills off a curated molecule-skeleton corpus, each answered by the SAME engine
+# the molecule Atlas uses (`structure.compute_ledger`) — the gym never hard-codes a count, and a skeleton that
+# fails the electron ledger (conservation, octet, formal-charge sum, a covered VSEPR geometry) can't produce a
+# problem. Three kinds: **valence_total** + **electron_domains** are free-entry numeric (ADR-0032) with named
+# diagnostics (the canonical Lewis mistakes: counting all electrons not just valence, forgetting a lone pair is
+# a domain, treating a double bond as two domains); **molecular_geometry** is a categorical menu — a shape name
+# is a plausible same-form choice, and the electron-domain geometry (vs the visible molecular shape) is the star
+# distractor. The gate re-derives valence + the domain count in pure Node from the emitted structure.
+_LEWIS_MOLECULES = [
+    {"formula": "H2O", "central": "O1",
+     "atoms": [{"id": "O1", "element": "O", "lone_pairs": 2}, {"id": "H1", "element": "H", "lone_pairs": 0},
+               {"id": "H2", "element": "H", "lone_pairs": 0}],
+     "bonds": [{"a": "O1", "b": "H1", "order": 1}, {"a": "O1", "b": "H2", "order": 1}]},
+    {"formula": "CO2", "central": "C1",
+     "atoms": [{"id": "C1", "element": "C", "lone_pairs": 0}, {"id": "O1", "element": "O", "lone_pairs": 2},
+               {"id": "O2", "element": "O", "lone_pairs": 2}],
+     "bonds": [{"a": "C1", "b": "O1", "order": 2}, {"a": "C1", "b": "O2", "order": 2}]},
+    {"formula": "NH3", "central": "N1",
+     "atoms": [{"id": "N1", "element": "N", "lone_pairs": 1}, {"id": "H1", "element": "H", "lone_pairs": 0},
+               {"id": "H2", "element": "H", "lone_pairs": 0}, {"id": "H3", "element": "H", "lone_pairs": 0}],
+     "bonds": [{"a": "N1", "b": "H1", "order": 1}, {"a": "N1", "b": "H2", "order": 1},
+               {"a": "N1", "b": "H3", "order": 1}]},
+    {"formula": "CH4", "central": "C1",
+     "atoms": [{"id": "C1", "element": "C", "lone_pairs": 0}, {"id": "H1", "element": "H", "lone_pairs": 0},
+               {"id": "H2", "element": "H", "lone_pairs": 0}, {"id": "H3", "element": "H", "lone_pairs": 0},
+               {"id": "H4", "element": "H", "lone_pairs": 0}],
+     "bonds": [{"a": "C1", "b": "H1", "order": 1}, {"a": "C1", "b": "H2", "order": 1},
+               {"a": "C1", "b": "H3", "order": 1}, {"a": "C1", "b": "H4", "order": 1}]},
+    {"formula": "CH2O", "central": "C1",
+     "atoms": [{"id": "C1", "element": "C", "lone_pairs": 0}, {"id": "O1", "element": "O", "lone_pairs": 2},
+               {"id": "H1", "element": "H", "lone_pairs": 0}, {"id": "H2", "element": "H", "lone_pairs": 0}],
+     "bonds": [{"a": "C1", "b": "O1", "order": 2}, {"a": "C1", "b": "H1", "order": 1},
+               {"a": "C1", "b": "H2", "order": 1}]},
+    {"formula": "NH4^+", "central": "N1",
+     "atoms": [{"id": "N1", "element": "N", "lone_pairs": 0}, {"id": "H1", "element": "H", "lone_pairs": 0},
+               {"id": "H2", "element": "H", "lone_pairs": 0}, {"id": "H3", "element": "H", "lone_pairs": 0},
+               {"id": "H4", "element": "H", "lone_pairs": 0}],
+     "bonds": [{"a": "N1", "b": "H1", "order": 1}, {"a": "N1", "b": "H2", "order": 1},
+               {"a": "N1", "b": "H3", "order": 1}, {"a": "N1", "b": "H4", "order": 1}]},
+    {"formula": "CCl4", "central": "C1",
+     "atoms": [{"id": "C1", "element": "C", "lone_pairs": 0}, {"id": "Cl1", "element": "Cl", "lone_pairs": 3},
+               {"id": "Cl2", "element": "Cl", "lone_pairs": 3}, {"id": "Cl3", "element": "Cl", "lone_pairs": 3},
+               {"id": "Cl4", "element": "Cl", "lone_pairs": 3}],
+     "bonds": [{"a": "C1", "b": "Cl1", "order": 1}, {"a": "C1", "b": "Cl2", "order": 1},
+               {"a": "C1", "b": "Cl3", "order": 1}, {"a": "C1", "b": "Cl4", "order": 1}]},
+    {"formula": "PCl3", "central": "P1",
+     "atoms": [{"id": "P1", "element": "P", "lone_pairs": 1}, {"id": "Cl1", "element": "Cl", "lone_pairs": 3},
+               {"id": "Cl2", "element": "Cl", "lone_pairs": 3}, {"id": "Cl3", "element": "Cl", "lone_pairs": 3}],
+     "bonds": [{"a": "P1", "b": "Cl1", "order": 1}, {"a": "P1", "b": "Cl2", "order": 1},
+               {"a": "P1", "b": "Cl3", "order": 1}]},
+]
+
+_LEWIS_KINDS = ["lewis_valence", "lewis_domains", "lewis_geometry"]
+# confusable molecular shapes for a zero-lone-pair central atom (the electron geometry = the shape, so the
+# electron-geometry distractor doesn't apply) — each a plausible same-form wrong answer with its named reason.
+_SHAPE_CONFUSE = {
+    "linear": [("bent", "Bent needs a lone pair on the central atom to push the bonds together — here there is none."),
+               ("trigonal planar", "Trigonal planar has three electron domains; this central atom has two.")],
+    "trigonal planar": [("trigonal pyramidal", "Trigonal pyramidal needs a lone pair on the central atom; here it has none, so the molecule stays flat."),
+                        ("tetrahedral", "Tetrahedral has four electron domains; this central atom has three.")],
+    "tetrahedral": [("square planar", "Four electron domains repel into a tetrahedron (109.5°), not a flat square."),
+                    ("trigonal pyramidal", "Trigonal pyramidal needs a lone pair on the central atom; here all four domains are bonds.")],
+}
+_SHAPE_BY_BONDS = {2: "linear", 3: "trigonal planar", 4: "tetrahedral"}  # bonds-only (ignore lone pairs)
+
+
+def _lewis_deriv(kind, mol, led):
+    """The emitted derivation: the raw structure (so the gate re-derives valence + the domain count in Node) +,
+    for the geometry kind, the machine-derived domain/lone-pair counts + the sourced shape."""
+    d = {"kind": kind, "lewis": {
+        "formula": mol["formula"], "charge": led["charge"], "central": mol["central"],
+        "atoms": [{"id": a["id"], "element": a["element"], "lone_pairs": a["lone_pairs"]} for a in mol["atoms"]],
+        "bonds": [{"a": b["a"], "b": b["b"], "order": b["order"]} for b in mol["bonds"]]}}
+    if kind == "lewis_geometry":
+        g = led["geometry"]
+        d["lewis"]["domains"] = g["domains"]
+        d["lewis"]["lone_pairs"] = g["lone_pairs"]
+        d["lewis"]["molecular_shape"] = g["molecular_shape"]
+    return d
+
+
+def _lewis_tokens(mol):
+    return [mol["formula"], re.sub(r"\^.*$", "", mol["formula"])]
+
+
+def _lewis_valence_problem(mol, data, ctx):
+    led = compute_ledger(mol["atoms"], mol["bonds"], mol["central"], mol["formula"], data, ctx)
+    valence = led["valence_electrons"]
+    charge = led["charge"]
+    breakdown = " + ".join(f"{b['symbol']} {b['count']}×{b['per_atom']}" for b in led["valence_breakdown"])
+    total_groups = sum(b["subtotal"] for b in led["valence_breakdown"])
+    all_electrons = sum(data.elements[a["element"]].Z for a in mol["atoms"]) - charge   # counted ALL electrons
+    wrongs = [(Fraction(all_electrons),
+               "Counted every electron (the atomic numbers), not just the valence electrons — a Lewis structure "
+               "places only the outer-shell electrons (the main-group number).")]
+    if charge != 0:                                            # forgot the ion's charge adjustment
+        wrongs.append((Fraction(total_groups),
+                       f"Forgot the charge: an ion has {'fewer' if charge > 0 else 'more'} electrons — "
+                       f"{'subtract' if charge > 0 else 'add'} one per {'+' if charge > 0 else '−'} charge "
+                       f"({total_groups} {'−' if charge > 0 else '+'} {abs(charge)} = {valence})."))
+    correct, diagnostics = _numeric_response(Fraction(valence), "electrons", wrongs)
+    if not diagnostics:
+        return None
+    adj = "" if charge == 0 else f" {'−' if charge > 0 else '+'} {abs(charge)} (charge)"
+    chain = [{"value": breakdown, "unit": "", "note": "sum each atom's group valence electrons"},
+             {"value": str(valence), "unit": "electrons", "note": f"{total_groups}{adj} = the electrons to place"}]
+    explain = (f"Add up the group valence electrons: {breakdown} = {total_groups}{adj} → {valence} valence "
+               f"electrons to distribute as bonds and lone pairs.")
+    return {
+        "kind": "lewis_valence", "mode": "numeric",
+        "prompt": f"How many valence electrons are in the Lewis structure of {mol['formula']}?",
+        "chain": chain, "target_unit": "electrons",
+        "answer": {"value": str(valence), "unit": "electrons", "display": correct},
+        "derivation": _lewis_deriv("lewis_valence", mol, led),
+        "diagnostics": diagnostics, "explain": explain, "subscript_tokens": _lewis_tokens(mol),
+    }
+
+
+def _lewis_domains_problem(mol, data, ctx):
+    led = compute_ledger(mol["atoms"], mol["bonds"], mol["central"], mol["formula"], data, ctx)
+    g = led["geometry"]
+    domains, lp = g["domains"], g["lone_pairs"]
+    neighbors = domains - lp
+    central_el = g["central_element"]
+    order_to_central = next(a["bond_order_sum"] for a in led["atoms"] if a["id"] == mol["central"])
+    wrongs = []
+    if lp > 0:                                                 # forgot a lone pair is a domain
+        wrongs.append((Fraction(neighbors),
+                       f"A lone pair is an electron domain too — the central {central_el} has {lp} lone "
+                       f"pair(s), so count {neighbors} bond(s) + {lp} lone pair(s) = {domains}."))
+    if order_to_central > neighbors:                           # a multiple bond counted as several domains
+        wrongs.append((Fraction(order_to_central + lp),
+                       "A double or triple bond is still ONE electron domain — count the number of bonded "
+                       "atoms (and lone pairs), not the number of shared pairs."))
+    correct, diagnostics = _numeric_response(Fraction(domains), "domains", wrongs)
+    if not diagnostics:
+        return None                                            # all-single-bond, no-lone-pair centre: no named trap
+    chain = [{"value": f"{neighbors} bonded atom(s) + {lp} lone pair(s)", "unit": "",
+              "note": "each bonded atom and each lone pair is one electron domain"},
+             {"value": str(domains), "unit": "domains", "note": "the electron-domain (steric) number"}]
+    explain = (f"Count electron domains around the central {central_el}: {neighbors} bonded atom(s) + {lp} lone "
+               f"pair(s) = {domains}. A multiple bond counts once; lone pairs count too.")
+    return {
+        "kind": "lewis_domains", "mode": "numeric",
+        "prompt": f"How many electron domains are around the central {central_el} atom in {mol['formula']}?",
+        "chain": chain, "target_unit": "domains",
+        "answer": {"value": str(domains), "unit": "domains", "display": correct},
+        "derivation": _lewis_deriv("lewis_domains", mol, led),
+        "diagnostics": diagnostics, "explain": explain, "subscript_tokens": _lewis_tokens(mol),
+    }
+
+
+def _lewis_geometry_problem(mol, data, ctx):
+    led = compute_ledger(mol["atoms"], mol["bonds"], mol["central"], mol["formula"], data, ctx)
+    g = led["geometry"]
+    shape, egeo, lp = g["molecular_shape"], g["electron_geometry"], g["lone_pairs"]
+    neighbors = g["domains"] - lp
+    seen = {shape}
+    wrongs = []
+    if lp > 0:
+        if egeo not in seen:                                  # the electron-domain geometry — the star distractor
+            seen.add(egeo)
+            wrongs.append((egeo, f"That is the electron-domain geometry — the {lp} lone pair(s) are invisible in "
+                                 f"the named shape, which counts only the atoms, giving {shape}."))
+        bonds_only = _SHAPE_BY_BONDS.get(neighbors)
+        if bonds_only and bonds_only not in seen:             # counted only the bonds (ignored the lone pairs)
+            seen.add(bonds_only)
+            wrongs.append((bonds_only, f"Counting only the {neighbors} bonded atom(s) and ignoring the lone "
+                                       f"pair(s) gives {bonds_only} — but lone pairs take space and bend it to {shape}."))
+    else:
+        for cand, why in _SHAPE_CONFUSE.get(shape, []):
+            if cand not in seen:
+                seen.add(cand)
+                wrongs.append((cand, why))
+    if len(wrongs) < 2:
+        return None
+    choices = [{"display": shape, "correct": True, "misconception": None}]
+    for disp, why in wrongs[:2]:
+        choices.append({"display": disp, "correct": False, "misconception": why})
+    explain = (f"{mol['formula']} has {g['domains']} electron domains ({neighbors} bond(s) + {lp} lone pair(s)); "
+               f"the electron geometry is {egeo} and the molecular shape is {shape}.")
+    return {
+        "kind": "lewis_geometry", "mode": "choice",
+        "prompt": f"What is the molecular shape of {mol['formula']}?",
+        "answer": {"value": shape, "display": shape},
+        "derivation": _lewis_deriv("lewis_geometry", mol, led),
+        "choices": choices, "explain": explain, "subscript_tokens": _lewis_tokens(mol),
+    }
+
+
+def _generate_lewis(seed, count, data, ctx):
+    if not data.vsepr:
+        raise BuildError(f"{ctx}: lewis-structures gym needs data/vsepr.toml")
+    rng = random.Random(seed)
+    problems: list[dict] = []
+    seen: set = set()
+    attempts = 0
+    fns = {"lewis_valence": _lewis_valence_problem, "lewis_domains": _lewis_domains_problem,
+           "lewis_geometry": _lewis_geometry_problem}
+    while len(problems) < count and attempts < 8000:
+        attempts += 1
+        kind = _LEWIS_KINDS[len(problems) % len(_LEWIS_KINDS)]
+        q = fns[kind](rng.choice(_LEWIS_MOLECULES), data, ctx)
+        if q is None or (q["kind"], q["prompt"]) in seen:
+            continue
+        seen.add((q["kind"], q["prompt"]))
+        q["id"] = f"q{len(problems) + 1}"
+        problems.append(q)
+    if len(problems) < count:
+        raise BuildError(f"{ctx}: lewis-structures gym could not generate {count} problems at seed {seed}")
+    return problems
+
+
 _FAMILIES = {
     "solution_conversions_v1": _generate_conversions,
     "ionic_nomenclature_v1": _generate_nomenclature,
@@ -1674,6 +1890,7 @@ _FAMILIES = {
     "reaction_families_v1": _generate_reaction_families,
     "gas_laws_v1": _generate_gas_laws,
     "calorimetry_v1": _generate_calorimetry,
+    "lewis_structures_v1": _generate_lewis,
 }
 
 
@@ -1703,6 +1920,10 @@ def generate_gym(spec: dict, data, ctx: str = "") -> dict:
     if family == "calorimetry_v1":
         # the calorimetry answers use the sourced specific heats (data/specific-heats.toml, ADR-0042)
         sources["specific_heats"] = data.sources.get("specific_heats", "")
+    if family == "lewis_structures_v1":
+        # valence electrons come from the IUPAC group positions; the geometry names from the VSEPR table (ADR-0044)
+        sources["position"] = data.sources.get("position", "")
+        sources["vsepr"] = data.sources.get("vsepr", "")
 
     gym = {
         "kind": "gym",

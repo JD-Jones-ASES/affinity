@@ -63,7 +63,7 @@
             "required": ["kind"],
             "properties": {
               "kind": {
-                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield", "limiting_mass", "trend_compare", "predict_ion", "order_ionization", "classify_family", "name_spectators", "gas_ideal", "gas_combined", "calorimetry"]
+                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield", "limiting_mass", "trend_compare", "predict_ion", "order_ionization", "classify_family", "name_spectators", "gas_ideal", "gas_combined", "calorimetry", "lewis_valence", "lewis_domains", "lewis_geometry"]
               },
               "inputs": {
                 "type": "object",
@@ -157,6 +157,46 @@
                   "q": { "type": "string" }, "m": { "type": "string" },
                   "c": { "type": "string" }, "dT": { "type": "string" }
                 }
+              },
+              "lewis": {
+                "type": "object",
+                "additionalProperties": false,
+                "$comment": "Lewis-structure kinds (ADR-0044): the raw structure (atoms + bonds + central + formula + charge) so the gate re-derives the valence total (Σ group electrons − charge, from valence-table.json) and the electron-domain count in pure Node; the geometry kind adds the machine-derived domains/lone_pairs + the sourced molecular_shape.",
+                "required": ["formula", "charge", "central", "atoms", "bonds"],
+                "properties": {
+                  "formula": { "type": "string", "minLength": 1 },
+                  "charge": { "type": "integer" },
+                  "central": { "type": "string", "minLength": 1 },
+                  "atoms": {
+                    "type": "array", "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["id", "element", "lone_pairs"],
+                      "properties": {
+                        "id": { "type": "string", "minLength": 1 },
+                        "element": { "type": "string", "pattern": "^[A-Z][a-z]?$" },
+                        "lone_pairs": { "type": "integer", "minimum": 0 }
+                      }
+                    }
+                  },
+                  "bonds": {
+                    "type": "array", "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["a", "b", "order"],
+                      "properties": {
+                        "a": { "type": "string", "minLength": 1 },
+                        "b": { "type": "string", "minLength": 1 },
+                        "order": { "type": "integer", "minimum": 1 }
+                      }
+                    }
+                  },
+                  "domains": { "type": "integer", "minimum": 2 },
+                  "lone_pairs": { "type": "integer", "minimum": 0 },
+                  "molecular_shape": { "type": "string", "minLength": 1 }
+                }
               }
             }
           },
@@ -212,7 +252,8 @@
             "ionization_energy": { "type": "string" },
             "reaction_classes": { "type": "string" },
             "constants": { "type": "string" },
-            "specific_heats": { "type": "string" }
+            "specific_heats": { "type": "string" },
+            "vsepr": { "type": "string" }
           }
         }
       }

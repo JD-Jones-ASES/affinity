@@ -202,13 +202,13 @@ kinetics, electrochemistry. History in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs
 [`ROADMAP.md`](./ROADMAP.md); modules in [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
 **Counters:** 6 lessons (2 precipitation + 1 percent-yield + 1 acid-base neutralization + 1 gas-stoichiometry +
-1 thermochemistry/energy-ledger) · 10 gyms / 100 verified problems (dimensional analysis · ionic nomenclature ·
+1 thermochemistry/energy-ledger) · 11 gyms / 110 verified problems (dimensional analysis · ionic nomenclature ·
 balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas laws ·
-calorimetry) · 1 Valence Table (23 elements; four modes; 156 named + machine-verified salts) · 23 concept entries
+calorimetry · Lewis structures) · 1 Valence Table (23 elements; four modes; 156 named + machine-verified salts) · 23 concept entries
 (7 rule-sourced, 1 interpretive) + 7 reaction families (21 engine-classified example reactions) + 14 species entries
 (derived composition + molar mass) + **6 molecule structure entries** (Lewis electron ledger machine-checked + VSEPR
 geometry; ADR-0044) + 9 formula-sheet entries (dimensional homogeneity machine-checked; ADR-0039 — incl. Hess's law
-ΔH_rxn=Σν·ΔH_f°, ADR-0043) · 60 Atlas reference objects · 7 Node gates + CI + live Pages · 293 producer tests · astro build = 26 pages.
+ΔH_rxn=Σν·ΔH_f°, ADR-0043) · 60 Atlas reference objects · 7 Node gates + CI + live Pages · 298 producer tests · astro build = 27 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; the honesty
 model is three badges, regime-4 content under the model-assumed badge + an "interpretive" marker (Q4,
@@ -221,7 +221,8 @@ q=ΔH_rxn·ξ, ADR-0043; no product mass — the energy is the headline). A `mas
 emitted, ADR-0043); redox = the free-element signature, not oxidation numbers (Phase 2). The Atlas carries **all four
 brief-§10 kinds** — periodic lens, concepts, reactions, species (ADR-0038), the **formula sheet** (ADR-0039,
 machine-checked **dimensional homogeneity** via the native `chemkernel.dimension` SI-vector engine, re-derived in
-pure Node; separate from the Decimal `units.py` engine per ADR-0015) — plus a fifth structural surface, the
+pure Node; separate from the Decimal `units.py` engine per ADR-0015) — plus a fifth structural surface (also drilled
+by the **`lewis_structures_v1` gym**, ADR-0044), the
 **`molecule` kind** (ADR-0044, `chemkernel.structure`): the **Lewis electron ledger** (valence total → octet/duet →
 formal charge, all exact integer accounting **machine-checked**, re-derived in pure Node — the electron-structure
 counterpart of the species ledger) + **VSEPR geometry** (machine-derived domain count keys the sourced `data/vsepr.toml`)
@@ -238,13 +239,13 @@ each precision reflects its real arithmetic. The energy lesson wears **three bad
 ## Where this might go next (paths for a future session)
 
 **Phase 2 is open** (ADR-0039–0044). The **gas + thermochemistry tiers are complete across all surfaces**, and the
-**bonding & structure tier is open** — the Lewis electron-ledger engine + the `molecule` Atlas kind landed (ADR-0044).
-The flagged next increment (newest session log's closing block) is **the rest of the bonding tier**: a
-**`lewis_structures_v1` gym** (generated valence-electron / formal-charge / electron-domain counting drills off the
-molecule corpus — the balancing-gym pattern, fully regime-1), then a **bonding & structure lesson** (the deep vertical
-slice) and **IMFs** (build on molecular polarity); octet exceptions (BeH₂/BF₃/PCl₅/SF₆) and resonance (CO₃²⁻/NO₃⁻) are
-the corpus-depth deferrals. Then the later tiers — equilibrium/acid-base (ICE = ledger with reversible extent), kinetics
-(dξ/dt), electrochemistry (oxidation numbers → electron ledger, ΔG=−nFE) — each opening with its stress scenario.
+**bonding & structure tier is open** — the Lewis electron-ledger engine, the `molecule` Atlas kind, and the
+**`lewis_structures_v1` gym** all landed (ADR-0044). The flagged next increment (newest session log's closing block) is
+**a bonding & structure lesson** (the tier's deep vertical slice — a molecule stepped from valence electrons → Lewis
+structure → VSEPR shape → polarity, with the misconception register), then **IMFs** (build on molecular polarity); octet
+exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻), and a formal-charge gym drill (wants nonzero-FC molecules → needs
+resonance) are the corpus-depth deferrals. Then the later tiers — equilibrium/acid-base (ICE = ledger with reversible
+extent), kinetics (dξ/dt), electrochemistry (oxidation numbers → electron ledger, ΔG=−nFE) — each opening with its stress scenario.
 Smaller/optional: endothermic / multi-step Hess-cycle lessons; the gas lesson's **slider interactive** (`ExtentBar` is
 cation/anion-locked, needs its own component); calorimetry initial/final-temperature framing + cooling drills. Always in
 season inside settled contracts: more formula-sheet entries (pH, K, ΔG, Nernst land with their topics), Atlas breadth-fill

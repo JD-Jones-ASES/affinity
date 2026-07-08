@@ -5,9 +5,9 @@
 **Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — six machine-verified lessons (precipitation,
 percent yield, acid-base neutralization, **gas stoichiometry** — a weighed metal + acid whose hydrogen volume falls
 out of the ledger via PV=nRT — and now the **energy ledger** — burning methane, whose heat q = ΔH_rxn·ξ falls out of
-the ledger via Hess's law over sourced formation enthalpies), ten procedural gyms (dimensional analysis, nomenclature,
-balancing, the full stoichiometry suite, periodic trends, reaction families, **gas laws** — PV=nRT and the
-combined gas law — and now **calorimetry** — q=mcΔT), the Chemical Atlas — five reference surfaces: a typed concept graph + **7 reaction
+the ledger via Hess's law over sourced formation enthalpies), eleven procedural gyms (dimensional analysis, nomenclature,
+balancing, the full stoichiometry suite, periodic trends, reaction families, gas laws, calorimetry, and now **Lewis
+structures** — valence electrons, electron domains, molecular shape, counted exactly), the Chemical Atlas — five reference surfaces: a typed concept graph + **7 reaction
 families** with engine-classified example reactions + **14 species entries** with engine-derived molar masses +
 the **Valence Table flagship** (five lenses, trend graphs, a 156-salt formula builder, a ΔEN bonding mode over 23
 sourced elements) + the **formula & equation sheet** (the ideal gas law, calorimetry, mole–mass and more, each

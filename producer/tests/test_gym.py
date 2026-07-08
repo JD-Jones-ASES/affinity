@@ -602,3 +602,64 @@ def test_calorimetry_wrong_substance_c_is_a_diagnostic():
 def test_calorimetry_deterministic():
     assert _gym_from(SPEC_CALOR) == _gym_from(SPEC_CALOR)
     assert _gym_from(SPEC_CALOR, seed=7)["problems"] != _gym_from(SPEC_CALOR)["problems"]
+
+
+# ------------------------------ Lewis structures (Phase 2 bonding, ADR-0044) ------------------------------
+
+SPEC_LEWIS = ROOT / "gyms" / "lewis-structures" / "lewis-structures.gym.toml"
+
+
+def test_lewis_shape_kinds_and_sources():
+    g = _gym_from(SPEC_LEWIS)
+    assert g["family"] == "lewis_structures_v1" and len(g["problems"]) == 10
+    assert {p["kind"] for p in g["problems"]} == {"lewis_valence", "lewis_domains", "lewis_geometry"}
+    # valence electrons trace to the IUPAC group positions; the geometry names to the VSEPR table (ADR-0044)
+    assert g["provenance"]["sources"]["position"] == "iupac-periodic-table"
+    assert g["provenance"]["sources"]["vsepr"] == "openstax-chemistry-2e"
+    for p in g["problems"]:
+        if p["kind"] == "lewis_geometry":
+            _assert_choice_menu(p)                             # a shape name is a categorical same-form menu
+        else:
+            _assert_numeric_response(p)                        # counts are free-entry, never a gameable menu
+
+
+def test_lewis_valence_and_domains_reproduce_from_the_structure():
+    """Every counting answer re-derives independently from the emitted structure — valence = Σ group electrons −
+    charge; electron domains = the central atom's bonded neighbours + lone pairs."""
+    from chemkernel.reference import valence_electrons
+    data = ChemData.load(ROOT)
+    for p in _gym_from(SPEC_LEWIS)["problems"]:
+        d = p["derivation"]["lewis"]
+        if p["kind"] == "lewis_valence":
+            valence = sum(valence_electrons(data.elements[a["element"]]) for a in d["atoms"]) - d["charge"]
+            assert int(p["answer"]["value"]) == valence
+        elif p["kind"] == "lewis_domains":
+            lp = next(a["lone_pairs"] for a in d["atoms"] if a["id"] == d["central"])
+            neighbours = sum(1 for b in d["bonds"] if d["central"] in (b["a"], b["b"]))
+            assert int(p["answer"]["value"]) == neighbours + lp
+        else:  # lewis_geometry — the domain count keys the sourced shape, and the correct choice is that shape
+            lp = next(a["lone_pairs"] for a in d["atoms"] if a["id"] == d["central"])
+            neighbours = sum(1 for b in d["bonds"] if d["central"] in (b["a"], b["b"]))
+            assert d["domains"] == neighbours + lp and d["lone_pairs"] == lp
+            assert p["answer"]["display"] == d["molecular_shape"]
+
+
+def test_lewis_geometry_offers_the_electron_domain_geometry_distractor():
+    """A lone-pair shape (bent / trigonal pyramidal) offers its electron-domain geometry as the star distractor —
+    the 'lone pairs are invisible in the shape' misconception."""
+    problems = [p for p in _gym_from(SPEC_LEWIS)["problems"]
+                if p["kind"] == "lewis_geometry" and p["derivation"]["lewis"]["lone_pairs"] > 0]
+    assert problems, "the seeded set should contain a lone-pair geometry question"
+    assert any(any("electron-domain geometry" in c["misconception"] for c in p["choices"] if not c["correct"])
+               for p in problems)
+
+
+def test_lewis_all_electrons_diagnostic_present():
+    """A valence-total drill names the 'counted every electron, not just valence' mistake."""
+    problems = [p for p in _gym_from(SPEC_LEWIS)["problems"] if p["kind"] == "lewis_valence"]
+    assert any(any("valence electrons" in dg["misconception"] for dg in p["diagnostics"]) for p in problems)
+
+
+def test_lewis_deterministic():
+    assert _gym_from(SPEC_LEWIS) == _gym_from(SPEC_LEWIS)
+    assert _gym_from(SPEC_LEWIS, seed=42)["problems"] != _gym_from(SPEC_LEWIS)["problems"]

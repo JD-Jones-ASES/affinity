@@ -1,0 +1,19 @@
+# A procedural gym (Phase 2 bonding, ADR-0044) — the drill surface for the Lewis electron ledger. Generated off
+# a curated molecule-skeleton corpus, each problem answered by the SAME engine the molecule Atlas uses
+# (structure.compute_ledger), so a skeleton that fails the electron ledger can't produce a problem, and the Node
+# gate re-derives every count in pure Node from the emitted structure. Three kinds: **valence total** (Σ group
+# valence electrons − charge) and **electron domains** (bonded atoms + lone pairs on the central atom) are
+# free-entry numeric with named diagnostics (the canonical Lewis mistakes); **molecular geometry** is categorical,
+# with the electron-domain geometry (vs the visible shape a lone pair bends) as the star distractor. This is
+# ledger-exact counting — regime-1 machine-checked — over the same corpus the /reference/molecules/ page renders.
+
+id = "lewis-structures"
+title = "Lewis structures: the electron ledger"
+slug = "lewis-structures"
+topic = "bonding"
+family = "lewis_structures_v1"
+seed = 1732050
+count = 10
+blurb = "A Lewis structure is an electron ledger: count the valence electrons, spread them into bonds and lone pairs, and the shape follows. These drills give you a molecule and ask for its valence-electron total, the number of electron domains around the central atom, or its molecular shape. Type the counts (they are exact — this is integer accounting, machine-checked); if you slip, the drill names the mistake — counting every electron instead of just the valence ones, forgetting a lone pair is a domain, or calling a double bond two domains. The shape questions offer the electron-domain geometry as a tempting wrong answer: lone pairs are invisible in the named shape."
+skills = ["count valence electrons from the group numbers (and adjust for an ion's charge)", "count electron domains: bonded atoms plus lone pairs, a multiple bond counting once", "tell the electron-domain geometry from the molecular shape a lone pair bends (bent, trigonal pyramidal)", "read the shape off the domain count (2 linear, 3 trigonal planar, 4 tetrahedral)"]
+reference_links = ["lewis-structure", "vsepr"]

@@ -54,41 +54,21 @@ def _bond_class(delta: Decimal, data, ctx: str) -> str:
     raise BuildError(f"{ctx}: no bond class for ΔEN {delta}")
 
 
-def build_molecule_entry(spec: dict, data, ctx: str = "") -> dict:
-    """An authored molecule entry → the emitted Atlas object (ADR-0044). The electron ledger (valence total,
-    octet, per-atom formal charge) is DERIVED from the authored atoms + bonds and machine-verified; the VSEPR
-    geometry keys a sourced table on the machine-derived domain count; bond ΔEN comes from the sourced
-    electronegativities; molecular polarity is authored + disclosed. The producer refuses any structure that
-    fails electron conservation, an octet, or the formal-charge sum."""
-    for key in ("id", "kind", "title", "formula", "names", "central", "summary", "source", "atoms", "bonds"):
-        if key not in spec:
-            raise BuildError(f"{ctx}: molecule entry missing required key '{key}'")
-    if spec["kind"] != "molecule":
-        raise BuildError(f"{ctx}: build_molecule_entry got kind '{spec['kind']}'")
-    if not spec["names"]:
-        raise BuildError(f"{ctx}: molecule entry needs at least one name")
-
-    f = parse_formula(spec["formula"], ctx)
+def compute_ledger(atoms_spec: list, bonds_spec: list, central: str, formula_str: str, data,
+                   ctx: str = "") -> dict:
+    """The Lewis electron ledger of a structure — the machine-checked core (ADR-0044), shared by the molecule
+    Atlas builder and the `lewis_structures_v1` gym. Given the atoms (id, element, lone_pairs) + bonds (a, b,
+    order) + the central atom + the phase-less formula, it derives + VERIFIES the accounting and refuses any
+    structure that fails: valence total, electron conservation, per-atom octet/duet, formal charge (Σ = charge),
+    the VSEPR domain count → geometry, and each bond's ΔEN. Returns the emitted-shape blocks (latex, charge,
+    valence_electrons, valence_breakdown, electron_check, atoms, bonds, geometry)."""
+    f = parse_formula(formula_str, ctx)
     if f.phase is not None:
-        raise BuildError(f"{ctx}: molecule formula '{spec['formula']}' must be phase-less (structure is authored)")
-
-    # TOML trap #4 guard (ADR-0038): a bare key authored after a [[atoms]]/[[bonds]] header is silently
-    # absorbed into that table's last element. An atom/bond carrying an unexpected key is that absorption.
-    for a in spec["atoms"]:
-        extra = set(a) - {"id", "element", "lone_pairs"}
-        if extra:
-            raise BuildError(f"{ctx}: molecule atom carries unexpected key(s) {sorted(extra)} — a top-level "
-                             f"bare key was absorbed into the last [[atoms]] table (bare keys must precede any "
-                             f"array-of-tables header)")
-    for b in spec["bonds"]:
-        extra = set(b) - {"a", "b", "order"}
-        if extra:
-            raise BuildError(f"{ctx}: molecule bond carries unexpected key(s) {sorted(extra)} — a top-level "
-                             f"bare key was absorbed into the last [[bonds]] table")
+        raise BuildError(f"{ctx}: molecule formula '{formula_str}' must be phase-less (structure is authored)")
 
     # atoms: unique ids, known main-group elements with a defined valence-electron count
     atoms: dict[str, dict] = {}
-    for a in spec["atoms"]:
+    for a in atoms_spec:
         aid = a["id"]
         if aid in atoms:
             raise BuildError(f"{ctx}: duplicate atom id '{aid}'")
@@ -110,15 +90,15 @@ def build_molecule_entry(spec: dict, data, ctx: str = "") -> dict:
         struct_counts[at["element"]] = struct_counts.get(at["element"], 0) + 1
     if struct_counts != dict(f.counts):
         raise BuildError(f"{ctx}: the authored atoms {struct_counts} do not match the formula "
-                         f"'{spec['formula']}' composition {dict(f.counts)}")
+                         f"'{formula_str}' composition {dict(f.counts)}")
 
     # bonds: valid endpoints, positive order; accumulate per-atom bond-order totals + neighbor (domain) counts
     order_sum = {aid: 0 for aid in atoms}
     neighbors = {aid: 0 for aid in atoms}
-    if spec["central"] not in atoms:
-        raise BuildError(f"{ctx}: central atom '{spec['central']}' is not one of the atoms")
+    if central not in atoms:
+        raise BuildError(f"{ctx}: central atom '{central}' is not one of the atoms")
     bonds_out = []
-    for b in spec["bonds"]:
+    for b in bonds_spec:
         a1, a2, order = b["a"], b["b"], int(b["order"])
         if a1 not in atoms or a2 not in atoms:
             raise BuildError(f"{ctx}: bond references unknown atom(s) '{a1}'/'{a2}'")
@@ -174,7 +154,6 @@ def build_molecule_entry(spec: dict, data, ctx: str = "") -> dict:
     # ── VSEPR geometry — the machine-derived domain count keys the SOURCED table (regime-3, ADR-0044) ──
     if not data.vsepr:
         raise BuildError(f"{ctx}: molecule geometry needs data/vsepr.toml")
-    central = spec["central"]
     lp_central = atoms[central]["lone_pairs"]
     domains = neighbors[central] + lp_central
     geo = data.vsepr.get((domains, lp_central))
@@ -188,20 +167,59 @@ def build_molecule_entry(spec: dict, data, ctx: str = "") -> dict:
     if geo["angle_note"]:
         geometry["angle_note"] = geo["angle_note"]
 
+    return {
+        "latex": f.latex, "charge": charge, "valence_electrons": valence,
+        "valence_breakdown": valence_breakdown,
+        "electron_check": {"bonding": bonding_e, "nonbonding": nonbonding_e, "total": bonding_e + nonbonding_e},
+        "atoms": atoms_out, "bonds": bonds_out, "geometry": geometry,
+    }
+
+
+def build_molecule_entry(spec: dict, data, ctx: str = "") -> dict:
+    """An authored molecule entry → the emitted Atlas object (ADR-0044). The electron ledger (valence total,
+    octet, per-atom formal charge) is DERIVED from the authored atoms + bonds and machine-verified (via
+    `compute_ledger`); the VSEPR geometry keys a sourced table on the machine-derived domain count; bond ΔEN
+    comes from the sourced electronegativities; molecular polarity is authored + disclosed. The producer refuses
+    any structure that fails electron conservation, an octet, or the formal-charge sum."""
+    for key in ("id", "kind", "title", "formula", "names", "central", "summary", "source", "atoms", "bonds"):
+        if key not in spec:
+            raise BuildError(f"{ctx}: molecule entry missing required key '{key}'")
+    if spec["kind"] != "molecule":
+        raise BuildError(f"{ctx}: build_molecule_entry got kind '{spec['kind']}'")
+    if not spec["names"]:
+        raise BuildError(f"{ctx}: molecule entry needs at least one name")
+
+    # TOML trap #4 guard (ADR-0038): a bare key authored after a [[atoms]]/[[bonds]] header is silently
+    # absorbed into that table's last element. An atom/bond carrying an unexpected key is that absorption.
+    for a in spec["atoms"]:
+        extra = set(a) - {"id", "element", "lone_pairs"}
+        if extra:
+            raise BuildError(f"{ctx}: molecule atom carries unexpected key(s) {sorted(extra)} — a top-level "
+                             f"bare key was absorbed into the last [[atoms]] table (bare keys must precede any "
+                             f"array-of-tables header)")
+    for b in spec["bonds"]:
+        extra = set(b) - {"a", "b", "order"}
+        if extra:
+            raise BuildError(f"{ctx}: molecule bond carries unexpected key(s) {sorted(extra)} — a top-level "
+                             f"bare key was absorbed into the last [[bonds]] table")
+
+    led = compute_ledger(spec["atoms"], spec["bonds"], spec["central"], spec["formula"], data, ctx)
+    charge = led["charge"]
+
     entry = {
         "kind": "molecule",
         "id": spec["id"],
         "title": spec["title"],
         "formula": spec["formula"],
-        "latex": f.latex,
+        "latex": led["latex"],
         "names": list(spec["names"]),
         "charge": charge,
-        "valence_electrons": valence,
-        "valence_breakdown": valence_breakdown,
-        "electron_check": {"bonding": bonding_e, "nonbonding": nonbonding_e, "total": bonding_e + nonbonding_e},
-        "atoms": atoms_out,
-        "bonds": bonds_out,
-        "geometry": geometry,
+        "valence_electrons": led["valence_electrons"],
+        "valence_breakdown": led["valence_breakdown"],
+        "electron_check": led["electron_check"],
+        "atoms": led["atoms"],
+        "bonds": led["bonds"],
+        "geometry": led["geometry"],
         "summary": spec["summary"],
         "source": spec["source"],
         "en_source": data.sources.get("electronegativity", ""),

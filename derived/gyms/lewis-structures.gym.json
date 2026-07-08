@@ -1,0 +1,838 @@
+{
+  "kind": "gym",
+  "id": "lewis-structures",
+  "title": "Lewis structures: the electron ledger",
+  "slug": "lewis-structures",
+  "topic": "bonding",
+  "family": "lewis_structures_v1",
+  "seed": 1732050,
+  "blurb": "A Lewis structure is an electron ledger: count the valence electrons, spread them into bonds and lone pairs, and the shape follows. These drills give you a molecule and ask for its valence-electron total, the number of electron domains around the central atom, or its molecular shape. Type the counts (they are exact — this is integer accounting, machine-checked); if you slip, the drill names the mistake — counting every electron instead of just the valence ones, forgetting a lone pair is a domain, or calling a double bond two domains. The shape questions offer the electron-domain geometry as a tempting wrong answer: lone pairs are invisible in the named shape.",
+  "skills": [
+    "count valence electrons from the group numbers (and adjust for an ion's charge)",
+    "count electron domains: bonded atoms plus lone pairs, a multiple bond counting once",
+    "tell the electron-domain geometry from the molecular shape a lone pair bends (bent, trigonal pyramidal)",
+    "read the shape off the domain count (2 linear, 3 trigonal planar, 4 tetrahedral)"
+  ],
+  "reference_links": [
+    "lewis-structure",
+    "vsepr"
+  ],
+  "problems": [
+    {
+      "kind": "lewis_valence",
+      "mode": "numeric",
+      "prompt": "How many valence electrons are in the Lewis structure of PCl3?",
+      "chain": [
+        {
+          "value": "Cl 3×7 + P 1×5",
+          "unit": "",
+          "note": "sum each atom's group valence electrons"
+        },
+        {
+          "value": "26",
+          "unit": "electrons",
+          "note": "26 = the electrons to place"
+        }
+      ],
+      "target_unit": "electrons",
+      "answer": {
+        "value": "26",
+        "unit": "electrons",
+        "display": "26 electrons"
+      },
+      "derivation": {
+        "kind": "lewis_valence",
+        "lewis": {
+          "formula": "PCl3",
+          "charge": 0,
+          "central": "P1",
+          "atoms": [
+            {
+              "id": "P1",
+              "element": "P",
+              "lone_pairs": 1
+            },
+            {
+              "id": "Cl1",
+              "element": "Cl",
+              "lone_pairs": 3
+            },
+            {
+              "id": "Cl2",
+              "element": "Cl",
+              "lone_pairs": 3
+            },
+            {
+              "id": "Cl3",
+              "element": "Cl",
+              "lone_pairs": 3
+            }
+          ],
+          "bonds": [
+            {
+              "a": "P1",
+              "b": "Cl1",
+              "order": 1
+            },
+            {
+              "a": "P1",
+              "b": "Cl2",
+              "order": 1
+            },
+            {
+              "a": "P1",
+              "b": "Cl3",
+              "order": 1
+            }
+          ]
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "66",
+          "unit": "electrons",
+          "misconception": "Counted every electron (the atomic numbers), not just the valence electrons — a Lewis structure places only the outer-shell electrons (the main-group number)."
+        }
+      ],
+      "explain": "Add up the group valence electrons: Cl 3×7 + P 1×5 = 26 → 26 valence electrons to distribute as bonds and lone pairs.",
+      "subscript_tokens": [
+        "PCl3",
+        "PCl3"
+      ],
+      "id": "q1"
+    },
+    {
+      "kind": "lewis_domains",
+      "mode": "numeric",
+      "prompt": "How many electron domains are around the central N atom in NH3?",
+      "chain": [
+        {
+          "value": "3 bonded atom(s) + 1 lone pair(s)",
+          "unit": "",
+          "note": "each bonded atom and each lone pair is one electron domain"
+        },
+        {
+          "value": "4",
+          "unit": "domains",
+          "note": "the electron-domain (steric) number"
+        }
+      ],
+      "target_unit": "domains",
+      "answer": {
+        "value": "4",
+        "unit": "domains",
+        "display": "4 domains"
+      },
+      "derivation": {
+        "kind": "lewis_domains",
+        "lewis": {
+          "formula": "NH3",
+          "charge": 0,
+          "central": "N1",
+          "atoms": [
+            {
+              "id": "N1",
+              "element": "N",
+              "lone_pairs": 1
+            },
+            {
+              "id": "H1",
+              "element": "H",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H2",
+              "element": "H",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H3",
+              "element": "H",
+              "lone_pairs": 0
+            }
+          ],
+          "bonds": [
+            {
+              "a": "N1",
+              "b": "H1",
+              "order": 1
+            },
+            {
+              "a": "N1",
+              "b": "H2",
+              "order": 1
+            },
+            {
+              "a": "N1",
+              "b": "H3",
+              "order": 1
+            }
+          ]
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "3",
+          "unit": "domains",
+          "misconception": "A lone pair is an electron domain too — the central N has 1 lone pair(s), so count 3 bond(s) + 1 lone pair(s) = 4."
+        }
+      ],
+      "explain": "Count electron domains around the central N: 3 bonded atom(s) + 1 lone pair(s) = 4. A multiple bond counts once; lone pairs count too.",
+      "subscript_tokens": [
+        "NH3",
+        "NH3"
+      ],
+      "id": "q2"
+    },
+    {
+      "kind": "lewis_geometry",
+      "mode": "choice",
+      "prompt": "What is the molecular shape of CH4?",
+      "answer": {
+        "value": "tetrahedral",
+        "display": "tetrahedral"
+      },
+      "derivation": {
+        "kind": "lewis_geometry",
+        "lewis": {
+          "formula": "CH4",
+          "charge": 0,
+          "central": "C1",
+          "atoms": [
+            {
+              "id": "C1",
+              "element": "C",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H1",
+              "element": "H",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H2",
+              "element": "H",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H3",
+              "element": "H",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H4",
+              "element": "H",
+              "lone_pairs": 0
+            }
+          ],
+          "bonds": [
+            {
+              "a": "C1",
+              "b": "H1",
+              "order": 1
+            },
+            {
+              "a": "C1",
+              "b": "H2",
+              "order": 1
+            },
+            {
+              "a": "C1",
+              "b": "H3",
+              "order": 1
+            },
+            {
+              "a": "C1",
+              "b": "H4",
+              "order": 1
+            }
+          ],
+          "domains": 4,
+          "lone_pairs": 0,
+          "molecular_shape": "tetrahedral"
+        }
+      },
+      "choices": [
+        {
+          "display": "tetrahedral",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "square planar",
+          "correct": false,
+          "misconception": "Four electron domains repel into a tetrahedron (109.5°), not a flat square."
+        },
+        {
+          "display": "trigonal pyramidal",
+          "correct": false,
+          "misconception": "Trigonal pyramidal needs a lone pair on the central atom; here all four domains are bonds."
+        }
+      ],
+      "explain": "CH4 has 4 electron domains (4 bond(s) + 0 lone pair(s)); the electron geometry is tetrahedral and the molecular shape is tetrahedral.",
+      "subscript_tokens": [
+        "CH4",
+        "CH4"
+      ],
+      "id": "q3"
+    },
+    {
+      "kind": "lewis_valence",
+      "mode": "numeric",
+      "prompt": "How many valence electrons are in the Lewis structure of CH4?",
+      "chain": [
+        {
+          "value": "C 1×4 + H 4×1",
+          "unit": "",
+          "note": "sum each atom's group valence electrons"
+        },
+        {
+          "value": "8",
+          "unit": "electrons",
+          "note": "8 = the electrons to place"
+        }
+      ],
+      "target_unit": "electrons",
+      "answer": {
+        "value": "8",
+        "unit": "electrons",
+        "display": "8 electrons"
+      },
+      "derivation": {
+        "kind": "lewis_valence",
+        "lewis": {
+          "formula": "CH4",
+          "charge": 0,
+          "central": "C1",
+          "atoms": [
+            {
+              "id": "C1",
+              "element": "C",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H1",
+              "element": "H",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H2",
+              "element": "H",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H3",
+              "element": "H",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H4",
+              "element": "H",
+              "lone_pairs": 0
+            }
+          ],
+          "bonds": [
+            {
+              "a": "C1",
+              "b": "H1",
+              "order": 1
+            },
+            {
+              "a": "C1",
+              "b": "H2",
+              "order": 1
+            },
+            {
+              "a": "C1",
+              "b": "H3",
+              "order": 1
+            },
+            {
+              "a": "C1",
+              "b": "H4",
+              "order": 1
+            }
+          ]
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "10",
+          "unit": "electrons",
+          "misconception": "Counted every electron (the atomic numbers), not just the valence electrons — a Lewis structure places only the outer-shell electrons (the main-group number)."
+        }
+      ],
+      "explain": "Add up the group valence electrons: C 1×4 + H 4×1 = 8 → 8 valence electrons to distribute as bonds and lone pairs.",
+      "subscript_tokens": [
+        "CH4",
+        "CH4"
+      ],
+      "id": "q4"
+    },
+    {
+      "kind": "lewis_domains",
+      "mode": "numeric",
+      "prompt": "How many electron domains are around the central O atom in H2O?",
+      "chain": [
+        {
+          "value": "2 bonded atom(s) + 2 lone pair(s)",
+          "unit": "",
+          "note": "each bonded atom and each lone pair is one electron domain"
+        },
+        {
+          "value": "4",
+          "unit": "domains",
+          "note": "the electron-domain (steric) number"
+        }
+      ],
+      "target_unit": "domains",
+      "answer": {
+        "value": "4",
+        "unit": "domains",
+        "display": "4 domains"
+      },
+      "derivation": {
+        "kind": "lewis_domains",
+        "lewis": {
+          "formula": "H2O",
+          "charge": 0,
+          "central": "O1",
+          "atoms": [
+            {
+              "id": "O1",
+              "element": "O",
+              "lone_pairs": 2
+            },
+            {
+              "id": "H1",
+              "element": "H",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H2",
+              "element": "H",
+              "lone_pairs": 0
+            }
+          ],
+          "bonds": [
+            {
+              "a": "O1",
+              "b": "H1",
+              "order": 1
+            },
+            {
+              "a": "O1",
+              "b": "H2",
+              "order": 1
+            }
+          ]
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "2",
+          "unit": "domains",
+          "misconception": "A lone pair is an electron domain too — the central O has 2 lone pair(s), so count 2 bond(s) + 2 lone pair(s) = 4."
+        }
+      ],
+      "explain": "Count electron domains around the central O: 2 bonded atom(s) + 2 lone pair(s) = 4. A multiple bond counts once; lone pairs count too.",
+      "subscript_tokens": [
+        "H2O",
+        "H2O"
+      ],
+      "id": "q5"
+    },
+    {
+      "kind": "lewis_geometry",
+      "mode": "choice",
+      "prompt": "What is the molecular shape of PCl3?",
+      "answer": {
+        "value": "trigonal pyramidal",
+        "display": "trigonal pyramidal"
+      },
+      "derivation": {
+        "kind": "lewis_geometry",
+        "lewis": {
+          "formula": "PCl3",
+          "charge": 0,
+          "central": "P1",
+          "atoms": [
+            {
+              "id": "P1",
+              "element": "P",
+              "lone_pairs": 1
+            },
+            {
+              "id": "Cl1",
+              "element": "Cl",
+              "lone_pairs": 3
+            },
+            {
+              "id": "Cl2",
+              "element": "Cl",
+              "lone_pairs": 3
+            },
+            {
+              "id": "Cl3",
+              "element": "Cl",
+              "lone_pairs": 3
+            }
+          ],
+          "bonds": [
+            {
+              "a": "P1",
+              "b": "Cl1",
+              "order": 1
+            },
+            {
+              "a": "P1",
+              "b": "Cl2",
+              "order": 1
+            },
+            {
+              "a": "P1",
+              "b": "Cl3",
+              "order": 1
+            }
+          ],
+          "domains": 4,
+          "lone_pairs": 1,
+          "molecular_shape": "trigonal pyramidal"
+        }
+      },
+      "choices": [
+        {
+          "display": "trigonal pyramidal",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "tetrahedral",
+          "correct": false,
+          "misconception": "That is the electron-domain geometry — the 1 lone pair(s) are invisible in the named shape, which counts only the atoms, giving trigonal pyramidal."
+        },
+        {
+          "display": "trigonal planar",
+          "correct": false,
+          "misconception": "Counting only the 3 bonded atom(s) and ignoring the lone pair(s) gives trigonal planar — but lone pairs take space and bend it to trigonal pyramidal."
+        }
+      ],
+      "explain": "PCl3 has 4 electron domains (3 bond(s) + 1 lone pair(s)); the electron geometry is tetrahedral and the molecular shape is trigonal pyramidal.",
+      "subscript_tokens": [
+        "PCl3",
+        "PCl3"
+      ],
+      "id": "q6"
+    },
+    {
+      "kind": "lewis_valence",
+      "mode": "numeric",
+      "prompt": "How many valence electrons are in the Lewis structure of CO2?",
+      "chain": [
+        {
+          "value": "C 1×4 + O 2×6",
+          "unit": "",
+          "note": "sum each atom's group valence electrons"
+        },
+        {
+          "value": "16",
+          "unit": "electrons",
+          "note": "16 = the electrons to place"
+        }
+      ],
+      "target_unit": "electrons",
+      "answer": {
+        "value": "16",
+        "unit": "electrons",
+        "display": "16 electrons"
+      },
+      "derivation": {
+        "kind": "lewis_valence",
+        "lewis": {
+          "formula": "CO2",
+          "charge": 0,
+          "central": "C1",
+          "atoms": [
+            {
+              "id": "C1",
+              "element": "C",
+              "lone_pairs": 0
+            },
+            {
+              "id": "O1",
+              "element": "O",
+              "lone_pairs": 2
+            },
+            {
+              "id": "O2",
+              "element": "O",
+              "lone_pairs": 2
+            }
+          ],
+          "bonds": [
+            {
+              "a": "C1",
+              "b": "O1",
+              "order": 2
+            },
+            {
+              "a": "C1",
+              "b": "O2",
+              "order": 2
+            }
+          ]
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "22",
+          "unit": "electrons",
+          "misconception": "Counted every electron (the atomic numbers), not just the valence electrons — a Lewis structure places only the outer-shell electrons (the main-group number)."
+        }
+      ],
+      "explain": "Add up the group valence electrons: C 1×4 + O 2×6 = 16 → 16 valence electrons to distribute as bonds and lone pairs.",
+      "subscript_tokens": [
+        "CO2",
+        "CO2"
+      ],
+      "id": "q7"
+    },
+    {
+      "kind": "lewis_domains",
+      "mode": "numeric",
+      "prompt": "How many electron domains are around the central C atom in CO2?",
+      "chain": [
+        {
+          "value": "2 bonded atom(s) + 0 lone pair(s)",
+          "unit": "",
+          "note": "each bonded atom and each lone pair is one electron domain"
+        },
+        {
+          "value": "2",
+          "unit": "domains",
+          "note": "the electron-domain (steric) number"
+        }
+      ],
+      "target_unit": "domains",
+      "answer": {
+        "value": "2",
+        "unit": "domains",
+        "display": "2 domains"
+      },
+      "derivation": {
+        "kind": "lewis_domains",
+        "lewis": {
+          "formula": "CO2",
+          "charge": 0,
+          "central": "C1",
+          "atoms": [
+            {
+              "id": "C1",
+              "element": "C",
+              "lone_pairs": 0
+            },
+            {
+              "id": "O1",
+              "element": "O",
+              "lone_pairs": 2
+            },
+            {
+              "id": "O2",
+              "element": "O",
+              "lone_pairs": 2
+            }
+          ],
+          "bonds": [
+            {
+              "a": "C1",
+              "b": "O1",
+              "order": 2
+            },
+            {
+              "a": "C1",
+              "b": "O2",
+              "order": 2
+            }
+          ]
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "4",
+          "unit": "domains",
+          "misconception": "A double or triple bond is still ONE electron domain — count the number of bonded atoms (and lone pairs), not the number of shared pairs."
+        }
+      ],
+      "explain": "Count electron domains around the central C: 2 bonded atom(s) + 0 lone pair(s) = 2. A multiple bond counts once; lone pairs count too.",
+      "subscript_tokens": [
+        "CO2",
+        "CO2"
+      ],
+      "id": "q8"
+    },
+    {
+      "kind": "lewis_geometry",
+      "mode": "choice",
+      "prompt": "What is the molecular shape of NH3?",
+      "answer": {
+        "value": "trigonal pyramidal",
+        "display": "trigonal pyramidal"
+      },
+      "derivation": {
+        "kind": "lewis_geometry",
+        "lewis": {
+          "formula": "NH3",
+          "charge": 0,
+          "central": "N1",
+          "atoms": [
+            {
+              "id": "N1",
+              "element": "N",
+              "lone_pairs": 1
+            },
+            {
+              "id": "H1",
+              "element": "H",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H2",
+              "element": "H",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H3",
+              "element": "H",
+              "lone_pairs": 0
+            }
+          ],
+          "bonds": [
+            {
+              "a": "N1",
+              "b": "H1",
+              "order": 1
+            },
+            {
+              "a": "N1",
+              "b": "H2",
+              "order": 1
+            },
+            {
+              "a": "N1",
+              "b": "H3",
+              "order": 1
+            }
+          ],
+          "domains": 4,
+          "lone_pairs": 1,
+          "molecular_shape": "trigonal pyramidal"
+        }
+      },
+      "choices": [
+        {
+          "display": "trigonal pyramidal",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "tetrahedral",
+          "correct": false,
+          "misconception": "That is the electron-domain geometry — the 1 lone pair(s) are invisible in the named shape, which counts only the atoms, giving trigonal pyramidal."
+        },
+        {
+          "display": "trigonal planar",
+          "correct": false,
+          "misconception": "Counting only the 3 bonded atom(s) and ignoring the lone pair(s) gives trigonal planar — but lone pairs take space and bend it to trigonal pyramidal."
+        }
+      ],
+      "explain": "NH3 has 4 electron domains (3 bond(s) + 1 lone pair(s)); the electron geometry is tetrahedral and the molecular shape is trigonal pyramidal.",
+      "subscript_tokens": [
+        "NH3",
+        "NH3"
+      ],
+      "id": "q9"
+    },
+    {
+      "kind": "lewis_valence",
+      "mode": "numeric",
+      "prompt": "How many valence electrons are in the Lewis structure of H2O?",
+      "chain": [
+        {
+          "value": "H 2×1 + O 1×6",
+          "unit": "",
+          "note": "sum each atom's group valence electrons"
+        },
+        {
+          "value": "8",
+          "unit": "electrons",
+          "note": "8 = the electrons to place"
+        }
+      ],
+      "target_unit": "electrons",
+      "answer": {
+        "value": "8",
+        "unit": "electrons",
+        "display": "8 electrons"
+      },
+      "derivation": {
+        "kind": "lewis_valence",
+        "lewis": {
+          "formula": "H2O",
+          "charge": 0,
+          "central": "O1",
+          "atoms": [
+            {
+              "id": "O1",
+              "element": "O",
+              "lone_pairs": 2
+            },
+            {
+              "id": "H1",
+              "element": "H",
+              "lone_pairs": 0
+            },
+            {
+              "id": "H2",
+              "element": "H",
+              "lone_pairs": 0
+            }
+          ],
+          "bonds": [
+            {
+              "a": "O1",
+              "b": "H1",
+              "order": 1
+            },
+            {
+              "a": "O1",
+              "b": "H2",
+              "order": 1
+            }
+          ]
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "10",
+          "unit": "electrons",
+          "misconception": "Counted every electron (the atomic numbers), not just the valence electrons — a Lewis structure places only the outer-shell electrons (the main-group number)."
+        }
+      ],
+      "explain": "Add up the group valence electrons: H 2×1 + O 1×6 = 8 → 8 valence electrons to distribute as bonds and lone pairs.",
+      "subscript_tokens": [
+        "H2O",
+        "H2O"
+      ],
+      "id": "q10"
+    }
+  ],
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights",
+      "position": "iupac-periodic-table",
+      "vsepr": "openstax-chemistry-2e"
+    }
+  }
+}

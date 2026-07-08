@@ -3,6 +3,26 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — Lewis-structures gym: generated electron-counting drills (ADR-0044, 2nd increment)
+
+The electron ledger earns its drill surface — the practice half of the bonding tier opener.
+
+- **Refactor:** `structure.compute_ledger` extracted from `build_molecule_entry` (molecule derived JSON byte-identical),
+  so the gym's answers come from the SAME verified engine the Atlas uses.
+- **`lewis_structures_v1` gym** over an 8-molecule skeleton corpus (the 6 Atlas molecules + CCl₄ + PCl₃). Three kinds:
+  **valence total** + **electron domains** are free-entry numeric with named diagnostics (counting *all* electrons not
+  just valence; forgetting a lone pair is a domain; a double bond as two domains); **molecular geometry** is categorical,
+  with the **electron-domain geometry** (tetrahedral for bent/pyramidal) as the star distractor. Regime-1 machine-checked
+  counting — no model badge; the sourced badge names the IUPAC group positions + the VSEPR table.
+- **Gate:** `validate-gyms` re-derives valence (Σ group electrons − charge, from `valence-table.json`) + the domain count
+  in pure Node. **6-way tamper-tested** (corrupt a valence/domains answer / a geometry shape / a central lone-pair count /
+  a numeric-question menu / a too-close diagnostic — each caught).
+- **Player:** `/gym/lewis-structures/` (the generic free-entry island + a lewis chain caption + the source badge);
+  concept chips resolve to `lewis-structure` + `vsepr`.
+- **Verification:** **298 producer tests** (+5); **validate-gyms = 11 gyms / 110 problems** (+1/+10); 7 gates green;
+  **27 pages** (+1); `derived/` byte-stable, no existing derived changed. In-browser: entering the "all electrons"
+  wrong answer (66 for PCl₃) → "the answer is 26 electrons" + the named diagnostic + the "Cl 3×7 + P 1×5 = 26" chain.
+
 ## Phase 2 — 2026-07-08 — bonding & structure tier opened: the Lewis electron-ledger engine + molecule Atlas kind (ADR-0044)
 
 The next Phase-2 tier opens with its machine-checkable instrument. The Lewis structure is an **electron ledger** — the

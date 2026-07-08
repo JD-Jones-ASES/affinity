@@ -111,6 +111,17 @@ A `family` selects the generator in `chemkernel.gym.generate_gym`. Today:
   model-assumed badge). Solving for c is the identify-the-substance experiment. ΔT is a temperature *difference*
   (°C = K, no offset). The `derivation` carries a `calorimetry` block (the solved variable + substance + the three
   given values). Named diagnostics: using another substance's specific heat, and dropping a factor.
+- **`lewis_structures_v1`** (ADR-0044) — the bonding-tier drill: the **Lewis electron ledger**, back to **regime-1**
+  (exact integer counting — no model badge). Generated off a curated molecule-skeleton corpus, each answer computed by
+  the SAME engine the molecule Atlas uses (`structure.compute_ledger`), so nothing is hard-coded. Three kinds:
+  `lewis_valence` (valence-electron total = Σ group electrons − charge) and `lewis_domains` (electron domains around the
+  central atom = bonded neighbours + lone pairs) are **numeric free-entry**; `lewis_geometry` (the molecular shape) is
+  **categorical**, its star distractor the electron-domain geometry (offered for a bent/pyramidal molecule — "lone pairs
+  are invisible in the named shape"). The `derivation` carries a `lewis` block (the raw structure: atoms + bonds +
+  central + formula + charge); the gate re-derives the valence total (from `valence-table.json`) + the domain count in
+  pure Node. Named diagnostics: counting *all* electrons not just valence (the atomic-number sum), forgetting a lone pair
+  is a domain, treating a double bond as two domains. Sourced badge: the IUPAC group positions + the VSEPR table. A
+  molecule with all single bonds and no central lone pair yields no named numeric trap and is skipped.
 
 Adding a new procedural skill means adding a new `family` to `generate_gym` and, if it introduces a new answer
 shape, a per-kind branch to `validate-gyms.mjs` so the gate can re-derive it. It does **not** mean new plumbing.

@@ -1346,3 +1346,21 @@ existing derived changed. **Deferred within the tier:** octet exceptions (electr
 resonance (CO₃²⁻/NO₃⁻ — needs equivalent-structure handling), a `lewis_structures_v1` gym (generated counting drills off
 the corpus — valence electrons / formal charge / domain count, the balancing-gym pattern), a bonding & structure lesson
 (the deep vertical slice), and IMFs (which build on molecular polarity).
+
+**Second increment (same session) — the `lewis_structures_v1` gym.** The electron ledger earns its drill surface. First
+a **pure refactor**: the ledger computation is extracted from `build_molecule_entry` into `structure.compute_ledger`
+(byte-identical molecule output verified), so the gym answers come from the SAME engine the Atlas uses — never a
+hard-coded count. The gym generates off an 8-molecule skeleton corpus (the 6 Atlas molecules + CCl₄ + PCl₃, for valence
+variety) with three kinds: **valence_total** + **electron_domains** are free-entry numeric (ADR-0032) with named
+diagnostics (the canonical Lewis mistakes: counting *all* electrons not just valence — the atomic-number sum; forgetting a
+lone pair is a domain; treating a double bond as two domains); **molecular_geometry** is a categorical menu whose star
+distractor is the **electron-domain geometry** (tetrahedral offered for bent H₂O / pyramidal NH₃ — "lone pairs are
+invisible in the named shape"), plus the bonds-only shape (ignoring lone pairs). The gate re-derives valence (Σ group
+electrons − charge, from `valence-table.json`) + the domain count in pure Node; a molecule with all single bonds and no
+lone pairs on the centre yields no named numeric trap, so it's skipped (rotation fills from the rest). Regime-1
+(machine-checked counting) — no model badge; the sourced badge names the IUPAC group positions + the VSEPR table. 298
+producer tests (+5); **validate-gyms = 11 gyms / 110 problems** (+1/+10); 27 pages (+1); `derived/` byte-stable (only the
+new gym; the refactor left the molecule JSONs byte-identical). 6-way tamper-tested (corrupt a valence/domains answer / a
+geometry shape / the central lone-pair count / a numeric-question menu / a too-close diagnostic — each caught). A design
+note: the electron-domain **count** is bond-order-independent (a multiple bond is one domain), so the gym gate correctly
+does not depend on bond order.

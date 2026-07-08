@@ -41,6 +41,7 @@ const isTrends = gym.family === "periodic_trends_v1";
 const isFamilies = gym.family === "reaction_families_v1";
 const isGas = gym.family === "gas_laws_v1";
 const isCalor = gym.family === "calorimetry_v1";
+const isLewis = gym.family === "lewis_structures_v1";
 const sourceLabel = isTrends
   ? `properties sourced (${[gymSources.electronegativity, gymSources.covalent_radius, gymSources.ionization_energy].filter(Boolean).join(", ")})`
   : isFamilies
@@ -49,8 +50,10 @@ const sourceLabel = isTrends
   ? `gas constant sourced (${gymSources.constants})`
   : isCalor
   ? `specific heats sourced (${gymSources.specific_heats})`
+  : isLewis
+  ? `group positions + VSEPR sourced (${[gymSources.position, gymSources.vsepr].filter(Boolean).join(", ")})`
   : `molar masses sourced (${gymSources.atomic_weight})`;
-const source = isTrends ? gymSources.ionization_energy : isFamilies ? gymSources.reaction_classes : isGas ? gymSources.constants : isCalor ? gymSources.specific_heats : gymSources.atomic_weight;
+const source = isTrends ? gymSources.ionization_energy : isFamilies ? gymSources.reaction_classes : isGas ? gymSources.constants : isCalor ? gymSources.specific_heats : isLewis ? gymSources.vsepr : gymSources.atomic_weight;
 // a regime-2 gym discloses its model assumption under the model-assumed (amber) badge (ADR-0040)
 const assumptions = gym.assumptions ?? [];
 ---
