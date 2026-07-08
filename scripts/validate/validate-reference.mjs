@@ -13,6 +13,7 @@ import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { verifyBalance, redoxFreeElements } from "./balancecheck.mjs";
 import { parseFormula } from "./formula.mjs";
+import { unitDimension, eq as dimEq, addScaled, DIMENSIONLESS } from "./dimension.mjs";
 
 const ROOT = process.cwd();
 const refDir = join(ROOT, "derived", "reference");
@@ -28,6 +29,7 @@ const schemas = {
   concept: ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas", "reference.schema.json"), "utf8"))),
   "reaction-family": ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas", "reaction-family.schema.json"), "utf8"))),
   species: ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas", "species.schema.json"), "utf8"))),
+  formula: ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas", "formula.schema.json"), "utf8"))),
 };
 
 const fail = (file, msg) => { console.error(`REFERENCE GATE FAILED — ${file}: ${msg}`); process.exit(1); };
@@ -156,6 +158,52 @@ for (const { rel, obj } of entries) {
     }
     if (Math.abs(total - Number(obj.molar_mass_g_per_mol)) > 1e-6)
       fail(rel, `molar_mass '${obj.molar_mass_g_per_mol}' != Σ subtotals = ${total}`);
+  } else if (obj.kind === "formula") {
+    // ADR-0039: a formula entry's DIMENSIONAL HOMOGENEITY is re-derived in pure Node. Each variable's
+    // dimension re-derives from its unit (this gate's own definitional table, independent of Python); each
+    // term's dimension re-derives from those variable dimensions + factor powers; and every term must share
+    // ONE dimension — that is what makes the equation dimensionally admissible. We do NOT re-check that the
+    // relation is *true* (a model-exact relation carries the model-assumed badge); we re-check that it is
+    // dimensionally consistent, and that it discloses its model.
+    for (const e of obj.related) if (!ids.has(e.to)) fail(rel, `related edge → '${e.to}' resolves to no reference`);
+    for (const s of obj.lessons) if (!slugs.has(s)) fail(rel, `lesson '${s}' is not a real lesson slug`);
+    for (const s of obj.sources ?? []) if (!registeredSources.has(s)) fail(rel, `source '${s}' is not registered in docs/SOURCES.md`);
+
+    const varDim = new Map();
+    for (const v of obj.variables) {
+      let want;
+      try { want = unitDimension(v.unit); }
+      catch (e) { fail(rel, `variable '${v.symbol}': ${e.message}`); }
+      if (!dimEq(v.dimension, want))
+        fail(rel, `variable '${v.symbol}' (${v.unit}) dimension [${v.dimension}] != re-derived [${want}]`);
+      if (varDim.has(v.symbol)) fail(rel, `duplicate variable symbol '${v.symbol}'`);
+      varDim.set(v.symbol, v.dimension);
+      // a threaded constant must cite a source the entry also lists (register-checked above)
+      if (v.constant && !(obj.sources ?? []).includes(v.constant.source))
+        fail(rel, `variable '${v.symbol}' constant source '${v.constant.source}' not in the entry's sources`);
+    }
+
+    const sides = new Set();
+    let common = null;
+    for (const t of obj.terms) {
+      sides.add(t.side);
+      let d = DIMENSIONLESS;
+      for (const f of t.factors) {
+        if (!varDim.has(f.var)) fail(rel, `term '${t.display}' references unknown variable '${f.var}'`);
+        d = addScaled(d, varDim.get(f.var), f.power);
+      }
+      if (!dimEq(d, t.dimension))
+        fail(rel, `term '${t.display}' dimension [${t.dimension}] != re-derived [${d}]`);
+      if (common === null) common = d;
+      else if (!dimEq(d, common))
+        fail(rel, `not homogeneous — term '${t.display}' is [${d}] but another term is [${common}]`);
+    }
+    if (sides.size < 2) fail(rel, `all terms on one side — an equation needs both sides`);
+    if (!dimEq(common, obj.dimension))
+      fail(rel, `emitted dimension [${obj.dimension}] != re-derived common [${common}]`);
+    // the honesty model (ADR-0003): a model-exact relation must disclose a model assumption
+    if (obj.regime === "model-exact" && obj.assumptions.length === 0)
+      fail(rel, `model-exact formula discloses no assumption`);
   } else if (obj.kind === "valence-table") {
     // every source id the table cites (atomic weight, position, ion charge, and the ADR-0031 properties)
     // must resolve to a SOURCES.md register row

@@ -1,0 +1,120 @@
+{
+  "kind": "formula",
+  "id": "formula-percent-yield",
+  "title": "Percent yield",
+  "name": "Percent yield",
+  "statement": "\\text{percent yield} = \\dfrac{\\text{actual}}{\\text{theoretical}} \\times 100",
+  "regime": "ledger-exact",
+  "dimension": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "dimension_name": "dimensionless",
+  "variables": [
+    {
+      "symbol": "actual",
+      "meaning": "measured product mass",
+      "unit": "g",
+      "dimension": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "theoretical",
+      "meaning": "theoretical product mass (from stoichiometry)",
+      "unit": "g",
+      "dimension": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "percent yield",
+      "meaning": "percent of the theoretical maximum obtained",
+      "unit": "%",
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "terms": [
+    {
+      "side": "lhs",
+      "display": "percent yield",
+      "factors": [
+        {
+          "var": "percent yield",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "side": "rhs",
+      "display": "(actual / theoretical) × 100",
+      "factors": [
+        {
+          "var": "actual",
+          "power": 1
+        },
+        {
+          "var": "theoretical",
+          "power": -1
+        }
+      ],
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "assumptions": [],
+  "summary": "Percent yield is a ratio of two masses, so it is dimensionless — the grams cancel, and the $\\times 100$ only rescales the fraction to a percent. The machine checks that both sides are dimensionless; the chemistry check (that actual never exceeds theoretical) lives in the lesson that emits it.",
+  "related": [
+    {
+      "to": "percent-yield",
+      "type": "see-also"
+    },
+    {
+      "to": "stoichiometry",
+      "type": "uses"
+    },
+    {
+      "to": "extent-of-reaction",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [
+    "zinc-carbonate-percent-yield"
+  ],
+  "domain": "Comparing a measured (actual) product mass to the theoretical maximum from stoichiometry. Always ≤ 100% — you cannot collect more than forms."
+}

@@ -10,7 +10,7 @@ dashboard; phases are defined in [`ROADMAP.md`](../ROADMAP.md).
 |---|---|---|---|
 | measurement, units, dimensional analysis | 1 | **1** | **gym** (solution conversions) + atlas (dimensional-analysis concept) |
 | atoms, isotopes, average atomic mass | 1, 3 | **1** | **atlas** (average-atomic-mass concept — the abundance-weighted mean of isotope masses, exact arithmetic over sourced CIAAW data; the species atlas shows those atomic weights summed into every molar mass — ADR-0038) |
-| mole concept & molar mass | 1, 3 | 1 | **atlas** (molar-mass concept + the **species atlas** — every entry's molar mass derived by re-summing the sourced atomic weights, ADR-0038) |
+| mole concept & molar mass | 1, 3 | 1 | **atlas** (molar-mass concept + the **species atlas** — every entry's molar mass derived by re-summing the sourced atomic weights, ADR-0038; **formula sheet** — mole–mass $n=m/M$ and Avogadro $N=n\,N_A$, dimensionally verified, ADR-0039) |
 | ions & formula writing | 1, 3 | 1 | **gym** (nomenclature, both directions) + **atlas** (Valence Table; polyatomic-ion concept; species entries for the carbonate/hydroxide ions with derived composition + molar mass) |
 | nomenclature (ionic, covalent, acids) | 1, 3 | **1** | **gym** (ionic, both directions — Stock system) + atlas (nomenclature concept) |
 | periodic table & periodic trends | 3, 4 | **1** | **gym + atlas** (Valence Table flagship: five lenses with interpretive pattern panels, trend graphs, the 156-salt formula builder, ΔEN bonding mode — ADR-0031/0033; `periodic-trends` gym drilled from the same data, exceptions named — ADR-0034; periodic-trends/electronegativity/ionization-energy concepts) |
@@ -18,11 +18,11 @@ dashboard; phases are defined in [`ROADMAP.md`](../ROADMAP.md).
 | reaction classes | 3, 4 | **1** | **lesson + gym + atlas** (acid-base neutralization lesson — ADR-0037; `reaction_families_v1` gym: classify-the-family + name-the-spectators — ADR-0036; **7 reaction-family Atlas entries** / 21 engine-classified example reactions with net-ionic views + free-element redox — ADR-0035; precipitation/net-ionic/solubility-rules/dissociation/spectator-ion concepts) |
 | stoichiometry (mass/volume/solution/particle) | 1 | **1** | **2 gyms** (mass → mass; limiting reagent from masses) + atlas (stoichiometry, conservation-of-mass concepts) — particle stoich (Avogadro) → Phase 2 |
 | limiting reagents | 1, 2 | **0** | **2 lessons, practice, gym, atlas** (Phase 0 slice + non-1:1 phosphate; limiting-from-mass gym) |
-| percent yield | 1, 2 | **1** | **lesson + gym + atlas** (zinc-carbonate gravimetric lesson; percent-yield gym; percent-yield concept) |
-| solutions & molarity | 1, 2 | **0** | **2 lessons** + atlas (molarity concept) |
+| percent yield | 1, 2 | **1** | **lesson + gym + atlas** (zinc-carbonate gravimetric lesson; percent-yield gym; percent-yield concept + formula-sheet entry, ADR-0039) |
+| solutions & molarity | 1, 2 | **0** | **2 lessons** + atlas (molarity concept + formula sheet: molarity $c=n/V$, dilution $M_1V_1=M_2V_2$ — ADR-0039) |
 | precipitation & net ionic equations | 1, 2, 3 | **0** | **2 lessons + atlas** (carbonate + calcium phosphate) |
-| gases (ideal-gas model) | 1, 2 | 2+ | — |
-| thermochemistry & calorimetry | 2, 3 | 2+ | — |
+| gases (ideal-gas model) | 1, 2 | **2** | **atlas** (formula sheet: ideal gas law $PV=nRT$ + combined gas law, dimensional homogeneity machine-checked, model-assumed badge — ADR-0039). Numeric gas-law gym + a gas-stoichiometry lesson are the next Phase-2 increments |
+| thermochemistry & calorimetry | 2, 3 | **2** | **atlas** (formula sheet: calorimetry $q=mc\Delta T$, ADR-0039). The energy ledger ($\Delta H_\text{rxn}\cdot\xi$), Hess's law, and a calorimetry lesson follow (specific-heat data to curate) |
 | electronic structure & configurations | 3, 4 | 2+ | — |
 | bonding (ionic/covalent, electronegativity) | 3, 4 | 2+ | seeded: the Valence Table's bonding mode (sourced ΔEN classification + caution, ADR-0033) — the full topic (Lewis, polarity, IMFs) stays Phase 2+ |
 | Lewis structures | 1, 4 | 2+ | — |

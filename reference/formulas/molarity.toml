@@ -1,0 +1,41 @@
+# Chemical Atlas formula entry (ADR-0039). Bare keys before [[array-of-tables]] headers (TOML trap #4).
+id = "formula-molarity"
+kind = "formula"
+title = "Molarity"
+name = "Molarity (concentration)"
+statement = "c = \\dfrac{n}{V}"
+regime = "ledger-exact"
+domain = "Any solution; the definition of molar concentration. Volume is the total solution volume, not the solvent volume."
+summary = "Concentration is amount per volume — $\\mathrm{mol/L}$, written $\\mathrm{M}$. Dividing moles by litres gives the molarity; multiplying a molarity by a volume gives back moles, which is how a measured volume of a stock solution becomes an amount on the ledger."
+rearrangements = ["n = cV", "V = \\dfrac{n}{c}"]
+related = [
+  { to = "molarity", type = "see-also" },
+  { to = "formula-dilution", type = "special-case-of" },
+  { to = "dimensional-analysis", type = "measured-by" },
+]
+lessons = ["calcium-carbonate-limiting"]
+
+[[variables]]
+symbol = "c"
+meaning = "molar concentration"
+unit = "M"
+
+[[variables]]
+symbol = "n"
+meaning = "amount of solute"
+unit = "mol"
+
+[[variables]]
+symbol = "V"
+meaning = "solution volume"
+unit = "L"
+
+[[terms]]
+side = "lhs"
+display = "c"
+factors = [ { var = "c", power = 1 } ]
+
+[[terms]]
+side = "rhs"
+display = "n / V"
+factors = [ { var = "n", power = 1 }, { var = "V", power = -1 } ]

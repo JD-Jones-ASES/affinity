@@ -1,0 +1,54 @@
+# Chemical Atlas formula entry (ADR-0039). Model-exact (calorimetry idealization) — discloses its
+# assumptions; dimensional homogeneity is machine-checked. Bare keys before [[array-of-tables]] (TOML trap #4).
+id = "formula-calorimetry"
+kind = "formula"
+title = "Calorimetry (specific heat)"
+name = "Heat and temperature change"
+statement = "q = m\\,c\\,\\Delta T"
+regime = "model-exact"
+domain = "Heating or cooling one substance with no phase change and no chemical reaction. ΔT is a temperature difference, so °C and K give the same number."
+summary = "The heat $q$ that flows into a sample raises its temperature in proportion to its mass and its specific heat capacity $c$. Multiplying mass (grams) by $c$ (energy per gram per degree) by the temperature change (degrees) leaves an energy — the machine confirms $q$ and $m c \\Delta T$ share the dimension of energy. This is the first rung of the energy ledger."
+rearrangements = ["c = \\dfrac{q}{m\\,\\Delta T}", "\\Delta T = \\dfrac{q}{m\\,c}"]
+related = [
+  { to = "formula-mole-mass", type = "see-also" },
+  { to = "conservation-of-mass", type = "see-also" },
+]
+lessons = []
+
+[[variables]]
+symbol = "q"
+meaning = "heat transferred"
+unit = "J"
+
+[[variables]]
+symbol = "m"
+meaning = "mass of the substance"
+unit = "g"
+
+[[variables]]
+symbol = "c"
+meaning = "specific heat capacity"
+unit = "J/(g*K)"
+
+[[variables]]
+symbol = "ΔT"
+meaning = "temperature change"
+unit = "K"
+
+[[terms]]
+side = "lhs"
+display = "q"
+factors = [ { var = "q", power = 1 } ]
+
+[[terms]]
+side = "rhs"
+display = "m c ΔT"
+factors = [ { var = "m", power = 1 }, { var = "c", power = 1 }, { var = "ΔT", power = 1 } ]
+
+[[assumptions]]
+claim = "The calorimeter loses no heat to the surroundings — all heat stays in the sample."
+kind = "model"
+
+[[assumptions]]
+claim = "The specific heat capacity c is constant over the temperature range."
+kind = "model"

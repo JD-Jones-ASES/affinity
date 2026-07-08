@@ -31,8 +31,8 @@ from .interactive import build_interactive
 from .practice import generate_practice
 from .reaction import complete_ionic, net_ionic
 from .reactivity import AcidBase, Decomposition
-from .reference import (build_reaction_family, build_reference_entry, build_species_entry,
-                        build_valence_table)
+from .reference import (build_formula_entry, build_reaction_family, build_reference_entry,
+                        build_species_entry, build_valence_table)
 from .solubility import Solubility
 from .units import Quantity
 
@@ -327,6 +327,8 @@ def build_reference_main(argv: list[str] | None = None) -> int:
                                               decomposition=decomp, ctx=ctx)
             elif kind == "species":
                 entry = build_species_entry(spec, data, ctx)
+            elif kind == "formula":
+                entry = build_formula_entry(spec, data, ctx)
             else:
                 entry = build_reference_entry(spec, ctx)
         except BuildError as e:

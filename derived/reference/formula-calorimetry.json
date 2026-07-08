@@ -1,0 +1,144 @@
+{
+  "kind": "formula",
+  "id": "formula-calorimetry",
+  "title": "Calorimetry (specific heat)",
+  "name": "Heat and temperature change",
+  "statement": "q = m\\,c\\,\\Delta T",
+  "regime": "model-exact",
+  "dimension": [
+    1,
+    2,
+    -2,
+    0,
+    0,
+    0
+  ],
+  "dimension_name": "energy",
+  "variables": [
+    {
+      "symbol": "q",
+      "meaning": "heat transferred",
+      "unit": "J",
+      "dimension": [
+        1,
+        2,
+        -2,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "m",
+      "meaning": "mass of the substance",
+      "unit": "g",
+      "dimension": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "c",
+      "meaning": "specific heat capacity",
+      "unit": "J/(g*K)",
+      "dimension": [
+        0,
+        2,
+        -2,
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "symbol": "ΔT",
+      "meaning": "temperature change",
+      "unit": "K",
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ]
+    }
+  ],
+  "terms": [
+    {
+      "side": "lhs",
+      "display": "q",
+      "factors": [
+        {
+          "var": "q",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        1,
+        2,
+        -2,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "side": "rhs",
+      "display": "m c ΔT",
+      "factors": [
+        {
+          "var": "m",
+          "power": 1
+        },
+        {
+          "var": "c",
+          "power": 1
+        },
+        {
+          "var": "ΔT",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        1,
+        2,
+        -2,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The calorimeter loses no heat to the surroundings — all heat stays in the sample.",
+      "kind": "model"
+    },
+    {
+      "claim": "The specific heat capacity c is constant over the temperature range.",
+      "kind": "model"
+    }
+  ],
+  "summary": "The heat $q$ that flows into a sample raises its temperature in proportion to its mass and its specific heat capacity $c$. Multiplying mass (grams) by $c$ (energy per gram per degree) by the temperature change (degrees) leaves an energy — the machine confirms $q$ and $m c \\Delta T$ share the dimension of energy. This is the first rung of the energy ledger.",
+  "related": [
+    {
+      "to": "formula-mole-mass",
+      "type": "see-also"
+    },
+    {
+      "to": "conservation-of-mass",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [],
+  "domain": "Heating or cooling one substance with no phase change and no chemical reaction. ΔT is a temperature difference, so °C and K give the same number.",
+  "rearrangements": [
+    "c = \\dfrac{q}{m\\,\\Delta T}",
+    "\\Delta T = \\dfrac{q}{m\\,c}"
+  ]
+}

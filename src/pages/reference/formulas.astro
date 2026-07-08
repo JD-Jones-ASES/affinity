@@ -1,0 +1,163 @@
+---
+import Base from "../../layouts/Base.astro";
+import { withBase } from "../../lib/withBase.js";
+import { renderFormula } from "../../lib/view.js";
+
+const refs = import.meta.glob("../../../derived/reference/*.json", { eager: true });
+const all = Object.values(refs).map((m) => m.default);
+const formulas = all.filter((r) => r.kind === "formula").map(renderFormula);
+
+// teaching order + two sections (the ledger-exact backfill, then the model-bearing gas/energy openers)
+const GROUPS = [
+  { label: "Amount, mass & solutions", ids: ["formula-mole-mass", "formula-molarity", "formula-dilution", "formula-avogadro-number", "formula-percent-yield"] },
+  { label: "Gases & energy", ids: ["formula-ideal-gas-law", "formula-combined-gas-law", "formula-calorimetry"] },
+];
+const byId = Object.fromEntries(formulas.map((f) => [f.id, f]));
+const groups = GROUPS.map((g) => ({ label: g.label, items: g.ids.map((id) => byId[id]).filter(Boolean) }))
+  .filter((g) => g.items.length > 0);
+
+// cross-link maps: title + which Atlas page each id lives on
+const refTitle = Object.fromEntries(all.map((r) => [r.id, r.title]));
+const refKind = Object.fromEntries(all.map((r) => [r.id, r.kind]));
+const hrefFor = (id) =>
+  refKind[id] === "species" ? withBase(`/reference/species/#${id}`)
+  : refKind[id] === "reaction-family" ? withBase(`/reference/reactions/#${id}`)
+  : refKind[id] === "formula" ? withBase(`/reference/formulas/#${id}`)
+  : refKind[id] === "valence-table" ? withBase(`/reference/valence-table/`)
+  : withBase(`/reference/#${id}`);
+const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
+const lessonTitle = Object.fromEntries(Object.values(sols).map((m) => [m.default.slug, m.default.title]));
+
+const unitDisp = (u) => (u ? u.replaceAll("*", "·").replaceAll("^-1", "⁻¹") : "—");
+---
+
+<Base title="Formula & equation sheet — Affinity" description="The formula sheet: the core relations of beginning chemistry — mole–mass, molarity, dilution, the ideal gas law, calorimetry — each with variables, units, and its dimensional homogeneity machine-checked and re-derived in the gate.">
+  <p class="crumb"><a href={withBase("/reference/")}>← Chemical Atlas</a></p>
+  <h1>Formula &amp; equation sheet</h1>
+  <p class="muted lede">Not a flat list. Each relation carries its variables and units, and its
+    <strong>dimensional homogeneity is machine-checked</strong> — the producer confirms both sides reduce to
+    the same dimension (and the gate re-derives it in pure Node). A relation that is definitional
+    (<span class="badge machine"><span class="dot"></span>machine-checked</span>) is exact; a model-bearing
+    one (<span class="badge model"><span class="dot"></span>model-assumed</span>) is exact only inside its
+    stated model — so it discloses the assumptions. Dimensional consistency is what we can prove; the model is
+    what we disclose.</p>
+
+  <nav class="jump">
+    {groups.flatMap((g) => g.items).map((f) => <a href={`#${f.id}`} set:html={f.statementHtml} />)}
+  </nav>
+
+  {groups.map((g) => (
+    <section class="group">
+      <h2 class="grp">{g.label}</h2>
+      {g.items.map((f) => (
+        <article class="formula" id={f.id}>
+          <div class="f-head">
+            <div class="f-title">
+              <h3>{f.title}</h3>
+              <span class="statement" set:html={f.statementHtml} />
+            </div>
+            <span class="badges">
+              {f.regime === "model-exact"
+                ? <span class="badge model"><span class="dot"></span>model-assumed</span>
+                : <span class="badge machine"><span class="dot"></span>machine-checked</span>}
+            </span>
+          </div>
+
+          <p class="dimcheck">
+            <span class="tick">✓ dimensionally homogeneous</span> — {f.terms.map((t, i) => (
+              <>{i > 0 && <span class="eqs"> = </span>}<code>{t.display}</code></>
+            ))} both reduce to <strong>{f.dimension_name}</strong>, machine-verified.
+          </p>
+
+          <table class="vars">
+            <thead><tr><th>Symbol</th><th>Meaning</th><th>Unit</th></tr></thead>
+            <tbody>
+              {f.variables.map((v) => (
+                <tr>
+                  <td class="sym">{v.symbol}</td>
+                  <td>{v.meaning}{v.constant && (
+                    <span class="const"> = {v.constant.value} {unitDisp(v.constant.unit)}
+                      <span class="csrc"> ({v.constant.source})</span></span>
+                  )}</td>
+                  <td class="unit">{unitDisp(v.unit)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {f.rearrangementsHtml.length > 0 && (
+            <p class="rearr"><span class="lbl">Rearranged:</span> {f.rearrangementsHtml.map((h) => (
+              <span class="ritem" set:html={h} />
+            ))}</p>
+          )}
+
+          <p class="summary" set:html={f.summaryHtml} />
+          {f.domainHtml && <p class="domain"><span class="lbl">Where it holds:</span> <span set:html={f.domainHtml} /></p>}
+
+          {f.assumptions.length > 0 && (
+            <div class="assumptions">
+              <span class="lbl">Model assumptions (disclosed, not proved):</span>
+              <ul>{f.assumptions.map((a) => <li set:html={a.claimHtml} />)}</ul>
+            </div>
+          )}
+
+          {(f.related.length > 0 || f.lessons.length > 0) && (
+            <div class="links">
+              {f.related.length > 0 && (
+                <span class="ln">Related: {f.related.map((e, i) => (
+                  <>{i > 0 && ", "}<a href={hrefFor(e.to)}>{refTitle[e.to] ?? e.to}</a>
+                    <span class="etype"> ({e.type})</span></>
+                ))}</span>
+              )}
+              {f.lessons.length > 0 && (
+                <span class="ln">Lessons: {f.lessons.map((sl, i) => (
+                  <>{i > 0 && ", "}<a href={withBase(`/lessons/${sl}/`)}>{lessonTitle[sl] ?? sl}</a></>
+                ))}</span>
+              )}
+            </div>
+          )}
+        </article>
+      ))}
+    </section>
+  ))}
+
+  <style>
+    .crumb { font-size: 0.9rem; margin: 0 0 0.4rem; }
+    h1 { font-size: 1.9rem; margin-bottom: 0.3rem; }
+    .lede { max-width: 52rem; }
+    .lede .badge { transform: translateY(1px); }
+    .jump { display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; margin: 1rem 0 1.6rem; font-size: 0.85rem; }
+    .jump a { padding: 0.2rem 0.6rem; background: var(--paper-2); border: 1px solid var(--line); border-radius: 8px; }
+    .jump a:hover { border-color: var(--accent); text-decoration: none; }
+    .jump :global(.katex) { font-size: 0.95em; }
+    .group { margin: 1.6rem 0; }
+    .grp { font-size: 1.15rem; border-bottom: 1px solid var(--line); padding-bottom: 0.3rem; color: var(--accent); }
+    .formula { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.3rem; margin: 1rem 0; scroll-margin-top: 5rem; }
+    .f-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .f-title { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+    .f-title h3 { margin: 0; font-size: 1.15rem; }
+    .statement { color: var(--accent); overflow-x: auto; max-width: 100%; }
+    .statement :global(.katex) { font-size: 1.15em; }
+    .dimcheck { font-size: 0.88rem; color: var(--ink-2); margin: 0.7rem 0; background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 0.4rem 0.7rem; }
+    .dimcheck .tick { color: var(--accent); font-weight: 600; }
+    .dimcheck code { background: none; font-size: 0.95em; }
+    .dimcheck .eqs { color: var(--ink-faint); }
+    .vars { border-collapse: collapse; font-size: 0.9rem; width: auto; min-width: 22rem; margin: 0.4rem 0 0.7rem; }
+    .vars th, .vars td { text-align: left; padding: 0.25rem 1rem 0.25rem 0; border-bottom: 1px solid var(--line); }
+    .vars thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); font-weight: 600; }
+    .vars .sym { font-weight: 600; font-family: var(--mono, monospace); }
+    .vars .unit { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+    .const { color: var(--ink-faint); font-size: 0.92em; }
+    .csrc { font-style: italic; }
+    .rearr { font-size: 0.9rem; margin: 0.5rem 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.9rem; }
+    .ritem :global(.katex) { font-size: 0.95em; }
+    .lbl { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-faint); }
+    .summary { color: var(--ink-2); margin: 0.6rem 0 0; max-width: 56rem; }
+    .domain { font-size: 0.9rem; color: var(--ink-2); margin: 0.5rem 0 0; }
+    .assumptions { margin: 0.7rem 0 0; }
+    .assumptions ul { margin: 0.3rem 0 0; padding-left: 1.1rem; color: var(--ink-2); font-size: 0.9rem; }
+    .assumptions li { margin: 0.2rem 0; }
+    .links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; font-size: 0.86rem; color: var(--ink-faint); margin-top: 0.8rem; border-top: 1px solid var(--line); padding-top: 0.5rem; }
+    .etype { font-style: italic; }
+  </style>
+</Base>

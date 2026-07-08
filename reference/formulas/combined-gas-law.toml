@@ -1,0 +1,63 @@
+# Chemical Atlas formula entry (ADR-0039). Model-exact — discloses its assumptions; dimensional homogeneity
+# is machine-checked. Bare keys before [[array-of-tables]] headers (TOML trap #4).
+id = "formula-combined-gas-law"
+kind = "formula"
+title = "Combined gas law"
+name = "Combined gas law"
+statement = "\\dfrac{P_1 V_1}{T_1} = \\dfrac{P_2 V_2}{T_2}"
+regime = "model-exact"
+domain = "A fixed amount of gas taken from one state to another (Boyle's, Charles's, and Gay-Lussac's laws combined). Temperatures are absolute (kelvin)."
+summary = "For a sealed sample of gas, $PV/T$ is the same in any two states — because $nR$ is constant, $PV/T = nR$. Each side carries the dimension of energy-per-temperature; the machine checks they match. Set up the two states, cancel whatever is held constant, and solve for the missing quantity."
+rearrangements = ["P_2 = \\dfrac{P_1 V_1 T_2}{T_1 V_2}", "V_2 = \\dfrac{P_1 V_1 T_2}{T_1 P_2}"]
+related = [
+  { to = "formula-ideal-gas-law", type = "special-case-of" },
+]
+lessons = []
+
+[[variables]]
+symbol = "P₁"
+meaning = "initial pressure"
+unit = "atm"
+
+[[variables]]
+symbol = "V₁"
+meaning = "initial volume"
+unit = "L"
+
+[[variables]]
+symbol = "T₁"
+meaning = "initial absolute temperature"
+unit = "K"
+
+[[variables]]
+symbol = "P₂"
+meaning = "final pressure"
+unit = "atm"
+
+[[variables]]
+symbol = "V₂"
+meaning = "final volume"
+unit = "L"
+
+[[variables]]
+symbol = "T₂"
+meaning = "final absolute temperature"
+unit = "K"
+
+[[terms]]
+side = "lhs"
+display = "P₁V₁ / T₁"
+factors = [ { var = "P₁", power = 1 }, { var = "V₁", power = 1 }, { var = "T₁", power = -1 } ]
+
+[[terms]]
+side = "rhs"
+display = "P₂V₂ / T₂"
+factors = [ { var = "P₂", power = 1 }, { var = "V₂", power = 1 }, { var = "T₂", power = -1 } ]
+
+[[assumptions]]
+claim = "The amount of gas n is fixed — a sealed sample, no gas added or lost."
+kind = "model"
+
+[[assumptions]]
+claim = "The gas behaves ideally over the whole change of state."
+kind = "model"

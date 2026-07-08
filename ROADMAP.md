@@ -7,12 +7,21 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 
 ## Status
 
-- **Now (2026-07-08): Phase 1 COMPLETE pending owner review.** Items 1–6 + the Atlas breadth audit
-  (session-map #8) all landed and deployed; the **Phase-1 definition-of-done is met** (all four brief-§10 Atlas
-  kinds present; every Phase-0/1 regime-map row shows coverage; 4 lessons; all gates green). **Next: owner
-  review — the gate before Phase 2** (the owner's to open). Counters live in `AGENTS.md ## Current state`;
-  per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks
-  below are the plan of record.
+- **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed; Phase 2 (the
+  model-bearing tier) opened on **gases + thermochemistry** by landing the **formula/equation-sheet Atlas kind**
+  (ADR-0039) — the fourth brief-§10 kind, verified by machine-checked dimensional homogeneity. **Next inside
+  Phase 2:** the numeric gas-law instrument (the `units.py` pressure/temperature/energy extension + a `gas_laws_v1`
+  gym), then a gas-stoichiometry lesson. Counters live in `AGENTS.md ## Current state`; per-increment detail in
+  [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+- **Phase 2 opener — formula/equation sheet — LANDED** (2026-07-08, ADR-0039): the `formula` Atlas kind
+  (`schemas/formula.schema.json`, `build_formula_entry`) — 8 relations (mole–mass, molarity, dilution,
+  Avogadro's-number, percent yield; ideal gas law, combined gas law, calorimetry), each with variables/units and
+  its **dimensional homogeneity machine-checked** (a native `chemkernel.dimension` SI-vector engine + a shared
+  `dimension.mjs` re-deriving it in pure Node); the gas constant R registered (`data/constants.toml`); model-exact
+  relations carry the model-assumed badge + disclosed assumptions. The Atlas now carries **all four brief-§10 kinds**.
+- **Phase 1 COMPLETE + owner-reviewed** (2026-07-08): items 1–6 + the Atlas breadth audit (session-map #8); the
+  Phase-1 definition-of-done was met (all four Atlas kinds bar the then-deferred formula sheet; every Phase-0/1
+  regime-map row covered; 4 lessons; gates green). The owner opened Phase 2.
 - **Atlas breadth audit (session-map #8) — LANDED** (2026-07-08, ADR-0038): the **species Atlas kind** (14
   curated species — composition/charge/molar mass derived from the formula + re-summed in Node from the sourced
   weights; 8-way tamper-tested); an `atomic-mass` concept filling the last empty regime-map row; and a
@@ -246,21 +255,52 @@ as the sweep that catches what slipped.
 - ✓ 4 lessons total, each keeping the misconception register + ledger view; 7 gates green; deployed to Pages.
 - **→ Now stopped for owner review before Phase 2** (opening Phase 2 is the owner's call).
 
-## Phase 2+ — the model-bearing topics (sketch)
+## Phase 2 — the model-bearing topics (OPEN 2026-07-08)
 
-Gases + thermochemistry (energy ledger), bonding & structure (Lewis, VSEPR, polarity, IMFs), equilibrium &
-acid-base (ICE = ledger with reversible extent), kinetics ($d\xi/dt$), electrochemistry (electron ledger,
-$\Delta G = -nFE$). Sequenced after Phase 1 review; not scoped yet — opening Phase 2 is the owner's call
-(scope decision 2026-07-05).
+**Goal.** Extend the one machine (species ledger over extent, ADR-0002) to the topics where the answer is
+*model-exact* rather than ledger-exact: gases, thermochemistry (the energy ledger), bonding & structure,
+equilibrium & acid-base (ICE = ledger with reversible extent), kinetics ($d\xi/dt$), electrochemistry (electron
+ledger, $\Delta G = -nFE$). The honesty pivot: regime-2 content is exact *inside a disclosed model* — so the
+**model-assumed badge does real work**, and where the machine can still check something (dimensional homogeneity,
+conservation, the algebra given the model) it does. Opened on **gases + thermochemistry** (brief §17 item 7); the
+rest sequences after, each with its own scope block when its increment opens.
+
+**Opening tier — gases + thermochemistry + the formula sheet:**
+- **Formula/equation-sheet Atlas kind — LANDED** (ADR-0039): the fourth brief-§10 Atlas kind. 8 relations with
+  variables/units, **dimensional homogeneity machine-checked** (native `chemkernel.dimension` SI-vector engine,
+  re-derived in pure Node); model-exact relations disclose their assumptions; the gas constant R registered. This
+  is the reference instrument the gas/thermo gym + lesson link to.
+- **Gas-law computation — NEXT:** extend `units.py` with the deferred pressure/temperature/energy dimensions
+  (ADR-0015; °C→K handled as an affine boundary conversion, not a scaling unit); a `gas_laws_v1` gym (PV=nRT +
+  combined-gas-law, numeric free-entry per ADR-0032, model-assumed badge — regime-2 answers are model-exact then
+  sig-fig-rounded, gate re-derives numerically within tolerance). Then a **gas-stoichiometry lesson** (the vertical
+  slice: the extent ledger drives a gas volume via PV=nRT) — needs `build.py` generalised past two-solution
+  double-displacement to a single-limiting-reactant gas product.
+- **Thermochemistry (energy ledger) — after gases:** calorimetry ($q=mc\Delta T$, specific-heat data curated),
+  reaction enthalpy attached to extent ($\Delta H_\text{rxn}\cdot\xi$), Hess's law. The `formula-calorimetry` entry
+  is already on the sheet.
+
+**Then (each its own increment, sketch):** bonding & structure (Lewis, VSEPR, polarity, IMFs; the Valence Table's
+bonding mode is seeded, ADR-0033); equilibrium & acid-base (ICE table = the ledger with reversible extent —
+$n_i = n_{i,0} + \nu_i\xi$ solved for the $\xi$ that satisfies mass action; K, Q, pH, weak acids, buffers,
+titration curves); kinetics ($d\xi/dt$, rate laws, integrated rate laws, half-life); electrochemistry (oxidation
+numbers — completing the free-element redox flag from ADR-0035 — electron ledger, $E^\circ$, $\Delta G=-nFE$,
+Nernst). Further formula-sheet entries (Hess, $pH=-\log[H^+]$, $K_w$, $\Delta G=\Delta H-T\Delta S$, Nernst) land
+with their topics.
+
+**Definition of done (a reviewable Phase-2 boundary):** deferred to the opening tier's close — at minimum the
+gas/thermo tier lands its gym(s) + at least one gas or calorimetry lesson (misconception register + ledger view
+kept), the formula sheet grows to cover the tier, every new regime-2 claim carries the model-assumed badge with its
+disclosure, and all gates stay green + deployed. The full Phase-2 DoD firms up as the later tiers scope.
 
 ## Parallel track — the Chemical Atlas breadth-fill
 
 As in the sibling: lessons go deep, the reference goes broad. Species atlas, formula/equation sheet,
 reaction atlas, concept graph (typed edges, brief §10.5) fill breadth-first alongside whatever phase is
-open. Status: **20 concept entries + the Valence Table + 7 reaction families + 14 species entries** — the
-reaction-atlas kind landed with item 6 (ADR-0035) and the **species kind with session-map #8** (ADR-0038), so
-three of the four brief-§10 kinds ship (periodic lens, concepts, reactions, species); the **formula/equation
-sheet** opens with Phase 2. Coverage dashboard in [`docs/regime-map.md`](./docs/regime-map.md).
+open. Status: **all four brief-§10 Atlas kinds now ship** — periodic lens (Valence Table), concepts,
+reaction families (ADR-0035), species (ADR-0038), and the **formula/equation sheet** (ADR-0039, the Phase-2
+opener) — plus the typed-edge concept graph woven through every entry's `related` links. Counts live in
+`AGENTS.md ## Current state`; coverage dashboard in [`docs/regime-map.md`](./docs/regime-map.md).
 
 ## Out of scope (v1)
 

@@ -19,6 +19,7 @@ from decimal import Decimal
 from math import gcd
 
 from . import BuildError
+from . import dimension
 from .balance import balance
 from .formula import parse_formula
 from .reaction import classify_reaction, complete_ionic, net_ionic
@@ -507,6 +508,113 @@ def build_species_entry(spec: dict, data, ctx: str = "") -> dict:
         entry["notes"] = spec["notes"]
     if "reactions" in spec:
         entry["reactions"] = spec["reactions"]
+    return entry
+
+
+def build_formula_entry(spec: dict, data, ctx: str = "") -> dict:
+    """An authored formula/equation-sheet entry → the emitted Atlas object (brief §10.3, ADR-0039).
+
+    The honesty model for a reference relation: its **dimensional homogeneity is machine-checked** — every
+    term (both sides, each addend) must reduce to one SI dimension vector, computed by the producer from the
+    variables' units and refused to emit otherwise (ADR-0008). We do NOT claim the relation is *true*: a
+    model-exact relation (PV=nRT) carries the model-assumed badge and discloses its assumptions; the
+    dimensional check is the checkable part, and it is re-run in pure Node (`validate-reference.mjs`) from the
+    emitted per-variable dimension vectors + term factors. Any sourced constant (R) is threaded from
+    `data/constants.toml` — never hard-coded in the entry — so its value stays badge-traceable (ADR-0006)."""
+    for key in ("id", "kind", "title", "name", "statement", "regime", "summary", "variables", "terms"):
+        if key not in spec:
+            raise BuildError(f"{ctx}: formula entry missing required key '{key}'")
+    if spec["kind"] != "formula":
+        raise BuildError(f"{ctx}: build_formula_entry got kind '{spec['kind']}'")
+    if spec["regime"] not in ("ledger-exact", "model-exact"):
+        raise BuildError(f"{ctx}: formula regime '{spec['regime']}' must be ledger-exact or model-exact")
+
+    # each variable's SI dimension vector comes from its unit (definitional; unknown unit → refuse). A
+    # variable flagged `constant = <key>` pulls its value/unit/source from data/constants.toml so the datum
+    # stays sourced (never hard-coded in the entry).
+    var_dim: dict[str, tuple] = {}
+    variables = []
+    sources: set[str] = set()
+    for v in spec["variables"]:
+        for key in ("symbol", "meaning", "unit"):
+            if key not in v:
+                raise BuildError(f"{ctx}: variable missing '{key}'")
+        sym = v["symbol"]
+        if sym in var_dim:
+            raise BuildError(f"{ctx}: duplicate variable symbol '{sym}'")
+        dim = dimension.unit_dimension(v["unit"], f"{ctx} var {sym}")
+        var_dim[sym] = dim
+        out = {"symbol": sym, "meaning": v["meaning"], "unit": v["unit"], "dimension": list(dim)}
+        ckey = v.get("constant")
+        if ckey is not None:
+            if ckey not in data.constants:
+                raise BuildError(f"{ctx}: variable '{sym}' references unknown constant '{ckey}'")
+            csrc = data.sources.get("constants", "")
+            if not csrc:
+                raise BuildError(f"{ctx}: constant '{ckey}' has no registered source")
+            out["constant"] = {"key": ckey, "value": str(data.constants[ckey]),
+                               "unit": data.constant_unit(ckey), "source": csrc}
+            sources.add(csrc)
+        variables.append(out)
+
+    # each term is a monomial (a product of variable powers); a bare numeric constant (the ×100 in a percent)
+    # is dimensionless and simply not listed as a factor. The dimension is Σ power·dim(var).
+    if len(spec["terms"]) < 2:
+        raise BuildError(f"{ctx}: a formula needs at least two terms (both sides) to check homogeneity")
+    terms = []
+    dims: list[tuple] = []
+    for t in spec["terms"]:
+        for key in ("side", "display", "factors"):
+            if key not in t:
+                raise BuildError(f"{ctx}: term missing '{key}'")
+        if t["side"] not in ("lhs", "rhs"):
+            raise BuildError(f"{ctx}: term side '{t['side']}' must be lhs or rhs")
+        factors = []
+        for fct in t["factors"]:
+            var, power = fct.get("var"), fct.get("power")
+            if var not in var_dim:
+                raise BuildError(f"{ctx}: term factor references unknown variable '{var}'")
+            if not isinstance(power, int) or power == 0:
+                raise BuildError(f"{ctx}: term factor for '{var}' needs a nonzero integer power")
+            factors.append((var_dim[var], power))
+        d = dimension.term_dimension(factors)
+        dims.append(d)
+        terms.append({"side": t["side"], "display": t["display"],
+                      "factors": [{"var": f["var"], "power": f["power"]} for f in t["factors"]],
+                      "dimension": list(d)})
+    if not all(d == dims[0] for d in dims):
+        detail = "; ".join(f"{t['display']} = {dimension.dimension_name(tuple(t['dimension']))}" for t in terms)
+        raise BuildError(f"{ctx}: not dimensionally homogeneous — terms disagree ({detail})")
+    if len({t["side"] for t in terms}) < 2:
+        raise BuildError(f"{ctx}: all terms are on one side — an equation needs both sides")
+
+    common = dims[0]
+    entry = {
+        "kind": "formula",
+        "id": spec["id"],
+        "title": spec["title"],
+        "name": spec["name"],
+        "statement": spec["statement"],
+        "regime": spec["regime"],
+        "dimension": list(common),
+        "dimension_name": dimension.dimension_name(common),
+        "variables": variables,
+        "terms": terms,
+        "assumptions": spec.get("assumptions", []),
+        "summary": spec["summary"],
+        "related": spec.get("related", []),
+        "lessons": spec.get("lessons", []),
+    }
+    if "domain" in spec:
+        entry["domain"] = spec["domain"]
+    if "rearrangements" in spec:
+        entry["rearrangements"] = list(spec["rearrangements"])
+    if sources:
+        # the entry cites every sourced constant it threads; the gate resolves each against SOURCES.md
+        entry["sources"] = sorted(sources)
+    # a model-exact relation must disclose at least one model assumption (the honesty model, ADR-0003)
+    if spec["regime"] == "model-exact" and not entry["assumptions"]:
+        raise BuildError(f"{ctx}: model-exact formula '{entry['id']}' must disclose a model assumption")
     return entry
 
 

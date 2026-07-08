@@ -8,8 +8,8 @@ import pytest
 from chemkernel import BuildError
 from chemkernel.data import ChemData
 from chemkernel.reactivity import AcidBase, Decomposition
-from chemkernel.reference import (assemble_formula, build_reaction_family, build_reference_entry,
-                                  build_species_entry, build_valence_table)
+from chemkernel.reference import (assemble_formula, build_formula_entry, build_reaction_family,
+                                  build_reference_entry, build_species_entry, build_valence_table)
 from chemkernel.solubility import Solubility
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -351,3 +351,78 @@ def test_species_rejects_phase_in_formula():
         _species({"id": "bad3", "kind": "species", "title": "Bad3", "formula": "H2O(l)",
                   "species_class": "compound", "names": ["water"], "summary": "s",
                   "source": "ciaaw-2021-atomic-weights"})
+
+
+# --- formula / equation sheet (ADR-0039) --------------------------------------------------------------
+
+def _formula(spec):
+    return build_formula_entry(spec, _data(), ctx=spec["id"])
+
+
+_MOLE_MASS = {
+    "id": "f-mole-mass", "kind": "formula", "title": "t", "name": "Mole-mass", "statement": "n = m/M",
+    "regime": "ledger-exact", "summary": "s",
+    "variables": [
+        {"symbol": "n", "meaning": "amount", "unit": "mol"},
+        {"symbol": "m", "meaning": "mass", "unit": "g"},
+        {"symbol": "M", "meaning": "molar mass", "unit": "g/mol"},
+    ],
+    "terms": [
+        {"side": "lhs", "display": "n", "factors": [{"var": "n", "power": 1}]},
+        {"side": "rhs", "display": "m/M", "factors": [{"var": "m", "power": 1}, {"var": "M", "power": -1}]},
+    ],
+}
+
+
+def test_formula_derives_homogeneous_dimension():
+    f = _formula(_MOLE_MASS)
+    assert f["kind"] == "formula" and f["dimension"] == [0, 0, 0, 1, 0, 0]   # both sides an amount
+    assert f["dimension_name"] == "amount"
+    assert [t["dimension"] for t in f["terms"]] == [[0, 0, 0, 1, 0, 0], [0, 0, 0, 1, 0, 0]]
+
+
+def test_formula_ideal_gas_threads_sourced_constant():
+    spec = tomllib.loads((ROOT / "reference" / "formulas" / "ideal-gas-law.toml").read_text(encoding="utf-8"))
+    f = _formula(spec)
+    assert f["dimension_name"] == "energy"                     # PV and nRT both reduce to energy
+    R = next(v for v in f["variables"] if v["symbol"] == "R")
+    assert R["constant"]["key"] == "gas_constant" and R["constant"]["source"] == "bipm-si-2019"
+    assert R["constant"]["value"] == str(_data().constants["gas_constant"])   # from data/, not hard-coded
+    assert f["sources"] == ["bipm-si-2019"]
+
+
+def test_formula_refuses_non_homogeneous():
+    bad = {**_MOLE_MASS, "id": "bad", "statement": "PV = nT",
+           "variables": [
+               {"symbol": "P", "meaning": "p", "unit": "atm"}, {"symbol": "V", "meaning": "v", "unit": "L"},
+               {"symbol": "n", "meaning": "n", "unit": "mol"}, {"symbol": "T", "meaning": "T", "unit": "K"}],
+           "terms": [
+               {"side": "lhs", "display": "PV", "factors": [{"var": "P", "power": 1}, {"var": "V", "power": 1}]},
+               {"side": "rhs", "display": "nT", "factors": [{"var": "n", "power": 1}, {"var": "T", "power": 1}]}]}
+    with pytest.raises(BuildError, match="homogeneous"):        # PV is energy, nT is amount·temperature
+        _formula(bad)
+
+
+def test_formula_refuses_unknown_unit():
+    bad = {**_MOLE_MASS, "id": "bad2",
+           "variables": [{"symbol": "n", "meaning": "n", "unit": "furlong"},
+                         {"symbol": "m", "meaning": "m", "unit": "g"}, {"symbol": "M", "meaning": "M", "unit": "g/mol"}]}
+    with pytest.raises(BuildError, match="unknown unit"):
+        _formula(bad)
+
+
+def test_formula_model_exact_must_disclose_an_assumption():
+    bad = {**_MOLE_MASS, "id": "bad3", "regime": "model-exact"}   # no assumptions
+    with pytest.raises(BuildError, match="assumption"):
+        _formula(bad)
+
+
+def test_authored_formulas_all_build():
+    root = ROOT / "reference" / "formulas"
+    specs = sorted(root.glob("*.toml"))
+    assert len(specs) == 8
+    for path in specs:
+        spec = tomllib.loads(path.read_text(encoding="utf-8"))
+        f = _formula(spec)
+        # every term shares the entry's dimension — homogeneity actually holds for the shipped sheet
+        assert all(t["dimension"] == f["dimension"] for t in f["terms"])

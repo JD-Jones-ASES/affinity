@@ -1,0 +1,40 @@
+# Chemical Atlas formula entry (ADR-0039). Bare keys before [[array-of-tables]] headers (TOML trap #4).
+id = "formula-percent-yield"
+kind = "formula"
+title = "Percent yield"
+name = "Percent yield"
+statement = "\\text{percent yield} = \\dfrac{\\text{actual}}{\\text{theoretical}} \\times 100"
+regime = "ledger-exact"
+domain = "Comparing a measured (actual) product mass to the theoretical maximum from stoichiometry. Always ≤ 100% — you cannot collect more than forms."
+summary = "Percent yield is a ratio of two masses, so it is dimensionless — the grams cancel, and the $\\times 100$ only rescales the fraction to a percent. The machine checks that both sides are dimensionless; the chemistry check (that actual never exceeds theoretical) lives in the lesson that emits it."
+related = [
+  { to = "percent-yield", type = "see-also" },
+  { to = "stoichiometry", type = "uses" },
+  { to = "extent-of-reaction", type = "see-also" },
+]
+lessons = ["zinc-carbonate-percent-yield"]
+
+[[variables]]
+symbol = "actual"
+meaning = "measured product mass"
+unit = "g"
+
+[[variables]]
+symbol = "theoretical"
+meaning = "theoretical product mass (from stoichiometry)"
+unit = "g"
+
+[[variables]]
+symbol = "percent yield"
+meaning = "percent of the theoretical maximum obtained"
+unit = "%"
+
+[[terms]]
+side = "lhs"
+display = "percent yield"
+factors = [ { var = "percent yield", power = 1 } ]
+
+[[terms]]
+side = "rhs"
+display = "(actual / theoretical) × 100"
+factors = [ { var = "actual", power = 1 }, { var = "theoretical", power = -1 } ]

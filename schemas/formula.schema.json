@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://affinity/schemas/formula.schema.json",
+  "title": "Affinity Chemical Atlas formula / equation-sheet entry",
+  "description": "One reference relation (brief §10.3, ADR-0039): a named equation whose DIMENSIONAL HOMOGENEITY is machine-checked. Each term is a monomial over the variables; the producer requires all terms to share one SI dimension vector and refuses to emit otherwise, and the gate re-derives every term's dimension in pure Node from the emitted per-variable dimension vectors + factor powers. A ledger-exact relation (n=m/M) is definitional; a model-exact relation (PV=nRT) carries the model-assumed badge and MUST disclose an assumption — the dimensional check is the checkable part, not a proof of the model. Any sourced constant (R) is threaded from data/constants.toml. Dimension vectors are length-6 integer exponents over the fixed SI base order [mass, length, time, amount, temperature, current]. additionalProperties:false everywhere.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "id", "title", "name", "statement", "regime", "dimension", "dimension_name", "variables", "terms", "assumptions", "summary", "related", "lessons"],
+  "properties": {
+    "kind": { "const": "formula" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "statement": { "type": "string", "minLength": 1, "$comment": "the equation as LaTeX (PV = nRT)" },
+    "regime": { "enum": ["ledger-exact", "model-exact"] },
+    "dimension": { "$ref": "#/$defs/dimVector", "$comment": "the common SI dimension of every term" },
+    "dimension_name": { "type": "string", "minLength": 1 },
+    "variables": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["symbol", "meaning", "unit", "dimension"],
+        "properties": {
+          "symbol": { "type": "string", "minLength": 1 },
+          "meaning": { "type": "string", "minLength": 1 },
+          "unit": { "type": "string", "$comment": "a registered unit label; the empty string is dimensionless" },
+          "dimension": { "$ref": "#/$defs/dimVector" },
+          "constant": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "value", "unit", "source"],
+            "$comment": "a sourced physical constant threaded from data/constants.toml (never hard-coded)",
+            "properties": {
+              "key": { "type": "string", "minLength": 1 },
+              "value": { "type": "string", "minLength": 1 },
+              "unit": { "type": "string" },
+              "source": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "terms": {
+      "type": "array", "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["side", "display", "factors", "dimension"],
+        "properties": {
+          "side": { "enum": ["lhs", "rhs"] },
+          "display": { "type": "string", "minLength": 1 },
+          "factors": {
+            "type": "array", "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["var", "power"],
+              "properties": {
+                "var": { "type": "string", "minLength": 1 },
+                "power": { "type": "integer", "not": { "const": 0 } }
+              }
+            }
+          },
+          "dimension": { "$ref": "#/$defs/dimVector" }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim", "kind"],
+        "properties": {
+          "claim": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "domain": { "type": "string", "minLength": 1, "$comment": "the domain of validity / where the model breaks" },
+    "rearrangements": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "$comment": "authored LaTeX rearrangements (solve-for forms) — display only"
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "sources": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "$comment": "every sourced constant's source id; each resolves to a docs/SOURCES.md row"
+    },
+    "related": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["to", "type"],
+        "properties": {
+          "to": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "type": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "lessons": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "dimVector": {
+      "type": "array",
+      "minItems": 6, "maxItems": 6,
+      "items": { "type": "integer" },
+      "$comment": "SI base exponents in the order [mass, length, time, amount, temperature, current]"
+    }
+  }
+}

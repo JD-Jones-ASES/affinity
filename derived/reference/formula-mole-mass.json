@@ -1,0 +1,122 @@
+{
+  "kind": "formula",
+  "id": "formula-mole-mass",
+  "title": "Moles from mass",
+  "name": "Mole–mass relation",
+  "statement": "n = \\dfrac{m}{M}",
+  "regime": "ledger-exact",
+  "dimension": [
+    0,
+    0,
+    0,
+    1,
+    0,
+    0
+  ],
+  "dimension_name": "amount",
+  "variables": [
+    {
+      "symbol": "n",
+      "meaning": "amount of substance",
+      "unit": "mol",
+      "dimension": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "m",
+      "meaning": "mass",
+      "unit": "g",
+      "dimension": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "M",
+      "meaning": "molar mass",
+      "unit": "g/mol",
+      "dimension": [
+        1,
+        0,
+        0,
+        -1,
+        0,
+        0
+      ]
+    }
+  ],
+  "terms": [
+    {
+      "side": "lhs",
+      "display": "n",
+      "factors": [
+        {
+          "var": "n",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "side": "rhs",
+      "display": "m / M",
+      "factors": [
+        {
+          "var": "m",
+          "power": 1
+        },
+        {
+          "var": "M",
+          "power": -1
+        }
+      ],
+      "dimension": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "assumptions": [],
+  "summary": "The bridge between the mass you weigh and the moles the balanced equation counts. Because molar mass $M$ carries units of $\\mathrm{g/mol}$, dividing a mass in grams by it cancels the grams and leaves moles — the machine checks that both sides are an amount.",
+  "related": [
+    {
+      "to": "molar-mass",
+      "type": "uses"
+    },
+    {
+      "to": "stoichiometry",
+      "type": "measured-by"
+    },
+    {
+      "to": "dimensional-analysis",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [],
+  "domain": "Any pure substance whose molar mass is known; the definition of molar mass, so it always holds.",
+  "rearrangements": [
+    "m = nM",
+    "M = \\dfrac{m}{n}"
+  ]
+}

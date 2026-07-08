@@ -3,6 +3,36 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — OPENED: formula/equation-sheet Atlas kind (ADR-0039)
+
+The owner opened **Phase 2** (the model-bearing tier). Following the phase protocol (open with the reusable
+instrument, then fill depth-first), it opens on **gases + thermochemistry** by landing the fourth brief-§10
+Atlas kind — the **formula/equation sheet** — with a machine-checkable honesty model for regime-2 relations.
+
+- **The `formula` Atlas kind** (`schemas/formula.schema.json`, `reference.build_formula_entry`, ADR-0039): a
+  reference relation whose **dimensional homogeneity is machine-checked** — each side (each term) is a monomial
+  over the variables, and the producer refuses to emit unless every term reduces to one SI dimension vector. We
+  do not claim the relation is *true*: a **model-exact** entry (PV=nRT) carries the model-assumed badge and
+  **must disclose an assumption**; a **ledger-exact** entry (n=m/M) carries the machine-checked badge.
+  Dimensional consistency is what we prove; the model is what we disclose.
+- **A native SI-vector dimension engine** (`chemkernel.dimension`) — not SymPy `dims.py` (a chemistry-motivated
+  divergence, ADR-0001): first-course relations are monomials, so homogeneity is integer-vector arithmetic, and
+  the payoff is **pure-Node re-derivation** — the producer emits each variable's dimension vector + each term's
+  factor powers, and `validate-reference.mjs` (via a shared `scripts/validate/dimension.mjs`) re-computes every
+  term's dimension and re-checks equality (the ADR-0028 emit-and-re-tally pattern). Kept separate from the
+  Decimal `units.py` engine, exactly as ADR-0015 required.
+- **8 relations** — 5 ledger-exact backfilling Phase-0/1 (mole–mass, molarity, dilution, Avogadro's-number,
+  percent yield) + 3 model-exact opening the gas/thermo tier (ideal gas law, combined gas law, calorimetry).
+  Two sourced constants **threaded from `data/constants.toml`** (N_A; the **gas constant R**, newly registered
+  under `bipm-si-2019`) — never hard-coded. Player: `reference/formulas.astro` (teaching-order groups, the
+  dimensional-check line, variable/unit tables, disclosed assumptions, rearrangements) + an Atlas-index card.
+- **Gates + tests.** `validate-reference` = **50 objects** (+8 formulas), re-deriving homogeneity; `check-katex`
+  = **461** (+42 formula LaTeX). **255 producer tests** (+12: `test_dimension.py` + formula-builder tests). The
+  formula gate is **7-way tamper-tested** — term/variable/total-dimension corruption, forced non-homogeneity,
+  empty model assumption, dangling edge, unregistered source — each caught then restored. `derived/` byte-stable
+  (+8 files); `astro build` = **21 pages** (+1: `/reference/formulas/`). In-browser verified (light + dark, no
+  console errors). The Atlas now carries **all four brief-§10 kinds**.
+
 ## Phase 1 — 2026-07-08 — session-map #8: Atlas breadth audit (ADR-0038) — Phase-1 DoD met
 
 The last Phase-1 work — the species Atlas kind, the final empty regime-map row filled, and a cross-link

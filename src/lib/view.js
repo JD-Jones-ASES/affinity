@@ -234,6 +234,19 @@ export function renderSpecies(sp) {
   return s;
 }
 
+// Render a formula/equation-sheet entry (ADR-0039): the statement + rearrangements are display LaTeX; the
+// summary/domain may carry inline $…$. The variables/terms/dimension are already exact from the producer and
+// the dimensional homogeneity is machine-verified — presentation only.
+export function renderFormula(f) {
+  const r = structuredClone(f);
+  r.statementHtml = tex(f.statement);
+  r.summaryHtml = inline(f.summary);
+  r.domainHtml = f.domain ? inline(f.domain) : null;
+  r.rearrangementsHtml = (f.rearrangements ?? []).map((x) => tex(x, false));
+  r.assumptions = (f.assumptions ?? []).map((a) => ({ ...a, claimHtml: inline(a.claim) }));
+  return r;
+}
+
 // Render a concept entry (definition may carry inline $…$; latex is a standalone display formula).
 export function renderConcept(c) {
   return {

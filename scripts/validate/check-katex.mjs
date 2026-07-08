@@ -64,6 +64,12 @@ function referenceLatex(ref) {
     if (ref.latex) out.push(["latex", ref.latex]);
     out.push(...inlineMath("summary", ref.summary));
     (ref.notes ?? []).forEach((n, i) => out.push(...inlineMath(`notes[${i}]`, n)));
+  } else if (ref.kind === "formula") {
+    // ADR-0039: the equation statement, every authored rearrangement, and inline $…$ in the summary/domain
+    if (ref.statement) out.push(["statement", ref.statement]);
+    (ref.rearrangements ?? []).forEach((r, i) => out.push([`rearrangements[${i}]`, r]));
+    out.push(...inlineMath("summary", ref.summary));
+    if (ref.domain) out.push(...inlineMath("domain", ref.domain));
   }
   return out;
 }

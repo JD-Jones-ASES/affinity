@@ -1,0 +1,124 @@
+{
+  "kind": "formula",
+  "id": "formula-molarity",
+  "title": "Molarity",
+  "name": "Molarity (concentration)",
+  "statement": "c = \\dfrac{n}{V}",
+  "regime": "ledger-exact",
+  "dimension": [
+    0,
+    -3,
+    0,
+    1,
+    0,
+    0
+  ],
+  "dimension_name": "concentration",
+  "variables": [
+    {
+      "symbol": "c",
+      "meaning": "molar concentration",
+      "unit": "M",
+      "dimension": [
+        0,
+        -3,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "n",
+      "meaning": "amount of solute",
+      "unit": "mol",
+      "dimension": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "V",
+      "meaning": "solution volume",
+      "unit": "L",
+      "dimension": [
+        0,
+        3,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "terms": [
+    {
+      "side": "lhs",
+      "display": "c",
+      "factors": [
+        {
+          "var": "c",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        0,
+        -3,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "side": "rhs",
+      "display": "n / V",
+      "factors": [
+        {
+          "var": "n",
+          "power": 1
+        },
+        {
+          "var": "V",
+          "power": -1
+        }
+      ],
+      "dimension": [
+        0,
+        -3,
+        0,
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "assumptions": [],
+  "summary": "Concentration is amount per volume — $\\mathrm{mol/L}$, written $\\mathrm{M}$. Dividing moles by litres gives the molarity; multiplying a molarity by a volume gives back moles, which is how a measured volume of a stock solution becomes an amount on the ledger.",
+  "related": [
+    {
+      "to": "molarity",
+      "type": "see-also"
+    },
+    {
+      "to": "formula-dilution",
+      "type": "special-case-of"
+    },
+    {
+      "to": "dimensional-analysis",
+      "type": "measured-by"
+    }
+  ],
+  "lessons": [
+    "calcium-carbonate-limiting"
+  ],
+  "domain": "Any solution; the definition of molar concentration. Volume is the total solution volume, not the solvent volume.",
+  "rearrangements": [
+    "n = cV",
+    "V = \\dfrac{n}{c}"
+  ]
+}

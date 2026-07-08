@@ -10,6 +10,7 @@ const concepts = all.filter((r) => r.kind === "concept").map(renderConcept).sort
 const reactionFamilies = all.filter((r) => r.kind === "reaction-family");
 const exampleCount = reactionFamilies.reduce((n, f) => n + f.examples.length, 0);
 const speciesEntries = all.filter((r) => r.kind === "species");
+const formulaEntries = all.filter((r) => r.kind === "formula");
 
 const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
 const lessonTitle = Object.fromEntries(Object.values(sols).map((m) => [m.default.slug, m.default.title]));
@@ -43,6 +44,15 @@ const conceptTitle = Object.fromEntries(concepts.map((c) => [c.id, c.title]));
       <p class="muted">The {speciesEntries.length} compounds, elemental molecules, and ions that recur across the
         lessons — each with its composition, charge, and molar mass <strong>derived and re-summed by the
         engine</strong> from the sourced atomic weights.</p>
+    </a>
+  )}
+
+  {formulaEntries.length > 0 && (
+    <a class="tablecard" href={withBase("/reference/formulas/")}>
+      <div class="tc-head"><h2>Formula &amp; equation sheet →</h2></div>
+      <p class="muted">The {formulaEntries.length} core relations — mole–mass, molarity, dilution, the ideal gas
+        law, calorimetry — each with its variables and units, and its <strong>dimensional homogeneity
+        machine-checked</strong> (both sides reduce to the same dimension) and re-derived in the gate.</p>
     </a>
   )}
 

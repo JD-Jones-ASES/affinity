@@ -1,0 +1,42 @@
+# Chemical Atlas formula entry (ADR-0039). Threads the sourced Avogadro constant from data/constants.toml —
+# never hard-coded. Bare keys before [[array-of-tables]] headers (TOML trap #4).
+id = "formula-avogadro-number"
+kind = "formula"
+title = "Particles from moles"
+name = "Avogadro's number relation"
+statement = "N = n\\,N_A"
+regime = "ledger-exact"
+domain = "Counting discrete particles (atoms, molecules, ions, formula units). N_A is a fixed count per mole."
+summary = "A mole is a count: $N_A = 6.02214076\\times10^{23}$ particles per mole (exact since the 2019 SI redefinition). Multiplying an amount in moles by $N_A$ gives a pure number of particles — the moles cancel the per-mole of $N_A$, leaving a dimensionless count, which the machine confirms."
+rearrangements = ["n = \\dfrac{N}{N_A}"]
+related = [
+  { to = "atomic-mass", type = "see-also" },
+  { to = "formula-mole-mass", type = "see-also" },
+]
+lessons = []
+
+[[variables]]
+symbol = "N"
+meaning = "number of particles"
+unit = ""
+
+[[variables]]
+symbol = "n"
+meaning = "amount of substance"
+unit = "mol"
+
+[[variables]]
+symbol = "N_A"
+meaning = "Avogadro constant"
+unit = "mol^-1"
+constant = "avogadro"
+
+[[terms]]
+side = "lhs"
+display = "N"
+factors = [ { var = "N", power = 1 } ]
+
+[[terms]]
+side = "rhs"
+display = "n · N_A"
+factors = [ { var = "n", power = 1 }, { var = "N_A", power = 1 } ]

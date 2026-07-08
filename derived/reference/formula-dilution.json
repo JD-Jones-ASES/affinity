@@ -1,0 +1,135 @@
+{
+  "kind": "formula",
+  "id": "formula-dilution",
+  "title": "Dilution",
+  "name": "Dilution equation",
+  "statement": "M_1 V_1 = M_2 V_2",
+  "regime": "ledger-exact",
+  "dimension": [
+    0,
+    0,
+    0,
+    1,
+    0,
+    0
+  ],
+  "dimension_name": "amount",
+  "variables": [
+    {
+      "symbol": "M₁",
+      "meaning": "initial concentration",
+      "unit": "M",
+      "dimension": [
+        0,
+        -3,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "V₁",
+      "meaning": "initial volume",
+      "unit": "L",
+      "dimension": [
+        0,
+        3,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "M₂",
+      "meaning": "final concentration",
+      "unit": "M",
+      "dimension": [
+        0,
+        -3,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "V₂",
+      "meaning": "final volume",
+      "unit": "L",
+      "dimension": [
+        0,
+        3,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "terms": [
+    {
+      "side": "lhs",
+      "display": "M₁V₁",
+      "factors": [
+        {
+          "var": "M₁",
+          "power": 1
+        },
+        {
+          "var": "V₁",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "side": "rhs",
+      "display": "M₂V₂",
+      "factors": [
+        {
+          "var": "M₂",
+          "power": 1
+        },
+        {
+          "var": "V₂",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "assumptions": [],
+  "summary": "Adding solvent does not add or remove solute — so the amount $M V$ (concentration times volume, an amount of moles) is the same before and after. Both sides of the equation carry the dimension of an amount, which is exactly the conserved quantity.",
+  "related": [
+    {
+      "to": "formula-molarity",
+      "type": "special-case-of"
+    },
+    {
+      "to": "conservation-of-mass",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [],
+  "domain": "Diluting a solution with more solvent: the moles of solute are unchanged, only the volume grows. Not for mixing two different solutes.",
+  "rearrangements": [
+    "M_2 = \\dfrac{M_1 V_1}{V_2}",
+    "V_2 = \\dfrac{M_1 V_1}{M_2}"
+  ]
+}

@@ -1000,3 +1000,56 @@ files). **Deferred:** the formula/equation sheet (the fourth-and-a-half kind —
 opens with Phase 2 per the DoD); monatomic-ion species entries (the ion table + Valence Table cover them; the
 schema permits the class); the average-atomic-mass gym (needs isotope-abundance data). Phase 1 is now
 **complete pending owner review** — the review gate before Phase 2 (the owner's to open).
+
+## ADR-0039 — Open Phase 2; the formula/equation-sheet Atlas kind, verified by dimensional homogeneity (2026-07-08)
+
+**Context.** The owner opened **Phase 2** — the model-bearing tier (brief §17 items 7–10: gases +
+thermochemistry, bonding, equilibrium/acid-base, kinetics/electrochemistry). Per the project's phase protocol
+(ROADMAP: open with the reusable instrument, then fill depth-first), Phase 2 opens on **gases + thermochemistry**
+(brief item 7) by landing the **formula/equation-sheet Atlas kind** — the fourth brief-§10 kind, deferred through
+Phase 1 as "mostly model-bearing, opens with Phase 2" (ADR-0038). Three questions had to be answered together:
+(1) what is the honesty model for a *reference relation* — most of the sheet (PV=nRT, q=mcΔT) is regime-2
+(model-exact), which the machine cannot prove true; (2) architecture Q's ADR-0015 deferred "symbolic dimensional
+homogeneity of reference formulas … adapt the sibling's SymPy `dims.py` when the formula sheet lands" — do we; and
+(3) the sheet needs new dimensions (pressure, temperature, energy) ADR-0015 deferred "to gases/thermo".
+
+**Decision.**
+1. **The honesty model for a formula entry is machine-checked DIMENSIONAL HOMOGENEITY, not a proof of the
+   relation.** Each entry is a set of `terms` (monomials over the variables, one per side / addend); a relation is
+   admissible iff **every term reduces to one SI dimension vector**. The producer computes each term's dimension
+   from the variables' units and **refuses to emit** a non-homogeneous relation (ADR-0008). We do NOT claim the
+   relation is true: a **model-exact** entry carries the **model-assumed badge and MUST disclose an assumption**
+   (the producer refuses otherwise); a **ledger-exact** entry (n=m/M, definitional) carries the machine-checked
+   badge. Dimensional consistency is what we prove; the model is what we disclose — the three-badge honesty model
+   (ADR-0003) stands, no new badge.
+2. **A native integer-vector dimension engine (`chemkernel.dimension`), NOT SymPy `dims.py`** — a
+   chemistry-motivated divergence (ADR-0001). First-course relations are monomials/sums-of-monomials, so
+   homogeneity is plain integer-vector arithmetic; the payoff is **pure-Node re-derivation parity** — the producer
+   emits each variable's dimension vector + each term's factor powers, and `validate-reference.mjs` (via a shared
+   `scripts/validate/dimension.mjs` mirroring the Python table) **re-computes every term's dimension and re-checks
+   equality**, the ADR-0028 "emit the matrix, re-tally in Node" pattern. The unit→dimension table is *definitional*
+   (the dimension of "atm" is SI structure, not an empirical value), so it lives in code, not `data/` — and the
+   Decimal units engine (`units.py`, amount/mass/volume, for numeric conversion) stays **separate** from this SI
+   dimension engine, exactly as ADR-0015 required ("the two needs are not conflated"). Base order is the fixed
+   6-vector `[mass, length, time, amount, temperature, current]` (luminous dropped; current 0 until electrochem).
+3. **The `formula` Atlas kind** (`schemas/formula.schema.json`, `reference.build_formula_entry`): id/name/statement
+   (LaTeX) + `variables` (symbol, meaning, unit, derived dimension, optional threaded constant) + `terms` (factors +
+   derived dimension) + the common `dimension`/`dimension_name` + `assumptions`/`domain`/`rearrangements`/`summary` +
+   `related`/`lessons`. A sourced constant (R, N_A) is **threaded from `data/constants.toml`** — value + unit +
+   source — never hard-coded; `data.py` now carries each constant's unit. The **gas constant R** is registered
+   (`data/constants.toml`, `bipm-si-2019` — R = N_A·k_B, exact in SI; the L·atm/(mol·K) teaching value is that exact
+   value unit-converted). `validate-reference` re-derives homogeneity + resolves edges/lessons/sources; `check-katex`
+   renders the statement + rearrangements + inline math. Player: `reference/formulas.astro` (grouped teaching order,
+   the dimensional-check line, variable tables, disclosed assumptions) + an Atlas-index card + `view.renderFormula`.
+4. **The first sheet: 8 entries** — 5 ledger-exact backfilling Phase-0/1 (mole–mass, molarity, dilution,
+   Avogadro's-number, percent yield) + 3 model-exact opening the gas/thermo tier (ideal gas law, combined gas law,
+   calorimetry). Two constants threaded (N_A, R).
+
+**Consequences.** The Atlas now carries all four brief-§10 kinds. The formula sheet is the reference backbone the
+Phase-2 gym/lesson increments link to, and dimensional homogeneity is the honesty pattern for every future
+model-exact relation. `validate-reference` = **50 objects** (was 42); check-katex +42 strings; `dimension.py` +
+`dimension.mjs` are the shared engine (7-way tamper-tested: term/variable/total-dimension corruption, forced
+non-homogeneity, empty model assumption, dangling edge, unregistered source — each caught). **Deferred:** the
+numeric gas-law **computation** (the `units.py` pressure/temperature/energy extension + a `gas_laws_v1` gym) and a
+gas-stoichiometry **lesson** are the next Phase-2 increments; specific-heat / thermodynamic-table data curate when a
+calorimetry gym/lesson needs values; further sheet entries (Hess's law, pH, K, ΔG, Nernst) land with their topics.

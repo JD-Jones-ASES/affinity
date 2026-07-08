@@ -1,0 +1,65 @@
+# Chemical Atlas formula entry (ADR-0039) — the Phase-2 flagship. A MODEL-EXACT relation: the algebra is
+# exact once the ideal-gas model is granted, so it carries the model-assumed badge and MUST disclose an
+# assumption (the producer refuses otherwise). What the machine checks is dimensional homogeneity — PV and
+# nRT are both an energy — re-derived in pure Node. Threads the sourced gas constant R from data/constants.toml.
+# Bare keys before [[array-of-tables]] headers (TOML trap #4).
+id = "formula-ideal-gas-law"
+kind = "formula"
+title = "Ideal gas law"
+name = "Ideal gas law"
+statement = "PV = nRT"
+regime = "model-exact"
+domain = "Best when the gas is dilute — low pressure and temperature well above the boiling point. Real gases deviate near condensation (high P, low T), where intermolecular forces and molecular volume stop being negligible."
+summary = "The single relation tying a gas's pressure, volume, amount, and temperature. Each side, $PV$ and $nRT$, works out to an energy — the machine confirms the two are dimensionally the same, which is why the equation can hold. Solve it for any one variable given the other three; it is the gas-phase entry onto the species ledger (a volume of gas is an amount of moles)."
+rearrangements = ["V = \\dfrac{nRT}{P}", "n = \\dfrac{PV}{RT}", "P = \\dfrac{nRT}{V}", "T = \\dfrac{PV}{nR}"]
+related = [
+  { to = "formula-combined-gas-law", type = "see-also" },
+  { to = "carbon-dioxide", type = "see-also" },
+  { to = "dioxygen", type = "see-also" },
+  { to = "stoichiometry", type = "measured-by" },
+]
+lessons = []
+
+[[variables]]
+symbol = "P"
+meaning = "pressure"
+unit = "atm"
+
+[[variables]]
+symbol = "V"
+meaning = "volume"
+unit = "L"
+
+[[variables]]
+symbol = "n"
+meaning = "amount of gas"
+unit = "mol"
+
+[[variables]]
+symbol = "R"
+meaning = "universal gas constant"
+unit = "L*atm/(mol*K)"
+constant = "gas_constant"
+
+[[variables]]
+symbol = "T"
+meaning = "absolute temperature"
+unit = "K"
+
+[[terms]]
+side = "lhs"
+display = "PV"
+factors = [ { var = "P", power = 1 }, { var = "V", power = 1 } ]
+
+[[terms]]
+side = "rhs"
+display = "nRT"
+factors = [ { var = "n", power = 1 }, { var = "R", power = 1 }, { var = "T", power = 1 } ]
+
+[[assumptions]]
+claim = "The gas is ideal: its particles have negligible volume and no intermolecular forces."
+kind = "model"
+
+[[assumptions]]
+claim = "T is the absolute (kelvin) temperature — convert from °C by adding 273.15 before using the law."
+kind = "model"

@@ -50,11 +50,13 @@ class Ion:
 
 class ChemData:
     def __init__(self, elements: dict[str, Element], ions: dict[str, Ion], sources: dict[str, str],
-                 constants: dict[str, Decimal] | None = None, bonding: dict | None = None):
+                 constants: dict[str, Decimal] | None = None, bonding: dict | None = None,
+                 constant_units: dict[str, str] | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
         self.constants = constants or {}
+        self.constant_units = constant_units or {}
         self.bonding = bonding or {}
 
     @property
@@ -63,6 +65,12 @@ class ChemData:
         if "avogadro" not in self.constants:
             raise BuildError("Avogadro constant not loaded — is data/constants.toml present?")
         return self.constants["avogadro"]
+
+    def constant_unit(self, key: str) -> str:
+        """The unit label a curated constant carries in data/constants.toml (e.g. R's L*atm/(mol*K))."""
+        if key not in self.constants:
+            raise BuildError(f"unknown constant '{key}' — not in data/constants.toml")
+        return self.constant_units.get(key, "")
 
     @classmethod
     def load(cls, root: Path | None = None) -> "ChemData":
@@ -105,8 +113,10 @@ class ChemData:
             except KeyError as exc:
                 raise BuildError(f"data/ions.toml: bad entry for '{ion_id}': missing {exc}") from exc
 
-        # physical constants (optional file; ADR-0006). Values read as Decimal, never float.
+        # physical constants (optional file; ADR-0006). Values read as Decimal, never float; the unit label
+        # travels alongside so the formula sheet can thread a sourced constant (R) with its units (ADR-0039).
         constants: dict[str, Decimal] = {}
+        constant_units: dict[str, str] = {}
         const_source = ""
         const_path = d / "constants.toml"
         if const_path.exists():
@@ -118,6 +128,7 @@ class ChemData:
                         constants[key] = Decimal(v["value"])
                     except ArithmeticError as exc:
                         raise BuildError(f"data/constants.toml: bad value for '{key}': {exc}") from exc
+                    constant_units[key] = v.get("unit", "")
 
         # bond-classification ruleset (optional file; ADR-0033). ΔEN class thresholds are a sourced teaching
         # rule (OpenStax Fig 7.8), kept as data so the bonding mode never hard-codes an empirical boundary.
@@ -146,7 +157,7 @@ class ChemData:
             "constants": const_source,
             "bonding": bonding.get("source", ""),
         }
-        obj = cls(elements, ions, sources, constants, bonding)
+        obj = cls(elements, ions, sources, constants, bonding, constant_units)
         obj.validate()
         return obj
 

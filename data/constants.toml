@@ -10,3 +10,15 @@ value = "6.02214076e23"
 unit = "mol^-1"
 name = "Avogadro constant"
 exact = true
+
+# The universal (molar) gas constant, R = N_A * k_B. Both factors are exact defined constants since the 2019
+# SI redefinition, so R is EXACT in SI units: R = 8.314462618 J/(mol*K). Chemistry's ideal-gas problems use
+# pressure in atm and volume in L, where R = 0.0820573660809596... L*atm/(mol*K) (1 L*atm = 101.325 J exactly,
+# so this is a unit conversion of an exact value — non-terminating in these units, shown to 15 figures). Read
+# as Decimal (ADR-0013). Used by the formula sheet's ideal-gas entry (ADR-0039) and the gas-laws gym.
+[gas_constant]
+symbol = "R"
+value = "0.0820573660809596"
+unit = "L*atm/(mol*K)"
+name = "universal gas constant"
+exact = false

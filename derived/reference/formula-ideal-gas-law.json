@@ -1,0 +1,180 @@
+{
+  "kind": "formula",
+  "id": "formula-ideal-gas-law",
+  "title": "Ideal gas law",
+  "name": "Ideal gas law",
+  "statement": "PV = nRT",
+  "regime": "model-exact",
+  "dimension": [
+    1,
+    2,
+    -2,
+    0,
+    0,
+    0
+  ],
+  "dimension_name": "energy",
+  "variables": [
+    {
+      "symbol": "P",
+      "meaning": "pressure",
+      "unit": "atm",
+      "dimension": [
+        1,
+        -1,
+        -2,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "V",
+      "meaning": "volume",
+      "unit": "L",
+      "dimension": [
+        0,
+        3,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "n",
+      "meaning": "amount of gas",
+      "unit": "mol",
+      "dimension": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "R",
+      "meaning": "universal gas constant",
+      "unit": "L*atm/(mol*K)",
+      "dimension": [
+        1,
+        2,
+        -2,
+        -1,
+        -1,
+        0
+      ],
+      "constant": {
+        "key": "gas_constant",
+        "value": "0.0820573660809596",
+        "unit": "L*atm/(mol*K)",
+        "source": "bipm-si-2019"
+      }
+    },
+    {
+      "symbol": "T",
+      "meaning": "absolute temperature",
+      "unit": "K",
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ]
+    }
+  ],
+  "terms": [
+    {
+      "side": "lhs",
+      "display": "PV",
+      "factors": [
+        {
+          "var": "P",
+          "power": 1
+        },
+        {
+          "var": "V",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        1,
+        2,
+        -2,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "side": "rhs",
+      "display": "nRT",
+      "factors": [
+        {
+          "var": "n",
+          "power": 1
+        },
+        {
+          "var": "R",
+          "power": 1
+        },
+        {
+          "var": "T",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        1,
+        2,
+        -2,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The gas is ideal: its particles have negligible volume and no intermolecular forces.",
+      "kind": "model"
+    },
+    {
+      "claim": "T is the absolute (kelvin) temperature — convert from °C by adding 273.15 before using the law.",
+      "kind": "model"
+    }
+  ],
+  "summary": "The single relation tying a gas's pressure, volume, amount, and temperature. Each side, $PV$ and $nRT$, works out to an energy — the machine confirms the two are dimensionally the same, which is why the equation can hold. Solve it for any one variable given the other three; it is the gas-phase entry onto the species ledger (a volume of gas is an amount of moles).",
+  "related": [
+    {
+      "to": "formula-combined-gas-law",
+      "type": "see-also"
+    },
+    {
+      "to": "carbon-dioxide",
+      "type": "see-also"
+    },
+    {
+      "to": "dioxygen",
+      "type": "see-also"
+    },
+    {
+      "to": "stoichiometry",
+      "type": "measured-by"
+    }
+  ],
+  "lessons": [],
+  "domain": "Best when the gas is dilute — low pressure and temperature well above the boiling point. Real gases deviate near condensation (high P, low T), where intermolecular forces and molecular volume stop being negligible.",
+  "rearrangements": [
+    "V = \\dfrac{nRT}{P}",
+    "n = \\dfrac{PV}{RT}",
+    "P = \\dfrac{nRT}{V}",
+    "T = \\dfrac{PV}{nR}"
+  ],
+  "sources": [
+    "bipm-si-2019"
+  ]
+}

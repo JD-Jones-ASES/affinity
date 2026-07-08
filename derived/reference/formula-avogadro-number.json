@@ -1,0 +1,126 @@
+{
+  "kind": "formula",
+  "id": "formula-avogadro-number",
+  "title": "Particles from moles",
+  "name": "Avogadro's number relation",
+  "statement": "N = n\\,N_A",
+  "regime": "ledger-exact",
+  "dimension": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "dimension_name": "dimensionless",
+  "variables": [
+    {
+      "symbol": "N",
+      "meaning": "number of particles",
+      "unit": "",
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "n",
+      "meaning": "amount of substance",
+      "unit": "mol",
+      "dimension": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "N_A",
+      "meaning": "Avogadro constant",
+      "unit": "mol^-1",
+      "dimension": [
+        0,
+        0,
+        0,
+        -1,
+        0,
+        0
+      ],
+      "constant": {
+        "key": "avogadro",
+        "value": "6.02214076E+23",
+        "unit": "mol^-1",
+        "source": "bipm-si-2019"
+      }
+    }
+  ],
+  "terms": [
+    {
+      "side": "lhs",
+      "display": "N",
+      "factors": [
+        {
+          "var": "N",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "side": "rhs",
+      "display": "n · N_A",
+      "factors": [
+        {
+          "var": "n",
+          "power": 1
+        },
+        {
+          "var": "N_A",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "assumptions": [],
+  "summary": "A mole is a count: $N_A = 6.02214076\\times10^{23}$ particles per mole (exact since the 2019 SI redefinition). Multiplying an amount in moles by $N_A$ gives a pure number of particles — the moles cancel the per-mole of $N_A$, leaving a dimensionless count, which the machine confirms.",
+  "related": [
+    {
+      "to": "atomic-mass",
+      "type": "see-also"
+    },
+    {
+      "to": "formula-mole-mass",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [],
+  "domain": "Counting discrete particles (atoms, molecules, ions, formula units). N_A is a fixed count per mole.",
+  "rearrangements": [
+    "n = \\dfrac{N}{N_A}"
+  ],
+  "sources": [
+    "bipm-si-2019"
+  ]
+}

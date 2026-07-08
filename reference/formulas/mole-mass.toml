@@ -1,0 +1,43 @@
+# Chemical Atlas formula entry (brief §10.3, ADR-0039). Its DIMENSIONAL HOMOGENEITY is machine-checked: the
+# producer computes each term's SI dimension from the variables' units and refuses to emit unless both sides
+# agree; the gate re-derives it in pure Node. Bare keys precede the [[array-of-tables]] headers (TOML trap #4).
+id = "formula-mole-mass"
+kind = "formula"
+title = "Moles from mass"
+name = "Mole–mass relation"
+statement = "n = \\dfrac{m}{M}"
+regime = "ledger-exact"
+domain = "Any pure substance whose molar mass is known; the definition of molar mass, so it always holds."
+summary = "The bridge between the mass you weigh and the moles the balanced equation counts. Because molar mass $M$ carries units of $\\mathrm{g/mol}$, dividing a mass in grams by it cancels the grams and leaves moles — the machine checks that both sides are an amount."
+rearrangements = ["m = nM", "M = \\dfrac{m}{n}"]
+related = [
+  { to = "molar-mass", type = "uses" },
+  { to = "stoichiometry", type = "measured-by" },
+  { to = "dimensional-analysis", type = "see-also" },
+]
+lessons = []
+
+[[variables]]
+symbol = "n"
+meaning = "amount of substance"
+unit = "mol"
+
+[[variables]]
+symbol = "m"
+meaning = "mass"
+unit = "g"
+
+[[variables]]
+symbol = "M"
+meaning = "molar mass"
+unit = "g/mol"
+
+[[terms]]
+side = "lhs"
+display = "n"
+factors = [ { var = "n", power = 1 } ]
+
+[[terms]]
+side = "rhs"
+display = "m / M"
+factors = [ { var = "m", power = 1 }, { var = "M", power = -1 } ]
