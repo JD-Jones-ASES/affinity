@@ -201,13 +201,13 @@ equilibrium/acid-base, kinetics, electrochemistry. History in [`CHANGELOG.md`](.
 [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
 [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
-**Counters:** 7 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
-**1 bonding/structure**) · 11 gyms / 110 verified problems (dimensional analysis · ionic nomenclature · balancing · mass
+**Counters:** 8 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
+**2 bonding/structure** — water bent-polar + CO₂ linear-nonpolar) · 11 gyms / 110 verified problems (dimensional analysis · ionic nomenclature · balancing · mass
 stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas laws · calorimetry · Lewis
 structures) · 1 Valence Table (23 elements; four modes; 156 named + machine-verified salts) · 23 concept entries (7
 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species entries + **6 molecule structure
 entries** (ADR-0044) + 9 formula-sheet entries (ADR-0039/0043) · 60 Atlas reference objects · 7 Node gates + CI + live
-Pages · 306 producer tests · astro build = 28 pages.
+Pages · 306 producer tests · astro build = 29 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; honesty = three badges
 (regime-4 → model-assumed badge + an "interpretive" marker, ADR-0033); numeric practice free-entry (diagnostics), categorical

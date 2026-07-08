@@ -23,7 +23,8 @@
     }
   ],
   "lessons": [
-    "water-molecular-shape"
+    "water-molecular-shape",
+    "carbon-dioxide-molecular-shape"
   ],
   "regime": "ledger-exact",
   "latex": "\\text{FC} = V_{\\text{atom}} - N_{\\text{nonbonding}} - \\tfrac{1}{2}B_{\\text{bonding}}"

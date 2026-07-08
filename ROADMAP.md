@@ -25,7 +25,11 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   fixed steps (valence/lewis/shape/polarity) carry authored prose under the three honesty badges; the "water is linear"
   misconception is refuted from the verified geometry (lone pairs are domains → bent). The molecule electron-ledger
   re-derivation was factored into a shared `structurecheck.mjs` (`verifyElectronLedger`) used by both the reference + the
-  solutions gate, which also cross-checks the embedded ledger against the Atlas (no drift). A fully static player. Lesson #7.
+  solutions gate, which also cross-checks the embedded ledger against the Atlas (no drift). A fully static player. A
+  **second structure lesson** followed (2nd increment, same ADR): `bonding/carbon-dioxide-molecular-shape` — *why CO₂ is
+  linear* (polar bonds, nonpolar molecule — the marquee contrast; double bonds, no central lone pairs → linear → dipoles
+  cancel; a new `symmetric_geometry_cancels_dipoles` refutation branch), authored inside the contract (no new code).
+  Lessons #7–#8.
 - **Bonding & structure tier — OPEN** (2026-07-08, ADR-0044): the **Lewis electron-ledger engine** (`chemkernel.structure`,
   `compute_ledger`) + the **`molecule` Atlas kind** + the **`lewis_structures_v1` gym** (+ the structure lesson, ADR-0045).
   The electron ledger — valence total, octet/duet, formal charge, their conservation — is exact integer arithmetic,

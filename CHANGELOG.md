@@ -3,6 +3,22 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — CO₂ structure lesson: polar bonds, nonpolar molecule (ADR-0045, 2nd increment)
+
+The second `structure` lesson — the marquee VSEPR contrast, proving the new machinery generalises to a different shape.
+
+- **Lesson `bonding/carbon-dioxide-molecular-shape`** — *why CO₂ is linear*: 16 e⁻ → two C=O **double bonds** (the octet
+  fix, machine-checked) → 2 electron domains, **no lone pairs on carbon** → **linear** (sourced) → each C=O polar (ΔEN
+  0.89) but the two dipoles cancel → **nonpolar** (model-assumed). The same "central atom + two outer atoms" skeleton as
+  water, opposite result — the lone pairs (present in water, absent here) decide. The misconception ("two polar bonds → a
+  polar molecule") gets a new data-driven refutation branch (`symmetric_geometry_cancels_dipoles`).
+- **Reuse:** authored entirely inside the ADR-0045 contract — no new schema/builder/gate; the CO₂ molecule Atlas entry's
+  connectivity + the shared `compute_ledger`. `test_structure.py` generalised to build **every** shipped structure lesson.
+- **Verification:** 306 producer tests green; 7 gates green (validate-solutions = 6 + **2** structure lessons;
+  check-katex = **499**); **29 pages** (+1); `derived/` byte-stable, no existing derived changed (bar the CO₂ + 2 concept
+  backlinks). In-browser: the linear/nonpolar payoff + the "polar bonds cancel" refutation render; both structure lessons
+  list under Bonding (8 lessons), and CO₂ ↔ water cross-link as the contrast pair.
+
 ## Phase 2 — 2026-07-08 — bonding & structure lesson: the electron ledger over a single molecule (ADR-0045)
 
 The bonding tier's deep vertical slice — the electron ledger's presentation shape generalised past a reaction to one

@@ -262,16 +262,20 @@ def test_refuse_missing_required_lesson_key():
         _lesson(bad, WATER)
 
 
-def test_authored_structure_lesson_builds():
-    # the shipped lesson TOML + its referenced molecule TOML build end to end
+def test_all_authored_structure_lessons_build():
+    # every shipped structure lesson + its referenced molecule TOML build end to end
     data = _data()
-    lesson_spec = tomllib.loads((ROOT / "problems" / "bonding" / "water-molecular-shape.structure.toml")
-                                .read_text(encoding="utf-8"))
     molecules = {}
     for path in (ROOT / "reference" / "molecules").glob("*.toml"):
         s = tomllib.loads(path.read_text(encoding="utf-8"))
         molecules[s["id"]] = s
-    les = build_structure_lesson(lesson_spec, molecules[lesson_spec["molecule"]], data, ctx=lesson_spec["id"])
-    assert les["kind"] == "structure" and les["molecule"]["ref_id"] == "molecule-water"
-    assert les["molecule"]["geometry"]["molecular_shape"] == "bent"
-    assert len(les["steps"]) == 4 and len(les["assumptions"]) == 3
+    lessons = sorted((ROOT / "problems").glob("**/*.structure.toml"))
+    assert lessons, "no structure lessons found"
+    for path in lessons:
+        spec = tomllib.loads(path.read_text(encoding="utf-8"))
+        les = build_structure_lesson(spec, molecules[spec["molecule"]], data, ctx=spec["id"])
+        assert les["kind"] == "structure" and les["molecule"]["ref_id"] == spec["molecule"]
+        assert [s["key"] for s in les["steps"]] == ["valence", "lewis", "shape", "polarity"]
+        assert les["molecule"]["charge"] == 0                # a structure lesson's molecule is neutral (polarity)
+        # electron conservation holds for the embedded ledger
+        assert les["molecule"]["electron_check"]["total"] == les["molecule"]["valence_electrons"]

@@ -12,4 +12,4 @@ related = [
   { to = "lewis-structure", type = "depends-on" },
   { to = "electronegativity", type = "see-also" },
 ]
-lessons = ["water-molecular-shape"]
+lessons = ["water-molecular-shape", "carbon-dioxide-molecular-shape"]

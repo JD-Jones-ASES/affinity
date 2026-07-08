@@ -109,7 +109,9 @@
       "type": "species"
     }
   ],
-  "lessons": [],
+  "lessons": [
+    "carbon-dioxide-molecular-shape"
+  ],
   "polarity": "nonpolar",
   "polarity_reason": "The molecule is linear, so the two equal, opposite C=O bond dipoles cancel exactly — polar bonds, but no net molecular dipole."
 }

@@ -45,10 +45,11 @@ tab (`PracticeQuestion.svelte`); `gym/[slug].astro` + `DimensionalGym.svelte` ru
 `reference/` hosts the Atlas + Valence Table. Spec formats are documented (`docs/authoring-problems.md`,
 `docs/authoring-gyms.md`) and **CI deploys to GitHub Pages** (`.github/workflows/deploy.yml`, live at
 `/affinity`). Independent **test oracles** (ADR-0026: `chempy`, `periodictable` as dev-deps) cross-check the
-molar masses and balancer in pytest. **Current counters: 7 lessons (2 precipitation + 1 percent-yield + 1
+molar masses and balancer in pytest. **Current counters: 8 lessons (2 precipitation + 1 percent-yield + 1
 acid-base neutralization, ADR-0037; + 1 gas-stoichiometry — the ledger drives a gas volume via PV=nRT, ADR-0041;
-+ 1 thermochemistry/energy-ledger — the ledger drives a heat q=ΔH_rxn·ξ via Hess's law, ADR-0043; + 1 bonding/structure —
-a single molecule's Lewis electron ledger stepped to VSEPR + polarity, the `structure` lesson kind, ADR-0045)
++ 1 thermochemistry/energy-ledger — the ledger drives a heat q=ΔH_rxn·ξ via Hess's law, ADR-0043; + 2 bonding/structure —
+a single molecule's Lewis electron ledger stepped to VSEPR + polarity, the `structure` lesson kind, ADR-0045: water
+bent-polar + CO₂ linear-nonpolar)
 + 11 gyms (conversions + ionic nomenclature + balancing + mass
 stoichiometry + percent yield + limiting reagent + periodic trends + reaction families + gas laws + calorimetry +
 Lewis structures; 110 drills — numeric families free-entry, ADR-0032), 1 Valence Table (23 elements; four modes — Explore lenses /
@@ -58,7 +59,7 @@ example reactions, ADR-0035) + 14 species entries (composition/charge/molar mass
 re-summed in Node, ADR-0038) + 6 molecule structure entries (Lewis electron ledger — valence total/octet/formal charge —
 machine-checked, re-derived in Node, + VSEPR geometry from `data/vsepr.toml`, ADR-0044) + 9 formula-sheet entries
 (dimensional homogeneity machine-checked, ADR-0039 — incl. Hess's law ΔH_rxn=Σν·ΔH_f°, ADR-0043) = **60 Atlas reference
-objects**, 306 producer tests + 7 Node gates + `astro build` (28 pages) + live CI/Pages green. Lesson practice mass/leftover/volume/heat questions are
+objects**, 306 producer tests + 7 Node gates + `astro build` (29 pages) + live CI/Pages green. Lesson practice mass/leftover/volume/heat questions are
 free-entry too (ADR-0032); gas-stoichiometry (ADR-0041) + energy-ledger (ADR-0043) practice re-derive from reaction constants with no interactive block.**
 
 ## ChemKernel module map (brief §6)

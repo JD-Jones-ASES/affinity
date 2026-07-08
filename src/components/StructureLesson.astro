@@ -162,6 +162,15 @@ const compressedAngle = (g.angle_note && g.angle_note.match(/[\d.]+\s*°/)?.[0]?
             {" "}<strong>{m.polarity}</strong>. Leave the lone pairs out and you predict the wrong shape and the
             wrong polarity.
           </>
+        ) : lesson.misconception.refuted_by === "symmetric_geometry_cancels_dipoles" ? (
+          <>
+            Polar bonds don't add up to a polar molecule — the <strong>geometry</strong> has the final say. Each
+            bond here is polar (ΔEN {m.bondTypes[0]?.delta_en}), but the central atom has <strong>no lone
+            pairs</strong>, so the molecule is <strong>{g.molecular_shape}</strong> ({g.domains} domains). Its
+            equal bond dipoles point in exactly opposite directions and <strong>cancel</strong> — the net dipole
+            is zero, so the molecule is <strong>{m.polarity}</strong>. A bent molecule (like water) can't cancel
+            its dipoles and is polar; a symmetric one cancels its own and isn't.
+          </>
         ) : (
           <>The electron-domain count — bonds <em>and</em> lone pairs — sets the shape, and the shape sets the
             polarity. This molecule has {g.domains} domains → {g.molecular_shape}, and is {m.polarity}.</>

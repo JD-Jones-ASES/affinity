@@ -2,12 +2,12 @@
 
 **A beginning-chemistry portal where the verification system is the product.**
 
-**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — seven machine-verified lessons (precipitation,
+**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — eight machine-verified lessons (precipitation,
 percent yield, acid-base neutralization, **gas stoichiometry** — a weighed metal + acid whose hydrogen volume falls
 out of the ledger via PV=nRT — the **energy ledger** — burning methane, whose heat q = ΔH_rxn·ξ falls out of
-the ledger via Hess's law over sourced formation enthalpies — and now the first **single-molecule structure lesson**:
-why water is bent, stepped from valence electrons → Lewis structure → VSEPR shape → polarity, the electron ledger
-machine-checked), eleven procedural gyms (dimensional analysis, nomenclature,
+the ledger via Hess's law over sourced formation enthalpies — and two **single-molecule structure lessons**: why water
+is bent (bent → polar) and why CO₂ is linear (polar bonds, nonpolar molecule), each stepped from valence electrons →
+Lewis structure → VSEPR shape → polarity with the electron ledger machine-checked), eleven procedural gyms (dimensional analysis, nomenclature,
 balancing, the full stoichiometry suite, periodic trends, reaction families, gas laws, calorimetry, and now **Lewis
 structures** — valence electrons, electron domains, molecular shape, counted exactly), the Chemical Atlas — five reference surfaces: a typed concept graph + **7 reaction
 families** with engine-classified example reactions + **14 species entries** with engine-derived molar masses +

@@ -14,4 +14,4 @@ related = [
   { to = "periodic-trends", type = "depends-on" },
   { to = "conservation-of-mass", type = "see-also" },
 ]
-lessons = ["water-molecular-shape"]
+lessons = ["water-molecular-shape", "carbon-dioxide-molecular-shape"]

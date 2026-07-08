@@ -1,0 +1,193 @@
+{
+  "kind": "structure",
+  "id": "bonding-carbon-dioxide-molecular-shape",
+  "title": "Polar bonds, nonpolar molecule: why CO₂ is linear",
+  "slug": "carbon-dioxide-molecular-shape",
+  "topic": "bonding",
+  "tags": [
+    "bonding",
+    "lewis-structure",
+    "vsepr",
+    "molecular-geometry",
+    "polarity",
+    "electron-ledger",
+    "carbon-dioxide"
+  ],
+  "scenario": "Carbon dioxide has two carbon–oxygen bonds, and oxygen pulls electrons hard, so each bond is polar. It seems obvious the molecule should be polar too. It isn't — CO₂ is perfectly nonpolar, and it comes down to shape. Water, built from the same 'one central atom, two outer atoms' recipe, is bent and polar; CO₂ is straight and nonpolar. We'll build CO₂ one accounting step at a time and find exactly where the two stories split — and why polar bonds do not add up to a polar molecule.",
+  "regimes": [
+    {
+      "facet": "electron ledger",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "molecular geometry",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "molecular polarity",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The Lewis localized-pair model: the valence electrons sit in shared bonding pairs (a double bond is two shared pairs between the same two atoms) or in lone pairs on a single atom. A model of where electrons are — predictive, not a photograph.",
+      "kind": "model"
+    },
+    {
+      "claim": "VSEPR: electron domains repel and spread as far apart as possible, setting the geometry — and a double bond counts as a single domain (one region of electron density). Two domains → linear at 180°.",
+      "kind": "model"
+    },
+    {
+      "claim": "Molecular polarity is the vector sum of the bond dipoles over the geometry. In a linear, symmetric molecule two equal bond dipoles point exactly opposite and cancel to zero, so the molecule is nonpolar even though each bond is polar.",
+      "kind": "model"
+    }
+  ],
+  "molecule": {
+    "ref_id": "molecule-carbon-dioxide",
+    "formula": "CO2",
+    "latex": "\\mathrm{CO_{2}}",
+    "names": [
+      "carbon dioxide"
+    ],
+    "charge": 0,
+    "valence_electrons": 16,
+    "valence_breakdown": [
+      {
+        "symbol": "C",
+        "count": 1,
+        "per_atom": 4,
+        "subtotal": 4
+      },
+      {
+        "symbol": "O",
+        "count": 2,
+        "per_atom": 6,
+        "subtotal": 12
+      }
+    ],
+    "electron_check": {
+      "bonding": 8,
+      "nonbonding": 8,
+      "total": 16
+    },
+    "atoms": [
+      {
+        "id": "C1",
+        "element": "C",
+        "lone_pairs": 0,
+        "bond_order_sum": 4,
+        "formal_charge": 0
+      },
+      {
+        "id": "O1",
+        "element": "O",
+        "lone_pairs": 2,
+        "bond_order_sum": 2,
+        "formal_charge": 0
+      },
+      {
+        "id": "O2",
+        "element": "O",
+        "lone_pairs": 2,
+        "bond_order_sum": 2,
+        "formal_charge": 0
+      }
+    ],
+    "bonds": [
+      {
+        "a": "C1",
+        "b": "O1",
+        "order": 2,
+        "between": [
+          "C",
+          "O"
+        ],
+        "delta_en": "0.89",
+        "bond_class": "polar-covalent",
+        "polar": true
+      },
+      {
+        "a": "C1",
+        "b": "O2",
+        "order": 2,
+        "between": [
+          "C",
+          "O"
+        ],
+        "delta_en": "0.89",
+        "bond_class": "polar-covalent",
+        "polar": true
+      }
+    ],
+    "geometry": {
+      "central": "C1",
+      "central_element": "C",
+      "domains": 2,
+      "lone_pairs": 0,
+      "electron_geometry": "linear",
+      "molecular_shape": "linear",
+      "ideal_angle": "180°",
+      "source": "openstax-chemistry-2e"
+    },
+    "polarity": "nonpolar",
+    "polarity_reason": "The molecule is linear, so the two equal, opposite C=O bond dipoles cancel exactly — polar bonds, but no net molecular dipole.",
+    "en_source": "openstax-chemistry-2e",
+    "bonding_source": "openstax-chemistry-2e"
+  },
+  "steps": [
+    {
+      "key": "valence",
+      "title": "Count the valence electrons",
+      "regime": "ledger-exact",
+      "prose": "Count the valence electrons — the outer-shell electrons that do the bonding. Carbon brings 4; each oxygen brings 6, for 12; the total is **16 valence electrons**, or eight pairs, to place. (No charge to add or subtract — CO₂ is a neutral molecule.) The engine derives this total from each atom's group in the periodic table and checks every later step against it.\n"
+    },
+    {
+      "key": "lewis",
+      "title": "Build the Lewis structure",
+      "regime": "ledger-exact",
+      "prose": "Put carbon in the middle and try single bonds first: C–O–?—no. With one shared pair to each oxygen, carbon would have only 4 electrons around it, far short of an octet. The fix is **double bonds**: each C=O shares *two* pairs. Now carbon has two double bonds = four bonding pairs = **8 electrons, a full octet**; each oxygen has one double bond (2 pairs) plus **two lone pairs**, also 8. Every formal charge is 0, and they sum to 0. The ledger closes exactly: 8 bonding electrons (4 shared pairs) + 8 nonbonding (4 lone pairs) = the 16 we counted. ChemKernel refuses any structure whose electrons don't conserve or whose atoms miss their octets — so the double bonds aren't a guess, they're forced.\n"
+    },
+    {
+      "key": "shape",
+      "title": "Predict the shape (VSEPR)",
+      "regime": "rule-sourced",
+      "prose": "Now the shape — and the split from water. VSEPR counts **electron domains** on the central atom, where a double bond still counts as **one** domain (it's one region of electrons, just a denser one). Carbon has two domains (two C=O bonds) and — crucially — **no lone pairs**. Two domains get as far apart as possible by pointing in exactly opposite directions: **linear**, 180°. This is where CO₂ and H₂O diverge. Both have a central atom bonded to two others, but water's oxygen carries two lone pairs (4 domains → bent); carbon carries none (2 domains → linear). The lone pairs — present in water, absent here — decide the shape.\n"
+    },
+    {
+      "key": "polarity",
+      "title": "Decide the polarity",
+      "regime": "model-exact",
+      "prose": "Each C=O bond really is polar: oxygen is more electronegative than carbon (ΔEN 0.89), so it pulls the shared electrons and each bond becomes an arrow pointing toward its oxygen. But the two arrows point in **exactly opposite directions** along the straight line, and they're equal, so they **cancel**: the net dipole is zero. CO₂ is **nonpolar** — polar bonds, no molecular dipole. That is the whole lesson: polarity is decided by the bond dipoles *and the geometry that arranges them*, not by the bonds alone. Water, bent, cannot cancel its dipoles and so is polar; CO₂, straight and symmetric, cancels its own and is not. (This is why CO₂ dissolves poorly in water, and why it's a gas at room temperature while water — polar, hydrogen-bonded — is a liquid.)\n"
+    }
+  ],
+  "misconception": {
+    "claim": "CO₂ has two polar C=O bonds and oxygen is strongly electron-pulling, so the molecule must be polar.",
+    "refuted_by": "symmetric_geometry_cancels_dipoles"
+  },
+  "reference_links": [
+    "lewis-structure",
+    "vsepr",
+    "molecule-carbon-dioxide",
+    "molecule-water",
+    "electronegativity"
+  ],
+  "checks": {
+    "electrons_conserved": true,
+    "octets_complete": true,
+    "formal_charge_sum": true,
+    "geometry_keyed": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "valence_electrons": "iupac-periodic-table",
+      "geometry": "openstax-chemistry-2e",
+      "electronegativity": "openstax-chemistry-2e",
+      "bonding": "openstax-chemistry-2e"
+    }
+  }
+}

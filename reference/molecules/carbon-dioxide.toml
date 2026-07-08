@@ -8,7 +8,7 @@ summary = "Sixteen valence electrons: two C=O double bonds and two lone pairs on
 source = "openstax-chemistry-2e"
 polarity = "nonpolar"
 polarity_reason = "The molecule is linear, so the two equal, opposite C=O bond dipoles cancel exactly — polar bonds, but no net molecular dipole."
-lessons = []
+lessons = ["carbon-dioxide-molecular-shape"]
 
 [[atoms]]
 id = "C1"
