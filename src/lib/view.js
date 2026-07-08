@@ -94,6 +94,7 @@ export function renderSolution(sol) {
   decorateProduct(s.result.precipitate);
   decorateProduct(s.result.product);
   decorateProduct(s.result.salt);
+  decorateProduct(s.result.gas); // gas stoichiometry (ADR-0041): symbolHtml for the collected-gas volume card
   s.result.limiting_speciesPretty = (s.result.limiting_species ?? []).map(prettyIon);
   s.result.leftover = (s.result.leftover ?? []).map((l) => ({ ...l, idPretty: prettyIon(l.species) }));
 

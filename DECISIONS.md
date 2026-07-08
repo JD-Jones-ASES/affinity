@@ -1101,3 +1101,52 @@ formula-sheet entries. This is the template for every future regime-2 gym (equil
 `kPa`/`torr` and °C *display* niceties; the gas-stoichiometry **lesson** (the ledger drives a gas volume — needs
 `build.py` generalised past two-solution double-displacement) is the next increment; particle-count (moles↔particles)
 drills now have both prerequisites (Avogadro datum + this numeric-rounding pattern) but still want scientific notation.
+
+## ADR-0041 — Gas-stoichiometry lesson: the ledger drives a gas volume; weighed-mass givens; the gas result block (2026-07-08)
+
+**Context.** The Phase-2 vertical slice (brief §17.7): a lesson where **the extent ledger drives a gas volume** —
+a weighed metal + an acid react (single replacement), the ledger fixes the moles of hydrogen, and PV=nRT turns
+those moles into the volume you would collect. It is the lesson counterpart to the `gas_laws_v1` gym (ADR-0040)
+and the ideal-gas formula-sheet entry (ADR-0039). Three things every prior lesson (precipitation, percent yield,
+neutralization — all ADR-0037's two-solution double-displacement) never had to face: (1) a reactant given as a
+**weighed mass** (grams), not a solution volume × molarity; (2) the reported product is a **gas whose headline is
+its VOLUME**, not a mass — and that volume is **model-exact** (ideal gas), not ledger-exact; (3) a **free-element**
+reactant (Zn metal), which the solubility phase-check cannot dissociate.
+
+**Decision.** Generalise `build.py` — one machine, a third reported-product shape — without disturbing the two-
+solution lessons (their `derived/` stays byte-identical):
+1. **A weighed-mass given.** `_moles_and_chain` gains a `mass_g` branch: grams ÷ molar mass → moles, run through
+   the units engine so the dimension is certified (g ÷ g/mol → mol), emitting a two-step g→mol dimensional chain.
+   The result must still land on a **terminating decimal** (ADR-0013) — so the authored mass is chosen to give
+   clean moles (3.269 g Zn = 0.0500 mol exactly); a mass that made moles non-terminating would fail the build,
+   the honest guard against a silently rounded ledger amount.
+2. **The gas result block (`result.gas`) — the payoff.** When a spec carries a `[conditions]` block (pressure +
+   temperature + the collected `gas_species`), the reported product is that gas, and `result.gas` adds its
+   **volume via PV=nRT**, computed **through the units engine** (`(n·R·T/P).to("L")` — the same certified path the
+   gas gym uses) from the ledger's exact moles + the **sourced** gas constant R (`data/constants.toml`, never
+   hard-coded). Honesty is layered, not mixed: the moles are **ledger-exact** (machine-checked, the reported
+   product is a normal product ledger row re-verified by check-ledger); the **volume is model-exact-then-rounded**
+   (ADR-0040 — R is non-terminating; `volume_L` at 4 sig figs, `volume_L_display` at 3) and carries the
+   **model-assumed badge** with a disclosed ideal-gas assumption. °C→K is the affine boundary conversion (ADR-0040).
+   The block also emits `molar_volume_L_per_mol` (RT/P) so the player can name the **22.4-L-at-STP misconception**
+   (the canonical gas-volume error) against the actual RT/P at the stated conditions.
+3. **Free elements skip the solubility phase-check.** The ruleset classifies ionic *compounds*; a free element
+   (single element type, neutral — Zn(s), H₂(g)) has no solubility verdict, so it is skipped. Only a genuine
+   *multi-element* neutral (aq)/(s) salt that fails to classify remains a build error.
+
+**Consequences.** The 5th lesson (`gas-stoichiometry/zinc-hydrochloric-hydrogen`, Zn + 2 HCl → ZnCl₂ + H₂): three
+equations, the ledger (Zn limits, HCl left over), three dimensional chains (**g→mol**, mL→mol, **mol→L via
+PV=nRT**), the gas-volume card + the molar-volume/22.4-L contrast, the dissolved salt, and the misconception
+refuted with the verified gas numbers. Schema growth (additive): `result.gas`; a `constants` provenance source;
+`given.mass_g` (already permitted). Gates: **check-ledger re-derives V=nRT/P** numerically (0.5% tol) + the °C→K
+boundary; **validate-solutions** ties `result.gas` to a model-exact regime + a disclosed model assumption + the
+sourced constant. Both branches **6-way tamper-tested** (corrupt volume / break °C→K / corrupt moles / bake in the
+22.4 molar-volume / drop the model-exact regime / drop the constants source — each caught). The lesson page's
+concept chips now **route by the target entry's kind** (concept / reaction-family / species / formula), so all 16
+links resolve — a fix that lights up prior lessons' reaction/formula links too. 263 producer tests (+1); 23 pages
+(+1); `derived/` byte-stable (only the new lesson added; no existing solution changed — the regime default is
+pinned to its original three facets so adding the `gas_behavior` facet shifts nothing). **Deferred (a second
+increment on the same lesson):** the gas-stoichiometry **interactive** (mass + volume + molarity sliders → the gas
+volume, parity-verified) and **generated practice** (both need the `interactive`/`practice` generalisation past the
+cation/anion double-displacement shape); collecting the gas **over water** (subtract the water-vapor pressure —
+needs a curated vapor-pressure table); `kPa`/`torr` units.

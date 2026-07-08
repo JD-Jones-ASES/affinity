@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT / "problems" / "precipitation" / "calcium-carbonate-limiting.problem.toml"
 SPEC_YIELD = ROOT / "problems" / "percent-yield" / "zinc-carbonate-percent-yield.problem.toml"
 SPEC_NEUTRAL = ROOT / "problems" / "neutralization" / "hydrochloric-sodium-hydroxide.problem.toml"
+SPEC_GAS = ROOT / "problems" / "gas-stoichiometry" / "zinc-hydrochloric-hydrogen.problem.toml"
 
 
 def test_builds_phase0_solution():
@@ -76,6 +77,51 @@ def test_neutralization_lesson():
     # it still earns the full instrument: the limiting-reagent slider + generated practice
     assert sol["interactive"]["product"]["phase"] == "l"        # the interactive product is water
     assert sol["practice"]["family"] == "acid_base_limiting_reagent_v1"
+
+
+def test_gas_stoichiometry_lesson():
+    """The Phase-2 gas-stoichiometry flagship (ADR-0041): a weighed metal + acid; the ledger fixes the moles of
+    H2 and PV=nRT fixes its VOLUME. First lesson with a MASS given (g→mol) and a gas result block."""
+    from decimal import Decimal
+    from fractions import Fraction
+
+    sol, out_rel = build_problem(SPEC_GAS, ROOT)
+    assert out_rel == "gas-stoichiometry/zinc-hydrochloric-hydrogen.solution.json"
+
+    # the weighed-mass given: 3.269 g Zn ÷ 65.38 g/mol = 0.0500 mol (exact, terminating)
+    zn_given = next(g for g in sol["given"] if g["species"] == "Zn(s)")
+    assert zn_given["mass_g"] == "3.269" and zn_given["moles"] == "0.05" and "volume_mL" not in zn_given
+    zn_chain = next(c for c in sol["dimensional_analysis"] if c["target"] == "moles of Zn(s)")
+    assert zn_chain["steps"][0]["unit"] == "g" and zn_chain["steps"][-1]["value"] == "0.05"
+
+    # the ledger: Zn limits (0.0500 < 0.0600 capacity), HCl left over 0.0200 mol
+    assert sol["ledger"]["limiting"] == ["Zn"] and sol["ledger"]["extent_mol"] == "0.05"
+    assert sol["result"]["leftover"] == [{"species": "HCl", "moles": "0.02"}]
+    assert sol["equations"]["net_ionic"]["text"] == "Zn + 2 H^+ -> Zn^2+ + H2"
+    assert sol["equations"]["spectators"] == ["Cl^-"]
+
+    # the reported product is the collected gas H2 (phase g); the dissolved salt is ZnCl2
+    assert "precipitate" not in sol["result"]
+    assert sol["result"]["product"]["species"] == "H2" and sol["result"]["product"]["phase"] == "g"
+    assert sol["result"]["salt"]["species"] == "ZnCl2"
+
+    # the gas block: moles ledger-exact; volume model-exact (PV=nRT), reported to 3 sig figs
+    gas = sol["result"]["gas"]
+    assert gas["species"] == "H2" and gas["moles"] == "0.05"
+    assert gas["pressure_atm"] == "1.00" and gas["temperature_C"] == "25.00" and gas["temperature_K"] == "298.15"
+    assert gas["volume_L_display"] == "1.22" and gas["volume_L"] == "1.223"
+    assert gas["molar_volume_L_per_mol_display"] == "24.5"    # RT/P here, NOT 22.4 (the STP-only value)
+    # re-derive V = nRT/P exactly and confirm the emitted value rounds to it
+    R = Decimal(gas["gas_constant"])
+    V = Decimal(gas["moles"]) * R * Decimal(gas["temperature_K"]) / Decimal(gas["pressure_atm"])
+    assert abs(V - Decimal(gas["volume_L"])) < Decimal("0.001")
+
+    # honesty layering: ledger-exact + model-exact regimes; the gas constant is sourced; no solubility claim
+    assert [r["regime"] for r in sol["regimes"]] == ["ledger-exact", "model-exact"]
+    assert sol["provenance"]["sources"]["constants"] == "bipm-si-2019"
+    assert "solubility" not in sol["provenance"]["sources"] and "solubility_basis" not in sol
+    # a gas lesson is not the double-displacement shape → no interactive/practice block in the 7a slice
+    assert "interactive" not in sol
 
 
 def test_neutralization_has_no_percent_yield_support(tmp_path):

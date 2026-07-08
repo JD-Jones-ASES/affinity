@@ -91,6 +91,21 @@ for (const file of files) {
   // 8. provenance sources must be non-empty (every empirical value is traceable)
   for (const [k, v] of Object.entries(sol.provenance.sources))
     if (!v) fail(rel, `provenance.sources.${k} is empty`);
+
+  // 9. gas stoichiometry (ADR-0041): the reported product IS the collected gas (phase g); the ideal-gas volume
+  // is regime-2, so it must carry a model-exact regime + a disclosed model assumption (the model-assumed badge
+  // does the honesty work) and cite the gas constant's source. Ties the volume to its disclosure.
+  if (sol.result.gas) {
+    const g = sol.result.gas;
+    if (rep.species !== g.species || rep.phase !== "g")
+      fail(rel, `result.gas ${g.species} must be the reported product and gas-phase (product is ${rep.species}/${rep.phase})`);
+    if (!sol.regimes.some((r) => r.regime === "model-exact"))
+      fail(rel, "result.gas present but no model-exact regime — the ideal-gas volume is regime-2");
+    if (!sol.assumptions.some((a) => a.kind === "model"))
+      fail(rel, "result.gas present but no disclosed model assumption");
+    if (!sol.provenance.sources.constants)
+      fail(rel, "result.gas present but provenance.sources.constants (the gas constant's source) is missing");
+  }
 }
 
 console.log(`validate-solutions: ${files.length} solution(s) valid; ${ids.size} unique id(s).`);

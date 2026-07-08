@@ -9,11 +9,16 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 
 - **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed; Phase 2 (the
   model-bearing tier) is filling depth-first on **gases + thermochemistry**. Landed so far: the **formula/equation
-  sheet** (ADR-0039) and the **`gas_laws_v1` gym** (ADR-0040). **Next inside Phase 2:** a **gas-stoichiometry
-  lesson** (the extent ledger drives a gas volume via PV=nRT — needs `build.py` generalised past two-solution
-  double-displacement), then thermochemistry (the energy ledger). Counters live in `AGENTS.md ## Current state`;
-  per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks
-  below are the plan of record.
+  sheet** (ADR-0039), the **`gas_laws_v1` gym** (ADR-0040), and the **gas-stoichiometry lesson** (ADR-0041 — the
+  vertical slice: the ledger drives a gas volume via PV=nRT). **Next inside Phase 2:** the gas lesson's
+  **interactive + generated practice** (the `interactive`/`practice` generalisation past double-displacement), then
+  **thermochemistry** (the energy ledger). Counters live in `AGENTS.md ## Current state`; per-increment detail in
+  [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+- **Gas-stoichiometry lesson — LANDED** (2026-07-08, ADR-0041): the Phase-2 vertical slice — the extent ledger
+  drives a **gas volume** (Zn + 2 HCl → ZnCl₂ + H₂; the ledger fixes moles of H₂, PV=nRT fixes the volume). `build.py`
+  generalised to a third reported-product shape: a **weighed-mass given** (g→mol) + a **`result.gas` block** (volume
+  through the units engine from the sourced R, model-exact-then-rounded under the model-assumed badge; check-ledger
+  re-derives V=nRT/P). Lesson #5; the 22.4-L-at-STP misconception refuted with the verified RT/P.
 - **Gas-laws gym — LANDED** (2026-07-08, ADR-0040): `gas_laws_v1` (PV=nRT + combined gas law; solve for any
   variable), the first **model-exact** gym. The `units.py` engine gained the deferred pressure/temperature
   dimensions (ADR-0015) — answers are computed *through* it (dimensions certified) — and the first
@@ -282,8 +287,15 @@ rest sequences after, each with its own scope block when its increment opens.
   combined-gas-law, numeric free-entry per ADR-0032, model-assumed badge — regime-2 answers are model-exact then
   3-sig-fig-rounded, gate re-derives PV=nRT numerically within tolerance). **Deferred within:** kPa/torr units and
   °C display niceties; energy/charge dimensions (thermo/electrochem).
-- **Gas-stoichiometry lesson — NEXT (the vertical slice):** the extent ledger drives a gas volume via PV=nRT —
-  needs `build.py` generalised past two-solution double-displacement to a single-limiting-reactant gas product.
+- **Gas-stoichiometry lesson — LANDED** (ADR-0041): the vertical slice — the extent ledger drives a gas volume via
+  PV=nRT (Zn + 2 HCl → ZnCl₂ + H₂). `build.py` generalised past two-solution double-displacement to a third
+  reported-product shape: a **weighed-mass given** (grams ÷ molar mass → moles, dimension-certified, still
+  terminating) + a **`result.gas` block** (the collected gas's volume through the units engine from the sourced R,
+  model-exact-then-rounded under the model-assumed badge; check-ledger re-derives V=nRT/P, 6-way tamper-tested). The
+  moles/limiting are ledger-exact; the volume is model-exact. **Deferred within (the next increment):** the lesson's
+  **interactive** (mass/volume/molarity sliders → the gas volume, parity-verified) + **generated practice** (the
+  `interactive`/`practice` generalisation past the cation/anion shape); collecting the gas **over water** (a
+  vapor-pressure table); `kPa`/`torr` units.
 - **Thermochemistry (energy ledger) — after gases:** calorimetry ($q=mc\Delta T$, specific-heat data curated),
   reaction enthalpy attached to extent ($\Delta H_\text{rxn}\cdot\xi$), Hess's law. The `formula-calorimetry` entry
   is already on the sheet.

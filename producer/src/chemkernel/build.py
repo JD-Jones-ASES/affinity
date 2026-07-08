@@ -17,7 +17,7 @@ import platform
 import re
 import sys
 import tomllib
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal, localcontext
 from fractions import Fraction
 from pathlib import Path
 
@@ -36,7 +36,11 @@ from .reference import (build_formula_entry, build_reaction_family, build_refere
 from .solubility import Solubility
 from .units import Quantity
 
-_REGIME_NAME = {"ledger": "ledger-exact", "solubility": "rule-sourced", "solution_behavior": "model-exact"}
+_REGIME_NAME = {"ledger": "ledger-exact", "solubility": "rule-sourced",
+                "solution_behavior": "model-exact", "gas_behavior": "model-exact"}
+# the default facet set when a spec omits `regimes` — the original three (pin it explicitly so adding a new
+# facet key above never shifts an existing lesson's emitted regimes, keeping committed derived/ byte-stable).
+_DEFAULT_REGIMES = ["ledger", "solubility", "solution_behavior"]
 _PHASE_SUFFIX = re.compile(r"\((?:s|l|g|aq)\)$")
 
 
@@ -62,6 +66,22 @@ def _exact_decimal_str(value) -> str:
     if den != 1:
         raise BuildError(f"amount {f} is not a terminating decimal — refusing to emit a rounded exact value")
     return format(Decimal(f.numerator) / Decimal(f.denominator), "f")
+
+
+def _sigfig(d: Decimal, digits: int) -> str:
+    """Round a Decimal to `digits` significant figures, fixed notation, trailing zeros trimmed. DISPLAY only:
+    a gas volume computed through PV=nRT is model-exact-then-rounded (ADR-0040) — the ideal-gas answer is a
+    rounded physical quantity, distinct from the exact terminating ledger amounts (ADR-0013). Mirrors the
+    gas-laws gym's `_sigdec`."""
+    if d == 0:
+        return "0"
+    with localcontext() as c:
+        c.prec = digits
+        c.rounding = ROUND_HALF_UP
+        s = format(+d, "f")
+    if "." in s:
+        s = s.rstrip("0").rstrip(".")
+    return s or "0"
 
 
 def _species_latex(species_id: str) -> str:
@@ -92,7 +112,21 @@ def _net_latex(side: dict) -> str:
     return " + ".join((f"{c}\\," if c != 1 else "") + _species_latex(sid) for (sid, _ph), c in side.items())
 
 
-def _moles_and_chain(given: dict, ctx: str) -> tuple[Fraction, list[dict]]:
+def _moles_and_chain(given: dict, data, ctx: str) -> tuple[Fraction, list[dict]]:
+    """Initial moles of a given reactant + its dimensional-analysis chain. Two given shapes (ADR-0041):
+    a **solution** (volume + molarity → moles) or a weighed **mass** (grams ÷ molar mass → moles). Both run
+    through the units engine so the dimensions are certified; both must land on a terminating decimal (ADR-0013,
+    the ledger-exactness guard) or the build fails."""
+    if "mass_g" in given:
+        mass = Quantity.of(Decimal(given["mass_g"]), "g")
+        molar_mass = data.molar_mass(_core(given["species"]))
+        n = mass / Quantity.of(molar_mass, "g/mol")   # g ÷ g/mol → mol (dimension certified)
+        steps = [
+            {"value": str(mass.value), "unit": "g", "note": "given mass (weighed)"},
+            {"value": _exact_decimal_str(Fraction(n.value)), "unit": "mol",
+             "note": f"÷ {molar_mass} g/mol (molar mass)"},
+        ]
+        return Fraction(n.value), steps
     vol = Quantity.of(Decimal(given["volume_mL"]), "mL")
     conc = Quantity.of(Decimal(given["molarity_M"]), "M")
     n = vol.to("L") * conc
@@ -103,6 +137,55 @@ def _moles_and_chain(given: dict, ctx: str) -> tuple[Fraction, list[dict]]:
          "note": f"× {given['molarity_M']} mol/L"},
     ]
     return Fraction(n.value), steps
+
+
+def _gas_volume_block(row, cond: dict, data, ctx: str) -> tuple[dict, list[dict]]:
+    """The gas-stoichiometry payoff (ADR-0041): the ledger fixes the moles of the gas product; PV=nRT fixes its
+    VOLUME at the stated collection conditions. Regime-2 (model-exact — ideal gas): the moles are exact (ledger),
+    the volume is computed THROUGH the units engine (dimensions certified: mol·L·atm·mol⁻¹·K⁻¹·K / atm → L) and
+    then rounded (R is non-terminating). °C is converted to kelvin at the boundary (K = °C + 273.15) — an affine
+    offset, never a scaling unit (ADR-0040). Returns (gas block, the mol→L dimensional chain)."""
+    if "gas_constant" not in data.constants:
+        raise BuildError(f"{ctx}: a gas-stoichiometry result needs the gas constant in data/constants.toml")
+    R = data.constants["gas_constant"]                       # Decimal, L·atm·mol⁻¹·K⁻¹ (sourced)
+    pressure = Decimal(str(cond["pressure_atm"]))
+    celsius = None
+    if "temperature_K" in cond:
+        temperature = Decimal(str(cond["temperature_K"]))
+    elif "temperature_C" in cond:
+        celsius = Decimal(str(cond["temperature_C"]))
+        temperature = celsius + Decimal("273.15")            # affine boundary conversion (ADR-0040)
+    else:
+        raise BuildError(f"{ctx}: gas conditions need temperature_K or temperature_C")
+
+    n = row.final_mol                                        # exact ledger moles of the gas (terminating)
+    n_dec = Decimal(_exact_decimal_str(n))
+    QR = Quantity.of(R, "L*atm/(mol*K)")
+    volume = (Quantity.of(n_dec, "mol") * QR * Quantity.of(temperature, "K")
+              / Quantity.of(pressure, "atm")).to("L").value  # Decimal (non-terminating)
+    molar_volume = (QR * Quantity.of(temperature, "K") / Quantity.of(pressure, "atm")).canonical  # RT/P, L/mol
+
+    block = {
+        "species": _core(row.species),
+        "phase": "g",
+        "moles": _exact_decimal_str(n),
+        "pressure_atm": format(pressure, "f"),
+        "temperature_K": format(temperature, "f"),
+        **({"temperature_C": format(celsius, "f")} if celsius is not None else {}),
+        "gas_constant": format(R, "f"),
+        "gas_constant_source": data.sources.get("constants", ""),
+        "volume_L": _sigfig(volume, 4),                      # the checked value (4 sig figs)
+        "volume_L_display": _sigfig(volume, 3),              # the headline (3 sig figs, ADR-0025/0040)
+        "molar_volume_L_per_mol_display": _sigfig(molar_volume, 3),  # RT/P — for the STP-22.4 contrast
+    }
+
+    chain = [
+        {"value": _exact_decimal_str(n), "unit": "mol",
+         "note": f"moles of {_core(row.species)} from the ledger (= ξ × {row.nu})"},
+        {"value": _sigfig(volume, 3), "unit": "L",
+         "note": f"× RT/P = {_sigfig(molar_volume, 3)} L/mol (ideal gas, PV=nRT)"},
+    ]
+    return block, chain
 
 
 def build_problem(path: Path, root: Path) -> tuple[dict, str]:
@@ -120,19 +203,27 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
     dimensional = []
     given_out = []
     for g in spec["given"]:
-        n, steps = _moles_and_chain(g, ctx)
+        n, steps = _moles_and_chain(g, data, ctx)
         given_moles[g["species"]] = n
         dimensional.append({"target": f"moles of {g['species']}", "steps": steps})
-        given_out.append({"species": g["species"], "volume_mL": g["volume_mL"],
-                          "molarity_M": g["molarity_M"], "moles": _exact_decimal_str(n)})
+        entry = {"species": g["species"]}
+        if "mass_g" in g:
+            entry["mass_g"] = g["mass_g"]                     # weighed reactant (ADR-0041)
+        else:
+            entry["volume_mL"], entry["molarity_M"] = g["volume_mL"], g["molarity_M"]
+        entry["moles"] = _exact_decimal_str(n)
+        given_out.append(entry)
 
-    # phase consistency vs. the solubility ruleset (raises on mismatch); capture the precipitate's basis
+    # phase consistency vs. the solubility ruleset (raises on mismatch); capture the precipitate's basis. The
+    # ruleset classifies ionic COMPOUNDS — a free element (Zn(s) metal, H2(g)) has no solubility verdict and is
+    # skipped (single element type); only a genuine multi-element neutral (aq)/(s) salt we cannot classify is a
+    # build error, not a free element (ADR-0041).
     solubility_basis = None
     for f in reactants + products:
         try:
             verdict = solub.verify_phase(f, data, ctx)
         except BuildError:
-            if f.charge == 0 and f.phase in ("aq", "s"):
+            if f.charge == 0 and f.phase in ("aq", "s") and len(f.counts) > 1:
                 raise
             continue
         if f.phase == "s" and not verdict.soluble:
@@ -176,11 +267,30 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
         return block, m
 
     # the reported-product block goes FIRST (precipitation lessons keep their field order byte-for-byte), then
-    # limiting_species + leftover.
+    # limiting_species + leftover. Three reported-product shapes (ADR-0037/0041): a solid precipitate; a collected
+    # GAS (gas stoichiometry — the headline is its volume via PV=nRT); or the general net-ionic product (water,
+    # neutralization).
     result = {}
+    gas_chain = None
+    conditions = spec.get("conditions")
     solid_row = next((r for r in ledger.rows if r.phase == "s" and r.role == "product"), None)
     if solid_row is not None:
         result["precipitate"], reported_mass = _product_block(solid_row)
+    elif conditions is not None:
+        # gas stoichiometry: the reported product is the collected gas; its VOLUME comes from PV=nRT (ADR-0041).
+        gas_id = conditions.get("gas_species") or next(
+            (_core(r.species) for r in ledger.rows if r.phase == "g" and r.role == "product"), None)
+        gas_row = next((r for r in ledger.rows
+                        if _core(r.species) == gas_id and r.role == "product"), None)
+        if gas_row is None or gas_row.phase != "g":
+            raise BuildError(f"{ctx}: gas product {gas_id} is not a gas-phase product ledger row")
+        result["product"], reported_mass = _product_block(gas_row)   # mass/moles (ledger-exact)
+        result["gas"], gas_chain = _gas_volume_block(gas_row, conditions, data, ctx)  # volume (model-exact)
+        # name the dissolved salt: the other (aqueous) product left in solution
+        salt_row = next((r for r in ledger.rows
+                         if r.role == "product" and _core(r.species) != gas_id), None)
+        if salt_row is not None:
+            result["salt"], _ = _product_block(salt_row)
     else:
         # the net-ionic product (the single species on the right of the net ionic — e.g. H2O)
         net_product_id = next(iter(net_right))[0]
@@ -196,6 +306,10 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
             result["salt"], _ = _product_block(salt_row)
     result["limiting_species"] = [_core(x) for x in ledger.limiting]
     result["leftover"] = leftovers
+    if gas_chain is not None:
+        dimensional.append({"target": f"volume of {result['gas']['species']} gas at "
+                            f"{result['gas']['pressure_atm']} atm, {result['gas']['temperature_K']} K",
+                            "steps": gas_chain})
 
     solution = {
         "id": spec["id"],
@@ -204,7 +318,7 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
         "topic": spec["topic"],
         "tags": spec.get("tags", []),
         "scenario": spec["scenario"],
-        "regimes": [{"facet": k, "regime": _REGIME_NAME[k]} for k in spec.get("regimes", list(_REGIME_NAME))],
+        "regimes": [{"facet": k, "regime": _REGIME_NAME[k]} for k in spec.get("regimes", _DEFAULT_REGIMES)],
         "assumptions": spec.get("assumptions", []),
         "given": given_out,
         "equations": {
@@ -237,11 +351,13 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
             "author": spec.get("author", "Affinity"),
             "created": spec.get("created", ""),
             # solubility source travels only with a precipitation lesson (a solid product); a neutralization
-            # has no solubility claim (ADR-0037), so its provenance omits it.
+            # has no solubility claim (ADR-0037), so its provenance omits it. A gas-stoichiometry lesson cites
+            # the gas constant's source instead (ADR-0041), since its volume rides on R.
             "sources": {
                 "atomic_weight": data.sources.get("atomic_weight", ""),
                 "ion_charge": data.sources.get("ion_charge", ""),
                 **({"solubility": solub.source} if solid_row is not None else {}),
+                **({"constants": data.sources.get("constants", "")} if gas_chain is not None else {}),
             },
         },
     }

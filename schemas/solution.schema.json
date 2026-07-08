@@ -125,12 +125,31 @@
     "result": {
       "type": "object",
       "additionalProperties": false,
-      "$comment": "The reported product is the net-ionic product: `precipitate` (a solid, precipitation lessons) or the general `product` (e.g. water for acid-base neutralization, ADR-0037) — exactly one is present. `salt` names the dissolved ionic product of a neutralization. The gates read precipitate ?? product.",
+      "$comment": "The reported product is the net-ionic product: `precipitate` (a solid, precipitation lessons) or the general `product` (water for neutralization, ADR-0037; or a collected gas for gas stoichiometry, ADR-0041) — exactly one is present. `salt` names the dissolved ionic product left in solution. `gas` adds the collected gas's volume via PV=nRT. The gates read precipitate ?? product.",
       "required": ["limiting_species", "leftover"],
       "properties": {
         "precipitate": { "$ref": "#/$defs/reportedProduct" },
         "product": { "$ref": "#/$defs/reportedProduct" },
         "salt": { "$ref": "#/$defs/reportedProduct" },
+        "gas": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Gas-stoichiometry payoff (ADR-0041): the collected gas's VOLUME from PV=nRT at the stated conditions. `moles` are ledger-exact; `volume_L` is model-exact-then-rounded (ideal gas). check-ledger re-derives V=nRT/P numerically.",
+          "required": ["species", "phase", "moles", "pressure_atm", "temperature_K", "gas_constant", "gas_constant_source", "volume_L", "volume_L_display", "molar_volume_L_per_mol_display"],
+          "properties": {
+            "species": { "type": "string" },
+            "phase": { "const": "g" },
+            "moles": { "type": "string" },
+            "pressure_atm": { "type": "string" },
+            "temperature_K": { "type": "string" },
+            "temperature_C": { "type": "string" },
+            "gas_constant": { "type": "string" },
+            "gas_constant_source": { "type": "string", "minLength": 1 },
+            "volume_L": { "type": "string" },
+            "volume_L_display": { "type": "string" },
+            "molar_volume_L_per_mol_display": { "type": "string" }
+          }
+        },
         "limiting_species": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
         "leftover": {
           "type": "array",
@@ -377,12 +396,13 @@
         "sources": {
           "type": "object",
           "additionalProperties": false,
-          "$comment": "solubility is present for precipitation lessons; a non-precipitating lesson (acid-base neutralization) omits it (ADR-0037).",
+          "$comment": "solubility is present for precipitation lessons; a neutralization omits it (ADR-0037); a gas-stoichiometry lesson cites `constants` (the gas constant R the volume rides on, ADR-0041).",
           "required": ["atomic_weight", "ion_charge"],
           "properties": {
             "atomic_weight": { "type": "string", "minLength": 1 },
             "ion_charge": { "type": "string", "minLength": 1 },
-            "solubility": { "type": "string", "minLength": 1 }
+            "solubility": { "type": "string", "minLength": 1 },
+            "constants": { "type": "string", "minLength": 1 }
           }
         }
       }

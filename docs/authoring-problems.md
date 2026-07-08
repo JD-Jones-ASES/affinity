@@ -59,10 +59,19 @@ volume_mL = "25.0"
 molarity_M = "0.100"
 ```
 
-`species` must match a reactant (with phase). Today the producer converts **volume + molarity → moles**
-through the units engine and records the dimensional chain, so a given needs `volume_mL` and `molarity_M`.
-(The schema also reserves `mass_g`; a mass-based given is not wired in `build.py` yet — add it there when a
-lesson needs mass/molar-mass as the entry point.)
+`species` must match a reactant (with phase). Two given shapes (ADR-0041), both converted **to moles** through
+the units engine with the dimensional chain recorded: a **solution**, `volume_mL` + `molarity_M` (volume ×
+molarity → moles); or a weighed **mass**, `mass_g` (grams ÷ molar mass → moles) — used for a solid reactant like
+a metal:
+
+```toml
+[[given]]
+species = "Zn(s)"
+mass_g = "3.269"     # ÷ 65.38 g/mol → 0.0500 mol (must land on a terminating decimal, ADR-0013)
+```
+
+Either way the moles must be a terminating decimal or the build refuses (the ledger-exactness guard) — choose a
+mass that divides cleanly by the molar mass.
 
 ### `[[assumptions]]` — disclosed idealizations (optional)
 
@@ -147,22 +156,44 @@ demand a `solubility_basis` it can't produce), and give both solutions as `[[giv
 [`problems/neutralization/hydrochloric-sodium-hydroxide.problem.toml`](../problems/neutralization/hydrochloric-sodium-hydroxide.problem.toml).
 Percent yield stays precipitation-only (it needs a solid).
 
+### Gas-stoichiometry lessons (the ledger drives a gas volume, ADR-0041)
+
+For a reaction that releases a gas (a metal + acid → H₂, single replacement), add a **`[conditions]`** table and
+ChemKernel reports the collected gas as `result.product` **plus a `result.gas` block** carrying its **volume via
+PV=nRT** at those conditions:
+
+```toml
+[conditions]              # must follow every root key (TOML trap #4 — a bare key below it is absorbed)
+gas_species = "H2"        # which product is the collected gas
+pressure_atm = "1.00"
+temperature_C = "25.00"   # or temperature_K = "298.15" (°C converts at the boundary, K = °C + 273.15)
+```
+
+Author notes: set `regimes = ["ledger", "gas_behavior"]` (the moles are ledger-exact, the volume is
+**model-exact** — an ideal gas — so it carries the model-assumed badge and needs a disclosed `[[assumptions]]` of
+`kind = "model"`); give the metal as a weighed `mass_g` given and the acid as a volumetric one; there is **no**
+solubility claim (omit `solubility`). The gas volume is model-exact-then-rounded (3 sig figs) — the gas constant
+R travels from `data/constants.toml` (its source lands in `provenance.sources.constants`). A great misconception:
+`22.4 L/mol` is the molar volume only at STP; the player refutes it with the actual RT/P. See
+[`problems/gas-stoichiometry/zinc-hydrochloric-hydrogen.problem.toml`](../problems/gas-stoichiometry/zinc-hydrochloric-hydrogen.problem.toml).
+
 ### Other optional keys
 
 `tags` (array), `reference_links` (array of Atlas ids — they become links as the Atlas is built),
 `author` (defaults `"Affinity"`), `created` (date string), and `regimes` (array of facet keys —
-`ledger`, `solubility`, `solution_behavior`; defaults to all three, ADR-0003 — omit `solubility` for a
-non-precipitation lesson).
+`ledger`, `solubility`, `solution_behavior`, `gas_behavior`; defaults to the first three, ADR-0003 — omit
+`solubility` for a non-precipitation lesson, use `gas_behavior` for the ideal-gas volume).
 
 ## What ChemKernel derives (do not author these)
 
 Everything else in the solution JSON is computed and verified: the **balanced** molecular / complete-ionic /
 net-ionic equations with spectators; **moles** and the dimensional chain from each given; the **species
-ledger** (n = n₀ + ν·ξ, the limiting reagent, leftovers); the **precipitate** and its mass; the **solubility
-basis** (cited to the ruleset); molar masses; display LaTeX; provenance; and — for a supported
-single-precipitate double-displacement — the **`interactive` block** of parity-verified closed forms +
-engine-computed sample points that drive the sliders (ADR-0022). If the reaction is a different shape, the
-lesson renders statically (the block is omitted, by design).
+ledger** (n = n₀ + ν·ξ, the limiting reagent, leftovers); the reported **product** and its mass (precipitate,
+water, or a gas — and a gas's **volume via PV=nRT**, ADR-0041); the **solubility basis** (cited to the ruleset,
+precipitation only); molar masses; display LaTeX; provenance; and — for a supported single-precipitate
+double-displacement — the **`interactive` block** of parity-verified closed forms + engine-computed sample points
+that drive the sliders (ADR-0022). If the reaction is a different shape (e.g. gas stoichiometry today), the
+lesson renders statically (the interactive block is omitted, by design).
 
 ## What makes the build refuse to emit
 

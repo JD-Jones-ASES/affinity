@@ -2,8 +2,9 @@
 
 **A beginning-chemistry portal where the verification system is the product.**
 
-**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — four machine-verified lessons (precipitation,
-percent yield, and acid-base neutralization), nine procedural gyms (dimensional analysis, nomenclature,
+**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — five machine-verified lessons (precipitation,
+percent yield, acid-base neutralization, and now **gas stoichiometry** — a weighed metal + acid whose hydrogen
+volume falls out of the ledger via PV=nRT), nine procedural gyms (dimensional analysis, nomenclature,
 balancing, the full stoichiometry suite, periodic trends, reaction families, and now **gas laws** — PV=nRT and
 the combined gas law), the Chemical Atlas — now all four reference kinds: a typed concept graph + **7 reaction
 families** with engine-classified example reactions + **14 species entries** with engine-derived molar masses +

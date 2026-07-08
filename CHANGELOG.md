@@ -3,6 +3,37 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — gas-stoichiometry lesson: the ledger drives a gas volume (ADR-0041)
+
+The Phase-2 vertical slice — the extent ledger drives a **gas volume**. A weighed metal + an acid react; the
+ledger fixes the moles of hydrogen, and PV=nRT turns them into the volume you would collect.
+
+- **The 5th lesson** (`gas-stoichiometry/zinc-hydrochloric-hydrogen`, Zn + 2 HCl → ZnCl₂ + H₂, ADR-0041): three
+  equations, the species ledger (Zn limits, HCl left over), three dimensional chains (**g→mol**, mL→mol, and the
+  new **mol→L via PV=nRT**), a gas-volume card, the dissolved salt, and the misconception refuted with the
+  verified numbers. First lesson with a **weighed-mass given** and first with a **gas product**.
+- **`build.py` generalised** past the two-solution double-displacement shape (ADR-0041), a third reported-product
+  shape alongside precipitate/water: (1) `_moles_and_chain` gains a **`mass_g` branch** (grams ÷ molar mass →
+  moles, dimension certified through the units engine; still must terminate — 3.269 g Zn = 0.0500 mol exactly);
+  (2) a **`result.gas` block** — the collected gas's volume via `(n·R·T/P).to("L")` through the units engine from
+  the ledger's exact moles + the **sourced** R, model-exact-then-rounded (3 sig figs) under the model-assumed
+  badge, with `molar_volume` (RT/P) emitted to name the **22.4-L-at-STP misconception**; (3) **free elements skip
+  the solubility phase-check** (a metal has no solubility verdict).
+- **Honesty layered, not mixed:** the moles/limiting are **ledger-exact** (machine-checked); the **volume is
+  model-exact** (ideal gas, disclosed). **check-ledger re-derives V=nRT/P** numerically (0.5% tol) + the °C→K
+  boundary; **validate-solutions** ties `result.gas` to a model-exact regime + a disclosed model assumption + the
+  sourced constant. Both branches **6-way tamper-tested** (incl. baking in the wrong 22.4 molar volume — caught).
+- **Concept chips now route by entry kind** (concept / reaction-family / species / formula), so the lesson's 16
+  Atlas links all resolve — and prior lessons' reaction/formula links light up too.
+- **Verification:** 263 producer tests (+1); 7 Node gates green — validate-solutions = 5, check-ledger = 5 ledgers
+  / 20 rows + **1 gas volume re-derived from PV=nRT**, check-katex = 468; `astro build` = **23 pages** (+1);
+  `derived/` byte-stable (only the new lesson added — no existing solution changed). In-browser: the volume card
+  (1.22 L, model-assumed), the mol×RT/P=volume flow, the g→mol + mol→L chains, and the STP-trap refutation render;
+  no console errors, dark + light clean.
+- **Deferred (a second increment on the same lesson):** the gas-stoichiometry **interactive** (mass/volume/
+  molarity sliders → the gas volume) + **generated practice**; collecting the gas **over water** (vapor-pressure
+  correction); `kPa`/`torr` units.
+
 ## Phase 2 — 2026-07-08 — gas-laws gym; the units engine gains pressure/temperature (ADR-0040)
 
 The practice instrument for gases — the second Phase-2 increment, on top of the formula sheet.

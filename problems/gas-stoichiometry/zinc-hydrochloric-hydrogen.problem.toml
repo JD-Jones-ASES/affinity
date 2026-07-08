@@ -1,0 +1,64 @@
+# The Phase-2 gas-stoichiometry flagship lesson (ADR-0041): the extent ledger drives a GAS VOLUME. A weighed
+# metal + an acid solution react (single replacement); the ledger fixes the moles of hydrogen, and PV=nRT turns
+# those moles into the volume you would collect at the stated pressure and temperature. Two honesty layers, not
+# mixed: the moles/limiting-reagent are LEDGER-EXACT (machine-checked), the gas volume is MODEL-EXACT (ideal gas,
+# disclosed under the model-assumed badge, reported to 3 sig figs — R is non-terminating). First lesson with a
+# weighed-MASS given (grams -> moles via molar mass) and the first with a gas product. Authored human layer only;
+# ChemKernel derives + verifies the rest. Numbers are strings (exact, ADR-0013). Root keys precede any [table]
+# header (TOML trap #4).
+
+id = "gas-stoichiometry-zinc-hydrochloric-hydrogen"
+title = "How much hydrogen? A metal, an acid, and a gas you can measure"
+slug = "zinc-hydrochloric-hydrogen"
+topic = "gas-stoichiometry"
+tags = ["gas-stoichiometry", "single-replacement", "limiting-reagent", "ideal-gas", "stoichiometry", "redox"]
+author = "Affinity"
+created = "2026-07-08"
+scenario = "A 3.269 g strip of zinc metal is dropped into 120.0 mL of 1.00 M hydrochloric acid. The zinc dissolves, bubbling hydrogen gas, which is collected at 1.00 atm and 25.00 °C. Which reactant runs out first, and what volume of hydrogen forms?"
+
+# the moles/limiting are ledger-exact; the gas VOLUME is model-exact (ideal gas) — never rule-sourced (no
+# solubility claim: zinc chloride stays dissolved and the hydrogen leaves as gas). ADR-0041.
+regimes = ["ledger", "gas_behavior"]
+
+reactants = ["Zn(s)", "HCl(aq)"]
+products = ["ZnCl2(aq)", "H2(g)"]
+
+reference_links = ["reaction-single-replacement", "formula-ideal-gas-law", "formula-mole-mass", "stoichiometry", "limiting-reagent", "extent-of-reaction", "molar-mass", "molarity", "balancing-equations", "net-ionic-equation", "spectator-ion", "dissociation", "conservation-of-mass", "dihydrogen", "hydrogen-chloride", "chloride"]
+
+# gas collection conditions (ADR-0041): PV=nRT turns the ledger's moles of H2 into a volume. gas_species names
+# which product is the collected gas. Temperature may be given in °C (converted to K at the boundary, K = °C +
+# 273.15 — an affine offset, not a scaling unit) or directly as temperature_K. This [table] header must come
+# after every root key above (TOML trap #4 — a bare key below it is silently absorbed into the table).
+[conditions]
+gas_species = "H2"
+pressure_atm = "1.00"
+temperature_C = "25.00"
+
+[[given]]
+species = "Zn(s)"
+mass_g = "3.269"
+
+[[given]]
+species = "HCl(aq)"
+volume_mL = "120.0"
+molarity_M = "1.00"
+
+[[assumptions]]
+claim = "The zinc reacts completely with the acid — the single-replacement reaction goes essentially to completion."
+kind = "model"
+
+[[assumptions]]
+claim = "Hydrogen behaves as an ideal gas: PV = nRT holds exactly only for a dilute gas (low pressure, not-too-low temperature)."
+kind = "model"
+
+[[assumptions]]
+claim = "HCl is a strong acid and dissociates completely in water."
+kind = "model"
+
+[[assumptions]]
+claim = "The hydrogen is collected dry at the stated pressure and temperature — no water-vapor-pressure correction (collecting a gas over water is a later refinement)."
+kind = "model"
+
+[misconception]
+claim = "One mole of any gas occupies 22.4 L, so the hydrogen volume is just its moles times 22.4 L."
+refuted_by = "molar_volume_is_conditions_dependent"

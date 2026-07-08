@@ -36,6 +36,7 @@ const fail = (file, msg) => {
 const near = (a, b) => Math.abs(a - b) <= TOL + TOL * Math.abs(b);
 
 let rows = 0;
+let gases = 0;
 for (const file of files) {
   const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
   const sol = JSON.parse(readFileSync(file, "utf8"));
@@ -85,6 +86,34 @@ for (const file of files) {
       fail(rel, `leftover ${lo.species} moles ${lo.moles} != ledger final ${lrow.final_mol}`);
   }
 
+  // gas stoichiometry (ADR-0041): the collected gas's VOLUME rides on PV=nRT. Its moles are ledger-exact
+  // (already checked above as the reported product); here re-derive V = nRT/P numerically from the emitted
+  // state + the sourced gas constant R, independent of Python. Model-exact-then-rounded (R is non-terminating):
+  // volume_L is a 4-sig-fig value, so the 0.5% tolerance sits above the rounding (~0.05%) and well below the
+  // ~8% STP-22.4-L misconception gap. Temperature is absolute (K); a stated °C converts at the boundary
+  // (K = °C + 273.15 — an affine offset, ADR-0040).
+  const gas = sol.result.gas;
+  if (gas) {
+    const relClose = (got, want) => Math.abs(got - want) <= 0.005 * Math.abs(want) + 1e-9;
+    if (gas.phase !== "g") fail(rel, `gas ${gas.species} phase ${gas.phase} != g`);
+    if (!near(Number(gas.moles), Number(precip.moles)))
+      fail(rel, `gas moles ${gas.moles} != reported product moles ${precip.moles}`);
+    if (gas.temperature_C !== undefined &&
+        Math.abs(Number(gas.temperature_C) + 273.15 - Number(gas.temperature_K)) > 1e-9)
+      fail(rel, `gas ${gas.temperature_C} °C + 273.15 != ${gas.temperature_K} K`);
+    const n = Number(gas.moles), R = Number(gas.gas_constant);
+    const T = Number(gas.temperature_K), P = Number(gas.pressure_atm);
+    if (!(R > 0 && T > 0 && P > 0)) fail(rel, `gas state must be positive (R=${R}, T=${T}, P=${P})`);
+    const V = (n * R * T) / P, molar = (R * T) / P;
+    if (!relClose(V, Number(gas.volume_L)))
+      fail(rel, `gas volume_L ${gas.volume_L} != re-derived nRT/P = ${V.toFixed(6)}`);
+    if (!relClose(V, Number(gas.volume_L_display)))
+      fail(rel, `gas volume_L_display ${gas.volume_L_display} != re-derived nRT/P = ${V.toFixed(6)}`);
+    if (!relClose(molar, Number(gas.molar_volume_L_per_mol_display)))
+      fail(rel, `gas molar volume ${gas.molar_volume_L_per_mol_display} != re-derived RT/P = ${molar.toFixed(6)}`);
+    gases++;
+  }
+
   // percent yield (ADR-0029): the theoretical yield IS the precipitate mass; the reported percent must be
   // actual ÷ theoretical × 100 (re-derived here, then rounded to the emitted 3-sig-fig display), and the
   // actual yield must be physical (0 < actual ≤ theoretical — you cannot collect more than forms).
@@ -101,4 +130,5 @@ for (const file of files) {
   }
 }
 
-console.log(`check-ledger: ${files.length} ledger(s), ${rows} row(s) satisfy n = n0 + ν·ξ and match the result.`);
+console.log(`check-ledger: ${files.length} ledger(s), ${rows} row(s) satisfy n = n0 + ν·ξ and match the result` +
+  (gases ? `; ${gases} gas volume(s) re-derived from PV=nRT.` : "."));

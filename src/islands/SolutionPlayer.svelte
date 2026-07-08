@@ -18,11 +18,14 @@
   let tab = $state("equations");
 
   // The concrete answers, pulled from the verified result (never recomputed here). The reported product is a
-  // solid precipitate, or the general product (water for an acid-base neutralization, ADR-0037), in which case
-  // the dissolved salt is named too. The beaker view — watching a solid settle out — only fits a precipitate.
+  // solid precipitate; a collected gas (gas stoichiometry — headline is its VOLUME via PV=nRT, ADR-0041); or
+  // the general product (water for an acid-base neutralization, ADR-0037). The dissolved salt is named when one
+  // is left in solution. The beaker view — watching a solid settle out — only fits a precipitate.
   const reported = s.result.precipitate ?? s.result.product;
   const salt = s.result.salt;
+  const gas = s.result.gas;           // gas-stoichiometry volume block (ADR-0041), or undefined
   const isPrecip = !!s.result.precipitate;
+  const isGas = !!gas;
   const showBeaker = hasInteractive && s.interactive?.product?.phase === "s";
   const leftover = s.result.leftover ?? [];
 
@@ -54,6 +57,12 @@
   const smallerVolLimits = smallerVol ? limitingIds.has(stripPhase(smallerVol.species)) : null;
 
   const roleLabel = { limiting: "limiting", excess: "excess", product: "product" };
+
+  // gas stoichiometry (ADR-0041): the molar-volume misconception refutes with the verified gas block, not the
+  // ledger. The wrong "22.4 L/mol everywhere" answer is illustrative display arithmetic on the verified moles
+  // (like the mmol conversions above) — not a chemistry derivation; the real numbers come from the producer.
+  const molarVolumeTrap = isGas && s.misconception?.refuted_by === "molar_volume_is_conditions_dependent";
+  const wrong224 = isGas ? (Number(gas.moles) * 22.4).toPrecision(3) : null;
 </script>
 
 <section class="player">
@@ -70,13 +79,22 @@
 
   <!-- the verified answers -->
   <div class="results">
+    {#if isGas}
+      <!-- gas stoichiometry: the VOLUME is the headline (model-exact, PV=nRT). The moles behind it are
+           machine-checked; the volume rides on the disclosed ideal-gas model — so it carries its own badge. -->
+      <div class="result gas">
+        <div class="label">Volume of {@html gas.symbolHtml} gas <span class="badge model tiny"><span class="dot"></span>ideal gas</span></div>
+        <div class="value">{gas.volume_L_display} <span class="unit">L</span></div>
+        <div class="cond">at {gas.pressure_atm} atm, {gas.temperature_C ? `${gas.temperature_C} °C` : `${gas.temperature_K} K`}</div>
+      </div>
+    {/if}
     <div class="result">
-      <div class="label">Mass of {@html reported.symbolHtml} {isPrecip ? "precipitate" : "formed"}</div>
+      <div class="label">{isGas ? "Mass of" : "Mass of"} {@html reported.symbolHtml} {isPrecip ? "precipitate" : "formed"}</div>
       <div class="value">{reported.mass_g_display} <span class="unit">g</span></div>
     </div>
     {#if salt}
       <div class="result">
-        <div class="label">Salt formed ({@html salt.symbolHtml})</div>
+        <div class="label">{isGas ? "Dissolved salt" : "Salt formed"} ({@html salt.symbolHtml})</div>
         <div class="value">{salt.mass_g_display} <span class="unit">g</span></div>
       </div>
     {/if}
@@ -85,7 +103,7 @@
       <div class="value">{s.result.limiting_speciesPretty.join(", ")}</div>
     </div>
     <div class="result">
-      <div class="label">Left in solution</div>
+      <div class="label">Left {isGas ? "over" : "in solution"}</div>
       <div class="value">
         {#if leftover.length}
           {#each leftover as l, i}{l.idPretty} {Number(l.moles) * 1000} mmol{i < leftover.length - 1 ? " · " : ""}{/each}
@@ -93,6 +111,21 @@
       </div>
     </div>
   </div>
+
+  {#if isGas}
+    <!-- the model-exact leg spelled out: moles (machine-checked) → volume via PV=nRT, and the 22.4-L trap named -->
+    <div class="gascard">
+      <div class="ghead"><span class="badge model"><span class="dot"></span>Gas volume — model-exact (ideal gas)</span> the moles are machine-checked; PV=nRT converts them to a volume at the stated conditions</div>
+      <div class="gflow">
+        <div class="gcell"><span class="gv">{gas.moles}</span> <span class="gu">mol {@html gas.symbolHtml}</span><span class="gn">from the ledger (ξ)</span></div>
+        <span class="gop">×</span>
+        <div class="gcell"><span class="gv">{gas.molar_volume_L_per_mol_display}</span> <span class="gu">L/mol</span><span class="gn">RT/P at {gas.pressure_atm} atm, {gas.temperature_K} K</span></div>
+        <span class="gop">=</span>
+        <div class="gcell big"><span class="gv">{gas.volume_L_display}</span> <span class="gu">L</span><span class="gn">volume of {@html gas.symbolHtml}</span></div>
+      </div>
+      <p class="gnote">The molar volume is <strong>RT/P = {gas.molar_volume_L_per_mol_display} L/mol</strong> at these conditions — <em>not</em> the 22.4 L/mol you memorized for STP (0 °C, 1 atm). One mole of gas only fills 22.4 L at STP; change the temperature or pressure and you must use PV=nRT.</p>
+    </div>
+  {/if}
 
   <!-- percent yield: actual measured against the ledger's theoretical maximum (ADR-0029) -->
   {#if s.result.percent_yield}
@@ -230,7 +263,13 @@
     <div class="misconception">
       <div class="mis-claim"><span class="x">✗</span> Common misconception: “{@html s.misconception.claimHtml}”</div>
       <p class="mis-fix">
-        {#if coeffStory}
+        {#if molarVolumeTrap}
+          22.4 L/mol is the molar volume <strong>only at STP</strong> (0 °C, 1 atm). At {gas.pressure_atm} atm
+          and {gas.temperature_C ? `${gas.temperature_C} °C` : `${gas.temperature_K} K`} it is
+          <strong>RT/P = {gas.molar_volume_L_per_mol_display} L/mol</strong>, so {@html gas.symbolHtml} occupies
+          <strong>{gas.volume_L_display} L</strong> — not {wrong224} L. Whenever you are not at STP, use
+          <strong>PV = nRT</strong> at the actual pressure and temperature.
+        {:else if coeffStory}
           Divide each reactant's amount by its coefficient — that capacity is what runs out.
           <strong>{limRow.idPretty}</strong>: {fmtMmol(limRow.initial_mol)} mmol ÷ {Math.abs(limRow.nu)} =
           {fmtMmol(cap(limRow))} mmol of reaction; <strong>{excRow.idPretty}</strong>:
@@ -339,4 +378,21 @@
   .yn { display: block; font-size: 0.7rem; color: var(--ink-faint); margin-top: 0.15rem; }
   .yop { color: var(--ink-faint); font-size: 1.3rem; align-self: center; }
   .ynote { margin: 0.6rem 0 0; font-size: 0.88rem; color: var(--ink-2); }
+
+  /* gas stoichiometry (ADR-0041): the volume card is the headline; the gascard spells out the model-exact leg */
+  .result.gas { border-color: color-mix(in srgb, var(--model) 45%, var(--line)); background: var(--model-soft); }
+  .result.gas .value { color: var(--model); }
+  .result .cond { font-size: 0.72rem; color: var(--ink-faint); margin-top: 0.15rem; font-family: var(--font-mono); }
+  .result .label .badge.tiny { margin-left: 0.35rem; }
+  .gascard { background: var(--paper-2); border: 1px solid color-mix(in srgb, var(--model) 30%, var(--line)); border-radius: var(--radius); padding: 0.8rem 1.1rem; }
+  .ghead { font-size: 0.85rem; color: var(--ink-faint); display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.6rem; }
+  .gflow { display: flex; align-items: flex-start; gap: 0.6rem; flex-wrap: wrap; }
+  .gcell { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 0.45rem 0.7rem; text-align: center; min-width: 6rem; }
+  .gcell.big { border-color: color-mix(in srgb, var(--model) 45%, transparent); background: var(--model-soft); }
+  .gv { font-family: var(--font-mono); font-weight: 700; font-size: 1.15rem; }
+  .gcell.big .gv { color: var(--model); }
+  .gu { font-family: var(--font-mono); color: var(--ink-faint); }
+  .gn { display: block; font-size: 0.7rem; color: var(--ink-faint); margin-top: 0.15rem; }
+  .gop { color: var(--ink-faint); font-size: 1.3rem; align-self: center; }
+  .gnote { margin: 0.6rem 0 0; font-size: 0.88rem; color: var(--ink-2); }
 </style>

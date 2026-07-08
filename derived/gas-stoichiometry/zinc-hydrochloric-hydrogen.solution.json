@@ -1,0 +1,255 @@
+{
+  "id": "gas-stoichiometry-zinc-hydrochloric-hydrogen",
+  "title": "How much hydrogen? A metal, an acid, and a gas you can measure",
+  "slug": "zinc-hydrochloric-hydrogen",
+  "topic": "gas-stoichiometry",
+  "tags": [
+    "gas-stoichiometry",
+    "single-replacement",
+    "limiting-reagent",
+    "ideal-gas",
+    "stoichiometry",
+    "redox"
+  ],
+  "scenario": "A 3.269 g strip of zinc metal is dropped into 120.0 mL of 1.00 M hydrochloric acid. The zinc dissolves, bubbling hydrogen gas, which is collected at 1.00 atm and 25.00 °C. Which reactant runs out first, and what volume of hydrogen forms?",
+  "regimes": [
+    {
+      "facet": "ledger",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "gas_behavior",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The zinc reacts completely with the acid — the single-replacement reaction goes essentially to completion.",
+      "kind": "model"
+    },
+    {
+      "claim": "Hydrogen behaves as an ideal gas: PV = nRT holds exactly only for a dilute gas (low pressure, not-too-low temperature).",
+      "kind": "model"
+    },
+    {
+      "claim": "HCl is a strong acid and dissociates completely in water.",
+      "kind": "model"
+    },
+    {
+      "claim": "The hydrogen is collected dry at the stated pressure and temperature — no water-vapor-pressure correction (collecting a gas over water is a later refinement).",
+      "kind": "model"
+    }
+  ],
+  "given": [
+    {
+      "species": "Zn(s)",
+      "mass_g": "3.269",
+      "moles": "0.05"
+    },
+    {
+      "species": "HCl(aq)",
+      "volume_mL": "120.0",
+      "molarity_M": "1.00",
+      "moles": "0.12"
+    }
+  ],
+  "equations": {
+    "molecular": {
+      "text": "Zn(s) + 2 HCl(aq) -> ZnCl2(aq) + H2(g)",
+      "latex": "\\mathrm{Zn}\\,\\text{(s)} + 2\\,\\mathrm{HCl}\\,\\text{(aq)} \\rightarrow \\mathrm{ZnCl_{2}}\\,\\text{(aq)} + \\mathrm{H_{2}}\\,\\text{(g)}"
+    },
+    "complete_ionic": {
+      "text": "Zn + 2 H^+ + 2 Cl^- -> Zn^2+ + 2 Cl^- + H2",
+      "latex": "\\mathrm{Zn} + 2\\,\\mathrm{H}^{+} + 2\\,\\mathrm{Cl}^{-} \\rightarrow \\mathrm{Zn}^{2+} + 2\\,\\mathrm{Cl}^{-} + \\mathrm{H_{2}}"
+    },
+    "net_ionic": {
+      "text": "Zn + 2 H^+ -> Zn^2+ + H2",
+      "latex": "\\mathrm{Zn} + 2\\,\\mathrm{H}^{+} \\rightarrow \\mathrm{Zn}^{2+} + \\mathrm{H_{2}}"
+    },
+    "spectators": [
+      "Cl^-"
+    ]
+  },
+  "ledger": {
+    "extent_symbol": "xi",
+    "extent_mol": "0.05",
+    "limiting": [
+      "Zn"
+    ],
+    "species": [
+      {
+        "id": "Zn",
+        "latex": "\\mathrm{Zn}",
+        "phase": "s",
+        "charge": 0,
+        "nu": -1,
+        "initial_mol": "0.05",
+        "final_mol": "0",
+        "role": "limiting"
+      },
+      {
+        "id": "HCl",
+        "latex": "\\mathrm{HCl}",
+        "phase": "aq",
+        "charge": 0,
+        "nu": -2,
+        "initial_mol": "0.12",
+        "final_mol": "0.02",
+        "role": "excess"
+      },
+      {
+        "id": "ZnCl2",
+        "latex": "\\mathrm{ZnCl_{2}}",
+        "phase": "aq",
+        "charge": 0,
+        "nu": 1,
+        "initial_mol": "0",
+        "final_mol": "0.05",
+        "role": "product"
+      },
+      {
+        "id": "H2",
+        "latex": "\\mathrm{H_{2}}",
+        "phase": "g",
+        "charge": 0,
+        "nu": 1,
+        "initial_mol": "0",
+        "final_mol": "0.05",
+        "role": "product"
+      }
+    ]
+  },
+  "dimensional_analysis": [
+    {
+      "target": "moles of Zn(s)",
+      "steps": [
+        {
+          "value": "3.269",
+          "unit": "g",
+          "note": "given mass (weighed)"
+        },
+        {
+          "value": "0.05",
+          "unit": "mol",
+          "note": "÷ 65.38 g/mol (molar mass)"
+        }
+      ]
+    },
+    {
+      "target": "moles of HCl(aq)",
+      "steps": [
+        {
+          "value": "120.0",
+          "unit": "mL",
+          "note": "given volume"
+        },
+        {
+          "value": "0.1200",
+          "unit": "L",
+          "note": "convert mL to L (÷ 1000)"
+        },
+        {
+          "value": "0.12",
+          "unit": "mol",
+          "note": "× 1.00 mol/L"
+        }
+      ]
+    },
+    {
+      "target": "volume of H2 gas at 1.00 atm, 298.15 K",
+      "steps": [
+        {
+          "value": "0.05",
+          "unit": "mol",
+          "note": "moles of H2 from the ledger (= ξ × 1)"
+        },
+        {
+          "value": "1.22",
+          "unit": "L",
+          "note": "× RT/P = 24.5 L/mol (ideal gas, PV=nRT)"
+        }
+      ]
+    }
+  ],
+  "result": {
+    "product": {
+      "species": "H2",
+      "phase": "g",
+      "molar_mass_g_per_mol": "2.0160",
+      "moles": "0.05",
+      "mass_g": "0.1008",
+      "mass_g_display": "0.101"
+    },
+    "gas": {
+      "species": "H2",
+      "phase": "g",
+      "moles": "0.05",
+      "pressure_atm": "1.00",
+      "temperature_K": "298.15",
+      "temperature_C": "25.00",
+      "gas_constant": "0.0820573660809596",
+      "gas_constant_source": "bipm-si-2019",
+      "volume_L": "1.223",
+      "volume_L_display": "1.22",
+      "molar_volume_L_per_mol_display": "24.5"
+    },
+    "salt": {
+      "species": "ZnCl2",
+      "phase": "aq",
+      "molar_mass_g_per_mol": "136.28",
+      "moles": "0.05",
+      "mass_g": "6.814",
+      "mass_g_display": "6.814"
+    },
+    "limiting_species": [
+      "Zn"
+    ],
+    "leftover": [
+      {
+        "species": "HCl",
+        "moles": "0.02"
+      }
+    ]
+  },
+  "misconception": {
+    "claim": "One mole of any gas occupies 22.4 L, so the hydrogen volume is just its moles times 22.4 L.",
+    "refuted_by": "molar_volume_is_conditions_dependent"
+  },
+  "visualizations": [],
+  "reference_links": [
+    "reaction-single-replacement",
+    "formula-ideal-gas-law",
+    "formula-mole-mass",
+    "stoichiometry",
+    "limiting-reagent",
+    "extent-of-reaction",
+    "molar-mass",
+    "molarity",
+    "balancing-equations",
+    "net-ionic-equation",
+    "spectator-ion",
+    "dissociation",
+    "conservation-of-mass",
+    "dihydrogen",
+    "hydrogen-chloride",
+    "chloride"
+  ],
+  "checks": {
+    "atom_balance": true,
+    "charge_balance": true,
+    "unit_check": true,
+    "extent_nonnegative": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights",
+      "ion_charge": "openstax-chemistry-2e",
+      "constants": "bipm-si-2019"
+    }
+  }
+}

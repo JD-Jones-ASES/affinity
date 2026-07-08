@@ -27,7 +27,7 @@ as in the sibling: `prepare:data` = `produce` + `validate`; `build` = `validate`
 The load-bearing invariant: **ChemKernel refuses to emit** an object that fails any check below
 (ADR-0008). CI re-gates the committed output with Node-only checks. A green build certifies both layers.
 
-**As-built (2026-07-08 — Phase 0 + Phase 1 complete + owner-reviewed; Phase 2 OPEN — the formula/equation-sheet Atlas kind landed, ADR-0039).** The pipeline runs end to end — compute → emit →
+**As-built (2026-07-08 — Phase 0 + Phase 1 complete + owner-reviewed; Phase 2 OPEN — the formula-sheet Atlas kind (ADR-0039), the gas-laws gym (ADR-0040), and the gas-stoichiometry lesson (ADR-0041) landed).** The pipeline runs end to end — compute → emit →
 verify → **present**. The engine: `data/` (element, ion, solubility, acid-base, decomposition, constants datasets, ADR-0012/0017/0035/0039);
 `chemkernel.data`/`formula`/`balance`/`units`/`dimension`/`extent`/`reaction`/`reactivity`/`solubility`/`build` (ADR-0012–0019/0035/0039);
 `chemkernel.interactive` (ADR-0022) — parity-verified closed forms for the sliders; `chemkernel.practice`
@@ -45,15 +45,16 @@ tab (`PracticeQuestion.svelte`); `gym/[slug].astro` + `DimensionalGym.svelte` ru
 `reference/` hosts the Atlas + Valence Table. Spec formats are documented (`docs/authoring-problems.md`,
 `docs/authoring-gyms.md`) and **CI deploys to GitHub Pages** (`.github/workflows/deploy.yml`, live at
 `/affinity`). Independent **test oracles** (ADR-0026: `chempy`, `periodictable` as dev-deps) cross-check the
-molar masses and balancer in pytest. **Current counters: 4 lessons (2 precipitation + 1 percent-yield + 1
-acid-base neutralization, ADR-0037) + 9 gyms (conversions + ionic nomenclature + balancing + mass
+molar masses and balancer in pytest. **Current counters: 5 lessons (2 precipitation + 1 percent-yield + 1
+acid-base neutralization, ADR-0037; + 1 gas-stoichiometry — the ledger drives a gas volume via PV=nRT, ADR-0041)
++ 9 gyms (conversions + ionic nomenclature + balancing + mass
 stoichiometry + percent yield + limiting reagent + periodic trends + reaction families + gas laws; 90 drills —
 numeric families free-entry, ADR-0032), 1 Valence Table (23 elements; four modes — Explore lenses / Trends / Formula
 builder / Bonding — over sourced properties + the 156-pair named crossover product + the `data/bonding.toml`
 ΔEN rule, ADR-0031/0033) + 20 concept entries + 7 reaction families (21 engine-classified example reactions,
 ADR-0035) + 14 species entries (composition/charge/molar mass derived from the formula + re-summed in Node,
-ADR-0038) + 8 formula-sheet entries (dimensional homogeneity machine-checked, ADR-0039), 262 producer tests +
-7 Node gates + `astro build` (22 pages) + live CI/Pages green. Lesson practice mass/leftover questions are
+ADR-0038) + 8 formula-sheet entries (dimensional homogeneity machine-checked, ADR-0039), 263 producer tests +
+7 Node gates + `astro build` (23 pages) + live CI/Pages green. Lesson practice mass/leftover questions are
 free-entry too (ADR-0032).**
 
 ## ChemKernel module map (brief §6)
@@ -70,7 +71,7 @@ free-entry too (ADR-0032).**
 | `reactivity.py` datasets | acid/base + gas-forming-intermediate tables (`data/acids-bases.toml`, `data/decomposition.toml`); composition machine-checked on load; injected into the classifier | **built** (ADR-0035) |
 | `solubility.py` classifier | sourced ruleset → soluble/insoluble verdict + governing rule id; `verify_phase` build check | **built** (ADR-0017) |
 | proofs | atom/charge conservation (in `balance.py` + `reaction.py`) and nonnegative extent (in `extent.py`) done; unit homogeneity of reference formulas (SymPy `dims.py`) with the Atlas | partly built |
-| `build.py` orchestration | authored `problems/**/*.problem.toml` → engine → verified `derived/<topic>/<slug>.solution.json`; entry point `build-problems`; exact decimal strings | **built** (ADR-0019) |
+| `build.py` orchestration | authored `problems/**/*.problem.toml` → engine → verified `derived/<topic>/<slug>.solution.json`; entry point `build-problems`; exact decimal strings; three reported-product shapes — precipitate / water / **gas** (a weighed-`mass_g` given → moles, a `[conditions]` block → `result.gas` volume via PV=nRT through the units engine, ADR-0041) | **built** (ADR-0019, +gas ADR-0041) |
 | `interactive.py` | derives the optional interactive block: slider params + JS closed forms + engine-computed sample points; multiplicities from `dissociate`/`net_ionic`; single-precipitate double-displacement only, else omitted | **built** (ADR-0022) |
 | `practice.py` generator | deterministic seeded variants off the reaction → solver-verified answers + misconception distractors; reject-list (near-ties, no leftover, colliding displays); reuses `interactive` multiplicities | **built** (ADR-0022, one family) |
 | `reference.py` Atlas builder | Valence Table projection of `data/` (elements + sourced charges + periodic properties + valence electrons, ADR-0031/0033) + the full named charge-crossover product (verified neutral; own-charge mistakes proven wrong) + the five lens pattern panels + the sourced bonding rule; authored concept entries; `build-reference` entry point | **built** (brief §8/§10/§16) |
@@ -91,7 +92,8 @@ model/rule assumptions only, **never referenced inside derivations**); `given[]`
 extent nonnegative — all must be true to emit); `ledger` (the species ledger: per-species phase, charge,
 initial mol, stoich coefficient, final mol; limiting species; ξ_max); a dimensional-analysis `chain`;
 `result` (the reported net-ionic product — `precipitate` for a solid, or the general `product` + a named
-`salt` for a non-precipitating reaction like neutralization, ADR-0037 — plus `limiting_species`, `leftover`,
+`salt` for a non-precipitating reaction like neutralization, ADR-0037; a **`gas`** block adds the collected
+gas's volume via PV=nRT for gas stoichiometry, ADR-0041 — plus `limiting_species`, `leftover`,
 optional `percent_yield`); `visualizations[]` (kind, static/interactive mode, params, annotations — ADR-0011 governs mode);
 an optional `interactive` block (ADR-0022: slider params + JS closed forms + engine-computed sample points
 the player evaluates and `check-parity` re-proves); an optional `practice` block (ADR-0022: deterministic
@@ -128,10 +130,10 @@ reject-list.
 
 | Gate | Checks |
 |---|---|
-| validate-solutions | **built** (ADR-0020/0037): Ajv schema; every `checks.*` true; path matches topic/slug; unique ids; rule-sourced regime needs a cited `solubility_basis.source`; ledger integrity (limiting rows final_mol 0, extent > 0, ν signs); the reported product (`precipitate` ?? `product`) is a product ledger row of the right phase (a `precipitate` must be solid); provenance sources non-empty |
+| validate-solutions | **built** (ADR-0020/0037/0041): Ajv schema; every `checks.*` true; path matches topic/slug; unique ids; rule-sourced regime needs a cited `solubility_basis.source`; ledger integrity (limiting rows final_mol 0, extent > 0, ν signs); the reported product (`precipitate` ?? `product`) is a product ledger row of the right phase (a `precipitate` must be solid); a `result.gas` (ADR-0041) is the gas-phase reported product + carries a model-exact regime + a disclosed model assumption + the sourced `constants`; provenance sources non-empty |
 | validate-reference | **built** (+ADR-0031/0033/0035/0038): each `derived/reference/*.json` schema-valid by `kind` (`valence-table`/`concept`/`reaction-family`/`species`); unique ids; `related` edges + `lessons` slugs (+ species `reactions`) resolve; every charge-balance salt's ions come from the table; **every emitted `source` id resolves to a `docs/SOURCES.md` register row**; the ADR-0033 re-derivations (valence electrons from the IUPAC group, salt names by concatenation + subscripts by gcd crossover, mistakes re-proven wrong, bonding boundaries tiling); the ADR-0035 **reaction-family** re-derivations — every example's coefficient vector re-proven a true reduced balance (`balancecheck.mjs`) and its redox flag re-derived, with family-label consistency; and the ADR-0038 **species** re-derivations — the formula re-parsed (`formula.mjs`) for composition + charge, the molar mass re-summed from the Valence Table's sourced weights, and the class↔charge agreement enforced; and the ADR-0039 **formula** re-derivations — each variable's dimension re-derived from its unit and each term's dimension re-computed from those + the factor powers (`dimension.mjs`), every term required to share one dimension, and a model-exact relation required to disclose an assumption |
 | validate-gyms | **built** (ADR-0024/0027/0028/0029/0034/0036): each `derived/gyms/*.gym.json` Ajv-valid; every answer **re-derived in pure Node** per kind — conversions from raw `derivation.inputs`; nomenclature by name-concatenation + gcd charge-crossover; balancing by re-parsing each formula (`formula.mjs`) and re-proving the coefficients zero every element + charge row; **stoichiometry** by re-verifying the equation balances (`verifyBalance`, now in shared `balancecheck.mjs`) **and** re-deriving the mass/percent/limiting reagent; **periodic trends** by re-comparing the embedded values and cross-checking them against `valence-table.json`; **reaction families** by re-proving the molecular (and, for spectators, the net-ionic) balance and that every spectator is absent from the net equation; **gas laws** (ADR-0040) by re-deriving PV=nRT (or the combined law) numerically from the emitted state + sourced R, within a tolerance above the rounding and below the 3% diagnostic gap; plus the **response-mode split** (ADR-0032) and molar-mass consistency across the whole corpus |
-| check-ledger | **built** (ADR-0023/0037): re-derives every row's final amount as n = n₀ + ν·ξ from the committed initial/coefficient/extent (independent of Python), checks role/sign consistency, matches the reported result (the product — precipitate or water — + salt moles, each with mass = moles × M, and the leftovers), and **re-derives percent yield** (ADR-0030). A JS formula parser exists (`formula.mjs`, ADR-0028) for a future atom/charge re-check by element counts |
+| check-ledger | **built** (ADR-0023/0037/0041): re-derives every row's final amount as n = n₀ + ν·ξ from the committed initial/coefficient/extent (independent of Python), checks role/sign consistency, matches the reported result (the product — precipitate, water, or gas — + salt moles, each with mass = moles × M, and the leftovers), **re-derives percent yield** (ADR-0030), and **re-derives a gas volume V=nRT/P** numerically from the emitted state + sourced R (0.5% tol) + the °C→K boundary (ADR-0041). A JS formula parser exists (`formula.mjs`, ADR-0028) for a future atom/charge re-check by element counts |
 | check-parity | **built** (ADR-0023, ADR-0022, ADR-0032, ADR-0037): recompiles the exported JS closed forms and re-evaluates them at the embedded engine-computed sample points within tolerance; cross-checks the default slider setting against the committed reported-product mass (`precipitate` ?? `product`); **re-derives every practice answer** in Node and enforces the mode split (numeric → `diagnostics`, no menu; categorical → one-correct `choices`) |
 | check-katex | **built** (ADR-0023/0035/0038/0039): every LaTeX string renders through KaTeX with `throwOnError:true` — solution equations/ledger, concept/Valence-Table LaTeX, every reaction-family equation/net-ionic/species/general-form, each species-atlas symbol + inline prose math, and each formula-sheet statement + rearrangement + inline math |
 | scan-text | **built** (ADR-0023): committed text is provider-agnostic; banned-terms list in the gate, seeded from the sibling's (ADR-0004) |

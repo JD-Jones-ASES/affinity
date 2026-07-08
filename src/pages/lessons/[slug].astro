@@ -18,17 +18,24 @@ const view = renderSolution(solution);
 const metaRaw = plain(solution.scenario);
 const metaDesc = metaRaw.length > 157 ? metaRaw.slice(0, 156).replace(/\s+\S*$/, "") + "…" : metaRaw;
 
-// Concept chips link into the Chemical Atlas where they resolve: to a concept entry (#id) or, for an element
-// or ion topic, to the Valence Table. Ids without an entry yet render as plain chips (the Atlas breadth-fills).
+// Concept chips link into the Chemical Atlas where they resolve — routed by the target entry's KIND to the
+// page that hosts it (concept → the index; reaction-family / species / formula → their own pages), or, for an
+// element or ion topic, to the Valence Table. Ids without an entry yet render as plain chips (the Atlas
+// breadth-fills). The chip label prefers the entry's real title when one exists.
 const refs = import.meta.glob("../../../derived/reference/*.json", { eager: true });
-const conceptIds = new Set(Object.values(refs).map((m) => m.default).filter((r) => r.kind === "concept").map((r) => r.id));
+const byId = new Map(Object.values(refs).map((m) => [m.default.id, m.default]));
 const valenceTopics = new Set(["calcium", "carbonate", "sodium", "chloride", "chlorine", "sulfate", "nitrate", "phosphate", "acetate", "ammonium", "hydroxide", "oxide"]);
-const conceptLabel = (id) => id.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
-const concepts = (solution.reference_links ?? []).map((id) => ({
-  id,
-  label: conceptLabel(id),
-  href: conceptIds.has(id) ? withBase(`/reference/#${id}`) : valenceTopics.has(id) ? withBase("/reference/valence-table/") : null,
-}));
+const kindPage = { concept: "/reference/", "reaction-family": "/reference/reactions/", species: "/reference/species/", formula: "/reference/formulas/" };
+const titleCase = (id) => id.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+const concepts = (solution.reference_links ?? []).map((id) => {
+  const entry = byId.get(id);
+  const page = entry && kindPage[entry.kind];
+  return {
+    id,
+    label: entry?.title ?? titleCase(id),
+    href: page ? withBase(`${page}#${id}`) : valenceTopics.has(id) ? withBase("/reference/valence-table/") : null,
+  };
+});
 ---
 
 <Base title={`${solution.title} — Affinity`} description={metaDesc}>
