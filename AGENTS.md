@@ -220,25 +220,24 @@ emitted, ADR-0043); redox = the free-element signature, not oxidation numbers (P
 brief-§10 kinds** — periodic lens, concepts, reactions, species (ADR-0038), and the **formula sheet** (ADR-0039,
 machine-checked **dimensional homogeneity** via the native `chemkernel.dimension` SI-vector engine, re-derived in
 pure Node; separate from the Decimal `units.py` engine per ADR-0015). The `units.py` engine carries
-amount/mass/volume/pressure/temperature/**energy** dims (energy independent of pressure·volume; +`kJ/mol` for the
-energy ledger). Regime-2 answers are model-assumed-badged: the gas gym/lesson (PV=nRT) + calorimetry gym (q=mcΔT) are
+amount/mass/volume/pressure/temperature/**energy** dims (+`kJ/mol`; energy independent of pressure·volume). Regime-2
+answers wear the model-assumed badge: the gas gym/lesson (PV=nRT) + calorimetry gym (q=mcΔT) are
 **model-exact-then-rounded** (R/c non-terminating; gate re-derives numerically), but the **energy ledger's q=ΔH_rxn·ξ
-is EXACT** (Decimal sum × terminating ξ), 3-sf display — each precision reflects the real arithmetic. Hess's law
-(ΔH_rxn=Σν·ΔH_f° over sourced `data/formation-enthalpies.toml`) is exact arithmetic over data-sourced values; the
-energy lesson wears **three badges** (machine-checked ξ + data-sourced ΔH_f° + model-assumed Hess), as the calorimetry
-gym wears two (ADR-0042). Ledger values incl. mass-given moles stay Fraction-exact (ADR-0013). The producer never runs
-in CI — the seven Node gates re-verify committed `derived/` from scratch.
+is EXACT** (Hess sum ΔH_rxn=Σν·ΔH_f° over sourced `data/formation-enthalpies.toml`, × terminating ξ), 3-sf display —
+each precision reflects its real arithmetic. The energy lesson wears **three badges** (machine-checked ξ + data-sourced
+ΔH_f° + model-assumed Hess), calorimetry two (ADR-0042); ledger values incl. mass-given moles stay Fraction-exact
+(ADR-0013). The producer never runs in CI — the seven Node gates re-verify committed `derived/` from scratch.
 
 ## Where this might go next (paths for a future session)
 
-**Phase 2 is open** (ADR-0039–0043) and filling depth-first on gases + thermochemistry — the formula sheet, the
-`gas_laws_v1` gym, the **gas-stoichiometry lesson**, the **`calorimetry_v1` gym**, and the **energy-ledger lesson**
-(ADR-0043 — the ledger drives an energy q=ΔH_rxn·ξ via Hess's law; the first fully molecular lesson) have landed. The
-flagged next increment (newest session log's closing block) is **generated energy practice** (vary the masses → q,
-re-derived by check-parity from an energetics constants block — the ADR-0041 gas-practice template) + a
-**Hess/enthalpy formula-sheet entry** (dimensional homogeneity of ΔH_rxn=Σν·ΔH_f°). Smaller/optional: endothermic /
-multi-step Hess-cycle lessons; the gas lesson's **slider interactive** (`ExtentBar` is cation/anion-locked, needs its
-own component); calorimetry initial/final-temperature framing + cooling drills. Always in season inside settled
+**Phase 2 is open** (ADR-0039–0043). The **gas + thermochemistry tiers are complete across all surfaces** — gases
+(formula sheet + `gas_laws_v1` gym + gas-stoichiometry lesson) and thermochemistry (Hess + calorimetry formula entries
++ `calorimetry_v1` gym + the **energy-ledger lesson** with generated practice, ADR-0043). The flagged next increment
+(newest session log's closing block) is the **next Phase-2 tier — bonding & structure** (Lewis / VSEPR / polarity / IMFs;
+the Valence Table's bonding mode is seeded, ADR-0033), opened with its stress scenario; then equilibrium/acid-base
+(ICE = ledger with reversible extent), kinetics (dξ/dt), electrochemistry (electron ledger, ΔG=−nFE). Smaller/optional:
+endothermic / multi-step Hess-cycle lessons; the gas lesson's **slider interactive** (`ExtentBar` is cation/anion-locked,
+needs its own component); calorimetry initial/final-temperature framing + cooling drills. Always in season inside settled
 contracts: more formula-sheet entries (pH, K, ΔG, Nernst land with their topics), Atlas breadth-fill, further lessons
 (gas-evolution / diprotic neutralization, item-6 deferrals), an average-atomic-mass or particle-count gym (needs
 isotope data / scientific-notation display), docs-only sessions. **Opening the later Phase-2 tiers** (bonding,
