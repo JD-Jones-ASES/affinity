@@ -1,0 +1,22 @@
+{
+  "kind": "concept",
+  "id": "ph",
+  "title": "pH and the hydronium concentration",
+  "term": "pH",
+  "definition": "pH compresses the hydronium concentration onto a log scale: $\\mathrm{pH} = -\\log_{10}[\\mathrm{H^+}]$. Because it is a **logarithm**, every whole pH unit is a **tenfold** change in $[\\mathrm{H^+}]$ — pH 3 is ten times more acidic than pH 4. At 25 °C pure water is pH 7 (neutral); below 7 is acidic, above 7 basic, tied together by $[\\mathrm{H^+}][\\mathrm{OH^-}] = K_w = 10^{-14}$. On a log scale the **decimal places are the significant figures**: a two-significant-figure $[\\mathrm{H^+}]$ fixes pH to two decimals. Reading pH backwards, $[\\mathrm{H^+}] = 10^{-\\mathrm{pH}}$.",
+  "related": [
+    {
+      "to": "chemical-equilibrium",
+      "type": "depends-on"
+    },
+    {
+      "to": "molarity",
+      "type": "uses"
+    }
+  ],
+  "lessons": [
+    "acetic-acid-ph"
+  ],
+  "regime": "model-exact",
+  "latex": "\\mathrm{pH} = -\\log_{10}[\\mathrm{H^+}]"
+}

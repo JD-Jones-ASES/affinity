@@ -337,6 +337,40 @@ export function renderComparisonLesson(lesson) {
   return s;
 }
 
+// Scientific-notation display for a small decimal string ("0.000018" → "1.8×10⁻⁵"). Typography only — the
+// committed value stays the plain decimal the gates compare (view layer, ADR-0025). Used for Kₐ and the residual.
+function toSci(str) {
+  const n = Number(str);
+  if (!isFinite(n) || n === 0) return String(str);
+  const exp = Math.floor(Math.log10(Math.abs(n)));
+  if (exp === 0) return String(str);
+  const mant = String(Number((n / Math.pow(10, exp)).toPrecision(6)));
+  const sup = String(exp).split("").map((ch) => SUP[ch] ?? ch).join("");
+  return `${mant}×10${sup}`;
+}
+
+// Render an equilibrium lesson (ADR-0048): the ICE table = the species ledger with the extent solved from mass
+// action. The reaction (⇌) + the Kₐ expression + each ICE species symbol render from the producer's upright
+// LaTeX; the scenario / assumptions / misconception get their formula tokens subscripted + inline $…$ rendered.
+// Kₐ + the residual get scientific-notation display. Presentation only — every value came from ChemKernel and
+// was re-verified by the gates (equilibriumcheck.mjs).
+export function renderEquilibriumLesson(lesson) {
+  const s = structuredClone(lesson);
+  const toks = [s.reaction.acid, s.reaction.conjugate_base, "H^+"];
+  s.scenarioHtml = inline(prettyText(s.scenario, toks));
+  delete s.scenario;
+  s.reaction.latexHtml = tex(s.reaction.latex, false);
+  s.reaction.acidPretty = prettyIon(s.reaction.acid);
+  s.equilibrium_constant.expressionHtml = tex(s.equilibrium_constant.expression_latex, false);
+  s.equilibrium_constant.valueSci = toSci(s.equilibrium_constant.value);
+  s.ice.species = s.ice.species.map((r) => ({ ...r, symbolHtml: tex(r.latex, false), idPretty: prettyIon(r.id) }));
+  s.mass_action.quotientSci = toSci(s.mass_action.quotient_at_equilibrium);
+  s.mass_action.residualSci = toSci(s.mass_action.residual_relative);
+  s.assumptions = (s.assumptions ?? []).map((a) => ({ ...a, claimHtml: inline(prettyText(a.claim, toks)) }));
+  if (s.misconception) s.misconception.claimHtml = inline(prettyText(s.misconception.claim, toks));
+  return s;
+}
+
 // Render a concept entry (definition may carry inline $…$; latex is a standalone display formula).
 export function renderConcept(c) {
   return {

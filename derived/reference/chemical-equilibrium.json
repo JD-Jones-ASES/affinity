@@ -1,0 +1,34 @@
+{
+  "kind": "concept",
+  "id": "chemical-equilibrium",
+  "title": "Chemical equilibrium and the ICE table",
+  "term": "chemical equilibrium",
+  "definition": "A **reversible** reaction ($\\rightleftharpoons$) does not stop when a reactant runs out — it settles where the forward and reverse rates match, a **dynamic** balance with both directions still running. At that point the **reaction quotient** $Q = \\dfrac{[\\text{products}]^{\\nu}}{[\\text{reactants}]^{\\nu}}$ equals the **equilibrium constant** $K$ (a large $K$ favors products, a small $K$ favors reactants). The bookkeeping is the **ICE table** — Initial, Change, Equilibrium — which is nothing but the species ledger $c_i = c_{i,0} + \\nu_i\\,x$ (ADR-0002) in concentrations: every row is a straight line in one extent $x$. The difference from a reaction run to completion is only *how far* $x$ goes — here it is the value that makes $Q = K$, found and its residual checked, not the limiting-reagent minimum.",
+  "related": [
+    {
+      "to": "extent-of-reaction",
+      "type": "extends"
+    },
+    {
+      "to": "stoichiometry",
+      "type": "depends-on"
+    },
+    {
+      "to": "ph",
+      "type": "leads-to"
+    },
+    {
+      "to": "reaction-acid-base",
+      "type": "see-also"
+    },
+    {
+      "to": "molarity",
+      "type": "uses"
+    }
+  ],
+  "lessons": [
+    "acetic-acid-ph"
+  ],
+  "regime": "model-exact",
+  "latex": "K = \\frac{[\\mathrm{C}]^{c}\\,[\\mathrm{D}]^{d}}{[\\mathrm{A}]^{a}\\,[\\mathrm{B}]^{b}} \\quad\\text{for}\\quad a\\,\\mathrm{A} + b\\,\\mathrm{B} \\rightleftharpoons c\\,\\mathrm{C} + d\\,\\mathrm{D}"
+}

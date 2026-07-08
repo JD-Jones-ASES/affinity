@@ -1,0 +1,138 @@
+{
+  "kind": "equilibrium",
+  "id": "acetic-acid-ph",
+  "title": "The pH of a weak acid: acetic acid",
+  "slug": "acetic-acid-ph",
+  "topic": "equilibrium",
+  "tags": [
+    "equilibrium",
+    "acid-base",
+    "pH",
+    "weak acid",
+    "ICE table"
+  ],
+  "scenario": "Dissolve enough acetic acid — the acid in vinegar — to make the solution $0.100\\,\\text{M}$. Acetic acid is a **weak** acid: put it in water and only a small fraction of its molecules hand a proton to a water molecule, so the ionization $\\mathrm{HC_2H_3O_2} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{C_2H_3O_2^-}$ settles at an **equilibrium** short of completion. What is the pH? The move is the ICE table — the very same species ledger as any reaction, initial → change → equilibrium — but instead of running to a limiting reagent, the extent stops where the forward and reverse rates balance: where the reaction quotient equals $K_a$.",
+  "regimes": [
+    {
+      "facet": "ICE ledger (species accounting)",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "equilibrium constant",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "equilibrium position (pH)",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The solution has reached equilibrium, and this single ionization is the only reaction that matters (one dominant equilibrium).",
+      "kind": "model"
+    },
+    {
+      "claim": "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which is why $K_a$ is written with concentrations.",
+      "kind": "model"
+    },
+    {
+      "claim": "The $\\mathrm{H^+}$ from water's own autoionization ($10^{-7}\\,\\text{M}$) is negligible beside the acid's, so $[\\mathrm{H^+}]_0 = 0$ in the table.",
+      "kind": "model"
+    }
+  ],
+  "reaction": {
+    "acid": "HC2H3O2",
+    "acid_name": "acetic acid",
+    "acid_latex": "\\mathrm{HC_{2}H_{3}O_{2}}",
+    "text": "HC2H3O2 <=> H^+ + C2H3O2^-",
+    "latex": "\\mathrm{HC_{2}H_{3}O_{2}} \\rightleftharpoons \\mathrm{H}^{+} + \\mathrm{C_{2}H_{3}O_{2}}^{-}",
+    "conjugate_base": "C2H3O2^-"
+  },
+  "equilibrium_constant": {
+    "symbol": "K_a",
+    "value": "0.000018",
+    "expression_latex": "K_a = \\dfrac{[\\mathrm{H}^{+}][\\mathrm{C_{2}H_{3}O_{2}}^{-}]}{[\\mathrm{HC_{2}H_{3}O_{2}}]}",
+    "source": "openstax-chemistry-2e"
+  },
+  "ice": {
+    "extent_symbol": "x",
+    "extent_M": "0.00133267097308",
+    "extent_M_display": "0.00133",
+    "species": [
+      {
+        "id": "HC2H3O2",
+        "latex": "\\mathrm{HC_{2}H_{3}O_{2}}",
+        "phase": "aq",
+        "role": "reactant",
+        "nu": -1,
+        "initial_M": "0.100",
+        "change_M": "-0.00133267097308",
+        "equilibrium_M": "0.0986673290269",
+        "equilibrium_M_display": "0.0987"
+      },
+      {
+        "id": "H^+",
+        "latex": "\\mathrm{H}^{+}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 1,
+        "initial_M": "0",
+        "change_M": "+0.00133267097308",
+        "equilibrium_M": "0.00133267097308",
+        "equilibrium_M_display": "0.00133"
+      },
+      {
+        "id": "C2H3O2^-",
+        "latex": "\\mathrm{C_{2}H_{3}O_{2}}^{-}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 1,
+        "initial_M": "0",
+        "change_M": "+0.00133267097308",
+        "equilibrium_M": "0.00133267097308",
+        "equilibrium_M_display": "0.00133"
+      }
+    ]
+  },
+  "mass_action": {
+    "quotient_symbol": "Q",
+    "quotient_at_equilibrium": "0.000018",
+    "residual_relative": "0.0000000000033"
+  },
+  "result": {
+    "hydronium_M": "0.00133267097308",
+    "hydronium_M_display": "0.00133",
+    "pH": "2.8752771",
+    "pH_display": "2.88",
+    "percent_ionization": "1.332671",
+    "percent_ionization_display": "1.33"
+  },
+  "misconception": {
+    "claim": "The acid is 0.100 M, so [H+] = 0.100 M and pH = -log(0.100) = 1.00.",
+    "refuted_by": "weak_acid_partial_ionization"
+  },
+  "reference_links": [
+    "chemical-equilibrium",
+    "ph",
+    "extent-of-reaction",
+    "reaction-acid-base",
+    "molarity"
+  ],
+  "checks": {
+    "ice_identity": true,
+    "mass_action_satisfied": true,
+    "extent_physical": true,
+    "ph_consistent": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "ionization_constants": "openstax-chemistry-2e",
+      "ion_charge": "openstax-chemistry-2e"
+    }
+  }
+}

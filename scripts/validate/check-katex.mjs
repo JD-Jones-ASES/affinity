@@ -14,7 +14,7 @@ function walk(dir) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (statSync(p).isDirectory()) out.push(...walk(p));
-    else if (name.endsWith(".solution.json") || name.endsWith(".structure.json") || name.endsWith(".comparison.json")) out.push(p);
+    else if (name.endsWith(".solution.json") || name.endsWith(".structure.json") || name.endsWith(".comparison.json") || name.endsWith(".equilibrium.json")) out.push(p);
   }
   return out;
 }
@@ -65,6 +65,19 @@ function comparisonLatex(les) {
   if (les.takeaway) out.push(...inlineMath("takeaway", les.takeaway));
   if (les.misconception?.claim) out.push(...inlineMath("misconception.claim", les.misconception.claim));
   (les.assumptions ?? []).forEach((a, i) => out.push(...inlineMath(`assumptions[${i}].claim`, a.claim)));
+  return out;
+}
+
+// Collect LaTeX in an equilibrium lesson (ADR-0048): the reaction (⇌) display, the mass-action expression, each
+// ICE species symbol, plus any inline $…$ in the scenario, assumptions, and misconception.
+function equilibriumLatex(les) {
+  const out = [];
+  if (les.reaction?.latex) out.push(["reaction.latex", les.reaction.latex]);
+  if (les.equilibrium_constant?.expression_latex) out.push(["equilibrium_constant.expression_latex", les.equilibrium_constant.expression_latex]);
+  (les.ice?.species ?? []).forEach((s, i) => s.latex && out.push([`ice.species[${i}].latex`, s.latex]));
+  out.push(...inlineMath("scenario", les.scenario));
+  (les.assumptions ?? []).forEach((a, i) => out.push(...inlineMath(`assumptions[${i}].claim`, a.claim)));
+  if (les.misconception?.claim) out.push(...inlineMath("misconception.claim", les.misconception.claim));
   return out;
 }
 
@@ -141,7 +154,8 @@ for (const file of files) {
   const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
   const obj = JSON.parse(readFileSync(file, "utf8"));
   const strings = file.endsWith(".structure.json") ? structureLatex(obj)
-    : file.endsWith(".comparison.json") ? comparisonLatex(obj) : latexStrings(obj);
+    : file.endsWith(".comparison.json") ? comparisonLatex(obj)
+    : file.endsWith(".equilibrium.json") ? equilibriumLatex(obj) : latexStrings(obj);
   for (const [where, latex] of strings) render(rel, where, latex);
 }
 for (const file of refFiles) {

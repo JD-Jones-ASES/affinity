@@ -1,0 +1,34 @@
+# Acid ionization constants Kₐ (ADR-0006, ADR-0048). Regime-3 sourced data — the equilibrium tier's dataset,
+# the counterpart of formation-enthalpies.toml for thermochemistry.
+#
+# Kₐ is the equilibrium constant of a weak monoprotic acid's ionization  HA(aq) <=> H+(aq) + A-(aq):
+#   Kₐ = [H+][A-] / [HA]   (activities — dimensionless, referenced to the 1 M standard state — which is why
+#   Kₐ is a pure number). A SMALL Kₐ means the equilibrium lies far to the left: only a little of the acid
+#   ionizes. Values are the standard 25 °C data, source `openstax-chemistry-2e` Appendix H (Ionization
+#   Constants of Weak Acids, CC BY 4.0) — see docs/SOURCES.md.
+#
+# Read as Decimal (never float — ADR-0013). Table keys are the neutral acid formula in the house ASCII form,
+# matching data/acids-bases.toml (the acid's proton count + conjugate anion are curated there; this file adds
+# the QUANTITATIVE equilibrium constant). Whether "HA is a weak acid" is a sourced convention (acids-bases);
+# the ICE accounting the equilibrium engine builds on top of Kₐ is machine-checked (ADR-0048).
+#
+# Only monoprotic weak acids here. Polyprotic acids (H3PO4: Kₐ1/Kₐ2/Kₐ3) ionize in stages — a multi-step
+# equilibrium deferred with the buffer/titration work.
+
+source = "openstax-chemistry-2e"
+
+[acids."HC2H3O2"]      # acetic acid — the canonical first weak acid; conjugate base acetate is in the ion table
+name = "acetic acid"
+ka = "1.8e-5"
+
+[acids."HCHO2"]        # formic acid (methanoic acid); conjugate base formate
+name = "formic acid"
+ka = "1.8e-4"
+
+[acids."HClO"]         # hypochlorous acid; conjugate base hypochlorite
+name = "hypochlorous acid"
+ka = "2.9e-8"
+
+[acids."HCN"]          # hydrocyanic acid — a very weak acid (Kₐ ~ 10⁻¹⁰); conjugate base cyanide
+name = "hydrocyanic acid"
+ka = "4.9e-10"

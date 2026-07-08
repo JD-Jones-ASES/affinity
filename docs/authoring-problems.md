@@ -20,11 +20,13 @@ problems/<topic>/<slug>.problem.toml
 writes `derived/<topic>/<slug>.solution.json`, and the gate refuses a file whose emitted `topic`/`slug`
 don't match its path. One lesson per file.
 
-Most of this guide covers the **reaction** lesson (`*.problem.toml` → a species ledger over reaction extent). Two other
+Most of this guide covers the **reaction** lesson (`*.problem.toml` → a species ledger over reaction extent). Three other
 lesson shapes have their own spec + schema: a single-**molecule** lesson (`*.structure.toml`, Lewis structure → VSEPR →
-polarity — [Structure lessons](#structure-lessons--a-single-molecule-structuretoml-adr-0045) below) and a
+polarity — [Structure lessons](#structure-lessons--a-single-molecule-structuretoml-adr-0045) below), a
 **multi-molecule comparison** (`*.comparison.toml`, several molecules vs. a property — [Comparison
-lessons](#comparison-lessons--several-molecules-vs-a-property-comparisontoml-adr-0047) below).
+lessons](#comparison-lessons--several-molecules-vs-a-property-comparisontoml-adr-0047) below), and an **equilibrium**
+lesson (`*.equilibrium.toml`, a weak acid's pH — the ICE table solved by mass action — [Equilibrium
+lessons](#equilibrium-lessons--a-weak-acids-ph-equilibriumtoml-adr-0048) below).
 
 ## The one TOML gotcha
 
@@ -281,6 +283,38 @@ kind = "model"
 The `rows` (sorted, with each molecule's dominant IMF + boiling point), the `checks`, `regimes`, and `provenance` are
 machine-set — do not author them. See
 [`problems/bonding/boiling-points-and-imfs.comparison.toml`](../problems/bonding/boiling-points-and-imfs.comparison.toml).
+
+### Equilibrium lessons — a weak acid's pH (`*.equilibrium.toml`, ADR-0048)
+
+An **equilibrium lesson** is the ICE table: the species ledger with the extent solved from **mass action** ($Q = K$),
+not driven to a limiting reagent. You author only the acid and its concentration — the dissociation (HA ⇌ H⁺ + A⁻) is
+taken from [`data/acids-bases.toml`](../data/acids-bases.toml) (proton count + conjugate anion) and $K_a$ from
+[`data/ionization-constants.toml`](../data/ionization-constants.toml), so pick a **weak monoprotic** acid curated in
+both (currently acetic acid). The solver finds the extent by bisection; the producer **refuses** a strong or polyprotic
+acid, or an acid with no curated $K_a$:
+
+```toml
+id = "acetic-acid-ph"
+title = "…"
+slug = "acetic-acid-ph"
+topic = "equilibrium"
+acid = "HC2H3O2"                                  # a weak monoprotic acid in acids-bases.toml + ionization-constants.toml
+initial_molarity_M = "0.100"                      # the formal (analytical) concentration
+scenario = "…"                                    # the hook (use $…$ for inline math, ⇌ renders from the producer)
+
+[misconception]
+claim = "…"
+refuted_by = "weak_acid_partial_ionization"       # the player renders a data-driven refutation from the ledger
+
+[[assumptions]]                                   # disclose the equilibrium idealizations (one dominant equilibrium,
+claim = "…"                                       # activities ≈ concentrations, water's autoionization neglected)
+kind = "model"
+```
+
+The whole ICE table (initial/change/equilibrium concentrations), the mass-action residual, the pH, the percent
+ionization, the `reaction`/`equilibrium_constant` blocks, `checks`, `regimes`, and `provenance` are machine-set — do
+not author them. See
+[`problems/equilibrium/acetic-acid-ph.equilibrium.toml`](../problems/equilibrium/acetic-acid-ph.equilibrium.toml).
 
 ### Other optional keys
 

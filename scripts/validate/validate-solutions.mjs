@@ -7,16 +7,19 @@ import { join } from "node:path";
 import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { verifyElectronLedger, ledgerTables, classifyIMF } from "./structurecheck.mjs";
+import { verifyEquilibrium } from "./equilibriumcheck.mjs";
 
 const ROOT = process.cwd();
 const schema = JSON.parse(readFileSync(join(ROOT, "schemas", "solution.schema.json"), "utf8"));
 const structureSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "structure-lesson.schema.json"), "utf8"));
 const comparisonSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "comparison-lesson.schema.json"), "utf8"));
+const equilibriumSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "equilibrium-lesson.schema.json"), "utf8"));
 const ajv = new Ajv({ allErrors: true, strict: true });
 addFormats(ajv);
 const validate = ajv.compile(schema);
 const validateStructure = ajv.compile(structureSchema);
 const validateComparison = ajv.compile(comparisonSchema);
+const validateEquilibrium = ajv.compile(equilibriumSchema);
 const IMF_RANK = { "london-dispersion": 1, "dipole-dipole": 2, "hydrogen-bonding": 3 };
 
 // walk derived/ for lesson files matching a suffix (*.solution.json reactions, *.structure.json structures)
@@ -250,4 +253,36 @@ for (const file of comparisonFiles) {
   for (const [k, v] of Object.entries(les.provenance.sources)) if (!v) fail(rel, `provenance.sources.${k} is empty`);
 }
 
-console.log(`validate-solutions: ${files.length} solution(s) + ${structureFiles.length} structure + ${comparisonFiles.length} comparison lesson(s) valid; ${ids.size} unique id(s).`);
+// ── equilibrium lessons (ADR-0048): the ICE table = the species ledger with the extent solved from mass action.
+// The gate re-derives the whole spine in pure Node (equilibriumcheck.mjs): the ICE identity c_i = c_{i,0} + ν_i·x,
+// an INDEPENDENT bisection re-solve of the root, the residual Q(committed)=K, the pH, and the percent ionization.
+// Honesty is layered: the ICE accounting is machine-checked (regime-1), the equilibrium constant is sourced
+// (regime-3), the equilibrium position/pH is a disclosed model (regime-2) — so all three regimes must be present
+// and a model assumption disclosed, mirroring the gas/energy gates.
+const equilibriumFiles = walkSuffix(derived, ".equilibrium.json");
+for (const file of equilibriumFiles) {
+  const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
+  const les = JSON.parse(readFileSync(file, "utf8"));
+
+  if (!validateEquilibrium(les)) fail(rel, ajv.errorsText(validateEquilibrium.errors, { separator: "; " }));
+
+  const expected = `derived/${les.topic}/${les.slug}.equilibrium.json`;
+  if (rel !== expected) fail(rel, `path does not match topic/slug (expected ${expected})`);
+  if (ids.has(les.id)) fail(rel, `duplicate id ${les.id}`);
+  ids.add(les.id);
+  for (const [k, v] of Object.entries(les.checks)) if (v !== true) fail(rel, `check ${k} is not true`);
+
+  // honesty shape: all three regimes present; a model assumption disclosed (the equilibrium position is regime-2);
+  // the equilibrium constant carries its data source (the data-sourced badge).
+  for (const r of ["ledger-exact", "rule-sourced", "model-exact"])
+    if (!les.regimes.some((x) => x.regime === r)) fail(rel, `equilibrium lesson missing a ${r} regime`);
+  if (!les.assumptions.some((a) => a.kind === "model"))
+    fail(rel, "equilibrium lesson discloses no model assumption (the equilibrium position is model-assumed)");
+  if (!les.equilibrium_constant.source) fail(rel, "equilibrium_constant.source (the Kₐ data source) is missing");
+  for (const [k, v] of Object.entries(les.provenance.sources)) if (!v) fail(rel, `provenance.sources.${k} is empty`);
+
+  // the machine-checked core: re-derive the reversible-extent solve independently of Python
+  verifyEquilibrium(rel, les, fail);
+}
+
+console.log(`validate-solutions: ${files.length} solution(s) + ${structureFiles.length} structure + ${comparisonFiles.length} comparison + ${equilibriumFiles.length} equilibrium lesson(s) valid; ${ids.size} unique id(s).`);

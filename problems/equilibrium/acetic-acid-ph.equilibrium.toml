@@ -1,0 +1,43 @@
+# Equilibrium lesson (ADR-0048) — the equilibrium & acid-base tier's opening stress scenario: the pH of a weak
+# acid. The ICE table IS the species ledger (ADR-0002), but the extent is solved where mass action balances
+# (Q = Kₐ), not driven to a limiting reagent. The reaction (HA ⇌ H⁺ + A⁻) is taken from data/acids-bases.toml
+# (acetic acid: 1 proton, conjugate base acetate) and Kₐ from data/ionization-constants.toml — the author writes
+# only the acid, its concentration, the prose, and the misconception. TOML trap #4: every bare key precedes the
+# [[assumptions]] / [misconception] headers.
+
+id = "acetic-acid-ph"
+title = "The pH of a weak acid: acetic acid"
+slug = "acetic-acid-ph"
+topic = "equilibrium"
+tags = ["equilibrium", "acid-base", "pH", "weak acid", "ICE table"]
+
+# the curated weak monoprotic acid + its formal (analytical) concentration; everything else is derived
+acid = "HC2H3O2"
+initial_molarity_M = "0.100"
+
+scenario = "Dissolve enough acetic acid — the acid in vinegar — to make the solution $0.100\\,\\text{M}$. Acetic acid is a **weak** acid: put it in water and only a small fraction of its molecules hand a proton to a water molecule, so the ionization $\\mathrm{HC_2H_3O_2} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{C_2H_3O_2^-}$ settles at an **equilibrium** short of completion. What is the pH? The move is the ICE table — the very same species ledger as any reaction, initial → change → equilibrium — but instead of running to a limiting reagent, the extent stops where the forward and reverse rates balance: where the reaction quotient equals $K_a$."
+
+reference_links = ["chemical-equilibrium", "ph", "extent-of-reaction", "reaction-acid-base", "molarity"]
+
+author = "Affinity"
+created = "2026-07-08"
+
+# modeling assumptions — disclosed, not discharged (ADR-0003, the model-assumed badge). The ICE accounting is
+# exact; the equilibrium POSITION rides on these idealizations.
+[[assumptions]]
+claim = "The solution has reached equilibrium, and this single ionization is the only reaction that matters (one dominant equilibrium)."
+kind = "model"
+
+[[assumptions]]
+claim = "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which is why $K_a$ is written with concentrations."
+kind = "model"
+
+[[assumptions]]
+claim = "The $\\mathrm{H^+}$ from water's own autoionization ($10^{-7}\\,\\text{M}$) is negligible beside the acid's, so $[\\mathrm{H^+}]_0 = 0$ in the table."
+kind = "model"
+
+# the canonical wrong move, made to fail in the ledger (ADR-0003): treat the weak acid as if it ionized
+# completely (like a strong acid), so [H⁺] = the formal concentration.
+[misconception]
+claim = "The acid is 0.100 M, so [H+] = 0.100 M and pH = -log(0.100) = 1.00."
+refuted_by = "weak_acid_partial_ionization"

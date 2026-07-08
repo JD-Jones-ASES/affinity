@@ -24,6 +24,7 @@ from pathlib import Path
 from . import BuildError, __version__
 from .balance import balance
 from .data import ChemData
+from .equilibrium import build_equilibrium_lesson
 from .extent import solve_extent, species_mass_g, to_decimal
 from .formula import Formula, parse_formula
 from .gym import generate_gym
@@ -581,6 +582,19 @@ def build_comparison(path: Path, root: Path) -> tuple[dict, str]:
     return lesson, f"{spec['topic']}/{spec['slug']}.comparison.json"
 
 
+def build_equilibrium(path: Path, root: Path) -> tuple[dict, str]:
+    """An authored equilibrium lesson (ADR-0048): the ICE table = the species ledger with the extent solved from
+    mass action. The acid's dissociation (HA ⇌ H⁺ + A⁻) comes from data/acids-bases.toml (DRY-sourced) and its
+    Kₐ from data/ionization-constants.toml; build_equilibrium_lesson solves the reversible extent + the pH."""
+    spec = tomllib.loads(path.read_text(encoding="utf-8"))
+    ctx = spec.get("id", path.stem)
+    data = ChemData.load(root)
+    acidbase = AcidBase.load(root)
+    acidbase.validate(data)      # regime-1 composition self-check of the sourced acid/base table
+    lesson = build_equilibrium_lesson(spec, data, acidbase, ctx)
+    return lesson, f"{spec['topic']}/{spec['slug']}.equilibrium.json"
+
+
 def build_reference_main(argv: list[str] | None = None) -> int:
     """Build the Chemical Atlas: the Valence Table (from data/) + authored concept and reaction-family
     entries (reference/**). Reaction-family examples are balanced + classified by the engine (ADR-0035)."""
@@ -661,22 +675,26 @@ def build_gyms_main(argv: list[str] | None = None) -> int:
 
 
 def build_problems_main(argv: list[str] | None = None) -> int:
-    """Build every authored lesson under problems/ (ADR-0019/0045/0047). Three lesson shapes, dispatched by file
-    extension: a **reaction** lesson `*.problem.toml` → `build_problem` (equations + species ledger over extent +
-    a reported product); a **structure** lesson `*.structure.toml` → `build_structure` (a single molecule's Lewis
-    electron ledger, stepped valence → shape → polarity); and a **comparison** lesson `*.comparison.toml` →
-    `build_comparison` (several molecules vs. a property, the IMF-strength trend machine-verified). All write
-    verified derived JSON."""
+    """Build every authored lesson under problems/ (ADR-0019/0045/0047/0048). Four lesson shapes, dispatched by
+    file extension: a **reaction** lesson `*.problem.toml` → `build_problem` (equations + species ledger over
+    extent + a reported product); a **structure** lesson `*.structure.toml` → `build_structure` (a single
+    molecule's Lewis electron ledger, stepped valence → shape → polarity); a **comparison** lesson
+    `*.comparison.toml` → `build_comparison` (several molecules vs. a property, the IMF-strength trend
+    machine-verified); and an **equilibrium** lesson `*.equilibrium.toml` → `build_equilibrium` (the ICE table =
+    the species ledger with the extent solved from mass action, ADR-0048). All write verified derived JSON."""
     root = Path.cwd()
     reactions = sorted((root / "problems").glob("**/*.problem.toml"))
     structures = sorted((root / "problems").glob("**/*.structure.toml"))
     comparisons = sorted((root / "problems").glob("**/*.comparison.toml"))
-    if not reactions and not structures and not comparisons:
-        print("no *.problem.toml / *.structure.toml / *.comparison.toml found under problems/", file=sys.stderr)
+    equilibria = sorted((root / "problems").glob("**/*.equilibrium.toml"))
+    if not reactions and not structures and not comparisons and not equilibria:
+        print("no *.problem.toml / *.structure.toml / *.comparison.toml / *.equilibrium.toml found under problems/",
+              file=sys.stderr)
         return 1
     lessons = ([(p, build_problem) for p in reactions]
                + [(p, build_structure) for p in structures]
-               + [(p, build_comparison) for p in comparisons])
+               + [(p, build_comparison) for p in comparisons]
+               + [(p, build_equilibrium) for p in equilibria])
     for path, builder in lessons:
         try:
             obj, out_rel = builder(path, root)

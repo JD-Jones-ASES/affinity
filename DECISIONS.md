@@ -1494,3 +1494,55 @@ backlinks changed — the concept + the 3 compared molecules). **5-way tamper-te
 imf_rank / a non-monotonic trend / a boiling-point drift / a dominant-IMF drift — each caught by a distinct branch).
 There are now **three lesson shapes** (reaction / structure / comparison), each a tight schema; the reaction schema stays
 pristine. **Deferred:** more comparison axes (melting point, solubility) once wanted; a "which IMF dominates?" gym drill.
+
+## ADR-0048 — Open equilibrium & acid-base: the reversible-extent solver + the `equilibrium` lesson kind (2026-07-08)
+
+**Context.** With the bonding tier's teaching arc complete, the next flagged tier is **equilibrium & acid-base** — the
+largest of the remaining model-bearing topics, and the one the thesis (AGENTS.md, ADR-0002) most directly predicts: *"ICE
+table = the species ledger with reversible extent."* In `extent.py` a reaction runs to completion and ξ is driven to the
+limiting-reagent minimum. An equilibrium is the SAME ledger — every amount is still $c_i = c_{i,0} + \nu_i\,x$ — but the
+extent stops where **mass action** balances ($Q(x)=K$), short of completion. The owner pre-authorized opening this tier
+("You can open equilibrium/acid-base if appropriate"). The opening stress scenario is the canonical first equilibrium
+problem: **the pH of a weak acid**.
+
+**Decision.** (1) A **reversible-extent solver**, `chemkernel.equilibrium.solve_equilibrium`: it builds the ICE ledger in
+concentrations and finds the extent $x$ at which the reaction quotient $Q(x)=\prod_i(c_{i,0}+\nu_i x)^{\nu_i}$ equals $K$.
+On the physical interval (every concentration ≥ 0) $Q$ is strictly increasing, so exactly one root exists; it is found by
+**bisection to high precision** (exact `Decimal`) — NOT the quadratic formula, because the same machine has to serve the
+cubic (common-ion Ksp), the buffer, and the polyprotic case later. The root is generally irrational, so the extent + pH
+are **model-exact-then-rounded** (the ADR-0040 gas-law pattern, not a weakening of ADR-0013 ledger exactness); the honest
+machine-check is the **residual** — the committed equilibrium concentrations put back into $Q$ reproduce $K$ — plus the
+gate's **independent re-solve** of the root in pure Node. (2) A new **`equilibrium` lesson kind** — its own tight
+`schemas/equilibrium-lesson.schema.json` + `equilibrium.build_equilibrium_lesson`, emitting
+`derived/<topic>/<slug>.equilibrium.json` (dispatched by extension in `build_problems_main`, the **fourth** lesson shape
+after reaction/structure/comparison). (3) Honesty **layered, not mixed** (the three badges): the ICE identity
+$c_i=c_{i,0}+\nu_i x$ is exact algebra (regime-1, machine-checked — the gate re-derives every row); $K_a$ is a sourced
+empirical datum (regime-3); the equilibrium **model** (one dominant equilibrium; activities ≈ molarities; water's own
+ionization neglected) is disclosed (regime-2, model-assumed); the solved position (x, pH) is model-exact-then-rounded.
+Triple-badged, like the energy lesson. (4) $K_a$ is curated + sourced in **`data/ionization-constants.toml`** (OpenStax
+*Chemistry 2e* Appendix H), loaded by `data.py` like the other Phase-2 datasets; the acid's dissociation (HA ⇌ H⁺ + A⁻)
+is **DRY-sourced from `data/acids-bases.toml`** (its proton count + conjugate anion), so the reaction is not re-authored.
+(5) pH = −log₁₀[H⁺]; the lesson links to two new **concepts** (`chemical-equilibrium`, `ph`) rather than formula-sheet
+entries — the honest $K$/pH formula-sheet treatment needs *activities* (dimensionless, so the dimension engine stays
+homogeneous), deferred with the rest. (6) The gate re-derives the whole spine in pure Node (`equilibriumcheck.mjs`,
+shared like `structurecheck.mjs`, called from `validate-solutions`): the ICE identity, an **independent bisection
+re-solve** of the root, the residual $Q(\text{committed})=K$, the pH, and the percent ionization.
+
+**Consequences.** The tier opens on **`equilibrium/acetic-acid-ph`** — 0.100 M acetic acid, $K_a=1.8\times10^{-5}$ →
+$x=[\mathrm{H^+}]=1.33\times10^{-3}$ M, **pH 2.88**, 1.33% ionized. The misconception is the canonical one — treating the
+weak acid as strong ("$[\mathrm{H^+}]=0.100$, pH = 1.00") — refuted from the ledger: only 1.33% ionizes, 98.67% stays
+intact. New (additive): `data/ionization-constants.toml` + the `data.py` loader/accessor/source;
+`chemkernel/equilibrium.py`; `schemas/equilibrium-lesson.schema.json`; `build.py`'s `build_equilibrium` + the fourth
+dispatch; `problems/equilibrium/acetic-acid-ph.equilibrium.toml`; `reference/concepts/{chemical-equilibrium,ph}.toml`;
+`scripts/validate/equilibriumcheck.mjs` + the `validate-solutions` walk; `check-katex`/`validate-reference` learn
+`.equilibrium.json`; `src/components/EquilibriumLesson.astro` + `view.renderEquilibriumLesson` + the lesson pages'
+dispatch. **333 producer tests** (+18); **validate-solutions = 6 + 2 structure + 1 comparison + 1 equilibrium**;
+validate-reference = 63 (+2 concepts); check-katex = 530 (+28); **31 pages** (+1); `derived/` byte-stable (only the 3 new
+files). **5-way tamper-tested** (corrupt extent → ICE identity; a *coherent* wrong extent that satisfies the identity →
+the independent re-solve; corrupt $K_a$ → re-solve; corrupt pH → log consistency; corrupt the quotient → mass action —
+each caught by a distinct branch). There are now **four lesson shapes**. **Deferred (the rest of the tier):** the weak
+**base** ($K_b$, pOH, $K_w$); **Ksp** solubility equilibria (the solid's activity = 1, excluded from $Q$ — a small model
+refinement to the generic solver); **buffers** (Henderson–Hasselbalch = the ICE ledger with both HA and A⁻ present, the
+reverse-direction bracket the solver already supports); **titration curves**; **polyprotic** staged equilibria (H₃PO₄
+$K_{a1}/K_{a2}/K_{a3}$); a weak-acid **gym** (solve-for-pH / solve-for-Kₐ, model-exact-then-rounded); the $K$/pH/$K_w$
+**formula-sheet** entries (with the activity treatment). Then kinetics ($d\xi/dt$) and electrochemistry.

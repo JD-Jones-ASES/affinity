@@ -7,18 +7,28 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 
 ## Status
 
-- **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed; Phase 2 (the
-  model-bearing tier) has landed its **gases + thermochemistry** tiers and its **bonding & structure** tier's engine +
-  Atlas + gym + 2 lessons + **IMFs**. Landed: the **formula/equation sheet** (ADR-0039), **`gas_laws_v1` gym** (ADR-0040),
-  **gas-stoichiometry lesson** (ADR-0041), **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043 — q=ΔH_rxn·ξ
-  via Hess's law), the **bonding tier** (ADR-0044 — Lewis electron-ledger engine + `molecule` Atlas kind +
-  `lewis_structures_v1` gym), the **`structure` lesson kind** (ADR-0045 — water bent-polar + CO₂ linear-nonpolar), and
-  **intermolecular forces** (ADR-0046 — a structure-derived dominant-IMF classifier + concept), and the **IMF comparison
-  lesson** (ADR-0047 — a third lesson shape, a machine-verified boiling-point trend). **The bonding & structure tier's
-  teaching arc is complete** (engine + Atlas + gym + 3 lessons + IMFs). **Next inside Phase 2:** the big model-bearing
-  tiers — equilibrium/acid-base (ICE = ledger with reversible extent), kinetics, electrochemistry, each opening with its
-  stress scenario. Counters live in `AGENTS.md ## Current state`; per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md)
-  + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+- **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed. Phase 2 (the
+  model-bearing tier) has landed its **gases + thermochemistry** tiers, its **bonding & structure** tier (engine + Atlas +
+  gym + 3 lessons + IMFs), and has now **opened equilibrium & acid-base** on its stress scenario. Landed: the
+  **formula/equation sheet** (ADR-0039), **`gas_laws_v1` gym** (ADR-0040), **gas-stoichiometry lesson** (ADR-0041),
+  **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043), the **bonding tier** (ADR-0044), the **`structure`
+  lesson kind** (ADR-0045), **intermolecular forces** (ADR-0046), the **IMF comparison lesson** (ADR-0047 — a third lesson
+  shape), and the **equilibrium tier opener** (ADR-0048 — the reversible-extent solver + the `equilibrium` lesson kind, a
+  fourth shape). **Next inside Phase 2:** the rest of equilibrium & acid-base (weak base/Kb, Ksp, buffers, titration, a
+  gym), then kinetics and electrochemistry, each opening with its stress scenario. Counters live in `AGENTS.md ## Current
+  state`; per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks
+  below are the plan of record.
+- **Equilibrium & acid-base — OPENED** (2026-07-08, ADR-0048): the thesis made literal — *the ICE table is the species
+  ledger with the extent solved from mass action* ($Q=K$), not driven to a limiting reagent. The **reversible-extent
+  solver** (`chemkernel.equilibrium.solve_equilibrium`) finds the extent by bisection to high precision (exact Decimal,
+  general beyond the quadratic); the root is model-exact-then-rounded, the machine-check is the residual $Q(\text{committed})=K$
+  + the gate's independent re-solve. A new **`equilibrium` lesson kind** (fourth shape, own tight schema, `*.equilibrium.json`)
+  → `equilibrium/acetic-acid-ph` (0.100 M acetic acid, $K_a=1.8\times10^{-5}$ → pH 2.88, 1.33% ionized; the weak-as-strong
+  misconception refuted). Triple-badged (ICE machine-checked / $K_a$ sourced / position model-assumed); $K_a$ from
+  `data/ionization-constants.toml` (OpenStax App H), the dissociation DRY-sourced from acids-bases; two concepts. Gate
+  `equilibriumcheck.mjs` re-derives the spine in Node; 5-way tamper-tested. **Deferred (the rest of the tier):** weak base
+  ($K_b$/pOH/$K_w$), Ksp (solid excluded from $Q$), buffers (both HA+A⁻ present — the reverse bracket already works),
+  titration curves, polyprotic staging, a weak-acid gym, the $K$/pH/$K_w$ formula-sheet entries (need the activity treatment).
 - **IMF comparison lesson — LANDED** (2026-07-08, ADR-0047): the bonding capstone + a **third lesson shape** (`comparison`).
   `bonding/boiling-points-and-imfs` lines up CH₄ ≪ NH₃ ≪ H₂O (equal-mass hydrides, so size is controlled) and the
   machine-checked payoff is the trend itself: sorted by boiling point, the dominant-IMF rank is **non-decreasing** (the
@@ -384,12 +394,27 @@ within:** the IMF **comparison lesson** (a new multi-molecule lesson shape — t
 payoff); octet exceptions (electron-deficient BeH₂/BF₃, expanded PCl₅/SF₆); resonance (CO₃²⁻/NO₃⁻ — equivalent-structure
 handling); more structure lessons (NH₃/CH₄); a formal-charge gym drill (wants nonzero-FC molecules, i.e. resonance).
 
-**Then (each its own increment, sketch):** the rest of bonding (above); equilibrium & acid-base (ICE table = the ledger
-with reversible extent — $n_i = n_{i,0} + \nu_i\xi$ solved for the $\xi$ that satisfies mass action; K, Q, pH, weak
-acids, buffers, titration curves); kinetics ($d\xi/dt$, rate laws, integrated rate laws, half-life); electrochemistry
-(oxidation numbers — completing the free-element redox flag from ADR-0035 — electron ledger, $E^\circ$,
-$\Delta G=-nFE$, Nernst). Further formula-sheet entries ($pH=-\log[H^+]$, $K_w$, $\Delta G=\Delta H-T\Delta S$, Nernst)
-land with their topics.
+**Equilibrium & acid-base tier — OPEN (2026-07-08, ADR-0048):** the thesis made literal — the **ICE table is the species
+ledger** ($c_i = c_{i,0} + \nu_i\,x$) with the extent solved from **mass action** ($Q(x)=K$), not driven to a limiting
+reagent. The **reversible-extent solver** (`chemkernel.equilibrium.solve_equilibrium`) finds the root by **bisection to high
+precision** (exact Decimal — general beyond the quadratic, ready for Ksp/buffers/polyprotic); the root is
+model-exact-then-rounded (ADR-0040 pattern), and the machine-check is the **residual** ($Q$ at the committed concentrations
+reproduces $K$) plus the gate's **independent re-solve** (`equilibriumcheck.mjs`, shared, in Node). A new **`equilibrium`
+lesson kind** (the fourth shape — own tight `equilibrium-lesson.schema.json`, `build_equilibrium_lesson`,
+`*.equilibrium.json`) → **`equilibrium/acetic-acid-ph`**: 0.100 M acetic acid, $K_a=1.8\times10^{-5}$ → $[\mathrm{H^+}]=
+1.33\times10^{-3}$ M, **pH 2.88**, 1.33% ionized; the misconception is treating the weak acid as strong. Triple-badged (ICE
+identity machine-checked / $K_a$ data-sourced / equilibrium position + pH model-assumed); $K_a$ from
+`data/ionization-constants.toml` (OpenStax App H), the HA ⇌ H⁺ + A⁻ dissociation DRY-sourced from `data/acids-bases.toml`;
+concepts `chemical-equilibrium` + `ph`; a static `EquilibriumLesson.astro` (ICE table + mass-action check + pH). **Next
+in-tier:** the weak **base** ($K_b$/pOH/$K_w$); **Ksp** (the pure solid's activity = 1, excluded from $Q$ — a small solver
+refinement); **buffers** (both HA + A⁻ present — the reverse-direction bracket the solver already supports; Henderson–
+Hasselbalch); **titration curves**; **polyprotic** staged equilibria (H₃PO₄); a weak-acid **gym**; the $K$/pH/$K_w$
+formula-sheet entries (they need the *activity* — dimensionless — treatment so the dimension engine stays homogeneous).
+
+**Then (each its own increment, sketch):** the rest of bonding (above) + the rest of equilibrium & acid-base (above);
+kinetics ($d\xi/dt$, rate laws, integrated rate laws, half-life); electrochemistry (oxidation numbers — completing the
+free-element redox flag from ADR-0035 — electron ledger, $E^\circ$, $\Delta G=-nFE$, Nernst). Further formula-sheet entries
+($\Delta G=\Delta H-T\Delta S$, Nernst) land with their topics.
 
 **Definition of done (a reviewable Phase-2 boundary):** deferred to the opening tier's close — at minimum the
 gas/thermo tier lands its gym(s) + at least one gas or calorimetry lesson (misconception register + ledger view

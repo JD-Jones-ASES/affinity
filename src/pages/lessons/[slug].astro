@@ -3,8 +3,9 @@ import Base from "../../layouts/Base.astro";
 import SolutionPlayer from "../../islands/SolutionPlayer.svelte";
 import StructureLesson from "../../components/StructureLesson.astro";
 import ComparisonLesson from "../../components/ComparisonLesson.astro";
+import EquilibriumLesson from "../../components/EquilibriumLesson.astro";
 import { withBase } from "../../lib/withBase.js";
-import { renderSolution, renderStructureLesson, renderComparisonLesson } from "../../lib/view.js";
+import { renderSolution, renderStructureLesson, renderComparisonLesson, renderEquilibriumLesson } from "../../lib/view.js";
 import { plain } from "../../lib/katex.js";
 
 // One page per committed lesson JSON. Three lesson shapes share the /lessons/<slug>/ route: a reaction lesson
@@ -15,17 +16,21 @@ export function getStaticPaths() {
   const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
   const structs = import.meta.glob("../../../derived/**/*.structure.json", { eager: true });
   const cmps = import.meta.glob("../../../derived/**/*.comparison.json", { eager: true });
+  const eqs = import.meta.glob("../../../derived/**/*.equilibrium.json", { eager: true });
   return [
     ...Object.values(sols).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "reaction" } })),
     ...Object.values(structs).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "structure" } })),
     ...Object.values(cmps).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "comparison" } })),
+    ...Object.values(eqs).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "equilibrium" } })),
   ];
 }
 
 const { lesson, kind } = Astro.props;
 const isStructure = kind === "structure";
 const isComparison = kind === "comparison";
-const view = isComparison ? renderComparisonLesson(lesson)
+const isEquilibrium = kind === "equilibrium";
+const view = isEquilibrium ? renderEquilibriumLesson(lesson)
+  : isComparison ? renderComparisonLesson(lesson)
   : isStructure ? renderStructureLesson(lesson) : renderSolution(lesson);
 
 const metaRaw = plain(lesson.scenario);
@@ -54,7 +59,9 @@ const concepts = (lesson.reference_links ?? []).map((id) => {
   <p class="crumb faint"><a href={withBase("/lessons/")}>Lessons</a> · {lesson.topic}</p>
   <h1>{lesson.title}</h1>
 
-  {isComparison
+  {isEquilibrium
+    ? <EquilibriumLesson lesson={view} />
+    : isComparison
     ? <ComparisonLesson lesson={view} />
     : isStructure
     ? <StructureLesson lesson={view} />

@@ -53,7 +53,7 @@ class ChemData:
                  constants: dict[str, Decimal] | None = None, bonding: dict | None = None,
                  constant_units: dict[str, str] | None = None, specific_heats: dict | None = None,
                  formation_enthalpies: dict | None = None, vsepr: dict | None = None,
-                 boiling_points: dict | None = None):
+                 boiling_points: dict | None = None, ionization_constants: dict | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
@@ -71,6 +71,10 @@ class ChemData:
         # phase_change}. Sourced empirical evidence (regime-3) for the intermolecular-forces concept: IMF strength
         # shows up in the boiling point. The molecule Atlas attaches it; the classification itself is structural.
         self.boiling_points = boiling_points or {}
+        # acid ionization constants Ka (ADR-0048), keyed by neutral acid formula -> {name, ka (Decimal)}. The
+        # equilibrium tier's sourced datum (regime-3): the equilibrium engine solves the ICE ledger for the extent
+        # that satisfies mass action, Ka = [H+][A-]/[HA]. Small Ka => the equilibrium lies far to the left.
+        self.ionization_constants = ionization_constants or {}
 
     @property
     def avogadro(self) -> Decimal:
@@ -93,6 +97,14 @@ class ChemData:
         if key not in self.formation_enthalpies:
             raise BuildError(f"no standard enthalpy of formation for {key} in data/formation-enthalpies.toml")
         return self.formation_enthalpies[key]
+
+    def ionization_constant(self, formula: str) -> dict:
+        """The acid ionization constant Ka (Decimal) of a weak acid by neutral formula, from
+        data/ionization-constants.toml (ADR-0048). Raises if absent — the equilibrium engine refuses to guess a
+        missing Ka (ADR-0008); a sourced Ka is the empirical input the ICE ledger solves against."""
+        if formula not in self.ionization_constants:
+            raise BuildError(f"no ionization constant for '{formula}' in data/ionization-constants.toml")
+        return self.ionization_constants[formula]
 
     @classmethod
     def load(cls, root: Path | None = None) -> "ChemData":
@@ -241,6 +253,23 @@ class ChemData:
                 except (KeyError, ArithmeticError) as exc:
                     raise BuildError(f"data/boiling-points.toml: bad entry for '{key}': {exc}") from exc
 
+        # acid ionization constants Ka (optional file; ADR-0006/0048). A measured, data-sourced datum (regime-3)
+        # for the equilibrium tier — read as Decimal (ADR-0013), keyed by neutral acid formula.
+        ionization_constants: dict = {}
+        ic_source = ""
+        ic_path = d / "ionization-constants.toml"
+        if ic_path.exists():
+            ic_doc = tomllib.loads(ic_path.read_text(encoding="utf-8"))
+            ic_source = ic_doc.get("source", "")
+            for key, v in ic_doc.get("acids", {}).items():
+                try:
+                    ka = Decimal(v["ka"])
+                    if ka <= 0:
+                        raise BuildError(f"data/ionization-constants.toml: '{key}' ka must be positive")
+                    ionization_constants[key] = {"name": v["name"], "ka": ka}
+                except (KeyError, ArithmeticError) as exc:
+                    raise BuildError(f"data/ionization-constants.toml: bad entry for '{key}': {exc}") from exc
+
         sources = {
             "atomic_weight": el_doc.get("source", ""),
             "position": el_doc.get("position_source", ""),
@@ -254,9 +283,10 @@ class ChemData:
             "formation_enthalpies": fe_source,
             "vsepr": vsepr_source,
             "boiling_points": bp_source,
+            "ionization_constants": ic_source,
         }
         obj = cls(elements, ions, sources, constants, bonding, constant_units, specific_heats,
-                  formation_enthalpies, vsepr, boiling_points)
+                  formation_enthalpies, vsepr, boiling_points, ionization_constants)
         obj.validate()
         return obj
 

@@ -3,6 +3,34 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — open equilibrium & acid-base: the reversible-extent solver + weak-acid pH (ADR-0048)
+
+Opened the **equilibrium & acid-base** tier on its stress scenario, **the pH of a weak acid** — the thesis made literal:
+*the ICE table is the species ledger with the extent solved from mass action, not driven to a limiting reagent.*
+
+- **Engine `chemkernel.equilibrium.solve_equilibrium`** — the **reversible-extent solver**. Builds the ICE ledger
+  ($c_i = c_{i,0} + \nu_i\,x$) in concentrations and finds the extent $x$ where the reaction quotient $Q(x)=K$, by
+  **bisection to high precision** (exact `Decimal`; general beyond the quadratic — ready for Ksp, buffers, polyprotic).
+  The root is model-exact-then-rounded (ADR-0040 pattern); the machine-check is the **residual** ($Q$ at the committed
+  concentrations reproduces $K$) plus the gate's independent re-solve.
+- **New `equilibrium` lesson kind** — the fourth lesson shape (`schemas/equilibrium-lesson.schema.json`,
+  `build_equilibrium_lesson`, `*.equilibrium.json`, dispatched by extension). Lesson **`equilibrium/acetic-acid-ph`**:
+  0.100 M acetic acid, $K_a=1.8\times10^{-5}$ → $x=[\mathrm{H^+}]=1.33\times10^{-3}$ M, **pH 2.88**, 1.33% ionized. The
+  misconception is treating the weak acid as strong ($[\mathrm{H^+}]=0.100$, pH 1.00), refuted from the ledger (98.67%
+  stays intact). Triple-badged: ICE identity machine-checked (regime-1), $K_a$ data-sourced (regime-3), the equilibrium
+  position/pH model-assumed (regime-2).
+- **Data:** `data/ionization-constants.toml` ($K_a$ for weak acids, OpenStax *Chemistry 2e* Appendix H) + the `data.py`
+  loader/accessor. The acid's dissociation (HA ⇌ H⁺ + A⁻) is **DRY-sourced from `data/acids-bases.toml`**. Two new
+  concepts (`chemical-equilibrium`, `ph`); formula-sheet $K$/pH entries deferred (they need the activity treatment).
+- **Gate:** `scripts/validate/equilibriumcheck.mjs` (shared) re-derives the whole spine in pure Node — the ICE identity,
+  an **independent bisection re-solve** of the root, the residual, the pH, the percent ionization — wired into
+  `validate-solutions`; `check-katex`/`validate-reference` learn `.equilibrium.json`. A fully static
+  `EquilibriumLesson.astro` player (the ICE table, the mass-action check, the pH headline).
+- **Verification:** **333 producer tests** (+18); 7 gates green (validate-solutions = 6 + 2 structure + 1 comparison +
+  **1 equilibrium**; validate-reference = 63; check-katex = 530); **31 pages** (+1); `derived/` byte-stable (only the 3
+  new files). **5-way tamper-tested** — corrupt extent → ICE identity; a *coherent* wrong extent → the independent
+  re-solve; corrupt $K_a$ → re-solve; corrupt pH → log; corrupt the quotient → mass action. **Four lesson shapes** now.
+
 ## Phase 2 — 2026-07-08 — IMF comparison lesson: a machine-verified boiling-point trend (ADR-0047)
 
 The bonding tier's capstone — and a third lesson shape. Where a reaction lesson is a species ledger and a structure

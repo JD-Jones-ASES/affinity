@@ -4,11 +4,13 @@ import { withBase } from "../../lib/withBase.js";
 import { inline } from "../../lib/katex.js";
 import { prettyText } from "../../lib/view.js";
 
-// both lesson shapes list here (ADR-0045): reaction lessons (*.solution.json) and structure lessons
-// (*.structure.json — a single molecule's electron ledger). Each carries a title, topic, slug, and scenario.
+// all lesson shapes list here (ADR-0045/0047/0048): reaction (*.solution.json), structure (*.structure.json —
+// a single molecule's electron ledger), comparison (*.comparison.json), and equilibrium (*.equilibrium.json —
+// the ICE table). Each carries a title, topic, slug, and scenario.
 const mods = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
 const structs = import.meta.glob("../../../derived/**/*.structure.json", { eager: true });
 const cmps = import.meta.glob("../../../derived/**/*.comparison.json", { eager: true });
+const eqs = import.meta.glob("../../../derived/**/*.equilibrium.json", { eager: true });
 // scenario typography: subscript each lesson's known formula tokens (ADR-0025 / brief §6.1)
 const stripPhase = (id) => String(id).replace(/\((?:s|l|g|aq)\)$/, "");
 const tokensOf = (l) => [
@@ -16,8 +18,10 @@ const tokensOf = (l) => [
   l.result?.precipitate?.species,
   l.molecule?.formula,                    // structure lessons carry a molecule, not a reaction
   ...(l.rows ?? []).map((r) => r.formula), // comparison lessons carry several molecules
+  l.reaction?.acid, l.reaction?.conjugate_base, // equilibrium lessons carry the acid + conjugate base
 ];
-const lessons = [...Object.values(mods), ...Object.values(structs), ...Object.values(cmps)].map((m) => m.default)
+const lessons = [...Object.values(mods), ...Object.values(structs), ...Object.values(cmps), ...Object.values(eqs)]
+  .map((m) => m.default)
   .map((l) => ({ ...l, scenarioHtml: inline(prettyText(l.scenario, tokensOf(l))) }));
 
 // Group by topic; topics render alphabetically, lessons by title within each. Resilient to any count — a new

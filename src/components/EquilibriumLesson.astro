@@ -1,0 +1,204 @@
+---
+// The equilibrium-lesson player (ADR-0048): the ICE table = the species ledger with the extent solved from mass
+// action. A fully STATIC Astro component (nothing to hydrate) — the reversible reaction, the ICE table, the
+// mass-action check (the machine-found extent that makes Q = Kₐ), the pH headline, the SHOWN checks, and the
+// misconception. Every value came from ChemKernel and was re-verified by the gates (equilibriumcheck.mjs).
+const { lesson } = Astro.props;
+const ice = lesson.ice;
+const rows = ice.species;
+const acidRow = rows.find((r) => r.role === "reactant");
+const hplus = rows.find((r) => r.id === "H^+");
+const anion = rows.find((r) => r.role === "product" && r.id !== "H^+");
+const xDisp = ice.extent_M_display;
+const kc = lesson.equilibrium_constant;
+const res = lesson.result;
+// display change = ν·x with a typographic minus
+const changeDisp = (r) => (r.nu < 0 ? "−" : "+") + xDisp;
+const changeSym = (r) => (r.nu < 0 ? "−x" : "+x");
+---
+
+<section class="player">
+  <header class="head">
+    <div class="badges">
+      <span class="badge machine"><span class="dot"></span>ICE ledger machine-checked — every row is initial + ν·x, one extent x</span>
+      <span class="badge sourced"><span class="dot"></span>K<sub>a</sub> data-sourced ({kc.source})</span>
+      <span class="badge model"><span class="dot"></span>{lesson.assumptions.length} modeling assumption{lesson.assumptions.length === 1 ? "" : "s"} (disclosed)</span>
+    </div>
+    <p class="scenario" set:html={lesson.scenarioHtml} />
+  </header>
+
+  <!-- the reversible reaction + the equilibrium constant it must satisfy -->
+  <div class="reaction">
+    <div class="rxn" set:html={lesson.reaction.latexHtml} />
+    <div class="ka">
+      <span class="expr" set:html={kc.expressionHtml} />
+      <span class="eq">=</span>
+      <span class="kaval">{kc.valueSci}</span>
+      <span class="kalabel">at 25 °C</span>
+    </div>
+  </div>
+
+  <!-- the ICE table: Initial → Change → Equilibrium. This IS the species ledger (c = c₀ + ν·x) in concentrations. -->
+  <div class="tablewrap">
+    <table class="ice">
+      <thead>
+        <tr>
+          <th>Species <span class="hint">(aq)</span></th>
+          <th class="num">Initial (M)</th>
+          <th class="num">Change (M)</th>
+          <th class="num">Equilibrium (M)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr>
+            <td class="sym"><span set:html={r.symbolHtml} /> <span class={`role ${r.role}`}>{r.role}</span></td>
+            <td class="num">{r.initial_M}</td>
+            <td class="num change"><span class="csym">{changeSym(r)}</span> = {changeDisp(r)}</td>
+            <td class="num eqm">{r.equilibrium_M_display}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="ledger-note">
+    <span class="badge machine tiny"><span class="dot"></span>machine-checked</span>
+    The Change row is <strong>ν·x</strong> — the very same extent ledger <span class="mono">c<sub>i</sub> = c<sub>i,0</sub> + ν<sub>i</sub>·x</span>
+    as any reaction. What differs is only where <em>x</em> stops.
+  </p>
+
+  <!-- the payoff: the extent x that makes the reaction quotient equal Kₐ (the reversible-extent solve) -->
+  <div class="proof massaction">
+    <div class="proof-head">
+      <span class="badge machine"><span class="dot"></span>Mass action</span>
+      <strong>x = {xDisp} M — the extent where Q = K<sub>a</sub>.</strong>
+    </div>
+    <p class="subst">
+      <span class="expr" set:html={kc.expressionHtml} />
+      <span class="eq">=</span>
+      <span class="nums mono">({hplus.equilibrium_M_display})({anion.equilibrium_M_display}) / {acidRow.equilibrium_M_display}</span>
+      <span class="eq">=</span>
+      <span class="kaval">{lesson.mass_action.quotientSci}</span>
+      <span class="eq">= K<sub>a</sub> ✓</span>
+    </p>
+    <p class="resid">Put the committed equilibrium concentrations back in and the quotient reproduces K<sub>a</sub> to
+      within {lesson.mass_action.residualSci} — the solver found the extent, and the gate re-solved it independently.</p>
+  </div>
+
+  <!-- the reported results -->
+  <div class="results">
+    <div class="card">
+      <span class="k">[H<sup>+</sup>]</span>
+      <span class="v">{res.hydronium_M_display} M</span>
+      <span class="sub">{res.percent_ionization_display}% of the acid ionized</span>
+    </div>
+    <div class="card headline">
+      <span class="k">pH</span>
+      <span class="v big">{res.pH_display}</span>
+      <span class="sub">= −log<sub>10</sub>[H<sup>+</sup>]</span>
+    </div>
+    <div class="card">
+      <span class="k">un-ionized</span>
+      <span class="v">{acidRow.equilibrium_M_display} M</span>
+      <span class="sub">stays as intact {lesson.reaction.acidPretty}</span>
+    </div>
+  </div>
+
+  <!-- the machine-checked facts, SHOWN not asserted -->
+  <div class="proof">
+    <div class="proof-head">
+      <span class="badge machine"><span class="dot"></span>Verification</span>
+      <strong>Proven at build time — not asserted.</strong>
+    </div>
+    <ul class="checks">
+      <li><span class="tick">✓</span> Every equilibrium concentration = initial + ν·x <span class="tier">[ICE identity]</span></li>
+      <li><span class="tick">✓</span> The extent x re-solved independently (bisection) reproduces Q = K<sub>a</sub> <span class="tier">[mass-action root]</span></li>
+      <li><span class="tick">✓</span> 0 &lt; x &lt; [{lesson.reaction.acidPretty}]<sub>0</sub> — no concentration goes negative <span class="tier">[extent physical]</span></li>
+      <li><span class="tick">✓</span> pH = −log<sub>10</sub>[H<sup>+</sup>] <span class="tier">[log consistent]</span></li>
+    </ul>
+  </div>
+
+  <!-- misconception register: the weak acid treated as strong, refuted from the ledger -->
+  {lesson.misconception && (
+    <div class="misconception">
+      <div class="mis-claim"><span class="x">✗</span> Common misconception: “<span set:html={lesson.misconception.claimHtml} />”</div>
+      <p class="mis-fix">
+        That would be true for a <strong>strong</strong> acid, which ionizes completely. But the ledger shows the
+        extent is only <strong>x = {xDisp} M</strong> — just <strong>{res.percent_ionization_display}%</strong> of
+        the acid ionizes. So [H<sup>+</sup>] = {res.hydronium_M_display} M and pH = <strong>{res.pH_display}</strong>,
+        not 1.00; the other {acidRow.equilibrium_M_display} M ({(100 - Number(res.percent_ionization_display)).toFixed(2)}%)
+        stays as intact {lesson.reaction.acidPretty} molecules. “Weak” means the equilibrium barely moves off the left.
+      </p>
+    </div>
+  )}
+
+  <!-- assumptions, disclosed not discharged (ADR-0003) -->
+  <details class="assumptions">
+    <summary><span class="badge model"><span class="dot"></span>Modeling assumptions</span> — author-asserted, disclosed not discharged</summary>
+    <ul>
+      {lesson.assumptions.map((a) => (
+        <li><span class={`akind ${a.kind}`}>{a.kind}</span> <span set:html={a.claimHtml} /></li>
+      ))}
+    </ul>
+  </details>
+</section>
+
+<style>
+  .player { display: grid; gap: 1.1rem; }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .scenario { font-size: 1.05rem; margin: 0.6rem 0 0; line-height: 1.6; }
+  .badge.tiny { font-size: 0.66rem; padding: 0.03rem 0.35rem; }
+
+  .reaction { display: grid; gap: 0.5rem; background: var(--paper-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem; }
+  .rxn { font-size: 1.15rem; overflow-x: auto; }
+  .ka { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; font-size: 0.95rem; }
+  .ka .eq { color: var(--ink-faint); }
+  .ka .kaval { font-family: var(--font-mono); font-weight: 600; color: var(--sourced); }
+  .ka .kalabel { color: var(--ink-faint); font-size: 0.8rem; }
+
+  .tablewrap { overflow-x: auto; }
+  table.ice { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+  table.ice th, table.ice td { padding: 0.5rem 0.7rem; text-align: left; border-bottom: 1px solid var(--line); }
+  table.ice th.num, table.ice td.num { text-align: right; font-family: var(--font-mono); white-space: nowrap; }
+  table.ice thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); font-weight: 600; }
+  table.ice th .hint { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  table.ice .sym { font-size: 1.02rem; }
+  table.ice .role { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); margin-left: 0.35rem; }
+  table.ice td.change { color: var(--ink-2); }
+  table.ice td.change .csym { color: var(--accent); font-weight: 600; }
+  table.ice td.eqm { font-weight: 600; color: var(--ink); }
+  .ledger-note { margin: 0; font-size: 0.9rem; color: var(--ink-2); display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; line-height: 1.55; }
+  .mono { font-family: var(--font-mono); }
+
+  .proof { border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: var(--radius); padding: 0.6rem 0.9rem 0.9rem; }
+  .proof-head { display: flex; align-items: center; gap: 0.7rem; padding: 0.3rem 0; flex-wrap: wrap; }
+  .massaction { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: color-mix(in srgb, var(--accent) 5%, transparent); }
+  .subst { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; margin: 0.3rem 0; font-size: 0.98rem; }
+  .subst .eq { color: var(--ink-faint); }
+  .subst .nums { color: var(--ink-2); }
+  .subst .kaval { font-family: var(--font-mono); font-weight: 600; color: var(--accent); }
+  .resid { margin: 0.3rem 0 0; font-size: 0.86rem; color: var(--ink-faint); line-height: 1.5; }
+  .checks { list-style: none; padding: 0; margin: 0.3rem 0; display: grid; gap: 0.35rem; }
+  .checks li { font-size: 0.92rem; }
+  .tick { color: var(--accent); font-weight: 700; }
+  .tier { color: var(--ink-faint); font-family: var(--font-mono); font-size: 0.76rem; }
+
+  .results { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+  .card { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 1rem; display: grid; gap: 0.15rem; min-width: 9rem; flex: 1; }
+  .card .k { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); }
+  .card .v { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+  .card .v.big { font-size: 1.7rem; }
+  .card .sub { font-size: 0.78rem; color: var(--ink-faint); }
+  .card.headline { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+
+  .misconception { background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); border-radius: var(--radius); padding: 0.8rem 1rem; }
+  .mis-claim { font-weight: 600; color: var(--warn); }
+  .mis-claim .x { font-weight: 700; }
+  .mis-fix { margin: 0.4rem 0 0; color: var(--ink-2); font-size: 0.95rem; line-height: 1.6; }
+
+  .assumptions summary { cursor: pointer; color: var(--ink-2); }
+  .assumptions ul { color: var(--ink-2); font-size: 0.93rem; }
+  .akind { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; padding: 0.05rem 0.35rem; border-radius: 5px; margin-right: 0.3rem; }
+  .akind.model { background: var(--model-soft); color: var(--model); }
+  .akind.rule { background: var(--sourced-soft); color: var(--sourced); }
+</style>

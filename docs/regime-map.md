@@ -30,8 +30,8 @@ dashboard; phases are defined in [`ROADMAP.md`](../ROADMAP.md).
 | intermolecular forces (IMFs) | 3, 4 | 2 | **atlas + concept** (ADR-0046): `structure.classify_imf` derives the **dominant IMF** (London dispersion / dipole–dipole / hydrogen bonding) of a neutral molecule from its polarity + an **exact H-on-N/O/F test** — the presence machine-derived, the strength ranking the sourced rule; the `molecule` Atlas `intermolecular` block + a sourced normal boiling point (`data/boiling-points.toml`) as evidence + the `intermolecular-forces` concept. A comparison **lesson** (multi-molecule shape) deferred |
 | intermolecular forces | 4 | 2+ | — |
 | kinetics (rate laws, half-life) | 2, 3 | 2+ | — |
-| equilibrium (ICE, K, Q) | 2, 3 | 2+ | — |
-| acids & bases (pH, strength) | 2, 3 | 2+ | — |
+| equilibrium (ICE, K, Q) | 2, 3 | **2** | **lesson + atlas** (`equilibrium/acetic-acid-ph`: the **ICE table = the species ledger** with the extent solved from **mass action** $Q(x)=K$, not a limiting reagent — `chemkernel.equilibrium.solve_equilibrium` finds the root by bisection to high precision, model-exact-then-rounded, the machine-check the residual $Q(\text{committed})=K$ + the gate's independent re-solve; a new `equilibrium` lesson kind — ADR-0048; the `chemical-equilibrium` concept). Ksp/buffers/titration deferred |
+| acids & bases (pH, strength) | 2, 3 | **2** | **lesson + atlas** (`equilibrium/acetic-acid-ph`: a weak acid's pH — $\mathrm{pH}=-\log_{10}[\mathrm{H^+}]$, the weak-vs-strong distinction, % ionization; $K_a$ sourced from `data/ionization-constants.toml` OpenStax App H, the HA ⇌ H⁺ + A⁻ dissociation DRY-sourced from `data/acids-bases.toml`; triple-badged; the `ph` concept — ADR-0048). Weak base/$K_b$/pOH deferred |
 | buffers & titrations | 2, 3 | 2+ | — |
 | solubility equilibria (Ksp) | 2, 3 | 2+ | — |
 | redox & oxidation states | 1, 3 | 2+ | — |

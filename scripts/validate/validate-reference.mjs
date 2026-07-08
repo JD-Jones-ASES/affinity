@@ -47,13 +47,15 @@ const registeredSources = new Set();
 }
 
 // every real lesson route slug, for the "used in" links — reaction (*.solution.json), structure
-// (*.structure.json, ADR-0045), and comparison (*.comparison.json, ADR-0047) lessons all share /lessons/<slug>/.
+// (*.structure.json, ADR-0045), comparison (*.comparison.json, ADR-0047), and equilibrium (*.equilibrium.json,
+// ADR-0048) lessons all share /lessons/<slug>/.
 const slugs = new Set();
 (function walk(d) {
   for (const n of readdirSync(d)) {
     const p = join(d, n);
     if (statSync(p).isDirectory()) walk(p);
-    else if (n.endsWith(".solution.json") || n.endsWith(".structure.json") || n.endsWith(".comparison.json"))
+    else if (n.endsWith(".solution.json") || n.endsWith(".structure.json") || n.endsWith(".comparison.json")
+             || n.endsWith(".equilibrium.json"))
       slugs.add(JSON.parse(readFileSync(p, "utf8")).slug);
   }
 })(join(ROOT, "derived"));
