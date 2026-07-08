@@ -24,10 +24,17 @@
   const reported = s.result.precipitate ?? s.result.product;
   const salt = s.result.salt;
   const gas = s.result.gas;           // gas-stoichiometry volume block (ADR-0041), or undefined
+  const energy = s.result.energy;     // energy-ledger block (ADR-0043): q = ΔH_rxn·ξ, or undefined
   const isPrecip = !!s.result.precipitate;
   const isGas = !!gas;
+  const isEnergy = !!energy;          // the headline is the HEAT, not a product mass — no reported product
   const showBeaker = hasInteractive && s.interactive?.product?.phase === "s";
   const leftover = s.result.leftover ?? [];
+  // the energy misconception (reading ΔH_rxn as the total heat) refutes with the extent scaling: the naive
+  // |ΔH_rxn| kJ vs the actual |q| the limiting reagent allows. Illustrative display arithmetic on verified
+  // numbers — the real values (ΔH_rxn, q, ξ) all came from the producer.
+  const energyScaleTrap = isEnergy && s.misconception?.refuted_by === "enthalpy_scales_with_extent";
+  const naiveHeat = isEnergy ? Math.abs(Number(energy.delta_h_rxn_kj_per_mol)) : null;
 
   // Data-driven refutation of the misconception, read straight off the verified ledger — never re-derived here.
   const fmtMmol = (mol) => {
@@ -72,6 +79,9 @@
       {#if s.solubility_basis}
         <span class="badge sourced"><span class="dot"></span>Solubility rule-sourced ({s.solubility_basis.source})</span>
       {/if}
+      {#if isEnergy}
+        <span class="badge sourced"><span class="dot"></span>Formation enthalpies data-sourced ({energy.source})</span>
+      {/if}
       <span class="badge model"><span class="dot"></span>{s.assumptions.length} modeling assumption{s.assumptions.length === 1 ? "" : "s"} (disclosed)</span>
     </div>
     <p class="scenario">{@html s.scenarioHtml}</p>
@@ -88,10 +98,21 @@
         <div class="cond">at {gas.pressure_atm} atm, {gas.temperature_C ? `${gas.temperature_C} °C` : `${gas.temperature_K} K`}</div>
       </div>
     {/if}
-    <div class="result">
-      <div class="label">{isGas ? "Mass of" : "Mass of"} {@html reported.symbolHtml} {isPrecip ? "precipitate" : "formed"}</div>
-      <div class="value">{reported.mass_g_display} <span class="unit">g</span></div>
-    </div>
+    {#if isEnergy}
+      <!-- energy ledger (ADR-0043): the HEAT is the headline (model-exact — Hess's law over sourced ΔH_f°). The
+           ledger's ξ is machine-checked; ΔH_rxn rides the disclosed model — so the card carries its own badge. -->
+      <div class="result energy">
+        <div class="label">Heat {energy.classification === "exothermic" ? "released" : "absorbed"} <span class="badge model tiny"><span class="dot"></span>{energy.classification}</span></div>
+        <div class="value">{energy.q_kj_display} <span class="unit">kJ</span></div>
+        <div class="cond">q = ΔH_rxn × ξ</div>
+      </div>
+    {/if}
+    {#if reported}
+      <div class="result">
+        <div class="label">Mass of {@html reported.symbolHtml} {isPrecip ? "precipitate" : "formed"}</div>
+        <div class="value">{reported.mass_g_display} <span class="unit">g</span></div>
+      </div>
+    {/if}
     {#if salt}
       <div class="result">
         <div class="label">{isGas ? "Dissolved salt" : "Salt formed"} ({@html salt.symbolHtml})</div>
@@ -103,7 +124,7 @@
       <div class="value">{s.result.limiting_speciesPretty.join(", ")}</div>
     </div>
     <div class="result">
-      <div class="label">Left {isGas ? "over" : "in solution"}</div>
+      <div class="label">Left {isGas || isEnergy ? "over" : "in solution"}</div>
       <div class="value">
         {#if leftover.length}
           {#each leftover as l, i}{l.idPretty} {Number(l.moles) * 1000} mmol{i < leftover.length - 1 ? " · " : ""}{/each}
@@ -124,6 +145,46 @@
         <div class="gcell big"><span class="gv">{gas.volume_L_display}</span> <span class="gu">L</span><span class="gn">volume of {@html gas.symbolHtml}</span></div>
       </div>
       <p class="gnote">The molar volume is <strong>RT/P = {gas.molar_volume_L_per_mol_display} L/mol</strong> at these conditions — <em>not</em> the 22.4 L/mol you memorized for STP (0 °C, 1 atm). One mole of gas only fills 22.4 L at STP; change the temperature or pressure and you must use PV=nRT.</p>
+    </div>
+  {/if}
+
+  {#if isEnergy}
+    <!-- the energy ledger spelled out: ΔH_rxn by Hess's law (sourced ΔH_f°, ν-weighted), then × ξ = q. The
+         ledger's ξ is machine-checked; ΔH_f° are data-sourced; the relations are model-assumed. -->
+    <div class="energycard">
+      <div class="ehead">
+        <span class="badge model"><span class="dot"></span>Reaction enthalpy — model-exact (Hess's law)</span>
+        <span class="badge sourced tiny"><span class="dot"></span>ΔH_f° sourced ({energy.source})</span>
+        each ΔH_f° is a sourced measurement; ΔH_rxn is their ν-weighted sum, and the heat scales with the extent
+      </div>
+      <div class="tablewrap">
+        <table class="hess">
+          <thead>
+            <tr><th>Species</th><th class="num">signed ν</th><th class="num">ΔH_f° (kJ/mol)</th><th class="num">ν·ΔH_f°</th></tr>
+          </thead>
+          <tbody>
+            {#each energy.hess as h}
+              <tr class={h.role}>
+                <td class="sym">{@html h.symbolHtml} <span class="phase">{h.phaseTag}</span> <span class="rolechip {h.role === 'product' ? 'product' : 'excess'}">{h.role}</span></td>
+                <td class="num">{h.role === "product" ? "+" : "−"}{h.coeff}</td>
+                <td class="num">{h.delta_h_f_kj_per_mol}{h.is_element ? " (element → 0)" : ""}</td>
+                <td class="num">{h.contribution_kj_per_mol}</td>
+              </tr>
+            {/each}
+          </tbody>
+          <tfoot>
+            <tr><td colspan="3">ΔH_rxn = Σ ν·ΔH_f° (products − reactants)</td><td class="num total">{energy.delta_h_rxn_kj_per_mol}</td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="eflow">
+        <div class="ecell"><span class="ev">{energy.delta_h_rxn_kj_per_mol}</span> <span class="eu">kJ/mol</span><span class="en">ΔH_rxn, per mole of reaction</span></div>
+        <span class="eop">×</span>
+        <div class="ecell"><span class="ev">{energy.extent_mol}</span> <span class="eu">mol</span><span class="en">extent ξ (capped by {s.result.limiting_speciesPretty.join(", ")})</span></div>
+        <span class="eop">=</span>
+        <div class="ecell big"><span class="ev">{energy.q_kj_display}</span> <span class="eu">kJ</span><span class="en">heat {energy.classification === "exothermic" ? "released" : "absorbed"}</span></div>
+      </div>
+      <p class="enote">ΔH_rxn is <strong>per mole of reaction</strong> (one "run" of the balanced equation). This burn advances only ξ = {energy.extent_mol} mol before the limiting reagent runs out, so it {energy.classification === "exothermic" ? "releases" : "absorbs"} <strong>{energy.q_kj_display} kJ</strong> — not {naiveHeat} kJ. Elements in their standard state have ΔH_f° = 0 (they are the reference level, not zero energy).</p>
     </div>
   {/if}
 
@@ -164,17 +225,21 @@
         <div class="eq-label">Molecular equation — what you combine</div>
         <div class="math">{@html s.equations.molecular.html}</div>
       </div>
-      <div class="eq">
-        <div class="eq-label">Complete ionic — every strong electrolyte shown as free ions <span class="badge model tiny"><span class="dot"></span>strong-electrolyte model</span></div>
-        <div class="math">{@html s.equations.complete_ionic.html}</div>
-      </div>
-      <div class="eq">
-        <div class="eq-label">Net ionic — spectators cancelled, the reaction that actually happens</div>
-        <div class="math">{@html s.equations.net_ionic.html}</div>
-        {#if s.equations.spectatorsPretty.length}
-          <p class="spectators">Spectator ions (unchanged, still dissolved): {#each s.equations.spectatorsPretty as sp, i}<span class="ion spec">{sp}</span>{i < s.equations.spectatorsPretty.length - 1 ? " " : ""}{/each}</p>
-        {/if}
-      </div>
+      {#if s.equations.complete_ionic}
+        <div class="eq">
+          <div class="eq-label">Complete ionic — every strong electrolyte shown as free ions <span class="badge model tiny"><span class="dot"></span>strong-electrolyte model</span></div>
+          <div class="math">{@html s.equations.complete_ionic.html}</div>
+        </div>
+        <div class="eq">
+          <div class="eq-label">Net ionic — spectators cancelled, the reaction that actually happens</div>
+          <div class="math">{@html s.equations.net_ionic.html}</div>
+          {#if s.equations.spectatorsPretty.length}
+            <p class="spectators">Spectator ions (unchanged, still dissolved): {#each s.equations.spectatorsPretty as sp, i}<span class="ion spec">{sp}</span>{i < s.equations.spectatorsPretty.length - 1 ? " " : ""}{/each}</p>
+          {/if}
+        </div>
+      {:else}
+        <p class="hint faint">There are no ions in solution here — every species is molecular (or a free element), so the complete-ionic and net-ionic equations would just repeat the molecular one. A reaction only has an ionic equation when strong electrolytes dissolve into ions.</p>
+      {/if}
     </div>
   {:else if tab === "chain"}
     <div class="panel chains" role="tabpanel" aria-label="Dimensional analysis">
@@ -263,7 +328,14 @@
     <div class="misconception">
       <div class="mis-claim"><span class="x">✗</span> Common misconception: “{@html s.misconception.claimHtml}”</div>
       <p class="mis-fix">
-        {#if molarVolumeTrap}
+        {#if energyScaleTrap}
+          ΔH_rxn = <strong>{energy.delta_h_rxn_kj_per_mol} kJ/mol</strong> is the heat <em>per mole of reaction</em> —
+          for exactly one "run" of the balanced equation. The actual heat is <strong>q = ΔH_rxn × ξ</strong>, and the
+          extent ξ = {energy.extent_mol} mol is capped by the limiting reagent ({s.result.limiting_speciesPretty.join(", ")}).
+          So this burn {energy.classification === "exothermic" ? "releases" : "absorbs"}
+          <strong>{energy.q_kj_display} kJ</strong>, not {naiveHeat} kJ. The energy tracks the extent, exactly as the
+          species amounts do — it is the ledger's other column.
+        {:else if molarVolumeTrap}
           22.4 L/mol is the molar volume <strong>only at STP</strong> (0 °C, 1 atm). At {gas.pressure_atm} atm
           and {gas.temperature_C ? `${gas.temperature_C} °C` : `${gas.temperature_K} K`} it is
           <strong>RT/P = {gas.molar_volume_L_per_mol_display} L/mol</strong>, so {@html gas.symbolHtml} occupies
@@ -395,4 +467,27 @@
   .gn { display: block; font-size: 0.7rem; color: var(--ink-faint); margin-top: 0.15rem; }
   .gop { color: var(--ink-faint); font-size: 1.3rem; align-self: center; }
   .gnote { margin: 0.6rem 0 0; font-size: 0.88rem; color: var(--ink-2); }
+
+  /* energy ledger (ADR-0043): the heat card is the headline; the energycard spells out Hess's law + q = ΔH·ξ */
+  .result.energy { border-color: color-mix(in srgb, var(--model) 45%, var(--line)); background: var(--model-soft); }
+  .result.energy .value { color: var(--model); }
+  .energycard { background: var(--paper-2); border: 1px solid color-mix(in srgb, var(--model) 30%, var(--line)); border-radius: var(--radius); padding: 0.8rem 1.1rem; }
+  .ehead { font-size: 0.85rem; color: var(--ink-faint); display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.6rem; }
+  table.hess { width: 100%; border-collapse: collapse; font-size: 0.92rem; margin-bottom: 0.7rem; }
+  table.hess th, table.hess td { padding: 0.4rem 0.6rem; text-align: left; border-bottom: 1px solid var(--line); }
+  table.hess th.num, table.hess td.num { text-align: right; font-family: var(--font-mono); }
+  table.hess .sym { font-weight: 600; }
+  table.hess .phase { color: var(--ink-faint); font-family: var(--font-mono); font-size: 0.8rem; font-weight: 400; }
+  table.hess tr.product td.num:last-child { color: var(--accent); }
+  table.hess tfoot td { font-weight: 700; border-bottom: none; border-top: 2px solid var(--line); }
+  table.hess td.total { color: var(--model); font-family: var(--font-mono); }
+  .eflow { display: flex; align-items: flex-start; gap: 0.6rem; flex-wrap: wrap; }
+  .ecell { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 0.45rem 0.7rem; text-align: center; min-width: 6rem; }
+  .ecell.big { border-color: color-mix(in srgb, var(--model) 45%, transparent); background: var(--model-soft); }
+  .ev { font-family: var(--font-mono); font-weight: 700; font-size: 1.15rem; }
+  .ecell.big .ev { color: var(--model); }
+  .eu { font-family: var(--font-mono); color: var(--ink-faint); }
+  .en { display: block; font-size: 0.7rem; color: var(--ink-faint); margin-top: 0.15rem; }
+  .eop { color: var(--ink-faint); font-size: 1.3rem; align-self: center; }
+  .enote { margin: 0.6rem 0 0; font-size: 0.88rem; color: var(--ink-2); }
 </style>

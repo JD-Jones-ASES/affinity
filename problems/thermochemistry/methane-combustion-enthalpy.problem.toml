@@ -1,0 +1,62 @@
+# The Phase-2 energy-ledger lesson (ADR-0043): reaction enthalpy attached to the extent ledger. A weighed
+# amount of methane burns in oxygen; the extent ledger fixes ξ (moles of reaction, capped by the limiting
+# reagent), and the heat released is q = ΔH_rxn·ξ. ΔH_rxn is assembled by HESS'S LAW from the sourced standard
+# enthalpies of formation (data/formation-enthalpies.toml). Three honesty layers, not mixed: the moles/limiting
+# are LEDGER-EXACT (machine-checked); the ΔH_f° are DATA-SOURCED (regime-3, OpenStax Appendix G); the relations
+# (Hess's law, q = ΔH_rxn·ξ to completion at constant P) are MODEL-ASSUMED (regime-2). First fully MOLECULAR
+# lesson (no ions in solution → no ionic equation). Authored human layer only; ChemKernel derives + verifies the
+# rest. Numbers are strings (exact, ADR-0013). Root keys precede any [table] header (TOML trap #4).
+
+id = "thermochemistry-methane-combustion-enthalpy"
+title = "How much heat? Burning methane and the energy ledger"
+slug = "methane-combustion-enthalpy"
+topic = "thermochemistry"
+tags = ["thermochemistry", "enthalpy", "hess-law", "combustion", "limiting-reagent", "stoichiometry", "redox"]
+author = "Affinity"
+created = "2026-07-08"
+scenario = "A burner burns 0.80215 g of methane (CH₄) in 3.83976 g of oxygen. The reaction goes to completion, and the heat released is measured. Which reactant runs out first, and how much heat does this burn actually release?"
+
+# the moles/limiting are ledger-exact; the reaction enthalpy is model-exact (Hess's law + complete reaction at
+# constant pressure), assembled from data-sourced ΔH_f°. Never rule-sourced (no solubility — a gas-phase
+# combustion has no ions in solution). ADR-0043.
+regimes = ["ledger", "thermochemistry"]
+
+reactants = ["CH4(g)", "O2(g)"]
+products = ["CO2(g)", "H2O(l)"]
+
+reference_links = ["reaction-combustion", "reaction-enthalpy", "formula-mole-mass", "formula-calorimetry", "stoichiometry", "limiting-reagent", "extent-of-reaction", "molar-mass", "balancing-equations", "conservation-of-mass", "dimensional-analysis", "carbon-dioxide", "water", "dioxygen"]
+
+# energy-ledger marker (ADR-0043): the presence of [energetics] makes the reported result the HEAT q = ΔH_rxn·ξ
+# instead of a product mass. `method = "hess-formation"` derives ΔH_rxn by Hess's law from the sourced standard
+# enthalpies of formation (the only supported method). This [table] header must come after every root key above
+# (TOML trap #4 — a bare key below it is silently absorbed into the table).
+[energetics]
+method = "hess-formation"
+
+[[given]]
+species = "CH4(g)"
+mass_g = "0.80215"
+
+[[given]]
+species = "O2(g)"
+mass_g = "3.83976"
+
+[[assumptions]]
+claim = "The combustion goes to completion — every mole of the limiting reagent that can react, does."
+kind = "model"
+
+[[assumptions]]
+claim = "Enthalpy is a state function, so ΔH_rxn depends only on the substances, not the path — this is Hess's law, and it lets ΔH_rxn be built from standard enthalpies of formation."
+kind = "model"
+
+[[assumptions]]
+claim = "The standard enthalpies of formation apply at these conditions (298.15 K, constant pressure) and are treated as temperature-independent over the range."
+kind = "model"
+
+[[assumptions]]
+claim = "The water product is liquid (its ΔH_f° = −285.83 kJ/mol); if it left as vapor the reaction would release less heat."
+kind = "model"
+
+[misconception]
+claim = "ΔH_rxn for burning methane is −890.57 kJ/mol, so this burn releases 890.57 kJ of heat."
+refuted_by = "enthalpy_scales_with_extent"

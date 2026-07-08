@@ -60,7 +60,8 @@
     "equations": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["molecular", "complete_ionic", "net_ionic", "spectators"],
+      "$comment": "Only `molecular` is required: a fully molecular reaction (gas-phase combustion, ADR-0043) has no ions in solution, so the complete/net ionic views are omitted rather than echoing the molecular equation.",
+      "required": ["molecular"],
       "properties": {
         "molecular": { "$ref": "#/$defs/equation" },
         "complete_ionic": { "$ref": "#/$defs/equation" },
@@ -125,7 +126,7 @@
     "result": {
       "type": "object",
       "additionalProperties": false,
-      "$comment": "The reported product is the net-ionic product: `precipitate` (a solid, precipitation lessons) or the general `product` (water for neutralization, ADR-0037; or a collected gas for gas stoichiometry, ADR-0041) — exactly one is present. `salt` names the dissolved ionic product left in solution. `gas` adds the collected gas's volume via PV=nRT. The gates read precipitate ?? product.",
+      "$comment": "The reported product is the net-ionic product: `precipitate` (a solid, precipitation lessons) or the general `product` (water for neutralization, ADR-0037; or a collected gas for gas stoichiometry, ADR-0041) — exactly one is present, UNLESS the headline is `energy` (the energy ledger, ADR-0043: q = ΔH_rxn·ξ, no product mass). `salt` names the dissolved ionic product left in solution. `gas` adds the collected gas's volume via PV=nRT. The gates read precipitate ?? product.",
       "required": ["limiting_species", "leftover"],
       "properties": {
         "precipitate": { "$ref": "#/$defs/reportedProduct" },
@@ -148,6 +149,39 @@
             "volume_L": { "type": "string" },
             "volume_L_display": { "type": "string" },
             "molar_volume_L_per_mol_display": { "type": "string" }
+          }
+        },
+        "energy": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Energy-ledger payoff (ADR-0043): the heat q = ΔH_rxn·ξ. ΔH_rxn is assembled by Hess's law from the sourced ΔH_f° (the `hess` breakdown), exact Decimal arithmetic; ξ is ledger-exact; q is exact. The relations (Hess's law, q = ΔH_rxn·ξ at constant P) are model-assumed. check-ledger re-derives the Hess sum + q.",
+          "required": ["delta_h_rxn_kj_per_mol", "extent_mol", "q_kj", "q_kj_display", "classification", "source", "hess"],
+          "properties": {
+            "delta_h_rxn_kj_per_mol": { "type": "string" },
+            "extent_mol": { "type": "string" },
+            "q_kj": { "type": "string" },
+            "q_kj_display": { "type": "string" },
+            "classification": { "enum": ["exothermic", "endothermic", "thermoneutral"] },
+            "source": { "type": "string", "minLength": 1 },
+            "hess": {
+              "type": "array",
+              "minItems": 2,
+              "$comment": "one row per reactant and product; contribution = (product ? +1 : -1)·coeff·ΔH_f°, and Σ contributions = ΔH_rxn (re-derived by check-ledger).",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["species", "role", "coeff", "phase", "is_element", "delta_h_f_kj_per_mol", "contribution_kj_per_mol"],
+                "properties": {
+                  "species": { "type": "string" },
+                  "role": { "enum": ["reactant", "product"] },
+                  "coeff": { "type": "integer", "minimum": 1 },
+                  "phase": { "enum": ["s", "l", "g", "aq"] },
+                  "is_element": { "type": "boolean" },
+                  "delta_h_f_kj_per_mol": { "type": "string" },
+                  "contribution_kj_per_mol": { "type": "string" }
+                }
+              }
+            }
           }
         },
         "limiting_species": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
@@ -416,13 +450,14 @@
         "sources": {
           "type": "object",
           "additionalProperties": false,
-          "$comment": "solubility is present for precipitation lessons; a neutralization omits it (ADR-0037); a gas-stoichiometry lesson cites `constants` (the gas constant R the volume rides on, ADR-0041).",
+          "$comment": "solubility is present for precipitation lessons; a neutralization omits it (ADR-0037); a gas-stoichiometry lesson cites `constants` (the gas constant R the volume rides on, ADR-0041); an energy-ledger lesson cites `formation_enthalpies` (the ΔH_f° the Hess sum rides on, ADR-0043).",
           "required": ["atomic_weight", "ion_charge"],
           "properties": {
             "atomic_weight": { "type": "string", "minLength": 1 },
             "ion_charge": { "type": "string", "minLength": 1 },
             "solubility": { "type": "string", "minLength": 1 },
-            "constants": { "type": "string", "minLength": 1 }
+            "constants": { "type": "string", "minLength": 1 },
+            "formation_enthalpies": { "type": "string", "minLength": 1 }
           }
         }
       }

@@ -9,11 +9,18 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 
 - **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed; Phase 2 (the
   model-bearing tier) is filling depth-first on **gases + thermochemistry**. Landed so far: the **formula/equation
-  sheet** (ADR-0039), the **`gas_laws_v1` gym** (ADR-0040), and the **gas-stoichiometry lesson** (ADR-0041 — the
-  vertical slice: the ledger drives a gas volume via PV=nRT — with generated practice), and the **calorimetry gym**
-  (ADR-0042 — q=mcΔT, the thermochemistry opener). **Next inside Phase 2:** the **energy-ledger lesson** (ΔH_rxn·ξ,
-  Hess), then the rest of the model-bearing topics. Counters live in `AGENTS.md ## Current state`; per-increment detail in
+  sheet** (ADR-0039), the **`gas_laws_v1` gym** (ADR-0040), the **gas-stoichiometry lesson** (ADR-0041), the
+  **calorimetry gym** (ADR-0042 — q=mcΔT), and the **energy-ledger lesson** (ADR-0043 — the vertical slice: the ledger
+  drives an energy q=ΔH_rxn·ξ via Hess's law). **Next inside Phase 2:** generated energy practice + a Hess formula-sheet
+  entry (thermochemistry breadth), then the rest of the model-bearing topics (bonding, equilibrium/acid-base, kinetics,
+  electrochemistry). Counters live in `AGENTS.md ## Current state`; per-increment detail in
   [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+- **Energy-ledger lesson — LANDED** (2026-07-08, ADR-0043): `thermochemistry/methane-combustion-enthalpy` — the ledger
+  drives an **energy** (q=ΔH_rxn·ξ; CH₄ + 2 O₂ → CO₂ + 2 H₂O). ΔH_rxn is **Hess's law** over sourced ΔH_f°
+  (`data/formation-enthalpies.toml`, OpenStax Appendix G), exact Decimal arithmetic; `build.py` gains a fourth
+  reported-product shape (a **`result.energy`** headline, no product mass) and the **first fully molecular lesson** (no
+  ions → the ionic equations are omitted). Triple-badged (machine-checked ξ + data-sourced ΔH_f° + model-assumed Hess);
+  q exact (all inputs terminate), 3-sf display. `units.py` gains `kJ/mol`; check-ledger re-derives the Hess sum + q. Lesson #6.
 - **Calorimetry gym — LANDED** (2026-07-08, ADR-0042): `calorimetry_v1` (q=mcΔT, solve for any variable), the
   thermochemistry opener. The `units.py` engine gained the deferred **energy** dimension (J, kJ, J/(g·K); kept
   independent of pressure·volume), and specific heats are curated (`data/specific-heats.toml`, OpenStax Table 5.1).
@@ -307,10 +314,13 @@ rest sequences after, each with its own scope block when its increment opens.
   (`data/specific-heats.toml`, OpenStax Table 5.1). The `units.py` engine gained the deferred **energy** dimension
   (J, kJ, J/(g·K), kept independent of pressure·volume); the first gym wearing **both** the data-sourced (specific
   heats) and model-assumed (calorimetry model) badges; model-exact-then-rounded, the gate re-derives $q=mc\Delta T$.
-- **Thermochemistry (energy ledger) — NEXT:** reaction enthalpy attached to extent ($\Delta H_\text{rxn}\cdot\xi$),
-  Hess's law — the energy-ledger lesson. The `formula-calorimetry` entry is already on the sheet, the gym is landed.
-  **Deferred within calorimetry:** initial/final-temperature framing ($\Delta T = T_f - T_i$) + cooling (negative
-  $q$) as distinct drills.
+- **Thermochemistry (energy ledger) — LANDED** (ADR-0043): reaction enthalpy attached to extent
+  ($\Delta H_\text{rxn}\cdot\xi$) via **Hess's law** over sourced $\Delta H_f^\circ$ (`data/formation-enthalpies.toml`,
+  OpenStax Appendix G) — the `methane-combustion-enthalpy` lesson. `build.py`'s fourth reported-product shape (a
+  `result.energy` headline); the first fully **molecular** lesson (no ionic equation); `units.py` gains `kJ/mol`;
+  triple-badged; the `reaction-enthalpy` concept. **Deferred within:** generated energy practice (vary the masses → q,
+  the ADR-0041 template); a Hess formula-sheet entry; endothermic / multi-step Hess-cycle lessons; and within
+  calorimetry, initial/final-temperature framing ($\Delta T = T_f - T_i$) + cooling (negative $q$) drills.
 
 **Then (each its own increment, sketch):** bonding & structure (Lewis, VSEPR, polarity, IMFs; the Valence Table's
 bonding mode is seeded, ADR-0033); equilibrium & acid-base (ICE table = the ledger with reversible extent —

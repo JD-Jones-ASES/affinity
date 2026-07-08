@@ -37,6 +37,28 @@ def test_avogadro_constant_loaded_exact():
     assert d.sources["constants"] == "bipm-si-2019"
 
 
+def test_formation_enthalpies_loaded_by_formula_and_phase():
+    # standard ΔH_f° (ADR-0043): a data-sourced datum, keyed by formula AND phase (H2O differs by state); read
+    # as Decimal (never float). Elements in their standard state are 0 by definition.
+    d = data()
+    assert d.sources["formation_enthalpies"] == "openstax-chemistry-2e"
+    assert d.formation_enthalpy("CO2", "g")["value"] == Decimal("-393.51")
+    assert d.formation_enthalpy("H2O", "l")["value"] == Decimal("-285.83")
+    assert d.formation_enthalpy("H2O", "g")["value"] == Decimal("-241.82")   # vapor differs from liquid
+    o2 = d.formation_enthalpy("O2", "g")
+    assert o2["value"] == Decimal("0") and o2["element"] is True             # element → reference level
+    assert all(isinstance(v["value"], Decimal) for v in d.formation_enthalpies.values())
+
+
+def test_missing_formation_enthalpy_refuses():
+    # the energy ledger refuses to guess a missing ΔH_f° (ADR-0008/0043) — and it is phase-specific
+    d = data()
+    with pytest.raises(BuildError):
+        d.formation_enthalpy("C6H12O6", "s")   # glucose is not curated
+    with pytest.raises(BuildError):
+        d.formation_enthalpy("CO2", "l")        # wrong phase for CO2
+
+
 def test_molar_mass_caco3_matches_hand_value():
     # 40.078 + 12.011 + 3*15.999 = 100.086  (brief quotes 100.09 to 2 dp)
     d = data()

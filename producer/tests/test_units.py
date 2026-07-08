@@ -90,3 +90,14 @@ def test_energy_is_independent_of_pressure_volume():
     assert Q.of(1, "J").dim != Dim(pressure=1, volume=1)
     with pytest.raises(BuildError):
         Q.of(1, "J").to("L*atm/(mol*K)")
+
+
+def test_reaction_enthalpy_times_extent_lands_in_energy():
+    # the energy ledger (ADR-0043): q = ΔH_rxn·ξ through the units engine — kJ·mol⁻¹ × mol → kJ, dimensions
+    # certified. ΔH_rxn = −890.57 kJ/mol, ξ = 0.05 mol → q = −44.5285 kJ (exact; a molar enthalpy is energy/amount).
+    dH = Q.of(Decimal("-890.57"), "kJ/mol")
+    assert dH.dim == Dim(energy=1, amount=-1)
+    xi = Q.of(Decimal("0.05"), "mol")
+    q = (dH * xi).to("kJ")
+    assert q.dim == Dim(energy=1)
+    assert q.value == Decimal("-44.5285")

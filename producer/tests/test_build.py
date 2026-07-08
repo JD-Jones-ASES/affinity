@@ -12,6 +12,7 @@ SPEC = ROOT / "problems" / "precipitation" / "calcium-carbonate-limiting.problem
 SPEC_YIELD = ROOT / "problems" / "percent-yield" / "zinc-carbonate-percent-yield.problem.toml"
 SPEC_NEUTRAL = ROOT / "problems" / "neutralization" / "hydrochloric-sodium-hydroxide.problem.toml"
 SPEC_GAS = ROOT / "problems" / "gas-stoichiometry" / "zinc-hydrochloric-hydrogen.problem.toml"
+SPEC_ENERGY = ROOT / "problems" / "thermochemistry" / "methane-combustion-enthalpy.problem.toml"
 
 
 def test_builds_phase0_solution():
@@ -143,6 +144,57 @@ def test_gas_practice_is_deterministic():
     a, _ = build_problem(SPEC_GAS, ROOT)
     b, _ = build_problem(SPEC_GAS, ROOT)
     assert a["practice"] == b["practice"]
+
+
+def test_energy_ledger_lesson():
+    """The Phase-2 energy-ledger flagship (ADR-0043): reaction enthalpy attached to extent. The ledger fixes ξ,
+    ΔH_rxn is Hess's law over sourced ΔH_f°, and the heat is q = ΔH_rxn·ξ. First fully MOLECULAR lesson (no
+    ionic equation) and first with an `energy` result headline (no product mass)."""
+    from decimal import Decimal
+
+    sol, out_rel = build_problem(SPEC_ENERGY, ROOT)
+    assert out_rel == "thermochemistry/methane-combustion-enthalpy.solution.json"
+
+    # both reactants weighed (g→mol); CH4 limits (0.05 < 0.06 capacity), O2 left over 0.02 mol
+    assert sol["ledger"]["limiting"] == ["CH4"] and sol["ledger"]["extent_mol"] == "0.05"
+    assert sol["result"]["leftover"] == [{"species": "O2", "moles": "0.02"}]
+
+    # fully molecular: ONLY the molecular equation (no ions in solution → no ionic equation, ADR-0043)
+    assert set(sol["equations"]) == {"molecular"}
+    assert sol["equations"]["molecular"]["text"] == "CH4(g) + 2 O2(g) -> CO2(g) + 2 H2O(l)"
+
+    # the headline is ENERGY — no precipitate/product/gas mass
+    assert not ({"precipitate", "product", "gas"} & set(sol["result"]))
+    e = sol["result"]["energy"]
+    assert e["classification"] == "exothermic" and e["extent_mol"] == "0.05"
+    assert e["source"] == "openstax-chemistry-2e"
+
+    # Hess's law: ΔH_rxn = Σ (±coeff·ΔH_f°) — re-derive from the emitted breakdown
+    total = Decimal(0)
+    for h in e["hess"]:
+        sign = 1 if h["role"] == "product" else -1
+        contribution = sign * h["coeff"] * Decimal(h["delta_h_f_kj_per_mol"])
+        assert Decimal(h["contribution_kj_per_mol"]) == contribution
+        total += contribution
+    assert total == Decimal("-890.57") == Decimal(e["delta_h_rxn_kj_per_mol"])
+    # the free element O2 contributes exactly 0 (its ΔH_f° is 0 by definition — the reference level)
+    o2 = next(h for h in e["hess"] if h["species"] == "O2")
+    assert o2["is_element"] is True and o2["contribution_kj_per_mol"] == "0"
+
+    # q = ΔH_rxn·ξ (EXACT here — all inputs terminate, unlike the gas volume's non-terminating R), 3-sf display
+    q = total * Decimal(e["extent_mol"])
+    assert Decimal(e["q_kj"]) == q == Decimal("-44.5285")
+    assert e["q_kj_display"] == "-44.5"
+
+    # the energy dimensional chain: extent ξ (mol) → heat q (kJ)
+    echain = next(c for c in sol["dimensional_analysis"] if "ΔH_rxn" in c["target"])
+    assert echain["steps"][0]["unit"] == "mol" and echain["steps"][-1]["unit"] == "kJ"
+
+    # honesty: ledger-exact + model-exact regimes; ΔH_f° source cited; a molecular shape has no interactive/practice
+    assert [r["regime"] for r in sol["regimes"]] == ["ledger-exact", "model-exact"]
+    assert sol["provenance"]["sources"]["formation_enthalpies"] == "openstax-chemistry-2e"
+    assert "solubility" not in sol["provenance"]["sources"] and "constants" not in sol["provenance"]["sources"]
+    assert "interactive" not in sol and "practice" not in sol
 
 
 def test_neutralization_has_no_percent_yield_support(tmp_path):

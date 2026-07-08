@@ -3,6 +3,38 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — energy-ledger lesson: reaction enthalpy attached to extent (ADR-0043)
+
+The thermochemistry vertical slice — **the extent ledger drives an energy**: q = ΔH_rxn·ξ, with ΔH_rxn assembled by
+**Hess's law** from sourced formation enthalpies. The energy counterpart of the gas-stoichiometry lesson (ADR-0041).
+
+- **The 6th lesson** (`thermochemistry/methane-combustion-enthalpy`): CH₄ + 2 O₂ → CO₂ + 2 H₂O. The ledger fixes ξ
+  (CH₄ limits at 0.05 mol, O₂ left over); the heat is **q = ΔH_rxn·ξ = −890.57 × 0.05 = −44.5 kJ** (exothermic).
+- **Hess's law over a sourced ΔH_f° table** (`data/formation-enthalpies.toml`, OpenStax Appendix G, keyed by formula
+  **and** phase — H₂O(l) −285.83 ≠ H₂O(g) −241.82): ΔH_rxn = Σν·ΔH_f°(products) − Σν·ΔH_f°(reactants), **exact Decimal
+  arithmetic** over the sourced values; an element in its standard state contributes 0 (the reference level). The
+  producer refuses to emit if any ΔH_f° is missing.
+- **The `result.energy` block — a fourth reported-product shape** (`build.py`): the headline is the **heat**, not a
+  product mass. q = ΔH_rxn·ξ is computed **through the units engine** (`units.py` gains `kJ/mol` — kJ·mol⁻¹ × mol → kJ,
+  dimension certified). Honesty is **triple-layered**: ξ ledger-exact (machine-checked) · ΔH_f° data-sourced · the
+  relations (Hess's law, q = ΔH_rxn·ξ to completion) model-assumed. The **first lesson wearing three badges at once**.
+  q is **exact** here (all inputs terminate), 3-sig-fig display — distinct from the gas volume's model-exact-then-
+  rounded (ADR-0040), each treatment reflecting the real arithmetic.
+- **The first fully MOLECULAR lesson:** a gas-phase combustion dissociates nothing, so the complete/net-ionic views
+  are **omitted** (there is no ionic equation) rather than echoing the molecular one (`equations` complete/net-ionic
+  now optional). Aqueous lessons keep all three, byte-identical.
+- **The `reaction-enthalpy` concept** (Hess's law + ΔH_f° + q = ΔH_rxn·ξ) → **20 → 21 concepts**; the lesson's 14
+  reference chips all resolve.
+- **Verification:** 275 producer tests (+4); **validate-solutions = 6**, **validate-reference = 51**, **check-ledger =
+  6 ledgers / 24 rows + 1 gas volume + 1 reaction enthalpy re-derived from Hess's law**, check-katex = 481; 7 gates
+  green; `astro build` = **25 pages** (+1). `derived/` byte-stable (only the new lesson + concept added; no existing
+  solution changed). The energy gates are **7-way tamper-tested** (corrupt q / a Hess contribution / ΔH_rxn / flip
+  classification / drop the model regime / drop the source / add a spurious product — each caught). In-browser: the
+  heat card (−44.5 kJ, exothermic), the Hess table (→ −890.57 kJ/mol), the ξ×ΔH flow, the extent-scaling misconception
+  refuted, and the "no ions in solution" note render; the aqueous lessons keep their 3 equations. No console errors.
+- **Deferred:** generated energy practice (vary the masses → q, the ADR-0041 gas-practice template); a Hess
+  formula-sheet entry; endothermic / multi-step Hess-cycle lessons.
+
 ## Phase 2 — 2026-07-08 — calorimetry gym; the units engine gains an energy dimension (ADR-0042)
 
 The thermochemistry opener — the energy ledger's first rung, **q = m·c·ΔT**, generated endlessly.

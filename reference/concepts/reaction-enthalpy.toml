@@ -1,0 +1,17 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0043). Reaction enthalpy attached to the extent ledger: the
+# energy counterpart of the species ledger. Model-exact (thermochemistry idealization — enthalpy is a state
+# function at standard conditions). Bare keys before [[array-of-tables]] (none here) / TOML trap #4 N/A.
+id = "reaction-enthalpy"
+kind = "concept"
+title = "Reaction enthalpy and Hess's law"
+term = "enthalpy of reaction"
+regime = "model-exact"
+definition = "The heat released or absorbed by a reaction at constant pressure, per mole of reaction: $\\Delta H_{\\text{rxn}}$. A **negative** value is exothermic (heat flows out); a **positive** value is endothermic. Because enthalpy is a state function, $\\Delta H_{\\text{rxn}}$ depends only on the substances, not the path — **Hess's law** — so it can be assembled from tabulated **standard enthalpies of formation** $\\Delta H_f^\\circ$: $\\Delta H_{\\text{rxn}} = \\sum \\nu\\,\\Delta H_f^\\circ(\\text{products}) - \\sum \\nu\\,\\Delta H_f^\\circ(\\text{reactants})$, where an element in its standard state has $\\Delta H_f^\\circ = 0$ by definition. The tabulated value is **per mole of reaction**; the heat an actual run delivers is $q = \\Delta H_{\\text{rxn}}\\cdot\\xi$, scaled by the extent $\\xi$ the limiting reagent allows — the energy is the extent ledger's other column."
+latex = "\\Delta H_{\\text{rxn}} = \\sum \\nu\\,\\Delta H_f^\\circ(\\text{products}) - \\sum \\nu\\,\\Delta H_f^\\circ(\\text{reactants})"
+related = [
+  { to = "extent-of-reaction", type = "extends" },
+  { to = "stoichiometry", type = "depends-on" },
+  { to = "conservation-of-mass", type = "see-also" },
+  { to = "limiting-reagent", type = "depends-on" },
+]
+lessons = ["methane-combustion-enthalpy"]

@@ -66,6 +66,10 @@ _REGISTRY: dict[str, tuple[Dim, Decimal]] = {
     "J": (Dim(energy=1), Decimal(1)),
     "kJ": (Dim(energy=1), Decimal(1000)),
     "J/(g*K)": (Dim(energy=1, mass=-1, temperature=-1), Decimal(1)),
+    # the energy ledger (ADR-0043): a molar reaction enthalpy ΔH_rxn is energy per mole of reaction, so
+    # q = ΔH_rxn·ξ is built and certified (kJ·mol⁻¹ × mol → kJ) by the same engine. kJ/mol → 1000 J/mol.
+    "kJ/mol": (Dim(energy=1, amount=-1), Decimal(1000)),
+    "J/mol": (Dim(energy=1, amount=-1), Decimal(1)),
 }
 
 # canonical display label for a derived dimension
@@ -81,6 +85,7 @@ _CANON_LABEL: dict[Dim, str] = {
     Dim(volume=1, pressure=1, amount=-1, temperature=-1): "L*atm/(mol*K)",
     Dim(energy=1): "J",
     Dim(energy=1, mass=-1, temperature=-1): "J/(g*K)",
+    Dim(energy=1, amount=-1): "J/mol",
 }
 
 

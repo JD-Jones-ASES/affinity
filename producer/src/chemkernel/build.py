@@ -37,7 +37,8 @@ from .solubility import Solubility
 from .units import Quantity
 
 _REGIME_NAME = {"ledger": "ledger-exact", "solubility": "rule-sourced",
-                "solution_behavior": "model-exact", "gas_behavior": "model-exact"}
+                "solution_behavior": "model-exact", "gas_behavior": "model-exact",
+                "thermochemistry": "model-exact"}
 # the default facet set when a spec omits `regimes` — the original three (pin it explicitly so adding a new
 # facet key above never shifts an existing lesson's emitted regimes, keeping committed derived/ byte-stable).
 _DEFAULT_REGIMES = ["ledger", "solubility", "solution_behavior"]
@@ -188,6 +189,59 @@ def _gas_volume_block(row, cond: dict, data, ctx: str) -> tuple[dict, list[dict]
     return block, chain
 
 
+def _energy_block(ledger, reactants, products, coeffs, data, ctx: str) -> tuple[dict, list[dict]]:
+    """The energy-ledger payoff (ADR-0043): reaction enthalpy attached to extent. The ledger fixes ξ (moles of
+    reaction); the heat is q = ΔH_rxn·ξ. ΔH_rxn is derived by **Hess's law** — ΔH_rxn = Σ_products ν·ΔH_f° −
+    Σ_reactants ν·ΔH_f° — over the SOURCED standard enthalpies of formation (data/formation-enthalpies.toml),
+    exact Decimal arithmetic (like average atomic mass: exact over sourced data). Honesty layered, not mixed:
+    ξ is ledger-exact (machine-checked); the ΔH_f° are data-sourced (regime-3); the RELATIONS (Hess's law,
+    q = ΔH_rxn·ξ at constant pressure to completion) are model-assumed (regime-2). q is EXACT here (all inputs
+    terminate — distinct from the gas volume's non-terminating R), computed THROUGH the units engine so the
+    dimension is certified (kJ·mol⁻¹ × mol → kJ). Returns (energy block, the ξ→q dimensional chain)."""
+    n_r = len(reactants)
+    xi = ledger.extent_mol                                    # exact ledger extent (Fraction, terminating)
+    rows = ([(f, coeffs[i], "reactant") for i, f in enumerate(reactants)]
+            + [(f, coeffs[n_r + i], "product") for i, f in enumerate(products)])
+    hess = []
+    total = Decimal(0)                                        # ΔH_rxn = Σ (sign · ν · ΔH_f°)
+    for f, c, role in rows:
+        core = _core(f.raw)
+        rec = data.formation_enthalpy(core, f.phase)          # raises if a ΔH_f° is missing (refuse to guess)
+        dhf = rec["value"]                                    # Decimal, kJ/mol (sourced)
+        sign = 1 if role == "product" else -1                 # products add, reactants subtract (Hess)
+        contribution = sign * c * dhf
+        if contribution == 0:
+            contribution = Decimal(0)                          # normalize a signed zero (elements: ΔH_f° = 0)
+        total += contribution
+        hess.append({
+            "species": core, "role": role, "coeff": c, "phase": f.phase,
+            "is_element": rec["element"],
+            "delta_h_f_kj_per_mol": format(dhf, "f"),
+            "contribution_kj_per_mol": format(contribution, "f"),
+        })
+    xi_dec = Decimal(_exact_decimal_str(xi))
+    # q = ΔH_rxn·ξ through the units engine (dimension certified: kJ·mol⁻¹ × mol → kJ). Exact Decimal.
+    q = (Quantity.of(total, "kJ/mol") * Quantity.of(xi_dec, "mol")).to("kJ").value
+    classification = "exothermic" if total < 0 else ("endothermic" if total > 0 else "thermoneutral")
+
+    block = {
+        "delta_h_rxn_kj_per_mol": format(total, "f"),         # exact Hess sum over the sourced ΔH_f°
+        "extent_mol": _exact_decimal_str(xi),                 # ξ (ledger-exact)
+        "q_kj": format(q, "f"),                               # ΔH_rxn·ξ, exact (Decimal over sourced data)
+        "q_kj_display": _sigfig(q, 3),                        # the headline heat, 3 sig figs (ADR-0025)
+        "classification": classification,                    # exothermic (ΔH<0) / endothermic (ΔH>0)
+        "source": data.sources.get("formation_enthalpies", ""),
+        "hess": hess,
+    }
+    chain = [
+        {"value": _exact_decimal_str(xi), "unit": "mol",
+         "note": "extent ξ from the ledger (moles of reaction)"},
+        {"value": _sigfig(q, 3), "unit": "kJ",
+         "note": f"× ΔH_rxn = {format(total, 'f')} kJ/mol (Hess's law)"},
+    ]
+    return block, chain
+
+
 def build_problem(path: Path, root: Path) -> tuple[dict, str]:
     spec = tomllib.loads(path.read_text(encoding="utf-8"))
     ctx = spec.get("id", path.stem)
@@ -244,9 +298,16 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
             "final_mol": _exact_decimal_str(r.final_mol), "role": r.role,
         })
 
-    # ionic equations
+    # ionic equations — but only when the reaction actually HAS ions in solution. A fully molecular reaction
+    # (gas-phase combustion, ADR-0043: CH4 + O2 -> CO2 + H2O) dissociates nothing, so its complete/net ionic
+    # forms would just echo the molecular equation — honestly, there is no ionic equation. Detect it by "no
+    # charged term survived complete_ionic" and omit the ionic views (schema makes them optional).
     left, right = complete_ionic(reactants, products, coeffs, data, ctx)
-    net_left, net_right, spectators = net_ionic(left, right, ctx)
+    has_ions = any(term[2] != 0 for term in left + right)     # Term = (species_id, count, charge, phase)
+    if has_ions:
+        net_left, net_right, spectators = net_ionic(left, right, ctx)
+    else:
+        net_left = net_right = spectators = None
 
     # result: the reported product + leftovers. The reported product is the net-ionic product — a solid
     # precipitate (precipitation) or, when no solid forms, the general product (water for an acid-base
@@ -272,7 +333,10 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
     # neutralization).
     result = {}
     gas_chain = None
+    energy_chain = None
+    reported_mass = None
     conditions = spec.get("conditions")
+    energetics = spec.get("energetics")
     solid_row = next((r for r in ledger.rows if r.phase == "s" and r.role == "product"), None)
     if solid_row is not None:
         result["precipitate"], reported_mass = _product_block(solid_row)
@@ -291,8 +355,15 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
                          if r.role == "product" and _core(r.species) != gas_id), None)
         if salt_row is not None:
             result["salt"], _ = _product_block(salt_row)
+    elif energetics is not None:
+        # the energy ledger (ADR-0043): the headline is the HEAT q = ΔH_rxn·ξ, not a product mass. No
+        # precipitate/product/gas — the ledger tab shows the products formed; the energy block is the payoff.
+        result["energy"], energy_chain = _energy_block(ledger, reactants, products, coeffs, data, ctx)
     else:
         # the net-ionic product (the single species on the right of the net ionic — e.g. H2O)
+        if net_right is None:
+            raise BuildError(f"{ctx}: reaction has no ions in solution and no gas/energetics/solid product "
+                             f"— nothing to report (add [conditions] or [energetics], or a solid product)")
         net_product_id = next(iter(net_right))[0]
         prod_row = next((r for r in ledger.rows
                          if _core(r.species) == net_product_id and r.role == "product"), None)
@@ -310,6 +381,25 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
         dimensional.append({"target": f"volume of {result['gas']['species']} gas at "
                             f"{result['gas']['pressure_atm']} atm, {result['gas']['temperature_K']} K",
                             "steps": gas_chain})
+    if energy_chain is not None:
+        dimensional.append({"target": f"heat of reaction q = ΔH_rxn × ξ "
+                            f"({result['energy']['classification']})", "steps": energy_chain})
+
+    # molecular always; the complete/net ionic views only when the reaction has ions in solution (ADR-0043 —
+    # a fully molecular combustion has no ionic equation, so it emits only the molecular). Key order preserved
+    # so existing aqueous lessons stay byte-identical.
+    equations = {
+        "molecular": {"text": _molecular_text(spec["reactants"], coeffs[:len(reactants)])
+                      + " -> " + _molecular_text(spec["products"], coeffs[len(reactants):]),
+                      "latex": _molecular_latex(reactants, coeffs[:len(reactants)])
+                      + r" \rightarrow " + _molecular_latex(products, coeffs[len(reactants):])},
+    }
+    if has_ions:
+        equations["complete_ionic"] = {"text": _ionic_text(left) + " -> " + _ionic_text(right),
+                                       "latex": _ionic_latex(left) + r" \rightarrow " + _ionic_latex(right)}
+        equations["net_ionic"] = {"text": _net_text(net_left) + " -> " + _net_text(net_right),
+                                  "latex": _net_latex(net_left) + r" \rightarrow " + _net_latex(net_right)}
+        equations["spectators"] = spectators
 
     solution = {
         "id": spec["id"],
@@ -321,17 +411,7 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
         "regimes": [{"facet": k, "regime": _REGIME_NAME[k]} for k in spec.get("regimes", _DEFAULT_REGIMES)],
         "assumptions": spec.get("assumptions", []),
         "given": given_out,
-        "equations": {
-            "molecular": {"text": _molecular_text(spec["reactants"], coeffs[:len(reactants)])
-                          + " -> " + _molecular_text(spec["products"], coeffs[len(reactants):]),
-                          "latex": _molecular_latex(reactants, coeffs[:len(reactants)])
-                          + r" \rightarrow " + _molecular_latex(products, coeffs[len(reactants):])},
-            "complete_ionic": {"text": _ionic_text(left) + " -> " + _ionic_text(right),
-                               "latex": _ionic_latex(left) + r" \rightarrow " + _ionic_latex(right)},
-            "net_ionic": {"text": _net_text(net_left) + " -> " + _net_text(net_right),
-                          "latex": _net_latex(net_left) + r" \rightarrow " + _net_latex(net_right)},
-            "spectators": spectators,
-        },
+        "equations": equations,
         "ledger": {
             "extent_symbol": "xi",
             "extent_mol": _exact_decimal_str(ledger.extent_mol),
@@ -358,6 +438,9 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
                 "ion_charge": data.sources.get("ion_charge", ""),
                 **({"solubility": solub.source} if solid_row is not None else {}),
                 **({"constants": data.sources.get("constants", "")} if gas_chain is not None else {}),
+                # the energy ledger cites the formation-enthalpy source the ΔH_rxn Hess sum rides on (ADR-0043)
+                **({"formation_enthalpies": data.sources.get("formation_enthalpies", "")}
+                   if energy_chain is not None else {}),
             },
         },
     }
@@ -387,8 +470,10 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
         }
 
     # the interactive block: parity-verified closed forms for the sliders (ADR-0011). Optional — emitted only
-    # for the supported single-precipitate double-displacement shape; the schema allows its absence.
-    interactive = build_interactive(reactants, products, coeffs, spec["given"], data, net_left, net_right, ctx)
+    # for the supported single-precipitate double-displacement shape, which needs the net-ionic ion pair; a
+    # molecular reaction (no ions, ADR-0043) has none, so skip it entirely.
+    interactive = (build_interactive(reactants, products, coeffs, spec["given"], data, net_left, net_right, ctx)
+                   if has_ions else None)
     if interactive is not None:
         solution["interactive"] = interactive
 

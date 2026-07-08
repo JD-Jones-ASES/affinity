@@ -78,15 +78,21 @@ for (const file of files) {
     if (s.role !== "product" && s.nu >= 0) fail(rel, `${s.id} is a reactant but nu >= 0`);
   }
 
-  // 7. the reported product (ADR-0037): exactly one of `precipitate` (a solid) or the general `product`
-  // (e.g. water for neutralization) is present, and it is a product row in the ledger of the right phase.
+  // 7. the reported product (ADR-0037): a precipitation/neutralization/gas lesson carries exactly one of
+  // `precipitate` (a solid) or the general `product`, a product row in the ledger of the right phase. An
+  // energy-ledger lesson (ADR-0043) carries NEITHER — its headline is `result.energy` (the heat q = ΔH_rxn·ξ),
+  // and the products are just ledger rows.
   const rep = sol.result.precipitate ?? sol.result.product;
-  if (!rep || (sol.result.precipitate && sol.result.product))
-    fail(rel, `result must carry exactly one of precipitate/product`);
-  const row = sol.ledger.species.find((s) => s.id === rep.species && s.role === "product");
-  if (!row) fail(rel, `result product ${rep.species} is not a product ledger row`);
-  if (sol.result.precipitate && row.phase !== "s") fail(rel, `result precipitate ${rep.species} is not a solid ledger row`);
-  if (row.phase !== rep.phase) fail(rel, `result product ${rep.species} phase ${rep.phase} != ledger ${row.phase}`);
+  if (sol.result.energy) {
+    if (rep) fail(rel, `an energy-ledger result must not also carry a precipitate/product headline`);
+  } else {
+    if (!rep || (sol.result.precipitate && sol.result.product))
+      fail(rel, `result must carry exactly one of precipitate/product`);
+    const row = sol.ledger.species.find((s) => s.id === rep.species && s.role === "product");
+    if (!row) fail(rel, `result product ${rep.species} is not a product ledger row`);
+    if (sol.result.precipitate && row.phase !== "s") fail(rel, `result precipitate ${rep.species} is not a solid ledger row`);
+    if (row.phase !== rep.phase) fail(rel, `result product ${rep.species} phase ${rep.phase} != ledger ${row.phase}`);
+  }
 
   // 8. provenance sources must be non-empty (every empirical value is traceable)
   for (const [k, v] of Object.entries(sol.provenance.sources))
@@ -105,6 +111,28 @@ for (const file of files) {
       fail(rel, "result.gas present but no disclosed model assumption");
     if (!sol.provenance.sources.constants)
       fail(rel, "result.gas present but provenance.sources.constants (the gas constant's source) is missing");
+  }
+
+  // 10. the energy ledger (ADR-0043): q = ΔH_rxn·ξ is model-exact (Hess's law + complete reaction at constant
+  // pressure), so it must carry a model-exact regime + a disclosed model assumption (the model-assumed badge
+  // does the honesty work) and cite the ΔH_f° source (the data-sourced badge). Every Hess row must be a real
+  // ledger species whose role/phase agree. (check-ledger re-derives the Hess sum + q arithmetically.)
+  if (sol.result.energy) {
+    const e = sol.result.energy;
+    if (!sol.regimes.some((r) => r.regime === "model-exact"))
+      fail(rel, "result.energy present but no model-exact regime — the reaction enthalpy is regime-2");
+    if (!sol.assumptions.some((a) => a.kind === "model"))
+      fail(rel, "result.energy present but no disclosed model assumption");
+    if (!sol.provenance.sources.formation_enthalpies)
+      fail(rel, "result.energy present but provenance.sources.formation_enthalpies (the ΔH_f° source) is missing");
+    for (const h of e.hess) {
+      const hrow = sol.ledger.species.find((s) => s.id === h.species);
+      if (!hrow) fail(rel, `energy Hess species ${h.species} is not a ledger species`);
+      if ((h.role === "product") !== (hrow.role === "product"))
+        fail(rel, `energy Hess species ${h.species} role ${h.role} disagrees with the ledger (${hrow.role})`);
+      if (hrow.phase !== h.phase)
+        fail(rel, `energy Hess species ${h.species} phase ${h.phase} != ledger ${hrow.phase}`);
+    }
   }
 }
 

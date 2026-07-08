@@ -179,12 +179,36 @@ yields gas-specific drills (free-entry volume via PV=nRT + leftover, categorical
 single-replacement shape has no slider interactive. See
 [`problems/gas-stoichiometry/zinc-hydrochloric-hydrogen.problem.toml`](../problems/gas-stoichiometry/zinc-hydrochloric-hydrogen.problem.toml).
 
+### Energy-ledger lessons (the ledger drives a heat, ADR-0043)
+
+For a reaction whose headline is the **heat released or absorbed** (a combustion, a formation), add an
+**`[energetics]`** table and ChemKernel reports **`result.energy`** — the reaction enthalpy **ΔH_rxn** (by **Hess's
+law**, ΔH_rxn = Σν·ΔH_f°(products) − Σν·ΔH_f°(reactants), from the sourced `data/formation-enthalpies.toml`) times
+the ledger's extent ξ, i.e. **q = ΔH_rxn·ξ**. There is **no** product-mass headline — the energy is the payoff:
+
+```toml
+[energetics]              # must follow every root key (TOML trap #4). Its presence makes the heat the headline.
+method = "hess-formation" # the only supported method: ΔH_rxn from standard enthalpies of formation
+```
+
+Author notes: set `regimes = ["ledger", "thermochemistry"]` (ξ is ledger-exact, ΔH_rxn is **model-exact** — Hess's
+law + reaction to completion — so it carries the model-assumed badge and needs a disclosed `[[assumptions]]` of
+`kind = "model"`; the sourced ΔH_f° also earns the data-sourced badge — three badges in all). **Every** reactant and
+product must have a curated ΔH_f° for its exact phase in `data/formation-enthalpies.toml`, or the build refuses (H₂O
+liquid vs vapor differ — pick the phase in your `products`). Give gaseous reactants as weighed `mass_g` givens (they
+must still divide to a terminating mole count). A **fully molecular** reaction (no aqueous ions) emits only the
+molecular equation — the ionic equations are omitted, honestly (there are no ions). The canonical misconception:
+reading ΔH_rxn (per mole of reaction) as the total heat — the player refutes it with q = ΔH_rxn·ξ scaled by the
+limiting reagent. See
+[`problems/thermochemistry/methane-combustion-enthalpy.problem.toml`](../problems/thermochemistry/methane-combustion-enthalpy.problem.toml).
+
 ### Other optional keys
 
 `tags` (array), `reference_links` (array of Atlas ids — they become links as the Atlas is built),
 `author` (defaults `"Affinity"`), `created` (date string), and `regimes` (array of facet keys —
-`ledger`, `solubility`, `solution_behavior`, `gas_behavior`; defaults to the first three, ADR-0003 — omit
-`solubility` for a non-precipitation lesson, use `gas_behavior` for the ideal-gas volume).
+`ledger`, `solubility`, `solution_behavior`, `gas_behavior`, `thermochemistry`; defaults to the first three,
+ADR-0003 — omit `solubility` for a non-precipitation lesson, use `gas_behavior` for the ideal-gas volume,
+`thermochemistry` for the energy ledger).
 
 ## What ChemKernel derives (do not author these)
 

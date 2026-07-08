@@ -63,6 +63,9 @@ export function renderSolution(sol) {
     reported?.species,
     s.result?.salt?.species,
     ...(s.result?.leftover ?? []).map((l) => l.species),
+    // every ledger species (so a molecular energy lesson subscripts CH4/CO2/H2O in prose — ADR-0043; harmless
+    // for existing lessons, whose ledger ids are already among the tokens above)
+    ...(s.ledger?.species ?? []).map((r) => r.id),
   ];
 
   s.scenarioHtml = inline(prettyText(s.scenario, lessonTokens));
@@ -70,8 +73,10 @@ export function renderSolution(sol) {
 
   s.assumptions = (s.assumptions ?? []).map((a) => ({ ...a, claimHtml: inline(prettyText(a.claim, lessonTokens)) }));
 
+  // molecular always; the complete/net ionic views only when the reaction has ions (ADR-0043 — a molecular
+  // combustion omits them)
   for (const key of ["molecular", "complete_ionic", "net_ionic"]) {
-    s.equations[key].html = tex(s.equations[key].latex);
+    if (s.equations[key]) s.equations[key].html = tex(s.equations[key].latex);
   }
   s.equations.spectatorsPretty = (s.equations.spectators ?? []).map(prettyIon);
 
@@ -95,6 +100,14 @@ export function renderSolution(sol) {
   decorateProduct(s.result.product);
   decorateProduct(s.result.salt);
   decorateProduct(s.result.gas); // gas stoichiometry (ADR-0041): symbolHtml for the collected-gas volume card
+  // energy ledger (ADR-0043): decorate each Hess-breakdown species with its upright ledger symbol + pretty id
+  if (s.result.energy) {
+    s.result.energy.hess = s.result.energy.hess.map((h) => {
+      const row = s.ledger.species.find((r) => r.id === h.species);
+      return { ...h, symbolHtml: row ? row.symbolHtml : tex(h.species.replace(/(\d+)/g, "_{$1}"), false),
+               idPretty: prettyIon(h.species), phaseTag: phaseTag(h.phase) };
+    });
+  }
   s.result.limiting_speciesPretty = (s.result.limiting_species ?? []).map(prettyIon);
   s.result.leftover = (s.result.leftover ?? []).map((l) => ({ ...l, idPretty: prettyIon(l.species) }));
 

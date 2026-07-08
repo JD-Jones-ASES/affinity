@@ -51,7 +51,8 @@ class Ion:
 class ChemData:
     def __init__(self, elements: dict[str, Element], ions: dict[str, Ion], sources: dict[str, str],
                  constants: dict[str, Decimal] | None = None, bonding: dict | None = None,
-                 constant_units: dict[str, str] | None = None, specific_heats: dict | None = None):
+                 constant_units: dict[str, str] | None = None, specific_heats: dict | None = None,
+                 formation_enthalpies: dict | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
@@ -59,6 +60,9 @@ class ChemData:
         self.constant_units = constant_units or {}
         self.bonding = bonding or {}
         self.specific_heats = specific_heats or {}   # display name -> {name, phase, specific_heat (Decimal)}
+        # standard enthalpies of formation (ADR-0043), keyed "formula(phase)" (H2O differs by state) ->
+        # {name, element (bool), value (Decimal, kJ/mol)}. The energy ledger sums ν·ΔH_f° for Hess's law.
+        self.formation_enthalpies = formation_enthalpies or {}
 
     @property
     def avogadro(self) -> Decimal:
@@ -72,6 +76,15 @@ class ChemData:
         if key not in self.constants:
             raise BuildError(f"unknown constant '{key}' — not in data/constants.toml")
         return self.constant_units.get(key, "")
+
+    def formation_enthalpy(self, formula: str, phase: str) -> dict:
+        """The standard enthalpy of formation ΔH_f° (kJ/mol, Decimal) of a species by (formula core, phase),
+        from data/formation-enthalpies.toml (ADR-0043). Raises if absent — the energy ledger refuses to guess
+        a missing ΔH_f° (ADR-0008), and ΔH_f° depends on phase (H2O liquid vs vapor)."""
+        key = f"{formula}({phase})"
+        if key not in self.formation_enthalpies:
+            raise BuildError(f"no standard enthalpy of formation for {key} in data/formation-enthalpies.toml")
+        return self.formation_enthalpies[key]
 
     @classmethod
     def load(cls, root: Path | None = None) -> "ChemData":
@@ -163,6 +176,25 @@ class ChemData:
                 except (KeyError, ArithmeticError) as exc:
                     raise BuildError(f"data/specific-heats.toml: bad entry for '{key}': {exc}") from exc
 
+        # standard enthalpies of formation (optional file; ADR-0006/0043). A measured, data-sourced datum
+        # (regime-3) for the energy ledger — read as Decimal (ADR-0013), keyed by formula AND phase (ΔH_f°
+        # differs by state). An element in its standard state is 0 by definition (`element = true`).
+        formation_enthalpies: dict = {}
+        fe_source = ""
+        fe_path = d / "formation-enthalpies.toml"
+        if fe_path.exists():
+            fe_doc = tomllib.loads(fe_path.read_text(encoding="utf-8"))
+            fe_source = fe_doc.get("source", "")
+            for v in fe_doc.get("substances", []):
+                try:
+                    key = f"{v['formula']}({v['phase']})"
+                    if key in formation_enthalpies:
+                        raise BuildError(f"data/formation-enthalpies.toml: duplicate entry for {key}")
+                    formation_enthalpies[key] = {"name": v["name"], "element": bool(v.get("element", False)),
+                                                 "value": Decimal(v["delta_h_f_kj_per_mol"])}
+                except (KeyError, ArithmeticError) as exc:
+                    raise BuildError(f"data/formation-enthalpies.toml: bad entry {v!r}: {exc}") from exc
+
         sources = {
             "atomic_weight": el_doc.get("source", ""),
             "position": el_doc.get("position_source", ""),
@@ -173,8 +205,10 @@ class ChemData:
             "constants": const_source,
             "bonding": bonding.get("source", ""),
             "specific_heats": sh_source,
+            "formation_enthalpies": fe_source,
         }
-        obj = cls(elements, ions, sources, constants, bonding, constant_units, specific_heats)
+        obj = cls(elements, ions, sources, constants, bonding, constant_units, specific_heats,
+                  formation_enthalpies)
         obj.validate()
         return obj
 

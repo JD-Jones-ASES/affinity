@@ -1,0 +1,88 @@
+# Standard enthalpies of formation ΔH_f° (kJ/mol) at 298.15 K, 1 bar — a sourced empirical dataset
+# (ADR-0006). Curated from OpenStax *Chemistry 2e* Appendix G ("Standard Thermodynamic Properties for
+# Selected Substances"), already a registered source. ΔH_f° is the enthalpy change forming ONE mole of a
+# substance from its elements in their standard states; it is a MEASURED, tabulated value (regime-3), carried
+# under the data/rule-sourced badge, never dressed up as exact. An element in its standard state has
+# ΔH_f° = 0 BY DEFINITION (it is the reference point, not a measurement) — O2(g), N2(g), H2(g) below.
+#
+# A species is keyed by its formula AND phase, because ΔH_f° differs by state (H2O liquid −285.83 vs vapor
+# −241.82). Read as Decimal (ADR-0013); build.py sums ν·ΔH_f° exactly for Hess's law (ADR-0043). Bare
+# `source` key precedes the [[substances]] array-of-tables (TOML trap #4).
+source = "openstax-chemistry-2e"
+
+# --- elements in their standard states: ΔH_f° = 0 by definition (the reference level) ---
+[[substances]]
+formula = "O2"
+phase = "g"
+name = "oxygen"
+delta_h_f_kj_per_mol = "0"
+element = true
+
+[[substances]]
+formula = "N2"
+phase = "g"
+name = "nitrogen"
+delta_h_f_kj_per_mol = "0"
+element = true
+
+[[substances]]
+formula = "H2"
+phase = "g"
+name = "hydrogen"
+delta_h_f_kj_per_mol = "0"
+element = true
+
+# --- compounds (measured ΔH_f°, OpenStax Chemistry 2e Appendix G) ---
+[[substances]]
+formula = "H2O"
+phase = "l"
+name = "water"
+delta_h_f_kj_per_mol = "-285.83"
+
+[[substances]]
+formula = "H2O"
+phase = "g"
+name = "water vapor"
+delta_h_f_kj_per_mol = "-241.82"
+
+[[substances]]
+formula = "CO2"
+phase = "g"
+name = "carbon dioxide"
+delta_h_f_kj_per_mol = "-393.51"
+
+[[substances]]
+formula = "CO"
+phase = "g"
+name = "carbon monoxide"
+delta_h_f_kj_per_mol = "-110.52"
+
+[[substances]]
+formula = "CH4"
+phase = "g"
+name = "methane"
+delta_h_f_kj_per_mol = "-74.6"
+
+[[substances]]
+formula = "C2H6"
+phase = "g"
+name = "ethane"
+delta_h_f_kj_per_mol = "-84.0"
+
+[[substances]]
+formula = "C3H8"
+phase = "g"
+name = "propane"
+delta_h_f_kj_per_mol = "-103.8"
+
+[[substances]]
+formula = "CH3OH"
+phase = "l"
+name = "methanol"
+delta_h_f_kj_per_mol = "-239.2"
+
+[[substances]]
+formula = "NH3"
+phase = "g"
+name = "ammonia"
+delta_h_f_kj_per_mol = "-45.9"

@@ -191,55 +191,58 @@ at its URL even though the repo is private (private/access-controlled Pages need
 
 ## Current state
 
-**Phase 0 + Phase 1 COMPLETE (owner-reviewed). Phase 2 OPEN (2026-07-08, ADR-0039–0042)** — the model-bearing tier,
+**Phase 0 + Phase 1 COMPLETE (owner-reviewed). Phase 2 OPEN (2026-07-08, ADR-0039–0043)** — the model-bearing tier,
 filling depth-first on gases + thermochemistry. Landed: the **formula-sheet Atlas kind** (ADR-0039), the
 **`gas_laws_v1` gym** (ADR-0040), the **gas-stoichiometry lesson** (ADR-0041 — the ledger drives a gas volume via
-PV=nRT; a weighed-mass given + a `result.gas` block + generated practice), and the **`calorimetry_v1` gym** (ADR-0042
-— q=mcΔT; `units.py` gained an energy dimension; the first gym with both the data-sourced + model-assumed badges).
-**Next:** the energy-ledger lesson (ΔH_rxn·ξ). History in [`CHANGELOG.md`](./CHANGELOG.md) +
-[`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
-[`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
+PV=nRT), the **`calorimetry_v1` gym** (ADR-0042 — q=mcΔT), and the **energy-ledger lesson** (ADR-0043 — the ledger
+drives an energy q=ΔH_rxn·ξ via Hess's law over sourced ΔH_f°; `build.py`'s fourth reported-product shape; the first
+fully molecular lesson). **Next:** generated energy practice + a Hess formula-sheet entry, then the later Phase-2 tiers.
+History in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md);
+modules in [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
-**Counters:** 5 lessons (2 precipitation + 1 percent-yield + 1 acid-base neutralization + 1 gas-stoichiometry) ·
-10 gyms / 100 verified problems (dimensional analysis · ionic nomenclature · balancing · mass stoichiometry ·
-percent yield · limiting reagent · periodic trends · reaction families · **gas laws** · **calorimetry**) · 1 Valence
-Table (23 elements; four modes; 156 named + machine-verified salts) · 20 concept entries (6 rule-sourced, 1
-interpretive) + 7 reaction families (21 engine-classified example reactions) + 14 species entries (derived
-composition + molar mass) + 8 formula-sheet entries (dimensional homogeneity machine-checked; ADR-0039) · 7 Node
-gates + CI + live Pages · 271 producer tests · astro build = 24 pages.
+**Counters:** 6 lessons (2 precipitation + 1 percent-yield + 1 acid-base neutralization + 1 gas-stoichiometry +
+1 thermochemistry/energy-ledger) · 10 gyms / 100 verified problems (dimensional analysis · ionic nomenclature ·
+balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas laws ·
+calorimetry) · 1 Valence Table (23 elements; four modes; 156 named + machine-verified salts) · 21 concept entries
+(6 rule-sourced, 1 interpretive) + 7 reaction families (21 engine-classified example reactions) + 14 species entries
+(derived composition + molar mass) + 8 formula-sheet entries (dimensional homogeneity machine-checked; ADR-0039) ·
+7 Node gates + CI + live Pages · 275 producer tests · astro build = 25 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; the honesty
 model is three badges, regime-4 content under the model-assumed badge + an "interpretive" marker (Q4,
 ADR-0033); numeric practice is free-entry (diagnostics, not a menu), categorical a menu (ADR-0032). `build.py`
-emits three reported-product shapes: a two-solution reaction's net-ionic product — precipitation (solid,
-`result.precipitate`) + neutralization (water, `result.product`), ADR-0037 — and **gas stoichiometry** (a weighed
-metal + acid → a collected gas, `result.gas` carries the volume via PV=nRT, ADR-0041; a `mass_g` given → moles is
-a supported chain, and a free element skips the solubility check); redox = the free-element signature, not
-oxidation numbers (Phase 2). The Atlas carries **all four brief-§10 kinds** — periodic lens,
-concepts, reactions, species (molar mass derived, ADR-0038), and the **formula sheet** (ADR-0039). A reference
-relation's honesty = machine-checked **dimensional homogeneity** (native `chemkernel.dimension` SI-vector
-engine, re-derived in pure Node; separate from the Decimal `units.py` engine per ADR-0015) + the model-assumed
-badge disclosing regime-2 assumptions. The `units.py` engine carries amount/mass/volume/pressure/temperature/**energy**
-dims (ADR-0040/0042; energy independent of pressure·volume — a bookkeeping basis); a **regime-2 answer is
-model-exact-then-rounded** (3-sig-fig display, gate re-derives numerically) under the model-assumed badge — the gas
-gym's PV=nRT, the gas lesson's volume, the calorimetry gym's q=mcΔT — not Fraction-exact (that governs *ledger*
-values incl. mass-given moles, ADR-0013). The **calorimetry gym wears both** the data-sourced + model-assumed badges
-(a first, ADR-0042). The producer never runs in CI — the seven Node gates re-verify committed `derived/` from scratch.
+emits **four reported-product shapes**: a two-solution net-ionic product — precipitation (solid, `result.precipitate`)
++ neutralization (water, `result.product`), ADR-0037 — **gas stoichiometry** (weighed metal + acid → a collected gas,
+`result.gas` carries the volume via PV=nRT, ADR-0041) — and the **energy ledger** (`result.energy` carries the heat
+q=ΔH_rxn·ξ, ADR-0043; no product mass — the energy is the headline). A `mass_g` given → moles is a supported chain
+(free elements skip the solubility check); a **fully molecular reaction omits the ionic equations** (no ions → none
+emitted, ADR-0043); redox = the free-element signature, not oxidation numbers (Phase 2). The Atlas carries **all four
+brief-§10 kinds** — periodic lens, concepts, reactions, species (ADR-0038), and the **formula sheet** (ADR-0039,
+machine-checked **dimensional homogeneity** via the native `chemkernel.dimension` SI-vector engine, re-derived in
+pure Node; separate from the Decimal `units.py` engine per ADR-0015). The `units.py` engine carries
+amount/mass/volume/pressure/temperature/**energy** dims (energy independent of pressure·volume; +`kJ/mol` for the
+energy ledger). Regime-2 answers are model-assumed-badged: the gas gym/lesson (PV=nRT) + calorimetry gym (q=mcΔT) are
+**model-exact-then-rounded** (R/c non-terminating; gate re-derives numerically), but the **energy ledger's q=ΔH_rxn·ξ
+is EXACT** (Decimal sum × terminating ξ), 3-sf display — each precision reflects the real arithmetic. Hess's law
+(ΔH_rxn=Σν·ΔH_f° over sourced `data/formation-enthalpies.toml`) is exact arithmetic over data-sourced values; the
+energy lesson wears **three badges** (machine-checked ξ + data-sourced ΔH_f° + model-assumed Hess), as the calorimetry
+gym wears two (ADR-0042). Ledger values incl. mass-given moles stay Fraction-exact (ADR-0013). The producer never runs
+in CI — the seven Node gates re-verify committed `derived/` from scratch.
 
 ## Where this might go next (paths for a future session)
 
-**Phase 2 is open** (ADR-0039–0042) and filling depth-first on gases + thermochemistry — the formula sheet, the
-`gas_laws_v1` gym, the **gas-stoichiometry lesson** (the ledger drives a gas volume via PV=nRT — with practice),
-and the **`calorimetry_v1` gym** (q=mcΔT; `units.py` gained an energy dimension; specific heats curated) have
-landed. The flagged next increment (newest session log's closing block) is the **energy-ledger lesson** — reaction
-enthalpy attached to extent (ΔH_rxn·ξ), Hess's law; the `formula-calorimetry` sheet entry + the calorimetry gym are
-in place. Smaller/optional: the gas lesson's **slider interactive** (`ExtentBar` is cation/anion-locked, needs its
-own component); calorimetry initial/final-temperature framing + cooling drills. Always in
-season inside settled contracts: more formula-sheet entries (Hess, pH, K, ΔG, Nernst land with their topics),
-Atlas breadth-fill, further lessons (gas-evolution / diprotic neutralization, item-6 deferrals), an
-average-atomic-mass or particle-count gym (needs isotope data / scientific-notation display), docs-only sessions.
-**Opening the later Phase-2 tiers** (bonding, equilibrium/acid-base, kinetics, electrochemistry) proceeds inside
-the open phase.
+**Phase 2 is open** (ADR-0039–0043) and filling depth-first on gases + thermochemistry — the formula sheet, the
+`gas_laws_v1` gym, the **gas-stoichiometry lesson**, the **`calorimetry_v1` gym**, and the **energy-ledger lesson**
+(ADR-0043 — the ledger drives an energy q=ΔH_rxn·ξ via Hess's law; the first fully molecular lesson) have landed. The
+flagged next increment (newest session log's closing block) is **generated energy practice** (vary the masses → q,
+re-derived by check-parity from an energetics constants block — the ADR-0041 gas-practice template) + a
+**Hess/enthalpy formula-sheet entry** (dimensional homogeneity of ΔH_rxn=Σν·ΔH_f°). Smaller/optional: endothermic /
+multi-step Hess-cycle lessons; the gas lesson's **slider interactive** (`ExtentBar` is cation/anion-locked, needs its
+own component); calorimetry initial/final-temperature framing + cooling drills. Always in season inside settled
+contracts: more formula-sheet entries (pH, K, ΔG, Nernst land with their topics), Atlas breadth-fill, further lessons
+(gas-evolution / diprotic neutralization, item-6 deferrals), an average-atomic-mass or particle-count gym (needs
+isotope data / scientific-notation display), docs-only sessions. **Opening the later Phase-2 tiers** (bonding,
+equilibrium/acid-base, kinetics, electrochemistry) proceeds inside the open phase.
 
 **Known traps (1 and 2 bit the sibling; 3–5 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested

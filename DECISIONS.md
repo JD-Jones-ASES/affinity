@@ -1201,3 +1201,63 @@ specific-heats source badge; the drill island a calorimetry chain caption. **val
 the thermochemistry instrument the **energy-ledger lesson** ($\Delta H_\text{rxn}\cdot\xi$, the next increment) builds
 on. **Deferred:** initial/final-temperature framing ($\Delta T = T_f - T_i$) + cooling (negative $q$) as distinct
 drills; heat of reaction / Hess's law; the energy ledger attaching $\Delta H$ to extent.
+
+## ADR-0043 — Energy-ledger lesson: reaction enthalpy attached to extent (q = ΔH_rxn·ξ) via Hess's law; the first fully molecular lesson (2026-07-08)
+
+**Context.** The thermochemistry vertical slice (brief §17.7) and the flagged next increment after the calorimetry
+gym (ADR-0042): a lesson where **the extent ledger drives an energy** — the ledger fixes ξ (moles of reaction,
+capped by the limiting reagent), and the heat released is $q = \Delta H_\text{rxn}\cdot\xi$. It is the energy
+counterpart to the gas-stoichiometry lesson (ADR-0041, where the ledger drove a *volume*). The canonical teaching
+reaction is **methane combustion** ($\mathrm{CH_4(g) + 2\,O_2(g) \to CO_2(g) + 2\,H_2O(l)}$) — but it is the first
+lesson that is **fully molecular** (no ions in solution) and the first where the headline is neither a mass nor a
+volume but an **energy**, and where $\Delta H_\text{rxn}$ itself must be *derived*, not authored, to stay honest.
+Three problems no prior lesson faced: (1) a molecular reaction dissociates nothing, so its complete/net-ionic views
+would just echo the molecular equation — dishonest to present as "ionic equations"; (2) combustion has **two
+products** (CO₂ + H₂O), breaking the single-reported-product assumption of every prior lesson; (3) $\Delta H_\text{rxn}$
+is a claim — asserting it would violate ADR-0008.
+
+**Decision.** Generalise `build.py` — one machine, a fourth reported-product shape (an **energy** headline) — without
+disturbing the aqueous lessons (their `derived/` stays byte-identical):
+1. **Hess's law over a sourced ΔH_f° table, exact arithmetic.** A new curated dataset
+   `data/formation-enthalpies.toml` (standard enthalpies of formation, OpenStax *Chemistry 2e* Appendix G, keyed by
+   formula **and phase** because H₂O(l) −285.83 ≠ H₂O(g) −241.82). The producer derives
+   $\Delta H_\text{rxn} = \sum_\text{prod}\nu\,\Delta H_f^\circ - \sum_\text{react}\nu\,\Delta H_f^\circ$ — **exact
+   Decimal arithmetic over the sourced values** (like average atomic mass, ADR-0038: exact over sourced data), and
+   refuses to emit if any species' ΔH_f° is missing (never guesses). An element in its standard state is
+   ΔH_f° = 0 **by definition** (the reference level, flagged `is_element` so the page can say so). The emitted
+   `result.energy.hess` breakdown carries each species' role/coeff/phase/ΔH_f°/signed contribution so the gate
+   re-sums it in pure Node.
+2. **The energy result block (`result.energy`) — the payoff.** A spec with an `[energetics]` block (marker;
+   `method = "hess-formation"`) reports the **heat** $q = \Delta H_\text{rxn}\cdot\xi$, computed **through the units
+   engine** (`kJ·mol⁻¹ × mol → kJ`, dimension certified — `units.py` gains `kJ/mol`/`J/mol`, energy·amount⁻¹) from
+   the ledger's exact ξ. **There is no reported product mass** — the energy is the headline; the products are just
+   ledger rows (the ledger tab shows their amounts). Honesty is **triple-layered, not mixed**: ξ is **ledger-exact**
+   (machine-checked); the ΔH_f° are **data-sourced** (regime-3, the data/rule-sourced badge); the **relations**
+   (Hess's law needs enthalpy to be a state function; $q = \Delta H_\text{rxn}\cdot\xi$ needs completion at constant
+   P, standard-state ΔH_f°) are **model-assumed** (regime-2, the model-assumed badge). $q$ is **EXACT** here (all
+   inputs terminate — a Decimal sum × a terminating ξ), reported at 3 sig figs for display — **distinct** from the
+   gas volume's *model-exact-then-rounded* (ADR-0040, where R is non-terminating): each precision treatment reflects
+   the real arithmetic, which is more honest than forcing one rule. New regime facet `thermochemistry → model-exact`.
+3. **A fully molecular reaction omits the ionic equations.** When `complete_ionic` produces **no charged term**
+   (nothing dissociated), the reaction has no ions in solution, so the complete-ionic and net-ionic views are
+   **omitted** (schema `equations.required` relaxed to just `molecular`) rather than echoing the molecular equation —
+   the honest representation ("no ions → no ionic equation"), and a real generalisation for the many molecular
+   reactions Phase 2 will add. Aqueous lessons (all have charged terms) keep all three, byte-identical.
+
+**Consequences.** The 6th lesson (`thermochemistry/methane-combustion-enthalpy`): three dimensional chains (g→mol ×2,
+**ξ→q via ΔH_rxn**), the Hess breakdown table (CH₄ −74.6, O₂ 0 (element), CO₂ −393.51, H₂O −571.66 → **−890.57
+kJ/mol**), the heat card **q = −890.57 × 0.05 = −44.5 kJ** (exothermic), and the extent-scaling misconception refuted
+in the ledger ("−890.57 kJ is *per mole of reaction*; this burn runs only ξ = 0.05 mol, so it releases −44.5 kJ, not
+890.57 kJ"). Schema growth (additive): `result.energy` + a `formation_enthalpies` provenance source; `equations`
+complete/net-ionic now optional. Gates: **check-ledger re-derives the Hess sum + q = ΔH_rxn·ξ** (independent of
+Python, sign→classification checked); **validate-solutions** ties `result.energy` to a model-exact regime + a
+disclosed model assumption + the ΔH_f° source, and forbids a product headline beside it; both **7-way tamper-tested**
+(corrupt q / a contribution / ΔH_rxn / flip classification / drop the model regime / drop the source / add a spurious
+product — each caught). The lesson is the first object to wear **three** honesty badges at once (machine-checked +
+data-sourced + model-assumed), and the first fully molecular one. 275 producer tests (+4); 25 pages (+1); `derived/`
+byte-stable (only the new lesson + the `reaction-enthalpy` concept added; no existing solution changed — the ionic
+equations stay for every aqueous lesson). **Deferred:** generated energy practice (vary the masses → q, re-derived by
+check-parity from an energetics constants block — the ADR-0041 gas-practice template, a follow-on increment); a
+`formula-enthalpy-of-reaction` / Hess formula-sheet entry (dimensional homogeneity of $\Delta H_\text{rxn}=\sum\nu\Delta H_f^\circ$);
+directly-sourced $\Delta H_\text{rxn}$ (a single measured heat of reaction, as an alternative to the Hess sum);
+endothermic and multi-step (Hess-cycle) lessons.

@@ -37,6 +37,7 @@ const near = (a, b) => Math.abs(a - b) <= TOL + TOL * Math.abs(b);
 
 let rows = 0;
 let gases = 0;
+let energies = 0;
 for (const file of files) {
   const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
   const sol = JSON.parse(readFileSync(file, "utf8"));
@@ -128,7 +129,40 @@ for (const file of files) {
     if (Math.abs(rePercent - Number(py.percent_display)) > 0.05 + 1e-9)
       fail(rel, `percent_display ${py.percent_display} != actual/theoretical*100 = ${rePercent.toFixed(4)}`);
   }
+
+  // energy ledger (ADR-0043): re-derive ΔH_rxn by Hess's law from the emitted per-species ΔH_f° + coefficients
+  // (Σ (±coeff·ΔH_f°), products +, reactants −), then q = ΔH_rxn·ξ — independent of Python. Exact arithmetic
+  // over the sourced ΔH_f° (a tiny tolerance covers decimal re-summation); q_kj_display is 3 sig figs (0.5%);
+  // the classification must match the sign of q. The ξ must be the ledger extent already checked above.
+  const energy = sol.result.energy;
+  if (energy) {
+    const relClose = (got, want) => Math.abs(got - want) <= 0.005 * Math.abs(want) + 1e-9;
+    const tight = (got, want) => Math.abs(got - want) <= 1e-6 * Math.abs(want) + 1e-6;
+    let sum = 0;
+    for (const h of energy.hess) {
+      const sign = h.role === "product" ? 1 : -1;         // Hess: products add, reactants subtract
+      const contribution = sign * h.coeff * Number(h.delta_h_f_kj_per_mol);
+      if (!tight(Number(h.contribution_kj_per_mol), contribution))
+        fail(rel, `energy ${h.species}: contribution ${h.contribution_kj_per_mol} != ${sign > 0 ? "+" : "-"}${h.coeff}·ΔHf = ${contribution}`);
+      sum += contribution;
+    }
+    if (!tight(Number(energy.delta_h_rxn_kj_per_mol), sum))
+      fail(rel, `energy ΔH_rxn ${energy.delta_h_rxn_kj_per_mol} != Hess sum Σν·ΔHf = ${sum.toFixed(4)}`);
+    if (!near(Number(energy.extent_mol), xi))
+      fail(rel, `energy extent_mol ${energy.extent_mol} != ledger ξ ${xi}`);
+    const q = sum * xi;                                    // q = ΔH_rxn · ξ
+    if (!tight(Number(energy.q_kj), q))
+      fail(rel, `energy q_kj ${energy.q_kj} != ΔH_rxn·ξ = ${q.toFixed(6)}`);
+    if (!relClose(Number(energy.q_kj_display), q))
+      fail(rel, `energy q_kj_display ${energy.q_kj_display} != ΔH_rxn·ξ = ${q.toFixed(6)}`);
+    const wantClass = q < 0 ? "exothermic" : q > 0 ? "endothermic" : "thermoneutral";
+    if (energy.classification !== wantClass)
+      fail(rel, `energy classification ${energy.classification} != ${wantClass} (sign of q)`);
+    energies++;
+  }
 }
 
 console.log(`check-ledger: ${files.length} ledger(s), ${rows} row(s) satisfy n = n0 + ν·ξ and match the result` +
-  (gases ? `; ${gases} gas volume(s) re-derived from PV=nRT.` : "."));
+  (gases ? `; ${gases} gas volume(s) re-derived from PV=nRT` : "") +
+  (energies ? `; ${energies} reaction enthalpy/heat re-derived from Hess's law (q = ΔH_rxn·ξ)` : "") +
+  (gases || energies ? "." : "."));

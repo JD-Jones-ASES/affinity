@@ -1,0 +1,254 @@
+{
+  "id": "thermochemistry-methane-combustion-enthalpy",
+  "title": "How much heat? Burning methane and the energy ledger",
+  "slug": "methane-combustion-enthalpy",
+  "topic": "thermochemistry",
+  "tags": [
+    "thermochemistry",
+    "enthalpy",
+    "hess-law",
+    "combustion",
+    "limiting-reagent",
+    "stoichiometry",
+    "redox"
+  ],
+  "scenario": "A burner burns 0.80215 g of methane (CH₄) in 3.83976 g of oxygen. The reaction goes to completion, and the heat released is measured. Which reactant runs out first, and how much heat does this burn actually release?",
+  "regimes": [
+    {
+      "facet": "ledger",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "thermochemistry",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The combustion goes to completion — every mole of the limiting reagent that can react, does.",
+      "kind": "model"
+    },
+    {
+      "claim": "Enthalpy is a state function, so ΔH_rxn depends only on the substances, not the path — this is Hess's law, and it lets ΔH_rxn be built from standard enthalpies of formation.",
+      "kind": "model"
+    },
+    {
+      "claim": "The standard enthalpies of formation apply at these conditions (298.15 K, constant pressure) and are treated as temperature-independent over the range.",
+      "kind": "model"
+    },
+    {
+      "claim": "The water product is liquid (its ΔH_f° = −285.83 kJ/mol); if it left as vapor the reaction would release less heat.",
+      "kind": "model"
+    }
+  ],
+  "given": [
+    {
+      "species": "CH4(g)",
+      "mass_g": "0.80215",
+      "moles": "0.05"
+    },
+    {
+      "species": "O2(g)",
+      "mass_g": "3.83976",
+      "moles": "0.12"
+    }
+  ],
+  "equations": {
+    "molecular": {
+      "text": "CH4(g) + 2 O2(g) -> CO2(g) + 2 H2O(l)",
+      "latex": "\\mathrm{CH_{4}}\\,\\text{(g)} + 2\\,\\mathrm{O_{2}}\\,\\text{(g)} \\rightarrow \\mathrm{CO_{2}}\\,\\text{(g)} + 2\\,\\mathrm{H_{2}O}\\,\\text{(l)}"
+    }
+  },
+  "ledger": {
+    "extent_symbol": "xi",
+    "extent_mol": "0.05",
+    "limiting": [
+      "CH4"
+    ],
+    "species": [
+      {
+        "id": "CH4",
+        "latex": "\\mathrm{CH_{4}}",
+        "phase": "g",
+        "charge": 0,
+        "nu": -1,
+        "initial_mol": "0.05",
+        "final_mol": "0",
+        "role": "limiting"
+      },
+      {
+        "id": "O2",
+        "latex": "\\mathrm{O_{2}}",
+        "phase": "g",
+        "charge": 0,
+        "nu": -2,
+        "initial_mol": "0.12",
+        "final_mol": "0.02",
+        "role": "excess"
+      },
+      {
+        "id": "CO2",
+        "latex": "\\mathrm{CO_{2}}",
+        "phase": "g",
+        "charge": 0,
+        "nu": 1,
+        "initial_mol": "0",
+        "final_mol": "0.05",
+        "role": "product"
+      },
+      {
+        "id": "H2O",
+        "latex": "\\mathrm{H_{2}O}",
+        "phase": "l",
+        "charge": 0,
+        "nu": 2,
+        "initial_mol": "0",
+        "final_mol": "0.1",
+        "role": "product"
+      }
+    ]
+  },
+  "dimensional_analysis": [
+    {
+      "target": "moles of CH4(g)",
+      "steps": [
+        {
+          "value": "0.80215",
+          "unit": "g",
+          "note": "given mass (weighed)"
+        },
+        {
+          "value": "0.05",
+          "unit": "mol",
+          "note": "÷ 16.0430 g/mol (molar mass)"
+        }
+      ]
+    },
+    {
+      "target": "moles of O2(g)",
+      "steps": [
+        {
+          "value": "3.83976",
+          "unit": "g",
+          "note": "given mass (weighed)"
+        },
+        {
+          "value": "0.12",
+          "unit": "mol",
+          "note": "÷ 31.998 g/mol (molar mass)"
+        }
+      ]
+    },
+    {
+      "target": "heat of reaction q = ΔH_rxn × ξ (exothermic)",
+      "steps": [
+        {
+          "value": "0.05",
+          "unit": "mol",
+          "note": "extent ξ from the ledger (moles of reaction)"
+        },
+        {
+          "value": "-44.5",
+          "unit": "kJ",
+          "note": "× ΔH_rxn = -890.57 kJ/mol (Hess's law)"
+        }
+      ]
+    }
+  ],
+  "result": {
+    "energy": {
+      "delta_h_rxn_kj_per_mol": "-890.57",
+      "extent_mol": "0.05",
+      "q_kj": "-44.5285",
+      "q_kj_display": "-44.5",
+      "classification": "exothermic",
+      "source": "openstax-chemistry-2e",
+      "hess": [
+        {
+          "species": "CH4",
+          "role": "reactant",
+          "coeff": 1,
+          "phase": "g",
+          "is_element": false,
+          "delta_h_f_kj_per_mol": "-74.6",
+          "contribution_kj_per_mol": "74.6"
+        },
+        {
+          "species": "O2",
+          "role": "reactant",
+          "coeff": 2,
+          "phase": "g",
+          "is_element": true,
+          "delta_h_f_kj_per_mol": "0",
+          "contribution_kj_per_mol": "0"
+        },
+        {
+          "species": "CO2",
+          "role": "product",
+          "coeff": 1,
+          "phase": "g",
+          "is_element": false,
+          "delta_h_f_kj_per_mol": "-393.51",
+          "contribution_kj_per_mol": "-393.51"
+        },
+        {
+          "species": "H2O",
+          "role": "product",
+          "coeff": 2,
+          "phase": "l",
+          "is_element": false,
+          "delta_h_f_kj_per_mol": "-285.83",
+          "contribution_kj_per_mol": "-571.66"
+        }
+      ]
+    },
+    "limiting_species": [
+      "CH4"
+    ],
+    "leftover": [
+      {
+        "species": "O2",
+        "moles": "0.02"
+      }
+    ]
+  },
+  "misconception": {
+    "claim": "ΔH_rxn for burning methane is −890.57 kJ/mol, so this burn releases 890.57 kJ of heat.",
+    "refuted_by": "enthalpy_scales_with_extent"
+  },
+  "visualizations": [],
+  "reference_links": [
+    "reaction-combustion",
+    "reaction-enthalpy",
+    "formula-mole-mass",
+    "formula-calorimetry",
+    "stoichiometry",
+    "limiting-reagent",
+    "extent-of-reaction",
+    "molar-mass",
+    "balancing-equations",
+    "conservation-of-mass",
+    "dimensional-analysis",
+    "carbon-dioxide",
+    "water",
+    "dioxygen"
+  ],
+  "checks": {
+    "atom_balance": true,
+    "charge_balance": true,
+    "unit_check": true,
+    "extent_nonnegative": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights",
+      "ion_charge": "openstax-chemistry-2e",
+      "formation_enthalpies": "openstax-chemistry-2e"
+    }
+  }
+}
