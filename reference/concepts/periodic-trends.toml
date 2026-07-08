@@ -1,0 +1,15 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0033). The FIRST mechanistic-regime entry: the trend patterns
+# are visible in sourced data, but the WHY (nuclear charge, screening, shells) is an interpretive story, not a
+# machine proof — it renders under the model-assumed badge with an explicit interpretive marker (Q4 resolved).
+id = "periodic-trends"
+kind = "concept"
+title = "Periodic trends"
+term = "periodic trend"
+regime = "mechanistic"
+definition = "A property that varies systematically with position on the periodic table: covalent radius shrinks left → right and grows top → bottom; first ionization energy and electronegativity do the opposite. The usual explanation is effective nuclear charge — across a period, protons are added while electrons enter the same shell, pulling everything tighter; down a group, each row adds a screened outer shell. That story is useful and widely taught, but it is an interpretation laid over measured data, and the data keeps exceptions the slogan hides (boron ionizes below beryllium, oxygen below nitrogen). On the Valence Table the trend lenses color the sourced values; the pattern panels tell the story and name its exceptions."
+related = [
+  { to = "ionization-energy", type = "explains" },
+  { to = "electronegativity", type = "explains" },
+  { to = "nomenclature", type = "supports" },
+]
+lessons = []

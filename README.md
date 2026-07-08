@@ -2,12 +2,12 @@
 
 **A beginning-chemistry portal where the verification system is the product.**
 
-**Status:** Phase 0 complete and Phase 1 well underway — three machine-verified lessons, six procedural gyms
-(dimensional analysis, nomenclature, balancing, and the full stoichiometry suite), the Chemical Atlas
-(Valence Table over 23 sourced elements + concept graph), and generated practice are live. Phase-1 items 1–4
-and the Valence Table's element-property data (item 5a) are done; its trend/bonding lenses (5b) and item 6
-(reaction families) remain (see [`ROADMAP.md`](./ROADMAP.md)). See
-[`AGENTS.md`](./AGENTS.md) to work the repo.
+**Status:** Phase 0 complete and Phase 1 well underway — three machine-verified lessons, seven procedural
+gyms (dimensional analysis, nomenclature, balancing, the full stoichiometry suite, periodic trends), the
+Chemical Atlas (concept graph + the **Valence Table flagship**: five lenses with pattern panels, trend
+graphs, a 156-salt formula builder with verified names, and a ΔEN bonding mode over 23 sourced elements),
+and generated practice are live. Phase-1 items 1–5 are done; item 6 (reaction families) remains (see
+[`ROADMAP.md`](./ROADMAP.md)). See [`AGENTS.md`](./AGENTS.md) to work the repo.
 
 ## The idea in three lines
 
@@ -22,8 +22,9 @@ unless a machine checked it, a registered source backs it, or a disclosed model 
   species ledger, particle/electronic view, and evidence view — with a misconception register that makes
   the canonical wrong move visibly fail.
 - **The Gym** — procedural drills generated and machine-verified at build time (dimensional analysis, ionic
-  nomenclature, equation balancing, and the full stoichiometry suite — mass→mass, percent yield, limiting
-  reagent), every wrong option a named mistake.
+  nomenclature, equation balancing, the full stoichiometry suite — mass→mass, percent yield, limiting
+  reagent — and periodic trends drilled from the table's own sourced data), every wrong option a named
+  mistake.
 - **The Chemical Atlas** — species, formulas, reactions, and a typed concept graph; breadth to the
   lessons' depth.
 - **The Valence Table** — a periodic table that is a database visualization, pattern explainer, and

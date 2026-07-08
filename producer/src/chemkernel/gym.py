@@ -821,6 +821,262 @@ def _rotating_generator(problem_fn):
     return generate
 
 
+# ------------------------------ periodic trends (item 5b, ADR-0034) ------------------------------
+
+# The practice mode of the Valence-Table flagship (brief §8.5): drills generated from the SAME curated data
+# the table renders — sourced properties compared/ordered/predicted, never the naive trend rule. Where the
+# data contradicts the left-to-right story (the B/Be and O/N ionization dips), the data wins and the
+# explanation names the exception. All three kinds are categorical menus (ADR-0032): an element, an ion, or
+# an ordering is a plausible same-form choice. validate-gyms.mjs re-compares/re-sorts every value in pure
+# Node and cross-checks each against the committed valence-table.json (one source of truth, ADR-0034).
+
+_TREND_PROPS = {
+    "covalent_radius_pm": {"label": "covalent radius", "unit": "pm", "hi": "largest", "lo": "smallest",
+                           "period": "Across a period the growing nuclear charge pulls the same shells in "
+                                     "tighter, so atoms shrink left → right.",
+                           "group": "Down a group each row adds a whole shell, so atoms grow top → bottom."},
+    "first_ionization_kj_mol": {"label": "first ionization energy", "unit": "kJ/mol", "hi": "highest", "lo": "lowest",
+                                "period": "Ionization energy climbs left → right across a period — same "
+                                          "shell, more nuclear pull — though the s→p and p-pairing dips "
+                                          "break the climb.",
+                                "group": "Ionization energy falls down a group — the outer electron sits "
+                                         "farther out and better screened."},
+    "electronegativity": {"label": "electronegativity", "unit": "", "hi": "highest", "lo": "lowest",
+                          "period": "Electronegativity rises left → right across a period.",
+                          "group": "Electronegativity falls down a group."},
+}
+
+
+def _with_unit(value, unit: str) -> str:
+    return f"{value} {unit}".strip()
+
+
+def _trend_series(data, prop):
+    """Same-period rows and same-group columns with ≥3 main-group members holding `prop`. H is excluded
+    (its group-1 placement is conventional, not alkali chemistry); the d-block is excluded (partial period 4
+    would put a hole in the middle of an 'across the period' story)."""
+    members = [el for el in data.elements.values()
+               if el.block in ("s", "p") and el.symbol != "H" and getattr(el, prop) is not None]
+    series = []
+    for kind, of, order in (("period", lambda e: e.period, lambda e: e.group),
+                            ("group", lambda e: e.group, lambda e: e.period)):
+        rows: dict = {}
+        for el in members:
+            rows.setdefault(of(el), []).append(el)
+        for n, els in sorted(rows.items()):
+            if len(els) >= 3:
+                series.append({"kind": kind, "n": n, "members": sorted(els, key=order)})
+    return series
+
+
+def _trend_compare_problem(rng, data, ctx):
+    """Which of three same-series elements has the largest/smallest property — answered from the data."""
+    prop = rng.choice(sorted(_TREND_PROPS))
+    meta = _TREND_PROPS[prop]
+    series = _trend_series(data, prop)
+    if not series:
+        return None
+    s = rng.choice(series)
+    trio = sorted(rng.sample(s["members"], 3), key=lambda e: e.group if s["kind"] == "period" else e.period)
+    direction = rng.choice(("max", "min"))
+    values = [getattr(el, prop) for el in trio]
+    extreme = max(values) if direction == "max" else min(values)
+    if values.count(extreme) != 1:
+        return None                                        # tied extreme — no unambiguous answer
+    ans = trio[values.index(extreme)]
+    adjective = meta["hi"] if direction == "max" else meta["lo"]
+    where = f"period {s['n']}" if s["kind"] == "period" else f"group {s['n']}"
+    names = ", ".join(el.symbol for el in trio)
+    prompt = f"Which of {names} — all in {where} — has the {adjective} {meta['label']}?"
+    trend_note = meta[s["kind"]]
+
+    choices = []
+    for el in trio:
+        if el is ans:
+            choices.insert(0, {"display": f"{el.symbol} ({el.name})", "correct": True, "misconception": None})
+        else:
+            why = (f"{el.symbol} is {_with_unit(getattr(el, prop), meta['unit'])}; {ans.symbol} is "
+                   f"{_with_unit(extreme, meta['unit'])}. {trend_note}")
+            choices.append({"display": f"{el.symbol} ({el.name})", "correct": False, "misconception": why})
+
+    ranked = sorted(trio, key=lambda e: getattr(e, prop))
+    data_line = " < ".join(f"{el.symbol} ({_with_unit(getattr(el, prop), meta['unit'])})" for el in ranked)
+    # honesty note: when the extreme is not where the naive position rule puts it. IE/EN rise across a period
+    # and fall down a group; radius does the opposite — so the property "rises with position" exactly when the
+    # series kind and the radius-ness disagree.
+    rises = (s["kind"] == "period") != (prop == "covalent_radius_pm")
+    naive_extreme = trio[-1] if (direction == "max") == rises else trio[0]
+    exception = "" if naive_extreme is ans else (
+        f" That breaks the naive position rule — the curated data is the authority, and here "
+        f"{ans.symbol} beats {naive_extreme.symbol}.")
+    explain = f"The data decides: {data_line}. {trend_note}{exception}"
+
+    return {
+        "kind": "trend_compare", "mode": "choice", "prompt": prompt,
+        "answer": {"value": ans.symbol, "display": f"{ans.symbol} ({ans.name})"},
+        "derivation": {
+            "kind": "trend_compare", "property": prop, "direction": direction,
+            "series": {"kind": s["kind"], "n": s["n"]},
+            "candidates": [{"symbol": el.symbol, "value": str(getattr(el, prop))} for el in trio],
+        },
+        "choices": choices, "explain": explain,
+    }
+
+
+def _ion_id(symbol: str, charge: int) -> str:
+    """House caret form (house-conventions §Notation): Na^+, Ca^2+, S^2-."""
+    sign = "+" if charge > 0 else "-"
+    mag = abs(charge)
+    return f"{symbol}^{sign}" if mag == 1 else f"{symbol}^{mag}{sign}"
+
+
+def _predict_ion_problem(rng, data, common, ctx):
+    """Predict the common monatomic ion for a fixed-charge main-group element (the sourced charge is the
+    answer; distractors are the sign flip and the miscounted charge)."""
+    pool = []
+    for sym, ion in sorted(common.items()):
+        el = data.elements[sym]
+        if el.block not in ("s", "p") or sym == "H":
+            continue
+        if sum(1 for i in data.ions.values() if i.element == sym and i.kind == "monatomic") > 1:
+            continue                                       # variable-charge — "the" common ion is ambiguous
+        pool.append((el, ion))
+    if not pool:
+        return None
+    el, ion = rng.choice(pool)
+    ve = el.group if el.group <= 2 else el.group - 10
+    c = ion.charge
+
+    flip = _ion_id(el.symbol, -c)
+    if c > 0:
+        flip_why = f"{el.name.capitalize()} is a metal — it LOSES electrons, forming a cation (+), not an anion."
+        wrong_charge = c + 1 if c == 1 else c - 1
+        miscount = _ion_id(el.symbol, wrong_charge)
+        miscount_why = (f"Miscounted the valence electrons — {el.name} (group {el.group}) has {ve}; it loses "
+                        f"all {ve}, so the charge is +{ve}.")
+        story = f"loses all {ve}, leaving a full inner shell — charge +{c}"
+    else:
+        flip_why = f"{el.name.capitalize()} is a nonmetal — it GAINS electrons, forming an anion (−), not a cation."
+        miscount = _ion_id(el.symbol, -ve)
+        miscount_why = (f"The charge counts electrons GAINED to reach eight, not the {ve} already there — "
+                        f"{el.name} gains 8 − {ve} = {8 - ve}.")
+        story = f"gains 8 − {ve} = {8 - ve} to fill the shell — charge −{abs(c)}"
+
+    choices = [{"display": ion.id, "correct": True, "misconception": None}]
+    seen = {ion.id}
+    for disp, why in ((flip, flip_why), (miscount, miscount_why)):
+        if disp in seen:
+            return None
+        seen.add(disp)
+        choices.append({"display": disp, "correct": False, "misconception": why})
+
+    explain = (f"{el.name.capitalize()} sits in group {el.group} with {ve} valence electrons — it {story}. "
+               f"The charge is sourced data, and the pattern explains it.")
+    return {
+        "kind": "predict_ion", "mode": "choice",
+        "prompt": f"Predict the common ion for {el.name} ({el.symbol}).",
+        "answer": {"value": ion.id, "display": ion.id},
+        "derivation": {"kind": "predict_ion", "element": el.symbol,
+                       "ion": {"id": ion.id, "charge": ion.charge}},
+        "choices": choices, "explain": explain,
+        "subscript_tokens": sorted(seen),
+    }
+
+
+def _order_ionization_problem(rng, data, ctx):
+    """Order three same-period elements by increasing first ionization energy — the data decides, and where
+    it disagrees with the left-to-right rule, the naive order itself becomes the named distractor."""
+    prop = "first_ionization_kj_mol"
+    series = [s for s in _trend_series(data, prop) if s["kind"] == "period"]
+    if not series:
+        return None
+    s = rng.choice(series)
+    trio = rng.sample(s["members"], 3)
+    values = {el.symbol: getattr(el, prop) for el in trio}
+    if len(set(values.values())) != 3:
+        return None
+    ascending = sorted(trio, key=lambda e: values[e.symbol])
+    naive = sorted(trio, key=lambda e: e.group)
+    disp = lambda seq: " < ".join(el.symbol for el in seq)
+
+    prompt_order = list(trio)
+    rng.shuffle(prompt_order)                              # the prompt must not leak either ordering
+    prompt = (f"Order by FIRST IONIZATION ENERGY, lowest → highest: "
+              f"{', '.join(el.symbol for el in prompt_order)} (all in period {s['n']}).")
+
+    choices = [{"display": disp(ascending), "correct": True, "misconception": None}]
+    seen = {disp(ascending)}
+    wrongs: list[tuple[str, str]] = []
+    if disp(naive) != disp(ascending):
+        # the naive order disagrees with the data, so some adjacent pair in it must run downhill — the dip
+        a, b = next((x, y) for x, y in zip(naive, naive[1:]) if values[x.symbol] > values[y.symbol])
+        wrongs.append((disp(naive),
+                       f"That is the left-to-right rule — but the data dips: {b.symbol} "
+                       f"({values[b.symbol]} kJ/mol) sits BELOW {a.symbol} ({values[a.symbol]} kJ/mol). "
+                       f"The trend is a guide; the measured values decide."))
+    wrongs.append((disp(list(reversed(ascending))),
+                   "Reversed — ionization energy generally RISES across a period, so this is the "
+                   "decreasing order."))
+    if len(wrongs) < 2:
+        mid = [ascending[1], ascending[0], ascending[2]]   # swap the two lowest — a checkable near-miss
+        a, b = ascending[0], ascending[1]
+        wrongs.append((disp(mid),
+                       f"Check the data: {a.symbol} is {values[a.symbol]} kJ/mol and {b.symbol} is "
+                       f"{values[b.symbol]} — {a.symbol} comes first."))
+    for d, why in wrongs[:2]:
+        if d in seen:
+            return None
+        seen.add(d)
+        choices.append({"display": d, "correct": False, "misconception": why})
+    if len(choices) != 3:
+        return None
+
+    data_line = " < ".join(f"{el.symbol} ({values[el.symbol]} kJ/mol)" for el in ascending)
+    exception = "" if disp(naive) == disp(ascending) else (
+        " Note the dip — an exception the naive rule can't see; the curated data is the authority.")
+    explain = f"The data: {data_line}. Ionization energy climbs across period {s['n']} overall.{exception}"
+
+    return {
+        "kind": "order_ionization", "mode": "choice", "prompt": prompt,
+        "answer": {"value": ",".join(el.symbol for el in ascending), "display": disp(ascending)},
+        "derivation": {
+            "kind": "order_ionization", "property": prop,
+            "series": {"kind": "period", "n": s["n"]},
+            "candidates": [{"symbol": el.symbol, "value": str(values[el.symbol])} for el in prompt_order],
+        },
+        "choices": choices, "explain": explain,
+    }
+
+
+_TREND_KINDS = ["trend_compare", "predict_ion", "order_ionization"]
+
+
+def _generate_trends(seed, count, data, ctx):
+    from .reference import common_monatomic_ions           # deferred: reference lazily imports nomenclature
+    common = common_monatomic_ions(data)
+    rng = random.Random(seed)
+    problems: list[dict] = []
+    seen: set = set()
+    attempts = 0
+    while len(problems) < count and attempts < 8000:
+        attempts += 1
+        kind = _TREND_KINDS[len(problems) % len(_TREND_KINDS)]
+        if kind == "trend_compare":
+            q = _trend_compare_problem(rng, data, ctx)
+        elif kind == "predict_ion":
+            q = _predict_ion_problem(rng, data, common, ctx)
+        else:
+            q = _order_ionization_problem(rng, data, ctx)
+        if q is None or (q["kind"], q["prompt"]) in seen:
+            continue
+        seen.add((q["kind"], q["prompt"]))
+        q["id"] = f"q{len(problems) + 1}"
+        problems.append(q)
+    if len(problems) < count:
+        raise BuildError(f"{ctx}: periodic-trends gym could not generate {count} problems at seed {seed}")
+    return problems
+
+
 _FAMILIES = {
     "solution_conversions_v1": _generate_conversions,
     "ionic_nomenclature_v1": _generate_nomenclature,
@@ -828,6 +1084,7 @@ _FAMILIES = {
     "mass_stoichiometry_v1": _rotating_generator(_mass_stoich_problem),
     "percent_yield_v1": _rotating_generator(_percent_yield_problem),
     "limiting_mass_v1": _rotating_generator(_limiting_mass_problem),
+    "periodic_trends_v1": _generate_trends,
 }
 
 
@@ -839,6 +1096,13 @@ def generate_gym(spec: dict, data, ctx: str = "") -> dict:
         raise BuildError(f"{ctx}: unknown gym family '{family}'")
     seed, count = int(spec["seed"]), int(spec.get("count", 8))
     problems = generator(seed, count, data, ctx)
+
+    # provenance: every family rests on the sourced atomic weights; the periodic-trends family additionally
+    # embeds the sourced properties/charges it drills (ADR-0034), so their register ids travel with the gym.
+    sources = {"atomic_weight": data.sources.get("atomic_weight", "")}
+    if family == "periodic_trends_v1":
+        for key in ("position", "ion_charge", "electronegativity", "covalent_radius", "ionization_energy"):
+            sources[key] = data.sources.get(key, "")
 
     return {
         "kind": "gym",
@@ -855,6 +1119,6 @@ def generate_gym(spec: dict, data, ctx: str = "") -> dict:
         "provenance": {
             "producer": "chemkernel",
             "version": __version__,
-            "sources": {"atomic_weight": data.sources.get("atomic_weight", "")},
+            "sources": sources,
         },
     }

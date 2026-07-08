@@ -45,11 +45,12 @@ tab (`PracticeQuestion.svelte`); `gym/[slug].astro` + `DimensionalGym.svelte` ru
 `reference/` hosts the Atlas + Valence Table. Spec formats are documented (`docs/authoring-problems.md`,
 `docs/authoring-gyms.md`) and **CI deploys to GitHub Pages** (`.github/workflows/deploy.yml`, live at
 `/affinity`). Independent **test oracles** (ADR-0026: `chempy`, `periodictable` as dev-deps) cross-check the
-molar masses and balancer in pytest. **Current counters: 3 lessons (2 precipitation + 1 percent-yield) + 6
-gyms (conversions + ionic nomenclature + balancing + mass stoichiometry + percent yield + limiting reagent;
-60 drills — numeric families free-entry, ADR-0032), 1 Valence Table (23 elements with sourced
-electronegativity/covalent-radius/first-ionization-energy, ADR-0031) + 16 concept entries, 156 producer tests +
-7 Node gates + `astro build` (15 pages) + live CI/Pages green. Lesson practice mass/leftover questions are
+molar masses and balancer in pytest. **Current counters: 3 lessons (2 precipitation + 1 percent-yield) + 7
+gyms (conversions + ionic nomenclature + balancing + mass stoichiometry + percent yield + limiting reagent +
+periodic trends; 70 drills — numeric families free-entry, ADR-0032), 1 Valence Table (23 elements; four modes
+— Explore lenses / Trends / Formula builder / Bonding — over sourced properties + the 156-pair named
+crossover product + the `data/bonding.toml` ΔEN rule, ADR-0031/0033) + 19 concept entries, 167 producer tests
++ 7 Node gates + `astro build` (16 pages) + live CI/Pages green. Lesson practice mass/leftover questions are
 free-entry too (ADR-0032).**
 
 ## ChemKernel module map (brief §6)
@@ -67,8 +68,8 @@ free-entry too (ADR-0032).**
 | `build.py` orchestration | authored `problems/**/*.problem.toml` → engine → verified `derived/<topic>/<slug>.solution.json`; entry point `build-problems`; exact decimal strings | **built** (ADR-0019) |
 | `interactive.py` | derives the optional interactive block: slider params + JS closed forms + engine-computed sample points; multiplicities from `dissociate`/`net_ionic`; single-precipitate double-displacement only, else omitted | **built** (ADR-0022) |
 | `practice.py` generator | deterministic seeded variants off the reaction → solver-verified answers + misconception distractors; reject-list (near-ties, no leftover, colliding displays); reuses `interactive` multiplicities | **built** (ADR-0022, one family) |
-| `reference.py` Atlas builder | Valence Table projection of `data/` (elements + sourced charges + periodic properties, ADR-0031) + charge-crossover salt assembly (verified neutral); authored concept entries; `build-reference` entry point | **built** (brief §10/§16) |
-| `gym.py` drill generator | authored `gyms/**/*.gym.toml` → deterministic generated problem sets; exact Fractions (non-terminating rejected); dimensions re-proven through `units.py`; equations balanced by `balance.py`; named-mistake distractors; `build-gyms` entry point | **built** (ADR-0024/0027/0028/0029, six families: conversions · ionic nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent) |
+| `reference.py` Atlas builder | Valence Table projection of `data/` (elements + sourced charges + periodic properties + valence electrons, ADR-0031/0033) + the full named charge-crossover product (verified neutral; own-charge mistakes proven wrong) + the five lens pattern panels + the sourced bonding rule; authored concept entries; `build-reference` entry point | **built** (brief §8/§10/§16) |
+| `gym.py` drill generator | authored `gyms/**/*.gym.toml` → deterministic generated problem sets; exact Fractions (non-terminating rejected); dimensions re-proven through `units.py`; equations balanced by `balance.py`; named-mistake distractors; `build-gyms` entry point | **built** (ADR-0024/0027/0028/0029/0034, seven families: conversions · ionic nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends) |
 | reaction classifier | precipitation/acid-base/gas-evolution/combustion/redox/… + required conditions | Phase 1 |
 | equilibrium / kinetics / thermo / electrochem | ICE-as-ledger, rate laws, energy ledger, electron ledger | Phase 2+ |
 
@@ -117,8 +118,8 @@ reject-list.
 | Gate | Checks |
 |---|---|
 | validate-solutions | **built** (ADR-0020): Ajv schema; every `checks.*` true; path matches topic/slug; unique ids; rule-sourced regime needs a cited `solubility_basis.source`; ledger integrity (limiting rows final_mol 0, extent > 0, ν signs); precipitate is a solid ledger row; provenance sources non-empty |
-| validate-reference | **built** (+ADR-0031): each `derived/reference/*.json` schema-valid by `kind` (`valence-table`/`concept`); unique ids; concept `related` edges + `lessons` slugs resolve; every charge-balance salt's ions come from the table; and **every emitted `source` id (concept or Valence-Table facet) resolves to a `docs/SOURCES.md` register row** |
-| validate-gyms | **built** (ADR-0024/0027/0028/0029): each `derived/gyms/*.gym.json` Ajv-valid; every answer **re-derived in pure Node** per kind — conversions from raw `derivation.inputs`; nomenclature by name-concatenation + gcd charge-crossover; balancing by re-parsing each formula (`formula.mjs`) and re-proving the coefficients zero every element + charge row; **stoichiometry** (mass→mass, percent yield, limiting reagent) by re-verifying the equation balances (`verifyBalance`) **and** re-deriving the mass/percent/limiting reagent from the given/target molar masses + the coefficient ratio; plus the **response-mode split** (ADR-0032: numeric → a `diagnostics` catalogue each ≥ 3 % from the answer, no gameable menu; categorical → a one-correct `choices` menu) and molar-mass consistency across the **whole** corpus (conversions ∪ stoichiometry) |
+| validate-reference | **built** (+ADR-0031/0033): each `derived/reference/*.json` schema-valid by `kind` (`valence-table`/`concept`); unique ids; concept `related` edges + `lessons` slugs resolve; every charge-balance salt's ions come from the table; **every emitted `source` id (concept or Valence-Table facet) resolves to a `docs/SOURCES.md` register row**; and the ADR-0033 re-derivations — valence electrons from the IUPAC group (He = 2, d-block omitted), every salt's `name` by compound-name concatenation + subscripts by gcd crossover + formula reconstruction, every `mistake` re-proven wrong (non-neutral vs unreduced), and the bonding ΔEN classes tiling their boundaries |
+| validate-gyms | **built** (ADR-0024/0027/0028/0029/0034): each `derived/gyms/*.gym.json` Ajv-valid; every answer **re-derived in pure Node** per kind — conversions from raw `derivation.inputs`; nomenclature by name-concatenation + gcd charge-crossover; balancing by re-parsing each formula (`formula.mjs`) and re-proving the coefficients zero every element + charge row; **stoichiometry** (mass→mass, percent yield, limiting reagent) by re-verifying the equation balances (`verifyBalance`) **and** re-deriving the mass/percent/limiting reagent from the given/target molar masses + the coefficient ratio; **periodic trends** by re-comparing/re-sorting the embedded property values and **cross-checking every value, ion, and symbol against the committed `valence-table.json`**; plus the **response-mode split** (ADR-0032: numeric → a `diagnostics` catalogue each ≥ 3 % from the answer, no gameable menu; categorical → a one-correct `choices` menu) and molar-mass consistency across the **whole** corpus (conversions ∪ stoichiometry) |
 | check-ledger | **built** (ADR-0023): re-derives every row's final amount as n = n₀ + ν·ξ from the committed initial/coefficient/extent (independent of Python), checks role/sign consistency, matches the reported result (precipitate moles, leftovers), and **re-derives percent yield** (ADR-0030: theoretical = precipitate mass, percent = actual ÷ theoretical × 100, actual physical). A JS formula parser now exists (`formula.mjs`, ADR-0028) for a future atom/charge re-check by element counts |
 | check-parity | **built** (ADR-0023, ADR-0022): recompiles the exported JS closed forms and re-evaluates them at the embedded engine-computed sample points within tolerance; cross-checks the default slider setting against the committed static answer; **re-derives every practice answer** in Node from those closed forms (mass/leftover numerically, limiting by capacity) and asserts exactly-one-correct + distinct choices |
 | check-katex | **built** (ADR-0023): every LaTeX string renders through KaTeX with `throwOnError:true` |
@@ -158,10 +159,10 @@ solubility claims, ambiguous sig figs, unbalanced templates.
    never float; exact values as strings in emitted JSON.
 3. ~~**Parser scope v0**~~ — **RESOLVED (ADR-0014):** elements/subscripts/parentheses/charge/phase in;
    hydrates and isotopes deferred.
-4. **Regime-4 badge** — does mechanistic/interpretive content need a fourth badge, or model-assumed + an
-   interpretive marker (ADR-0003 leaves this open)? **Still open by design — decide when the first
-   `mechanistic`-regime Atlas entry or lesson facet actually ships** (none has; the reference schema
-   reserves the enum value).
+4. ~~**Regime-4 badge**~~ — **RESOLVED (ADR-0033):** no fourth badge. Mechanistic/interpretive content
+   renders under the **model-assumed badge with an explicit "interpretive — story, not proof" marker** —
+   ADR-0003's documented default, made concrete when the first regime-4 content shipped (the Valence-Table
+   lens pattern panels + the `periodic-trends` concept, item 5b).
 5. ~~**Schema granularity**~~ — **RESOLVED (ADR-0020):** one `solution.schema.json` with optional blocks.
 6. ~~**Solubility-rule encoding**~~ — **RESOLVED (ADR-0017):** `data/solubility.toml`, precedence-ordered
    rules from OpenStax Table 4.1; `classify()` returns the governing rule id for citation.

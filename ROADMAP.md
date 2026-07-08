@@ -70,6 +70,25 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   Practice tab** was converted the same session — its **mass/leftover** questions are free entry too (the
   `0 mmol` leftover throwaway became a diagnostic), while the categorical **which reagent limits** stays a menu;
   `check-parity` enforces the split. **156 producer tests + 7 gates + astro build (15 pages).**
+- **Session 2026-07-08 — Phase-1 item 5b: the Valence-Table flagship modes (item 5 COMPLETE).** Landed the
+  four modes on the committed table (ADR-0033): **Explore** (five lenses — ion charge, valence electrons,
+  electronegativity, covalent radius, first ionization energy — each coloring the sourced values with a
+  brief-§8.1 pattern panel), **Trends** (SVG property graphs across a period / down a group; gaps shown
+  honestly), **Formula builder** (the full 156-pair cation×anion crossover product, machine-verified and
+  **named** via the nomenclature engine — the item-2 hookup — with the own-charge mistake proven wrong per
+  pair), and **Bonding** (exact integer ΔEN classified against the sourced OpenStax Fig 7.8 thresholds in the
+  new `data/bonding.toml`, caution inseparable). **Architecture Q4 resolved**: regime-4 content renders under
+  the model-assumed badge with an explicit "interpretive" marker — the lens panels and the first
+  `mechanistic` concept (`periodic-trends`; + rule-sourced `electronegativity`/`ionization-energy` → **19
+  concepts**) ship that way. **Practice mode** is the seventh gym family `periodic_trends_v1` (ADR-0034):
+  compare/predict-ion/order-by-IE drills generated from the same data, exceptions (B/Be, O/N dips) answered
+  from the data and named; `validate-gyms` re-derives every answer and cross-checks each embedded value/ion
+  against `valence-table.json`; `validate-reference` re-derives valence electrons, salt names, crossover
+  subscripts, and mistake honesty in pure Node (8 tamper tests). **167 producer tests + 7 gates
+  (validate-reference = 20 objects; validate-gyms = 7 gyms / 70 problems; check-katex = 253) + astro build
+  (16 pages)**, `derived/` byte-stable; all four modes verified in-browser, light + dark. *Deferred within
+  item 5:* oxidation-state/electron-affinity/metallic-character/density/abundance lenses (each needs a data
+  session), a metal/nonmetal field for a data-driven bonding caution, acid naming in the formula builder.
 - **Session 2026-07-05 (cont.) — Phase-1 item 5a: element-property data curation.** Landed the Valence-Table
   flagship's data foundation (ADR-0031): **widened the element set to 23** (the first twenty H…Ca + the
   transition metals Fe/Cu/Zn) and curated three **primary-sourced periodic properties** — **electronegativity**
@@ -193,7 +212,7 @@ boundary. Each item opens with its stress scenario and gets its own scope block 
 2. **Formula & nomenclature engine** — ions, charges, compounds, acids, polyatomics, both directions. **← LANDED (ionic; covalent/acid deferred)**
 3. **Balancing engine** — inspection mode, conservation-matrix view, misconception modes; redox preview. **← LANDED**
 4. **Stoichiometry suite** — mass/volume/solution/particle stoich, limiting reagent, percent yield. **← LANDED (3 gym families + the percent-yield lesson + Avogadro datum; particle-count *drills* deferred to Phase 2)**
-5. **Valence Table flagship** — lenses, trend mode, formula mode, bonding mode, practice mode (brief §8).
+5. **Valence Table flagship** — lenses, trend mode, formula mode, bonding mode, practice mode (brief §8). **← LANDED (5a data + 5b modes)**
 6. **Reaction families** — precipitation, acid-base, gas evolution, combustion, redox (Atlas-backed).
 
 **Item 1 — Dimensional analysis gym — LANDED (2026-07-05).** Opened Phase 1 by building the reusable
@@ -261,19 +280,25 @@ past single-precipitate double-displacement for a non-precipitation yield lesson
 lands once its display plumbing exists — the Avogadro constant is now registered (SOURCES +
 `data/`). Sequential reactions and mixture analysis deferred to Phase 2 unless trivial.
 
-**Item 5 — Valence Table flagship (brief §8).** **Sub-item 5a — data curation — LANDED (2026-07-05, ADR-0031):**
-the element set widened to **23** (first-20 H…Ca + Fe/Cu/Zn) and **electronegativity** (Pauling/OpenStax),
-**covalent radius** (Cordero 2008, main-group Z ≤ 20), and **first ionization energy** (NIST) curated as
-optional Decimal fields — primary-sourced, registered in SOURCES, cross-checked against the `mendeleev` oracle
-(ADR-0026), emitted into the Valence Table and gated (SOURCES-resolution now enforced in `validate-reference`).
-*Deferred within 5a:* transition-metal covalent radii (spin-state pass) and **ionic radii** (a per-ion,
-coordination-dependent property — belongs on the ion table, not the element). **Sub-item 5b (remaining)** — the
-lenses (valence electrons, ion charges, electronegativity, radius, ionization energy — each with the
-brief-§8.1 pattern panel: what pattern / why / exceptions / where it shows up) and the modes: **trend mode**
-(click a group/period → build-time-computed trend graph), **formula mode** (built — gets naming from item
-2), **bonding mode** (electronegativity difference → polarity spectrum + ionic/covalent warning),
-**practice mode** (a `periodic_trends_v1` gym family generated *from the same data*: which is larger,
-predict the ion, order by IE).
+**Item 5 — Valence Table flagship (brief §8) — COMPLETE.** **Sub-item 5a — data curation — LANDED
+(2026-07-05, ADR-0031):** the element set widened to **23** (first-20 H…Ca + Fe/Cu/Zn) and
+**electronegativity** (Pauling/OpenStax), **covalent radius** (Cordero 2008, main-group Z ≤ 20), and **first
+ionization energy** (NIST) curated as optional Decimal fields — primary-sourced, registered in SOURCES,
+cross-checked against the `mendeleev` oracle (ADR-0026), emitted into the Valence Table and gated
+(SOURCES-resolution now enforced in `validate-reference`). **Sub-item 5b — the modes — LANDED (2026-07-08,
+ADR-0033/0034):** the five **lenses** (ion charge, valence electrons, electronegativity, covalent radius,
+first ionization energy), each a color overlay + the brief-§8.1 pattern panel rendered with the interpretive
+marker (Q4 resolved — no fourth badge); **trend mode** (SVG property graphs by period/group, honest gaps);
+**formula mode** (the full verified crossover product with engine names + per-pair proven mistakes — the
+item-2 naming hookup closed, variable-charge metals surfacing all their ions); **bonding mode** (exact
+integer ΔEN vs the sourced OpenStax thresholds, `data/bonding.toml`, caution attached); **practice mode**
+(the `periodic_trends_v1` gym family — compare / predict-the-ion / order-by-IE, generated from the same
+data, exceptions answered from data and named, gate-cross-checked against the emitted table).
+*Deferred within item 5:* transition-metal covalent radii (spin-state pass); **ionic radii** (per-ion,
+coordination-dependent — belongs on the ion table); oxidation-state / electron-affinity / metallic-character
+/ density / abundance lenses (brief §8.1 lists more than the curated data yet supports — each needs its own
+data-curation pass); a metal/nonmetal field (would make the bonding caution data-driven and enable "which
+compound is most likely ionic" drills); acid naming in the formula builder (with the item-2 follow-up).
 
 **Item 6 — reaction families (brief §10.4).** Stress scenario: *classify + predict products for the six
 core families* — precipitation, acid-base neutralization, gas evolution, combustion, redox
@@ -294,7 +319,8 @@ anchors the family.
 3. ~~Item 3 — balancing gym + conservation-matrix view~~ (landed; ADR-0028 — + a reusable JS formula parser).
 4. ~~Item 4 — stoichiometry families + the percent-yield lesson (+ Avogadro datum)~~ (landed; ADR-0029/0030 — 3 gym families + the lesson + the datum; particle drills → Phase 2).
 5. ~~Item 5a — element-property data curation (SOURCES + data/ + oracle cross-check)~~ (landed; ADR-0031 — 23 elements + electronegativity/covalent-radius/first-ionization-energy, primary-sourced + mendeleev-checked).
-6. Item 5b — Valence Table lenses + trend/bonding/practice modes.
+6. ~~Item 5b — Valence Table lenses + trend/bonding/practice modes~~ (landed; ADR-0033/0034 — four modes +
+   the `periodic_trends_v1` gym + Q4 resolved).
 7. Item 6 — reaction families (atlas kind + classifier + gym + the neutralization lesson).
 8. Atlas breadth audit: species-atlas + formula-sheet entry kinds; fill every Phase-0/1 regime-map row;
    **Phase-1 definition-of-done check → stop for owner review** (Phase 2 is the owner's to open).

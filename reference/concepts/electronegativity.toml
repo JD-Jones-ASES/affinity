@@ -1,0 +1,14 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0033). Values are a sourced, fitted scale (rule-sourced).
+id = "electronegativity"
+kind = "concept"
+title = "Electronegativity"
+term = "electronegativity"
+regime = "rule-sourced"
+source = "openstax-chemistry-2e"
+definition = "How strongly an atom pulls the electrons of a bond toward itself, on Pauling's fitted 0–4 scale (fluorine tops it at 3.98). It is not a directly measured quantity — the scale is constructed from bond energies — and the noble gases carry no value at all. Its main job is comparison: the DIFFERENCE between two bonded atoms' electronegativities (ΔEN) estimates bond polarity, from evenly shared (small ΔEN) through polar covalent to ionic (large ΔEN) — a guideline with exceptions, applied in the Valence Table's bonding mode."
+latex = "\\Delta EN = |EN_A - EN_B|"
+related = [
+  { to = "periodic-trends", type = "instance-of" },
+  { to = "ionization-energy", type = "correlates-with" },
+]
+lessons = []

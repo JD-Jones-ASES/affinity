@@ -73,8 +73,18 @@ A `family` selects the generator in `chemkernel.gym.generate_gym`. Today:
   three stoichiometry families `validate-gyms.mjs` **re-verifies the equation balances** (the mole ratio /
   limiting comparison is proven, not trusted) **and** re-derives the number in pure Node; a species' molar
   mass must be consistent everywhere it appears in the corpus.
+- **`periodic_trends_v1`** (ADR-0034) — the Valence Table's practice mode, generated from the **same curated
+  data** the table renders, in three kinds: `trend_compare` (which of three same-period/same-group elements
+  has the largest/smallest covalent radius, first ionization energy, or electronegativity), `predict_ion`
+  (the common ion for a fixed-charge main-group element), and `order_ionization` (three same-period elements
+  by increasing first IE). All three are categorical menus. Answers come from the **data, never the naive
+  trend rule** — where they disagree (the B/Be and O/N ionization dips), the naive order itself becomes a
+  named trap. The `derivation` carries `property` + `series` + per-element `candidates` values (or
+  `element` + `ion`); `validate-gyms.mjs` re-compares/re-sorts them in pure Node **and cross-checks every
+  embedded value, ion, and symbol against the committed `derived/reference/valence-table.json`**. H and the
+  d-block are excluded from trend series; variable-charge metals from `predict_ion`.
 
-Adding a new procedural skill (limiting-reagent-from-mass, periodic trends, …) means adding a new `family` to
+Adding a new procedural skill (reaction families, …) means adding a new `family` to
 `generate_gym` and, if it introduces a new answer shape, a per-kind branch to `validate-gyms.mjs` so the gate
 can re-derive it. It does **not** mean new plumbing.
 
@@ -89,10 +99,10 @@ Each problem is answered in one of two modes; the **family decides**, you never 
   learner's entry matches one (within ~1 %). The very values that made lazy distractors (forgot ×100, skipped
   mL→L) become precise feedback. Diagnostics are held ≥ 3 % from the answer (gate-enforced) so a correct entry
   is never mis-flagged.
-- **Categorical** (nomenclature, balancing) — **multiple choice**. A name, formula, or coefficient set has no
-  "magnitude" to give it away, so a menu is honest *iff* every distractor is a plausible, same-form answer a
-  specific misconception produces. The producer emits **`choices`** (exactly one correct); the player shuffles
-  them per problem.
+- **Categorical** (nomenclature, balancing, periodic trends) — **multiple choice**. A name, formula,
+  coefficient set, element, ion, or ordering has no "magnitude" to give it away, so a menu is honest *iff*
+  every distractor is a plausible, same-form answer a specific misconception produces. The producer emits
+  **`choices`** (exactly one correct); the player shuffles them per problem.
 
 `validate-gyms.mjs` enforces the split: a numeric problem carries `diagnostics` and **no** `choices` (a menu
 would be gameable); a categorical problem carries a one-correct `choices` menu and no diagnostics.

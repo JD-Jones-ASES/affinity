@@ -59,11 +59,11 @@
           "derivation": {
             "type": "object",
             "additionalProperties": false,
-            "$comment": "conversion kinds carry `inputs`; nomenclature kinds carry `cation`/`anion`/`formula`/`name`; balancing carries `species`/`coefficients`/`elements`/`archetype`. validate-gyms re-derives each.",
+            "$comment": "conversion kinds carry `inputs`; nomenclature kinds carry `cation`/`anion`/`formula`/`name`; balancing carries `species`/`coefficients`/`elements`/`archetype`; periodic-trends kinds carry `property`/`series`/`candidates` or `element`/`ion` (ADR-0034, cross-checked against valence-table.json). validate-gyms re-derives each.",
             "required": ["kind"],
             "properties": {
               "kind": {
-                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield", "limiting_mass"]
+                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield", "limiting_mass", "trend_compare", "predict_ion", "order_ionization"]
               },
               "inputs": {
                 "type": "object",
@@ -91,7 +91,41 @@
               "reactants": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/stoichpart" } },
               "limiting_index": { "type": "integer", "minimum": 0 },
               "actual_mass_g": { "type": "string" },
-              "theoretical_mass_g": { "type": "string" }
+              "theoretical_mass_g": { "type": "string" },
+              "property": { "enum": ["covalent_radius_pm", "first_ionization_kj_mol", "electronegativity"] },
+              "direction": { "enum": ["max", "min"] },
+              "series": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["kind", "n"],
+                "properties": {
+                  "kind": { "enum": ["period", "group"] },
+                  "n": { "type": "integer", "minimum": 1 }
+                }
+              },
+              "candidates": {
+                "type": "array",
+                "minItems": 3,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["symbol", "value"],
+                  "properties": {
+                    "symbol": { "type": "string", "pattern": "^[A-Z][a-z]?$" },
+                    "value": { "type": "string", "minLength": 1 }
+                  }
+                }
+              },
+              "element": { "type": "string", "pattern": "^[A-Z][a-z]?$" },
+              "ion": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "charge"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "charge": { "type": "integer" }
+                }
+              }
             }
           },
           "choices": {
@@ -137,7 +171,14 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["atomic_weight"],
-          "properties": { "atomic_weight": { "type": "string" } }
+          "properties": {
+            "atomic_weight": { "type": "string" },
+            "position": { "type": "string" },
+            "ion_charge": { "type": "string" },
+            "electronegativity": { "type": "string" },
+            "covalent_radius": { "type": "string" },
+            "ionization_energy": { "type": "string" }
+          }
         }
       }
     }

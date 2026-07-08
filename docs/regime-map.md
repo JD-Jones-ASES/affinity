@@ -13,7 +13,7 @@ dashboard; phases are defined in [`ROADMAP.md`](../ROADMAP.md).
 | mole concept & molar mass | 1, 3 | 1 | atlas (molar-mass concept) |
 | ions & formula writing | 1, 3 | 1 | **gym** (nomenclature, both directions) + atlas (Valence Table; polyatomic-ion) |
 | nomenclature (ionic, covalent, acids) | 1, 3 | **1** | **gym** (ionic, both directions — Stock system) + atlas (nomenclature concept) |
-| periodic table & periodic trends | 3, 4 | 1 | atlas (Valence Table — positions + ion charges + sourced electronegativity/covalent-radius/first-ionization-energy over 23 elements; ADR-0031) — trend/bonding lenses next (item 5b) |
+| periodic table & periodic trends | 3, 4 | **1** | **gym + atlas** (Valence Table flagship: five lenses with interpretive pattern panels, trend graphs, the 156-salt formula builder, ΔEN bonding mode — ADR-0031/0033; `periodic-trends` gym drilled from the same data, exceptions named — ADR-0034; periodic-trends/electronegativity/ionization-energy concepts) |
 | balancing equations | 1 | **1** | **gym** (balancing, conservation-matrix + charge tally) + atlas (balancing-equations concept) |
 | reaction classes | 3, 4 | 1 | atlas (precipitation, net-ionic, solubility-rules, dissociation, spectator-ion concepts) |
 | stoichiometry (mass/volume/solution/particle) | 1 | **1** | **2 gyms** (mass → mass; limiting reagent from masses) + atlas (stoichiometry, conservation-of-mass concepts) — particle stoich (Avogadro) → Phase 2 |
@@ -24,7 +24,7 @@ dashboard; phases are defined in [`ROADMAP.md`](../ROADMAP.md).
 | gases (ideal-gas model) | 1, 2 | 2+ | — |
 | thermochemistry & calorimetry | 2, 3 | 2+ | — |
 | electronic structure & configurations | 3, 4 | 2+ | — |
-| bonding (ionic/covalent, electronegativity) | 3, 4 | 2+ | — |
+| bonding (ionic/covalent, electronegativity) | 3, 4 | 2+ | seeded: the Valence Table's bonding mode (sourced ΔEN classification + caution, ADR-0033) — the full topic (Lewis, polarity, IMFs) stays Phase 2+ |
 | Lewis structures | 1, 4 | 2+ | — |
 | VSEPR & polarity | 3, 4 | 2+ | — |
 | intermolecular forces | 4 | 2+ | — |

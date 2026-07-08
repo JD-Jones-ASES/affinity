@@ -1,0 +1,31 @@
+# Curated bond-classification ruleset (ADR-0006, ADR-0033). The electronegativity-difference guideline the
+# Valence Table's bonding mode applies — a TEACHING RULE, not a law, and OpenStax says so explicitly; the
+# caveat ships as data so the player can never show the classification without it.
+#
+# Source `openstax-chemistry-2e` (OpenStax *Chemistry 2e*, §7.2 Fig 7.8, CC BY 4.0 — see docs/SOURCES.md):
+# pure (nonpolar) covalent ΔEN < 0.4; polar covalent 0.4–1.8; ionic > 1.8. Thresholds are strings → Decimal
+# (never float, ADR-0013). ΔEN is computed from the curated Pauling electronegativities in elements.toml
+# (same source), so the whole bonding mode resolves to one register row.
+
+source = "openstax-chemistry-2e"
+
+caution = "A general guide with many exceptions — OpenStax's own words. HF sits near the ionic line yet is a polar covalent molecule, and some metal–nonmetal pairs with modest ΔEN are ionic anyway. The better guide is the atoms themselves: two nonmetals share electrons (covalent); a metal with a nonmetal usually transfers them (ionic)."
+
+[[classes]]
+id = "nonpolar-covalent"
+label = "pure (nonpolar) covalent"
+max = "0.4"
+description = "The atoms pull electrons about equally, so the pair is shared nearly evenly."
+
+[[classes]]
+id = "polar-covalent"
+label = "polar covalent"
+min = "0.4"
+max = "1.8"
+description = "The pair is shared, but pulled toward the more electronegative atom — a bond dipole (δ+ / δ−)."
+
+[[classes]]
+id = "ionic"
+label = "ionic"
+min = "1.8"
+description = "The pull is lopsided enough that electron transfer is the better model — ions, not a shared pair."

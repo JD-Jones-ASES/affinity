@@ -2,10 +2,10 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://affinity/schemas/valence-table.schema.json",
   "title": "Affinity Valence Table",
-  "description": "The periodic lens: elements in IUPAC positions + sourced ion charges + verified charge-balance salts (ADR-0012/0017). additionalProperties:false everywhere.",
+  "description": "The periodic lens: elements in IUPAC positions + sourced ion charges/properties (ADR-0012/0017/0031), the five lenses with pattern panels, the full verified+named crossover product, and the sourced bonding rule (ADR-0033). additionalProperties:false everywhere.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["kind", "id", "title", "blurb", "group_charge_note", "highlight", "elements", "polyatomic", "charge_balance", "sources"],
+  "required": ["kind", "id", "title", "blurb", "group_charge_note", "highlight", "elements", "polyatomic", "lenses", "charge_balance", "sources"],
   "properties": {
     "kind": { "const": "valence-table" },
     "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
@@ -31,17 +31,9 @@
           "electronegativity": { "type": "string" },
           "covalent_radius_pm": { "type": "string" },
           "first_ionization_kj_mol": { "type": "string" },
-          "common_ion": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["id", "charge", "name", "latex"],
-            "properties": {
-              "id": { "type": "string" },
-              "charge": { "type": "integer" },
-              "name": { "type": "string" },
-              "latex": { "type": "string" }
-            }
-          }
+          "valence_electrons": { "type": "integer", "minimum": 1, "maximum": 8 },
+          "common_ion": { "$ref": "#/$defs/ion" },
+          "other_ions": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ion" } }
         }
       }
     },
@@ -60,34 +52,116 @@
         }
       }
     },
+    "lenses": {
+      "type": "array",
+      "minItems": 1,
+      "$comment": "brief §8.1 (ADR-0033): a lens is a color overlay PLUS a pattern panel. The `why` is regime-4 interpretive — rendered under the model-assumed badge with an explicit interpretive marker (architecture Q4, resolved).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "property", "unit", "source", "regime", "panel"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "label": { "type": "string", "minLength": 1 },
+          "property": { "enum": ["common_ion", "valence_electrons", "electronegativity", "covalent_radius_pm", "first_ionization_kj_mol"] },
+          "unit": { "type": "string" },
+          "source": { "type": "string", "minLength": 1 },
+          "regime": { "const": "mechanistic" },
+          "panel": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["pattern", "why", "exceptions", "where"],
+            "properties": {
+              "pattern": { "type": "string", "minLength": 1 },
+              "why": { "type": "string", "minLength": 1 },
+              "exceptions": { "type": "string", "minLength": 1 },
+              "where": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
     "charge_balance": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["cation", "anion", "cation_n", "anion_n", "formula", "latex", "note"],
+        "required": ["cation", "anion", "cation_n", "anion_n", "cation_name", "anion_name", "name", "formula", "latex", "note"],
         "properties": {
           "cation": { "type": "string" },
           "anion": { "type": "string" },
           "cation_n": { "type": "integer", "minimum": 1 },
           "anion_n": { "type": "integer", "minimum": 1 },
+          "cation_name": { "type": "string", "minLength": 1 },
+          "anion_name": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
           "formula": { "type": "string" },
           "latex": { "type": "string" },
-          "note": { "type": "string" }
+          "note": { "type": "string" },
+          "mistake": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["formula", "kind", "note"],
+            "properties": {
+              "formula": { "type": "string", "minLength": 1 },
+              "kind": { "enum": ["own-charge", "unreduced"] },
+              "note": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "bonding": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "the sourced ΔEN classification (ADR-0033, data/bonding.toml — OpenStax Fig 7.8). Thresholds are decimal strings; the caution is data so the classification never renders without it.",
+      "required": ["source", "caution", "classes"],
+      "properties": {
+        "source": { "type": "string", "minLength": 1 },
+        "caution": { "type": "string", "minLength": 1 },
+        "classes": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "label", "description"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+              "label": { "type": "string", "minLength": 1 },
+              "description": { "type": "string", "minLength": 1 },
+              "min": { "type": "string" },
+              "max": { "type": "string" }
+            }
+          }
         }
       }
     },
     "sources": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["atomic_weight", "position", "ion_charge", "electronegativity", "covalent_radius", "ionization_energy"],
+      "required": ["atomic_weight", "position", "ion_charge", "electronegativity", "covalent_radius", "ionization_energy", "bonding"],
       "properties": {
         "atomic_weight": { "type": "string", "minLength": 1 },
         "position": { "type": "string", "minLength": 1 },
         "ion_charge": { "type": "string", "minLength": 1 },
         "electronegativity": { "type": "string", "minLength": 1 },
         "covalent_radius": { "type": "string", "minLength": 1 },
-        "ionization_energy": { "type": "string", "minLength": 1 }
+        "ionization_energy": { "type": "string", "minLength": 1 },
+        "bonding": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "ion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "charge", "name", "latex"],
+      "properties": {
+        "id": { "type": "string" },
+        "charge": { "type": "integer" },
+        "name": { "type": "string" },
+        "latex": { "type": "string" }
       }
     }
   }

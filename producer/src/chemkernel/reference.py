@@ -51,17 +51,151 @@ def assemble_formula(cation, anion, ctx: str = "") -> tuple[str, int, int]:
     return formula, n_cat, n_an
 
 
-def build_valence_table(data) -> dict:
-    """Emit the Valence Table from data/ — elements in IUPAC positions, sourced ion charges, verified salts."""
-    # one common ion per element for the lens; for a variable-charge metal (Fe, Cu) pick the lowest charge
-    # deterministically (Fe²⁺, Cu⁺). Showing every oxidation state is an item-5 (flagship) enhancement.
-    monatomic_by_element: dict = {}
+def valence_electrons(el) -> int | None:
+    """Main-group valence-electron count from the IUPAC group (ADR-0033): groups 1–2 → the group number,
+    groups 13–18 → group − 10, He → 2 (its first shell fills at two). d-block counts are convention-dependent
+    and honestly omitted (None) — the same discipline as the noble gases' undefined electronegativity."""
+    if el.block not in ("s", "p"):
+        return None
+    if el.symbol == "He":
+        return 2
+    return el.group if el.group <= 2 else el.group - 10
+
+
+def common_monatomic_ions(data) -> dict:
+    """One deterministic 'common ion' per element for the lens — the lowest charge magnitude wins (Fe²⁺ over
+    Fe³⁺, Cu⁺ over Cu²⁺). Shared with the periodic-trends gym so drill answers match the table (ADR-0034)."""
+    by_element: dict = {}
     for ion in data.ions.values():
         if ion.kind != "monatomic" or not ion.element:
             continue
-        cur = monatomic_by_element.get(ion.element)
+        cur = by_element.get(ion.element)
         if cur is None or (abs(ion.charge), ion.id) < (abs(cur.charge), cur.id):
-            monatomic_by_element[ion.element] = ion
+            by_element[ion.element] = ion
+    return by_element
+
+
+def _ion_entry(ion) -> dict:
+    return {"id": ion.id, "charge": ion.charge, "name": ion.name, "latex": parse_formula(ion.id).latex}
+
+
+# The five lenses (brief §8.1, ADR-0033). Each pattern panel answers: what pattern / why / exceptions /
+# where it shows up. The `why` text is regime-4 mechanistic/interpretive — a useful story, not a machine
+# proof — so every panel is emitted `regime: "mechanistic"` and the player renders it under the amber
+# model-assumed badge with an explicit "interpretive" marker (architecture Q4, resolved in ADR-0033). The
+# colored values themselves are the sourced evidence; `source` keys into the table's sources map, and the
+# gate requires it to resolve to a docs/SOURCES.md row.
+_LENSES = [
+    {
+        "id": "ion-charge", "label": "Common ion charge", "property": "common_ion", "unit": "",
+        "source": "ion_charge", "regime": "mechanistic",
+        "panel": {
+            "pattern": "Main-group metals form cations, nonmetals anions: group 1 → +1, group 2 → +2, "
+                       "group 13 → +3; group 15 → −3, group 16 → −2, group 17 → −1. The noble gases form no "
+                       "simple ion.",
+            "why": "Atoms bond toward the nearest noble-gas electron count. A metal sheds its few valence "
+                   "electrons to expose a full inner shell; a nonmetal gains the few it lacks — the charge is "
+                   "just how many electrons moved.",
+            "exceptions": "Transition metals (Fe and Cu here) hold more than one common charge — the Stock "
+                          "numeral in a name says which. Hydrogen sits in group 1 but is no metal; it shares "
+                          "electrons more often than it transfers them.",
+            "where": "Formula writing (charge crossover), nomenclature (iron(II) vs iron(III)), and "
+                     "predicting the products of double replacement.",
+        },
+    },
+    {
+        "id": "valence-electrons", "label": "Valence electrons", "property": "valence_electrons", "unit": "",
+        "source": "position", "regime": "mechanistic",
+        "panel": {
+            "pattern": "The count repeats across each row: 1 and 2 on the left (s-block), then 3 through 8 "
+                       "on the right (p-block). Elements in the same group carry the same count.",
+            "why": "Group position IS the outer-shell electron count for main-group elements — the table was "
+                   "arranged so that recurring chemistry lines up in columns, and the recurring thing is the "
+                   "outer shell.",
+            "exceptions": "Helium has 2, not 8 — its first shell fills at two electrons. The d-block count is "
+                          "convention-dependent, so it is left blank here rather than asserted.",
+            "where": "Ion charges (lose the count, or gain to reach 8), Lewis structures later, and why "
+                     "period-neighbors differ while group-neighbors rhyme.",
+        },
+    },
+    {
+        "id": "electronegativity", "label": "Electronegativity", "property": "electronegativity", "unit": "",
+        "source": "electronegativity", "regime": "mechanistic",
+        "panel": {
+            "pattern": "Rises left → right across a period, falls down a group — fluorine tops the scale "
+                       "at 3.98.",
+            "why": "Across a period the nuclear charge grows while electrons enter the same shell, so the "
+                   "pull on a shared pair strengthens. Down a group the outer shell sits farther out, "
+                   "screened by more inner shells, so the pull weakens.",
+            "exceptions": "Undefined for the noble gases on the Pauling scale — shown blank, never zero. The "
+                          "values are a fitted scale, not measured constants; other scales order a few "
+                          "neighbors differently.",
+            "where": "Bond polarity (the bonding mode's ΔEN), why oxygen and fluorine hog electron density, "
+                     "and acid-strength stories later.",
+        },
+    },
+    {
+        "id": "covalent-radius", "label": "Covalent radius", "property": "covalent_radius_pm", "unit": "pm",
+        "source": "covalent_radius", "regime": "mechanistic",
+        "panel": {
+            "pattern": "Shrinks left → right across a period, grows down a group — the biggest atoms sit "
+                       "bottom-left.",
+            "why": "Across a period, more protons pull the same shells in tighter. Down a group, each row "
+                   "adds a whole new shell outside the last.",
+            "exceptions": "A radius depends on how it is measured — these are single-bond covalent radii "
+                          "(Cordero 2008). Transition-metal values depend on spin state and are left blank "
+                          "rather than asserted.",
+            "where": "Which-atom-is-larger drills, bond-length estimates, and the size story underneath "
+                     "ionization energy and electronegativity.",
+        },
+    },
+    {
+        "id": "ionization-energy", "label": "First ionization energy", "property": "first_ionization_kj_mol",
+        "unit": "kJ/mol", "source": "ionization_energy", "regime": "mechanistic",
+        "panel": {
+            "pattern": "Rises left → right across a period, falls down a group — helium is the hardest atom "
+                       "in this set to ionize.",
+            "why": "The same pull that shrinks atoms holds their electrons: more nuclear charge on the same "
+                   "shell makes removal costlier; a farther, better-screened shell makes it cheaper.",
+            "exceptions": "Two famous dips break the climb: boron below beryllium (the lone p electron is "
+                          "easier to remove than a paired s), and oxygen below nitrogen (the first paired p "
+                          "electron repels its roommate). Both are visible in this data.",
+            "where": "Why metals give up electrons so readily, the order-by-ionization-energy drills, and "
+                     "why successive ionizations jump at shell boundaries (later).",
+        },
+    },
+]
+
+
+def _crossover_mistake(cation, anion, formula: str) -> dict | None:
+    """The canonical formula-writing mistake for a pair — each ion's OWN charge as its own subscript — proven
+    wrong at emit time (ADR-0033): either non-neutral (charge sum shown) or neutral-but-unreduced (not the
+    smallest whole-number ratio). Returns None when the mistake coincides with the correct formula (1:1 pairs),
+    where there is nothing deceptive to name."""
+    c, a = cation.charge, -anion.charge
+    naive = _group_str(cation.formula, c) + _group_str(anion.formula, a)
+    if naive == formula:
+        return None
+    total = c * c - a * a  # c cations at +c, a anions at −a
+    if total != 0:
+        note = (f"Each ion's own charge became its own subscript — but {c}×({_sign(cation.charge)}) + "
+                f"{a}×({_sign(anion.charge)}) = {total:+d}, not 0. CROSS the charges: each subscript is the "
+                f"other ion's charge.")
+        return {"formula": naive, "kind": "own-charge", "note": note}
+    # equal charges > 1: the naive assembly is neutral but not reduced (the gcd was skipped)
+    note = (f"Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so {naive} "
+            f"reduces by the common factor {c} to {formula}.")
+    return {"formula": naive, "kind": "unreduced", "note": note}
+
+
+def build_valence_table(data) -> dict:
+    """Emit the Valence Table from data/ — elements in IUPAC positions, sourced ion charges + properties,
+    the five lenses (ADR-0033), the full verified+named crossover product, and the sourced bonding rule."""
+    # deferred import: nomenclature imports assemble_formula from this module (ADR-0027), so the name hookup
+    # (the item-2 deferral this table now closes) must import lazily to avoid the cycle.
+    from .nomenclature import name_ionic
+
+    monatomic_by_element = common_monatomic_ions(data)
 
     elements = []
     for sym, el in sorted(data.elements.items(), key=lambda kv: kv[1].Z):
@@ -77,10 +211,19 @@ def build_valence_table(data) -> dict:
             entry["covalent_radius_pm"] = str(el.covalent_radius_pm)
         if el.first_ionization_kj_mol is not None:
             entry["first_ionization_kj_mol"] = str(el.first_ionization_kj_mol)
+        ve = valence_electrons(el)
+        if ve is not None:
+            entry["valence_electrons"] = ve
         ion = monatomic_by_element.get(sym)
         if ion is not None:
-            entry["common_ion"] = {"id": ion.id, "charge": ion.charge, "name": ion.name,
-                                   "latex": parse_formula(ion.id).latex}
+            entry["common_ion"] = _ion_entry(ion)
+            # a variable-charge metal surfaces ALL its common ions (ADR-0033, closing the item-2 deferral);
+            # the lens keeps the deterministic lowest-charge pick as primary.
+            others = sorted((i for i in data.ions.values()
+                             if i.kind == "monatomic" and i.element == sym and i.id != ion.id),
+                            key=lambda i: (abs(i.charge), i.id))
+            if others:
+                entry["other_ions"] = [_ion_entry(i) for i in others]
         elements.append(entry)
 
     polyatomic = [
@@ -89,23 +232,41 @@ def build_valence_table(data) -> dict:
         for ion in data.ions.values() if ion.kind == "polyatomic"
     ]
 
-    # charge-balance examples: the salts of the two Phase-0 lessons, each assembled + verified from the table.
-    # The phosphate pair (charge −3) shows the crossover ratios that make the calcium-phosphate lesson tick.
-    pairs = [("Ca^2+", "CO3^2-"), ("Na^+", "CO3^2-"), ("Ca^2+", "Cl^-"), ("Na^+", "Cl^-"),
-             ("Ca^2+", "PO4^3-"), ("Na^+", "PO4^3-")]
+    # the formula-builder product (ADR-0033): EVERY cation×anion pair in the ion table (H⁺ excluded — acid
+    # naming is the deferred item-2 follow-up), assembled by verified charge crossover, named by the
+    # nomenclature engine, with the own-charge mistake named where it differs. The gate re-derives the name
+    # by concatenation, the subscripts by gcd crossover, and the mistake's dishonesty — in pure Node.
+    cations = sorted((i for i in data.ions.values() if i.charge > 0 and i.compound_name and i.id != "H^+"),
+                     key=lambda i: i.id)
+    anions = sorted((i for i in data.ions.values() if i.charge < 0 and i.compound_name), key=lambda i: i.id)
     charge_balance = []
-    for cat_id, an_id in pairs:
-        cation, anion = data.ions.get(cat_id), data.ions.get(an_id)
-        if cation is None or anion is None:
-            continue
-        formula, n_cat, n_an = assemble_formula(cation, anion, ctx="valence-table")
-        charge_balance.append({
-            "cation": cat_id, "anion": an_id, "cation_n": n_cat, "anion_n": n_an,
-            "formula": formula, "latex": parse_formula(formula).latex,
-            "note": f"{n_cat}×({_sign(cation.charge)}) + {n_an}×({_sign(anion.charge)}) = 0",
-        })
+    for cation in cations:
+        for anion in anions:
+            formula, n_cat, n_an = assemble_formula(cation, anion, ctx="valence-table")
+            entry = {
+                "cation": cation.id, "anion": anion.id, "cation_n": n_cat, "anion_n": n_an,
+                "cation_name": cation.compound_name, "anion_name": anion.compound_name,
+                "name": name_ionic(cation, anion, ctx="valence-table"),
+                "formula": formula, "latex": parse_formula(formula).latex,
+                "note": f"{n_cat}×({_sign(cation.charge)}) + {n_an}×({_sign(anion.charge)}) = 0",
+            }
+            mistake = _crossover_mistake(cation, anion, formula)
+            if mistake is not None:
+                entry["mistake"] = mistake
+            charge_balance.append(entry)
 
-    return {
+    # the bonding rule (ADR-0033): sourced ΔEN classes + OpenStax's own caveat, emitted verbatim from
+    # data/bonding.toml — the player classifies against these thresholds and never hard-codes a boundary.
+    bonding = None
+    if data.bonding:
+        bonding = {
+            "source": data.sources.get("bonding", ""),
+            "caution": data.bonding["caution"],
+            "classes": [{k: c[k] for k in ("id", "label", "description", "min", "max") if k in c}
+                        for c in data.bonding["classes"]],
+        }
+
+    table = {
         "kind": "valence-table",
         "id": "valence-table",
         "title": "The Valence Table",
@@ -117,6 +278,7 @@ def build_valence_table(data) -> dict:
         "highlight": ["Ca", "Na"],
         "elements": elements,
         "polyatomic": polyatomic,
+        "lenses": _LENSES,
         "charge_balance": charge_balance,
         "sources": {
             "atomic_weight": data.sources.get("atomic_weight", ""),
@@ -125,8 +287,12 @@ def build_valence_table(data) -> dict:
             "electronegativity": data.sources.get("electronegativity", ""),
             "covalent_radius": data.sources.get("covalent_radius", ""),
             "ionization_energy": data.sources.get("ionization_energy", ""),
+            "bonding": data.sources.get("bonding", ""),
         },
     }
+    if bonding is not None:
+        table["bonding"] = bonding
+    return table
 
 
 def _sign(charge: int) -> str:

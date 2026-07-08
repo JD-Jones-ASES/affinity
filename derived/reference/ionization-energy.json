@@ -1,0 +1,21 @@
+{
+  "kind": "concept",
+  "id": "ionization-energy",
+  "title": "Ionization energy",
+  "term": "first ionization energy",
+  "definition": "The energy needed to remove the most loosely held electron from a gas-phase atom: $\\mathrm{X(g)} \\rightarrow \\mathrm{X^+(g)} + e^-$. First ionization energies generally climb across a period and fall down a group — the same pull that shrinks atoms holds their electrons — but the measured values keep two famous dips per period (the s→p boundary and the first paired p electron), which is why ordering drills must be answered from data, not from the slogan. Low ionization energy is what makes metals cation-formers.",
+  "related": [
+    {
+      "to": "periodic-trends",
+      "type": "instance-of"
+    },
+    {
+      "to": "electronegativity",
+      "type": "correlates-with"
+    }
+  ],
+  "lessons": [],
+  "regime": "rule-sourced",
+  "source": "nist-ionization-energies",
+  "latex": "\\mathrm{X(g)} \\rightarrow \\mathrm{X^{+}(g)} + e^{-}"
+}

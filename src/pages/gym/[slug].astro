@@ -24,7 +24,14 @@ const concepts = (gym.reference_links ?? []).map((id) => ({
   label: conceptLabel(id),
   href: conceptIds.has(id) ? withBase(`/reference/#${id}`) : valenceTopics.has(id) ? withBase("/reference/valence-table/") : null,
 }));
-const source = gym.provenance?.sources?.atomic_weight;
+// the sourced-data badge names what the family actually drills: the periodic-trends gym embeds sourced
+// properties/charges (ADR-0034); every other family rests on the sourced molar masses.
+const trendSources = gym.provenance?.sources ?? {};
+const isTrends = gym.family === "periodic_trends_v1";
+const sourceLabel = isTrends
+  ? `properties sourced (${[trendSources.electronegativity, trendSources.covalent_radius, trendSources.ionization_energy].filter(Boolean).join(", ")})`
+  : `molar masses sourced (${trendSources.atomic_weight})`;
+const source = isTrends ? trendSources.ionization_energy : trendSources.atomic_weight;
 ---
 
 <Base title={`${gym.title} — Affinity`} description={gym.blurb}>
@@ -33,7 +40,7 @@ const source = gym.provenance?.sources?.atomic_weight;
   <p class="muted lede">{gym.blurb}</p>
   <div class="badges">
     <span class="badge machine"><span class="dot"></span>{gym.problems.length} machine-verified problems</span>
-    {source && <span class="badge sourced"><span class="dot"></span>molar masses sourced ({source})</span>}
+    {source && <span class="badge sourced"><span class="dot"></span>{sourceLabel}</span>}
   </div>
 
   <DimensionalGym gym={gym} client:load />

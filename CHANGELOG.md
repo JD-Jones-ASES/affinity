@@ -3,6 +3,39 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 1 — 2026-07-08 — item 5b: the Valence-Table flagship modes (ADR-0033/0034)
+
+- **Four modes on one committed table** (ADR-0033). **Explore** — five lenses (common ion charge, valence
+  electrons, electronegativity, covalent radius, first ionization energy), each coloring the sourced values
+  and opening a brief-§8.1 pattern panel (what pattern / why / exceptions / where it shows up). **Trends** —
+  an SVG graph of any property across a period or down a group; missing values (noble-gas EN, transition-metal
+  radii) render as labeled gaps, never interpolated. **Formula builder** — every cation×anion pair in the ion
+  table (156 salts; H⁺ excluded pending acid naming), assembled by verified charge crossover and **named by
+  the nomenclature engine** (the item-2 hookup), with the own-charge mistake shown *proven* wrong (non-neutral
+  with the charge sum, or unreduced). **Bonding** — pick two elements, ΔEN by exact integer arithmetic over
+  build-time ×100 values, classified against the sourced OpenStax Fig 7.8 thresholds (`data/bonding.toml`),
+  OpenStax's own "general guide, many exceptions" caution inseparable from the verdict.
+- **Architecture Q4 resolved — no fourth badge.** The lens panels' "why" text is the project's first regime-4
+  (mechanistic/interpretive) content; it renders under the **model-assumed badge with an explicit
+  "interpretive — story, not proof" marker**, per ADR-0003's documented default. The first `mechanistic`
+  concept entry (`periodic-trends`) ships the same way; `electronegativity` and `ionization-energy` concepts
+  landed rule-sourced (19 concepts total).
+- **Practice mode = a seventh gym family** (`periodic_trends_v1`, ADR-0034), generated from the same curated
+  data the table renders: which-has-the-larger property (3 same-series elements), predict-the-common-ion
+  (fixed-charge main group), order-by-first-ionization-energy. All categorical menus (ADR-0032). **Exceptions
+  are answered from data**: when the naive left-to-right rule disagrees with NIST (B < Be, O < N), the naive
+  order itself becomes the named trap. `validate-gyms.mjs` re-compares/re-sorts every value in pure Node
+  **and cross-checks each embedded value/ion/symbol against the committed `valence-table.json`**.
+- **New pure-Node re-derivations in `validate-reference.mjs`**: valence electrons from the IUPAC group
+  (He = 2, d-block omitted), every salt's name by concatenation + subscripts by gcd crossover (ADR-0027
+  pattern), every emitted mistake re-proven wrong, bonding thresholds tiling. All proven non-vacuous by
+  8 tamper tests.
+- **167 producer tests** (+11) + **7 gates** (validate-reference = 20 objects; validate-gyms = 7 gyms /
+  70 problems; check-katex = 253) + **astro build (16 pages)**, `derived/` byte-stable across rebuilds.
+  In-browser: all four modes verified (Period-2 IE graph shows both dips; Fe³⁺+O²⁻ → Fe₂O₃ *iron(III) oxide*
+  with the Fe₃O₂ mistake at +5; Na–Cl ΔEN 2.23 → ionic; the trends gym scores, names misconceptions, and
+  renders Ca²⁺/Ca⁺/Ca²⁻ menus in Unicode), light + dark themes clean, no console errors.
+
 ## Phase 1 — 2026-07-05 — practice must not be gameable: numeric gyms go free-entry (ADR-0032)
 
 - **The problem (owner-caught).** The percent-yield gym offered `55 %`, `0.55 %`, and a third value as multiple

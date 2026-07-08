@@ -187,6 +187,71 @@ function verifyLimiting(rel, p, fail) {
   if (!close(Number(last.value), Number(p.answer.value))) fail(rel, `${p.id}: chain end ${last.value} != answer ${p.answer.value}`);
 }
 
+// --- periodic trends (ADR-0034): the drills embed sourced property values and predicted ions; the gate
+// re-compares/re-sorts them numerically AND cross-checks every embedded symbol, value, and ion against the
+// committed valence-table.json — the gym and the Valence Table must tell one story (the molar-mass-
+// consistency idea extended to reference data).
+let _vt = null;
+function valenceTable(rel) {
+  if (_vt) return _vt;
+  const p = join(ROOT, "derived", "reference", "valence-table.json");
+  if (!existsSync(p)) fail(rel, "periodic-trends gym needs derived/reference/valence-table.json — run produce");
+  const t = JSON.parse(readFileSync(p, "utf8"));
+  _vt = { bySym: new Map(t.elements.map((e) => [e.symbol, e])) };
+  return _vt;
+}
+
+function checkCandidates(rel, p, fail) {
+  const { bySym } = valenceTable(rel);
+  const d = p.derivation;
+  for (const c of d.candidates) {
+    const el = bySym.get(c.symbol);
+    if (!el) fail(rel, `${p.id}: '${c.symbol}' is not a Valence-Table element`);
+    if (el[d.property] !== c.value)
+      fail(rel, `${p.id}: ${c.symbol} ${d.property} '${c.value}' != table '${el[d.property]}'`);
+    if (el.block !== "s" && el.block !== "p") fail(rel, `${p.id}: '${c.symbol}' is d-block — not a trend series member`);
+    if (c.symbol === "H") fail(rel, `${p.id}: H is excluded from trend series (conventional placement)`);
+    const pos = d.series.kind === "period" ? el.period : el.group;
+    if (pos !== d.series.n) fail(rel, `${p.id}: ${c.symbol} is not in ${d.series.kind} ${d.series.n}`);
+  }
+  const values = d.candidates.map((c) => Number(c.value));
+  if (values.some((v) => !Number.isFinite(v))) fail(rel, `${p.id}: non-numeric candidate value`);
+  return values;
+}
+
+function verifyTrendCompare(rel, p, fail) {
+  const { bySym } = valenceTable(rel);
+  const d = p.derivation;
+  const values = checkCandidates(rel, p, fail);
+  const extreme = d.direction === "max" ? Math.max(...values) : Math.min(...values);
+  if (values.filter((v) => v === extreme).length !== 1) fail(rel, `${p.id}: tied extreme — ambiguous answer`);
+  const winner = d.candidates[values.indexOf(extreme)].symbol;
+  if (p.answer.value !== winner) fail(rel, `${p.id}: answer '${p.answer.value}' != re-derived extreme '${winner}'`);
+  if (p.answer.display !== `${winner} (${bySym.get(winner).name})`)
+    fail(rel, `${p.id}: answer display '${p.answer.display}' != '${winner} (${bySym.get(winner).name})'`);
+}
+
+function verifyOrderIonization(rel, p, fail) {
+  const d = p.derivation;
+  if (d.property !== "first_ionization_kj_mol") fail(rel, `${p.id}: order_ionization on '${d.property}'`);
+  const values = checkCandidates(rel, p, fail);
+  const ascending = d.candidates.map((c, i) => [c.symbol, values[i]]).sort((a, b) => a[1] - b[1]).map(([s]) => s);
+  if (p.answer.value !== ascending.join(",")) fail(rel, `${p.id}: answer '${p.answer.value}' != re-sorted '${ascending.join(",")}'`);
+  if (p.answer.display !== ascending.join(" < ")) fail(rel, `${p.id}: answer display mismatches the re-sorted order`);
+}
+
+function verifyPredictIon(rel, p, fail) {
+  const { bySym } = valenceTable(rel);
+  const d = p.derivation;
+  const el = bySym.get(d.element);
+  if (!el) fail(rel, `${p.id}: '${d.element}' is not a Valence-Table element`);
+  if (!el.common_ion) fail(rel, `${p.id}: '${d.element}' has no common ion in the table`);
+  if (el.other_ions?.length) fail(rel, `${p.id}: '${d.element}' is variable-charge — 'the' common ion is ambiguous`);
+  if (el.common_ion.id !== d.ion.id || el.common_ion.charge !== d.ion.charge)
+    fail(rel, `${p.id}: ion ${d.ion.id} (${d.ion.charge}) != table common ion ${el.common_ion.id} (${el.common_ion.charge})`);
+  if (p.answer.value !== d.ion.id) fail(rel, `${p.id}: answer '${p.answer.value}' != ion '${d.ion.id}'`);
+}
+
 const files = readdirSync(gymDir).filter((n) => n.endsWith(".gym.json"));
 if (files.length === 0) { console.log("validate-gyms: no *.gym.json — nothing to check."); process.exit(0); }
 
@@ -228,6 +293,13 @@ for (const name of files) {
     } else if (p.kind === "limiting_mass") {
       // 1L. limiting reagent from masses: re-derive extents, confirm the limiter + the product mass (ADR-0029)
       verifyLimiting(rel, p, fail);
+    } else if (p.kind === "trend_compare") {
+      // 1t. periodic trends: re-compare the sourced values + cross-check them against the table (ADR-0034)
+      verifyTrendCompare(rel, p, fail);
+    } else if (p.kind === "order_ionization") {
+      verifyOrderIonization(rel, p, fail);
+    } else if (p.kind === "predict_ion") {
+      verifyPredictIon(rel, p, fail);
     } else {
       // 1c. conversion: the answer re-derives from the raw inputs; units line up; the chain ends at the answer
       const got = rederive(p.kind, p.derivation.inputs, rel, p.id);

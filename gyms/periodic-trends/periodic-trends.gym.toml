@@ -1,0 +1,16 @@
+# A procedural gym (Phase 1 item 5b, ADR-0034) — the Valence Table's practice mode (brief §8.5). Every drill
+# is generated from the SAME curated, sourced data the table renders: compare a property across a period or
+# down a group, predict a common ion from position, order elements by first ionization energy. The answers
+# come from the data, never the naive trend rule — where the data dips (boron below beryllium, oxygen below
+# nitrogen), the dip IS the teaching moment, named in the explanation.
+
+id = "periodic-trends"
+title = "Periodic trends: read the table, not the slogan"
+slug = "periodic-trends"
+topic = "periodic-trends"
+family = "periodic_trends_v1"
+seed = 1618033
+count = 10
+blurb = "The periodic table is a database with patterns, and the patterns have exceptions. These drills ask you to compare sourced values — covalent radius, first ionization energy, electronegativity — across periods and down groups, to predict common ions from group position, and to order elements by ionization energy. Every answer is checked against the curated data behind the Valence Table; when the data breaks the naive rule, the explanation names the exception instead of pretending the rule is a law."
+skills = ["radius shrinks across a period, grows down a group", "ionization energy and electronegativity run the other way", "group position predicts the common ion charge", "the trend is a guide; the measured data is the authority"]
+reference_links = ["periodic-trends", "ionization-energy", "electronegativity"]

@@ -62,6 +62,70 @@ def test_charge_balance_salts_are_the_lesson_salts():
     assert got[("Na^+", "PO4^3-")] == "Na3PO4"
 
 
+def test_charge_balance_is_the_full_named_product():
+    """ADR-0033: every cation×anion pair (H⁺ excluded), each named by the nomenclature engine."""
+    data = _data()
+    t = build_valence_table(data)
+    n_cat = sum(1 for i in data.ions.values() if i.charge > 0 and i.compound_name and i.id != "H^+")
+    n_an = sum(1 for i in data.ions.values() if i.charge < 0 and i.compound_name)
+    assert len(t["charge_balance"]) == n_cat * n_an
+    by = {(c["cation"], c["anion"]): c for c in t["charge_balance"]}
+    assert ("H^+", "Cl^-") not in by                      # acids are the deferred item-2 follow-up
+    fe = by[("Fe^3+", "SO4^2-")]
+    assert fe["formula"] == "Fe2(SO4)3" and fe["name"] == "iron(III) sulfate"
+    assert fe["cation_name"] == "iron(III)" and fe["anion_name"] == "sulfate"
+
+
+def test_charge_balance_mistakes_are_proven_wrong():
+    """The own-charge mistake is emitted iff it differs, with the honest kind (ADR-0033)."""
+    t = build_valence_table(_data())
+    by = {(c["cation"], c["anion"]): c for c in t["charge_balance"]}
+    assert "mistake" not in by[("Na^+", "Cl^-")]                       # 1:1 — own-charge IS the answer
+    ca = by[("Ca^2+", "CO3^2-")]["mistake"]
+    assert ca["formula"] == "Ca2(CO3)2" and ca["kind"] == "unreduced"  # neutral but not smallest ratio
+    fe = by[("Fe^3+", "O^2-")]["mistake"]
+    assert fe["formula"] == "Fe3O2" and fe["kind"] == "own-charge"     # 3×(+3) + 2×(−2) = +5 ≠ 0
+    assert "+5" in fe["note"]
+
+
+def test_valence_electrons_rule():
+    """Main-group counts from the IUPAC group; He = 2; d-block honestly omitted (ADR-0033)."""
+    t = build_valence_table(_data())
+    by = {e["symbol"]: e for e in t["elements"]}
+    assert by["H"]["valence_electrons"] == 1
+    assert by["He"]["valence_electrons"] == 2              # first shell fills at two — not 8
+    assert by["C"]["valence_electrons"] == 4
+    assert by["Cl"]["valence_electrons"] == 7
+    assert by["Ar"]["valence_electrons"] == 8
+    for tm in ("Fe", "Cu", "Zn"):
+        assert "valence_electrons" not in by[tm]           # convention-dependent — omitted, never asserted
+
+
+def test_variable_charge_metals_surface_all_their_ions():
+    t = build_valence_table(_data())
+    by = {e["symbol"]: e for e in t["elements"]}
+    assert [i["id"] for i in by["Fe"]["other_ions"]] == ["Fe^3+"]
+    assert [i["id"] for i in by["Cu"]["other_ions"]] == ["Cu^2+"]
+    assert "other_ions" not in by["Na"]                    # fixed-charge metals carry exactly one
+
+
+def test_lenses_and_bonding_are_emitted_and_sourced():
+    t = build_valence_table(_data())
+    lenses = {l["id"]: l for l in t["lenses"]}
+    assert set(lenses) == {"ion-charge", "valence-electrons", "electronegativity",
+                           "covalent-radius", "ionization-energy"}
+    for lens in lenses.values():
+        assert lens["source"] in t["sources"]              # every lens cites a sources-map facet
+        assert lens["regime"] == "mechanistic"             # the why-panel is interpretive (Q4, ADR-0033)
+        assert set(lens["panel"]) == {"pattern", "why", "exceptions", "where"}
+    b = t["bonding"]
+    assert b["source"] == "openstax-chemistry-2e" and t["sources"]["bonding"] == b["source"]
+    assert [c["id"] for c in b["classes"]] == ["nonpolar-covalent", "polar-covalent", "ionic"]
+    assert b["classes"][0]["max"] == "0.4" == b["classes"][1]["min"]   # OpenStax Fig 7.8 boundaries tile
+    assert b["classes"][1]["max"] == "1.8" == b["classes"][2]["min"]
+    assert "exception" in b["caution"]                     # the caveat ships as data, inseparable
+
+
 def test_assemble_formula_crossover_and_parens():
     data = _data()
     ion = data.ions.__getitem__

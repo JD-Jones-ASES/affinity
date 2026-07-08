@@ -20,6 +20,7 @@
       "electronegativity": "2.20",
       "covalent_radius_pm": "31",
       "first_ionization_kj_mol": "1312.0",
+      "valence_electrons": 1,
       "common_ion": {
         "id": "H^+",
         "charge": 1,
@@ -36,7 +37,8 @@
       "period": 1,
       "block": "s",
       "covalent_radius_pm": "28",
-      "first_ionization_kj_mol": "2372.3"
+      "first_ionization_kj_mol": "2372.3",
+      "valence_electrons": 2
     },
     {
       "symbol": "Li",
@@ -49,6 +51,7 @@
       "electronegativity": "0.98",
       "covalent_radius_pm": "128",
       "first_ionization_kj_mol": "520.2",
+      "valence_electrons": 1,
       "common_ion": {
         "id": "Li^+",
         "charge": 1,
@@ -67,6 +70,7 @@
       "electronegativity": "1.57",
       "covalent_radius_pm": "96",
       "first_ionization_kj_mol": "899.5",
+      "valence_electrons": 2,
       "common_ion": {
         "id": "Be^2+",
         "charge": 2,
@@ -84,7 +88,8 @@
       "block": "p",
       "electronegativity": "2.04",
       "covalent_radius_pm": "84",
-      "first_ionization_kj_mol": "800.6"
+      "first_ionization_kj_mol": "800.6",
+      "valence_electrons": 3
     },
     {
       "symbol": "C",
@@ -96,7 +101,8 @@
       "block": "p",
       "electronegativity": "2.55",
       "covalent_radius_pm": "76",
-      "first_ionization_kj_mol": "1086.5"
+      "first_ionization_kj_mol": "1086.5",
+      "valence_electrons": 4
     },
     {
       "symbol": "N",
@@ -109,6 +115,7 @@
       "electronegativity": "3.04",
       "covalent_radius_pm": "71",
       "first_ionization_kj_mol": "1402.3",
+      "valence_electrons": 5,
       "common_ion": {
         "id": "N^3-",
         "charge": -3,
@@ -127,6 +134,7 @@
       "electronegativity": "3.44",
       "covalent_radius_pm": "66",
       "first_ionization_kj_mol": "1313.9",
+      "valence_electrons": 6,
       "common_ion": {
         "id": "O^2-",
         "charge": -2,
@@ -145,6 +153,7 @@
       "electronegativity": "3.98",
       "covalent_radius_pm": "57",
       "first_ionization_kj_mol": "1681.0",
+      "valence_electrons": 7,
       "common_ion": {
         "id": "F^-",
         "charge": -1,
@@ -161,7 +170,8 @@
       "period": 2,
       "block": "p",
       "covalent_radius_pm": "58",
-      "first_ionization_kj_mol": "2080.7"
+      "first_ionization_kj_mol": "2080.7",
+      "valence_electrons": 8
     },
     {
       "symbol": "Na",
@@ -174,6 +184,7 @@
       "electronegativity": "0.93",
       "covalent_radius_pm": "166",
       "first_ionization_kj_mol": "495.8",
+      "valence_electrons": 1,
       "common_ion": {
         "id": "Na^+",
         "charge": 1,
@@ -192,6 +203,7 @@
       "electronegativity": "1.31",
       "covalent_radius_pm": "141",
       "first_ionization_kj_mol": "737.7",
+      "valence_electrons": 2,
       "common_ion": {
         "id": "Mg^2+",
         "charge": 2,
@@ -210,6 +222,7 @@
       "electronegativity": "1.61",
       "covalent_radius_pm": "121",
       "first_ionization_kj_mol": "577.5",
+      "valence_electrons": 3,
       "common_ion": {
         "id": "Al^3+",
         "charge": 3,
@@ -227,7 +240,8 @@
       "block": "p",
       "electronegativity": "1.90",
       "covalent_radius_pm": "111",
-      "first_ionization_kj_mol": "786.5"
+      "first_ionization_kj_mol": "786.5",
+      "valence_electrons": 4
     },
     {
       "symbol": "P",
@@ -239,7 +253,8 @@
       "block": "p",
       "electronegativity": "2.19",
       "covalent_radius_pm": "107",
-      "first_ionization_kj_mol": "1011.8"
+      "first_ionization_kj_mol": "1011.8",
+      "valence_electrons": 5
     },
     {
       "symbol": "S",
@@ -252,6 +267,7 @@
       "electronegativity": "2.58",
       "covalent_radius_pm": "105",
       "first_ionization_kj_mol": "999.6",
+      "valence_electrons": 6,
       "common_ion": {
         "id": "S^2-",
         "charge": -2,
@@ -270,6 +286,7 @@
       "electronegativity": "3.16",
       "covalent_radius_pm": "102",
       "first_ionization_kj_mol": "1251.2",
+      "valence_electrons": 7,
       "common_ion": {
         "id": "Cl^-",
         "charge": -1,
@@ -286,7 +303,8 @@
       "period": 3,
       "block": "p",
       "covalent_radius_pm": "106",
-      "first_ionization_kj_mol": "1520.6"
+      "first_ionization_kj_mol": "1520.6",
+      "valence_electrons": 8
     },
     {
       "symbol": "K",
@@ -299,6 +317,7 @@
       "electronegativity": "0.82",
       "covalent_radius_pm": "203",
       "first_ionization_kj_mol": "418.8",
+      "valence_electrons": 1,
       "common_ion": {
         "id": "K^+",
         "charge": 1,
@@ -317,6 +336,7 @@
       "electronegativity": "1.00",
       "covalent_radius_pm": "176",
       "first_ionization_kj_mol": "589.8",
+      "valence_electrons": 2,
       "common_ion": {
         "id": "Ca^2+",
         "charge": 2,
@@ -339,7 +359,15 @@
         "charge": 2,
         "name": "iron(II) ion",
         "latex": "\\mathrm{Fe}^{2+}"
-      }
+      },
+      "other_ions": [
+        {
+          "id": "Fe^3+",
+          "charge": 3,
+          "name": "iron(III) ion",
+          "latex": "\\mathrm{Fe}^{3+}"
+        }
+      ]
     },
     {
       "symbol": "Cu",
@@ -356,7 +384,15 @@
         "charge": 1,
         "name": "copper(I) ion",
         "latex": "\\mathrm{Cu}^{+}"
-      }
+      },
+      "other_ions": [
+        {
+          "id": "Cu^2+",
+          "charge": 2,
+          "name": "copper(II) ion",
+          "latex": "\\mathrm{Cu}^{2+}"
+        }
+      ]
     },
     {
       "symbol": "Zn",
@@ -434,60 +470,2580 @@
       "latex": "\\mathrm{C_{2}H_{3}O_{2}}^{-}"
     }
   ],
+  "lenses": [
+    {
+      "id": "ion-charge",
+      "label": "Common ion charge",
+      "property": "common_ion",
+      "unit": "",
+      "source": "ion_charge",
+      "regime": "mechanistic",
+      "panel": {
+        "pattern": "Main-group metals form cations, nonmetals anions: group 1 → +1, group 2 → +2, group 13 → +3; group 15 → −3, group 16 → −2, group 17 → −1. The noble gases form no simple ion.",
+        "why": "Atoms bond toward the nearest noble-gas electron count. A metal sheds its few valence electrons to expose a full inner shell; a nonmetal gains the few it lacks — the charge is just how many electrons moved.",
+        "exceptions": "Transition metals (Fe and Cu here) hold more than one common charge — the Stock numeral in a name says which. Hydrogen sits in group 1 but is no metal; it shares electrons more often than it transfers them.",
+        "where": "Formula writing (charge crossover), nomenclature (iron(II) vs iron(III)), and predicting the products of double replacement."
+      }
+    },
+    {
+      "id": "valence-electrons",
+      "label": "Valence electrons",
+      "property": "valence_electrons",
+      "unit": "",
+      "source": "position",
+      "regime": "mechanistic",
+      "panel": {
+        "pattern": "The count repeats across each row: 1 and 2 on the left (s-block), then 3 through 8 on the right (p-block). Elements in the same group carry the same count.",
+        "why": "Group position IS the outer-shell electron count for main-group elements — the table was arranged so that recurring chemistry lines up in columns, and the recurring thing is the outer shell.",
+        "exceptions": "Helium has 2, not 8 — its first shell fills at two electrons. The d-block count is convention-dependent, so it is left blank here rather than asserted.",
+        "where": "Ion charges (lose the count, or gain to reach 8), Lewis structures later, and why period-neighbors differ while group-neighbors rhyme."
+      }
+    },
+    {
+      "id": "electronegativity",
+      "label": "Electronegativity",
+      "property": "electronegativity",
+      "unit": "",
+      "source": "electronegativity",
+      "regime": "mechanistic",
+      "panel": {
+        "pattern": "Rises left → right across a period, falls down a group — fluorine tops the scale at 3.98.",
+        "why": "Across a period the nuclear charge grows while electrons enter the same shell, so the pull on a shared pair strengthens. Down a group the outer shell sits farther out, screened by more inner shells, so the pull weakens.",
+        "exceptions": "Undefined for the noble gases on the Pauling scale — shown blank, never zero. The values are a fitted scale, not measured constants; other scales order a few neighbors differently.",
+        "where": "Bond polarity (the bonding mode's ΔEN), why oxygen and fluorine hog electron density, and acid-strength stories later."
+      }
+    },
+    {
+      "id": "covalent-radius",
+      "label": "Covalent radius",
+      "property": "covalent_radius_pm",
+      "unit": "pm",
+      "source": "covalent_radius",
+      "regime": "mechanistic",
+      "panel": {
+        "pattern": "Shrinks left → right across a period, grows down a group — the biggest atoms sit bottom-left.",
+        "why": "Across a period, more protons pull the same shells in tighter. Down a group, each row adds a whole new shell outside the last.",
+        "exceptions": "A radius depends on how it is measured — these are single-bond covalent radii (Cordero 2008). Transition-metal values depend on spin state and are left blank rather than asserted.",
+        "where": "Which-atom-is-larger drills, bond-length estimates, and the size story underneath ionization energy and electronegativity."
+      }
+    },
+    {
+      "id": "ionization-energy",
+      "label": "First ionization energy",
+      "property": "first_ionization_kj_mol",
+      "unit": "kJ/mol",
+      "source": "ionization_energy",
+      "regime": "mechanistic",
+      "panel": {
+        "pattern": "Rises left → right across a period, falls down a group — helium is the hardest atom in this set to ionize.",
+        "why": "The same pull that shrinks atoms holds their electrons: more nuclear charge on the same shell makes removal costlier; a farther, better-screened shell makes it cheaper.",
+        "exceptions": "Two famous dips break the climb: boron below beryllium (the lone p electron is easier to remove than a paired s), and oxygen below nitrogen (the first paired p electron repels its roommate). Both are visible in this data.",
+        "where": "Why metals give up electrons so readily, the order-by-ionization-energy drills, and why successive ionizations jump at shell boundaries (later)."
+      }
+    }
+  ],
   "charge_balance": [
+    {
+      "cation": "Al^3+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "aluminum",
+      "anion_name": "acetate",
+      "name": "aluminum acetate",
+      "formula": "Al(C2H3O2)3",
+      "latex": "\\mathrm{Al(C_{2}H_{3}O_{2})_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Al3C2H3O2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Al^3+",
+      "anion": "CO3^2-",
+      "cation_n": 2,
+      "anion_n": 3,
+      "cation_name": "aluminum",
+      "anion_name": "carbonate",
+      "name": "aluminum carbonate",
+      "formula": "Al2(CO3)3",
+      "latex": "\\mathrm{Al_{2}(CO_{3})_{3}}",
+      "note": "2×(+3) + 3×(−2) = 0",
+      "mistake": {
+        "formula": "Al3(CO3)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 2×(−2) = +5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Al^3+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "aluminum",
+      "anion_name": "chloride",
+      "name": "aluminum chloride",
+      "formula": "AlCl3",
+      "latex": "\\mathrm{AlCl_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Al3Cl",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Al^3+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "aluminum",
+      "anion_name": "fluoride",
+      "name": "aluminum fluoride",
+      "formula": "AlF3",
+      "latex": "\\mathrm{AlF_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Al3F",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Al^3+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "aluminum",
+      "anion_name": "hydrogen carbonate",
+      "name": "aluminum hydrogen carbonate",
+      "formula": "Al(HCO3)3",
+      "latex": "\\mathrm{Al(HCO_{3})_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Al3HCO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Al^3+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "aluminum",
+      "anion_name": "nitrate",
+      "name": "aluminum nitrate",
+      "formula": "Al(NO3)3",
+      "latex": "\\mathrm{Al(NO_{3})_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Al3NO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Al^3+",
+      "anion": "N^3-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "aluminum",
+      "anion_name": "nitride",
+      "name": "aluminum nitride",
+      "formula": "AlN",
+      "latex": "\\mathrm{AlN}",
+      "note": "1×(+3) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "Al3N3",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Al3N3 reduces by the common factor 3 to AlN."
+      }
+    },
+    {
+      "cation": "Al^3+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "aluminum",
+      "anion_name": "hydroxide",
+      "name": "aluminum hydroxide",
+      "formula": "Al(OH)3",
+      "latex": "\\mathrm{Al(OH)_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Al3OH",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Al^3+",
+      "anion": "O^2-",
+      "cation_n": 2,
+      "anion_n": 3,
+      "cation_name": "aluminum",
+      "anion_name": "oxide",
+      "name": "aluminum oxide",
+      "formula": "Al2O3",
+      "latex": "\\mathrm{Al_{2}O_{3}}",
+      "note": "2×(+3) + 3×(−2) = 0",
+      "mistake": {
+        "formula": "Al3O2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 2×(−2) = +5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Al^3+",
+      "anion": "PO4^3-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "aluminum",
+      "anion_name": "phosphate",
+      "name": "aluminum phosphate",
+      "formula": "AlPO4",
+      "latex": "\\mathrm{AlPO_{4}}",
+      "note": "1×(+3) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "Al3(PO4)3",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Al3(PO4)3 reduces by the common factor 3 to AlPO4."
+      }
+    },
+    {
+      "cation": "Al^3+",
+      "anion": "SO4^2-",
+      "cation_n": 2,
+      "anion_n": 3,
+      "cation_name": "aluminum",
+      "anion_name": "sulfate",
+      "name": "aluminum sulfate",
+      "formula": "Al2(SO4)3",
+      "latex": "\\mathrm{Al_{2}(SO_{4})_{3}}",
+      "note": "2×(+3) + 3×(−2) = 0",
+      "mistake": {
+        "formula": "Al3(SO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 2×(−2) = +5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Al^3+",
+      "anion": "S^2-",
+      "cation_n": 2,
+      "anion_n": 3,
+      "cation_name": "aluminum",
+      "anion_name": "sulfide",
+      "name": "aluminum sulfide",
+      "formula": "Al2S3",
+      "latex": "\\mathrm{Al_{2}S_{3}}",
+      "note": "2×(+3) + 3×(−2) = 0",
+      "mistake": {
+        "formula": "Al3S2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 2×(−2) = +5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "beryllium",
+      "anion_name": "acetate",
+      "name": "beryllium acetate",
+      "formula": "Be(C2H3O2)2",
+      "latex": "\\mathrm{Be(C_{2}H_{3}O_{2})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Be2C2H3O2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "CO3^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "beryllium",
+      "anion_name": "carbonate",
+      "name": "beryllium carbonate",
+      "formula": "BeCO3",
+      "latex": "\\mathrm{BeCO_{3}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Be2(CO3)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Be2(CO3)2 reduces by the common factor 2 to BeCO3."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "beryllium",
+      "anion_name": "chloride",
+      "name": "beryllium chloride",
+      "formula": "BeCl2",
+      "latex": "\\mathrm{BeCl_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Be2Cl",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "beryllium",
+      "anion_name": "fluoride",
+      "name": "beryllium fluoride",
+      "formula": "BeF2",
+      "latex": "\\mathrm{BeF_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Be2F",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "beryllium",
+      "anion_name": "hydrogen carbonate",
+      "name": "beryllium hydrogen carbonate",
+      "formula": "Be(HCO3)2",
+      "latex": "\\mathrm{Be(HCO_{3})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Be2HCO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "beryllium",
+      "anion_name": "nitrate",
+      "name": "beryllium nitrate",
+      "formula": "Be(NO3)2",
+      "latex": "\\mathrm{Be(NO_{3})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Be2NO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "N^3-",
+      "cation_n": 3,
+      "anion_n": 2,
+      "cation_name": "beryllium",
+      "anion_name": "nitride",
+      "name": "beryllium nitride",
+      "formula": "Be3N2",
+      "latex": "\\mathrm{Be_{3}N_{2}}",
+      "note": "3×(+2) + 2×(−3) = 0",
+      "mistake": {
+        "formula": "Be2N3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 3×(−3) = -5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "beryllium",
+      "anion_name": "hydroxide",
+      "name": "beryllium hydroxide",
+      "formula": "Be(OH)2",
+      "latex": "\\mathrm{Be(OH)_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Be2OH",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "O^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "beryllium",
+      "anion_name": "oxide",
+      "name": "beryllium oxide",
+      "formula": "BeO",
+      "latex": "\\mathrm{BeO}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Be2O2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Be2O2 reduces by the common factor 2 to BeO."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "PO4^3-",
+      "cation_n": 3,
+      "anion_n": 2,
+      "cation_name": "beryllium",
+      "anion_name": "phosphate",
+      "name": "beryllium phosphate",
+      "formula": "Be3(PO4)2",
+      "latex": "\\mathrm{Be_{3}(PO_{4})_{2}}",
+      "note": "3×(+2) + 2×(−3) = 0",
+      "mistake": {
+        "formula": "Be2(PO4)3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 3×(−3) = -5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "SO4^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "beryllium",
+      "anion_name": "sulfate",
+      "name": "beryllium sulfate",
+      "formula": "BeSO4",
+      "latex": "\\mathrm{BeSO_{4}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Be2(SO4)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Be2(SO4)2 reduces by the common factor 2 to BeSO4."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "S^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "beryllium",
+      "anion_name": "sulfide",
+      "name": "beryllium sulfide",
+      "formula": "BeS",
+      "latex": "\\mathrm{BeS}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Be2S2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Be2S2 reduces by the common factor 2 to BeS."
+      }
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "calcium",
+      "anion_name": "acetate",
+      "name": "calcium acetate",
+      "formula": "Ca(C2H3O2)2",
+      "latex": "\\mathrm{Ca(C_{2}H_{3}O_{2})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Ca2C2H3O2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
     {
       "cation": "Ca^2+",
       "anion": "CO3^2-",
       "cation_n": 1,
       "anion_n": 1,
+      "cation_name": "calcium",
+      "anion_name": "carbonate",
+      "name": "calcium carbonate",
       "formula": "CaCO3",
       "latex": "\\mathrm{CaCO_{3}}",
-      "note": "1×(+2) + 1×(−2) = 0"
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Ca2(CO3)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Ca2(CO3)2 reduces by the common factor 2 to CaCO3."
+      }
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "calcium",
+      "anion_name": "chloride",
+      "name": "calcium chloride",
+      "formula": "CaCl2",
+      "latex": "\\mathrm{CaCl_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Ca2Cl",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "calcium",
+      "anion_name": "fluoride",
+      "name": "calcium fluoride",
+      "formula": "CaF2",
+      "latex": "\\mathrm{CaF_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Ca2F",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "calcium",
+      "anion_name": "hydrogen carbonate",
+      "name": "calcium hydrogen carbonate",
+      "formula": "Ca(HCO3)2",
+      "latex": "\\mathrm{Ca(HCO_{3})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Ca2HCO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "calcium",
+      "anion_name": "nitrate",
+      "name": "calcium nitrate",
+      "formula": "Ca(NO3)2",
+      "latex": "\\mathrm{Ca(NO_{3})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Ca2NO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "N^3-",
+      "cation_n": 3,
+      "anion_n": 2,
+      "cation_name": "calcium",
+      "anion_name": "nitride",
+      "name": "calcium nitride",
+      "formula": "Ca3N2",
+      "latex": "\\mathrm{Ca_{3}N_{2}}",
+      "note": "3×(+2) + 2×(−3) = 0",
+      "mistake": {
+        "formula": "Ca2N3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 3×(−3) = -5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "calcium",
+      "anion_name": "hydroxide",
+      "name": "calcium hydroxide",
+      "formula": "Ca(OH)2",
+      "latex": "\\mathrm{Ca(OH)_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Ca2OH",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "O^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "calcium",
+      "anion_name": "oxide",
+      "name": "calcium oxide",
+      "formula": "CaO",
+      "latex": "\\mathrm{CaO}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Ca2O2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Ca2O2 reduces by the common factor 2 to CaO."
+      }
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "PO4^3-",
+      "cation_n": 3,
+      "anion_n": 2,
+      "cation_name": "calcium",
+      "anion_name": "phosphate",
+      "name": "calcium phosphate",
+      "formula": "Ca3(PO4)2",
+      "latex": "\\mathrm{Ca_{3}(PO_{4})_{2}}",
+      "note": "3×(+2) + 2×(−3) = 0",
+      "mistake": {
+        "formula": "Ca2(PO4)3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 3×(−3) = -5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "SO4^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "calcium",
+      "anion_name": "sulfate",
+      "name": "calcium sulfate",
+      "formula": "CaSO4",
+      "latex": "\\mathrm{CaSO_{4}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Ca2(SO4)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Ca2(SO4)2 reduces by the common factor 2 to CaSO4."
+      }
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "S^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "calcium",
+      "anion_name": "sulfide",
+      "name": "calcium sulfide",
+      "formula": "CaS",
+      "latex": "\\mathrm{CaS}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Ca2S2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Ca2S2 reduces by the common factor 2 to CaS."
+      }
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "acetate",
+      "name": "copper(I) acetate",
+      "formula": "CuC2H3O2",
+      "latex": "\\mathrm{CuC_{2}H_{3}O_{2}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "CO3^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "carbonate",
+      "name": "copper(I) carbonate",
+      "formula": "Cu2CO3",
+      "latex": "\\mathrm{Cu_{2}CO_{3}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Cu(CO3)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "chloride",
+      "name": "copper(I) chloride",
+      "formula": "CuCl",
+      "latex": "\\mathrm{CuCl}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "fluoride",
+      "name": "copper(I) fluoride",
+      "formula": "CuF",
+      "latex": "\\mathrm{CuF}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "hydrogen carbonate",
+      "name": "copper(I) hydrogen carbonate",
+      "formula": "CuHCO3",
+      "latex": "\\mathrm{CuHCO_{3}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "nitrate",
+      "name": "copper(I) nitrate",
+      "formula": "CuNO3",
+      "latex": "\\mathrm{CuNO_{3}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "N^3-",
+      "cation_n": 3,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "nitride",
+      "name": "copper(I) nitride",
+      "formula": "Cu3N",
+      "latex": "\\mathrm{Cu_{3}N}",
+      "note": "3×(+1) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "CuN3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 3×(−3) = -8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "hydroxide",
+      "name": "copper(I) hydroxide",
+      "formula": "CuOH",
+      "latex": "\\mathrm{CuOH}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "O^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "oxide",
+      "name": "copper(I) oxide",
+      "formula": "Cu2O",
+      "latex": "\\mathrm{Cu_{2}O}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "CuO2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "PO4^3-",
+      "cation_n": 3,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "phosphate",
+      "name": "copper(I) phosphate",
+      "formula": "Cu3PO4",
+      "latex": "\\mathrm{Cu_{3}PO_{4}}",
+      "note": "3×(+1) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "Cu(PO4)3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 3×(−3) = -8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "SO4^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "sulfate",
+      "name": "copper(I) sulfate",
+      "formula": "Cu2SO4",
+      "latex": "\\mathrm{Cu_{2}SO_{4}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Cu(SO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "S^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "sulfide",
+      "name": "copper(I) sulfide",
+      "formula": "Cu2S",
+      "latex": "\\mathrm{Cu_{2}S}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "CuS2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "copper(II)",
+      "anion_name": "acetate",
+      "name": "copper(II) acetate",
+      "formula": "Cu(C2H3O2)2",
+      "latex": "\\mathrm{Cu(C_{2}H_{3}O_{2})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Cu2C2H3O2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "CO3^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "copper(II)",
+      "anion_name": "carbonate",
+      "name": "copper(II) carbonate",
+      "formula": "CuCO3",
+      "latex": "\\mathrm{CuCO_{3}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Cu2(CO3)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Cu2(CO3)2 reduces by the common factor 2 to CuCO3."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "copper(II)",
+      "anion_name": "chloride",
+      "name": "copper(II) chloride",
+      "formula": "CuCl2",
+      "latex": "\\mathrm{CuCl_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Cu2Cl",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "copper(II)",
+      "anion_name": "fluoride",
+      "name": "copper(II) fluoride",
+      "formula": "CuF2",
+      "latex": "\\mathrm{CuF_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Cu2F",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "copper(II)",
+      "anion_name": "hydrogen carbonate",
+      "name": "copper(II) hydrogen carbonate",
+      "formula": "Cu(HCO3)2",
+      "latex": "\\mathrm{Cu(HCO_{3})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Cu2HCO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "copper(II)",
+      "anion_name": "nitrate",
+      "name": "copper(II) nitrate",
+      "formula": "Cu(NO3)2",
+      "latex": "\\mathrm{Cu(NO_{3})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Cu2NO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "N^3-",
+      "cation_n": 3,
+      "anion_n": 2,
+      "cation_name": "copper(II)",
+      "anion_name": "nitride",
+      "name": "copper(II) nitride",
+      "formula": "Cu3N2",
+      "latex": "\\mathrm{Cu_{3}N_{2}}",
+      "note": "3×(+2) + 2×(−3) = 0",
+      "mistake": {
+        "formula": "Cu2N3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 3×(−3) = -5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "copper(II)",
+      "anion_name": "hydroxide",
+      "name": "copper(II) hydroxide",
+      "formula": "Cu(OH)2",
+      "latex": "\\mathrm{Cu(OH)_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Cu2OH",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "O^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "copper(II)",
+      "anion_name": "oxide",
+      "name": "copper(II) oxide",
+      "formula": "CuO",
+      "latex": "\\mathrm{CuO}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Cu2O2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Cu2O2 reduces by the common factor 2 to CuO."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "PO4^3-",
+      "cation_n": 3,
+      "anion_n": 2,
+      "cation_name": "copper(II)",
+      "anion_name": "phosphate",
+      "name": "copper(II) phosphate",
+      "formula": "Cu3(PO4)2",
+      "latex": "\\mathrm{Cu_{3}(PO_{4})_{2}}",
+      "note": "3×(+2) + 2×(−3) = 0",
+      "mistake": {
+        "formula": "Cu2(PO4)3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 3×(−3) = -5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "SO4^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "copper(II)",
+      "anion_name": "sulfate",
+      "name": "copper(II) sulfate",
+      "formula": "CuSO4",
+      "latex": "\\mathrm{CuSO_{4}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Cu2(SO4)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Cu2(SO4)2 reduces by the common factor 2 to CuSO4."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "S^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "copper(II)",
+      "anion_name": "sulfide",
+      "name": "copper(II) sulfide",
+      "formula": "CuS",
+      "latex": "\\mathrm{CuS}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Cu2S2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Cu2S2 reduces by the common factor 2 to CuS."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "iron(II)",
+      "anion_name": "acetate",
+      "name": "iron(II) acetate",
+      "formula": "Fe(C2H3O2)2",
+      "latex": "\\mathrm{Fe(C_{2}H_{3}O_{2})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Fe2C2H3O2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "CO3^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "iron(II)",
+      "anion_name": "carbonate",
+      "name": "iron(II) carbonate",
+      "formula": "FeCO3",
+      "latex": "\\mathrm{FeCO_{3}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Fe2(CO3)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Fe2(CO3)2 reduces by the common factor 2 to FeCO3."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "iron(II)",
+      "anion_name": "chloride",
+      "name": "iron(II) chloride",
+      "formula": "FeCl2",
+      "latex": "\\mathrm{FeCl_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Fe2Cl",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "iron(II)",
+      "anion_name": "fluoride",
+      "name": "iron(II) fluoride",
+      "formula": "FeF2",
+      "latex": "\\mathrm{FeF_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Fe2F",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "iron(II)",
+      "anion_name": "hydrogen carbonate",
+      "name": "iron(II) hydrogen carbonate",
+      "formula": "Fe(HCO3)2",
+      "latex": "\\mathrm{Fe(HCO_{3})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Fe2HCO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "iron(II)",
+      "anion_name": "nitrate",
+      "name": "iron(II) nitrate",
+      "formula": "Fe(NO3)2",
+      "latex": "\\mathrm{Fe(NO_{3})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Fe2NO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "N^3-",
+      "cation_n": 3,
+      "anion_n": 2,
+      "cation_name": "iron(II)",
+      "anion_name": "nitride",
+      "name": "iron(II) nitride",
+      "formula": "Fe3N2",
+      "latex": "\\mathrm{Fe_{3}N_{2}}",
+      "note": "3×(+2) + 2×(−3) = 0",
+      "mistake": {
+        "formula": "Fe2N3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 3×(−3) = -5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "iron(II)",
+      "anion_name": "hydroxide",
+      "name": "iron(II) hydroxide",
+      "formula": "Fe(OH)2",
+      "latex": "\\mathrm{Fe(OH)_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Fe2OH",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "O^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "iron(II)",
+      "anion_name": "oxide",
+      "name": "iron(II) oxide",
+      "formula": "FeO",
+      "latex": "\\mathrm{FeO}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Fe2O2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Fe2O2 reduces by the common factor 2 to FeO."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "PO4^3-",
+      "cation_n": 3,
+      "anion_n": 2,
+      "cation_name": "iron(II)",
+      "anion_name": "phosphate",
+      "name": "iron(II) phosphate",
+      "formula": "Fe3(PO4)2",
+      "latex": "\\mathrm{Fe_{3}(PO_{4})_{2}}",
+      "note": "3×(+2) + 2×(−3) = 0",
+      "mistake": {
+        "formula": "Fe2(PO4)3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 3×(−3) = -5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "SO4^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "iron(II)",
+      "anion_name": "sulfate",
+      "name": "iron(II) sulfate",
+      "formula": "FeSO4",
+      "latex": "\\mathrm{FeSO_{4}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Fe2(SO4)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Fe2(SO4)2 reduces by the common factor 2 to FeSO4."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "S^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "iron(II)",
+      "anion_name": "sulfide",
+      "name": "iron(II) sulfide",
+      "formula": "FeS",
+      "latex": "\\mathrm{FeS}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Fe2S2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Fe2S2 reduces by the common factor 2 to FeS."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "iron(III)",
+      "anion_name": "acetate",
+      "name": "iron(III) acetate",
+      "formula": "Fe(C2H3O2)3",
+      "latex": "\\mathrm{Fe(C_{2}H_{3}O_{2})_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Fe3C2H3O2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "CO3^2-",
+      "cation_n": 2,
+      "anion_n": 3,
+      "cation_name": "iron(III)",
+      "anion_name": "carbonate",
+      "name": "iron(III) carbonate",
+      "formula": "Fe2(CO3)3",
+      "latex": "\\mathrm{Fe_{2}(CO_{3})_{3}}",
+      "note": "2×(+3) + 3×(−2) = 0",
+      "mistake": {
+        "formula": "Fe3(CO3)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 2×(−2) = +5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "iron(III)",
+      "anion_name": "chloride",
+      "name": "iron(III) chloride",
+      "formula": "FeCl3",
+      "latex": "\\mathrm{FeCl_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Fe3Cl",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "iron(III)",
+      "anion_name": "fluoride",
+      "name": "iron(III) fluoride",
+      "formula": "FeF3",
+      "latex": "\\mathrm{FeF_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Fe3F",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "iron(III)",
+      "anion_name": "hydrogen carbonate",
+      "name": "iron(III) hydrogen carbonate",
+      "formula": "Fe(HCO3)3",
+      "latex": "\\mathrm{Fe(HCO_{3})_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Fe3HCO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "iron(III)",
+      "anion_name": "nitrate",
+      "name": "iron(III) nitrate",
+      "formula": "Fe(NO3)3",
+      "latex": "\\mathrm{Fe(NO_{3})_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Fe3NO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "N^3-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "iron(III)",
+      "anion_name": "nitride",
+      "name": "iron(III) nitride",
+      "formula": "FeN",
+      "latex": "\\mathrm{FeN}",
+      "note": "1×(+3) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "Fe3N3",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Fe3N3 reduces by the common factor 3 to FeN."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "iron(III)",
+      "anion_name": "hydroxide",
+      "name": "iron(III) hydroxide",
+      "formula": "Fe(OH)3",
+      "latex": "\\mathrm{Fe(OH)_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Fe3OH",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "O^2-",
+      "cation_n": 2,
+      "anion_n": 3,
+      "cation_name": "iron(III)",
+      "anion_name": "oxide",
+      "name": "iron(III) oxide",
+      "formula": "Fe2O3",
+      "latex": "\\mathrm{Fe_{2}O_{3}}",
+      "note": "2×(+3) + 3×(−2) = 0",
+      "mistake": {
+        "formula": "Fe3O2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 2×(−2) = +5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "PO4^3-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "iron(III)",
+      "anion_name": "phosphate",
+      "name": "iron(III) phosphate",
+      "formula": "FePO4",
+      "latex": "\\mathrm{FePO_{4}}",
+      "note": "1×(+3) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "Fe3(PO4)3",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Fe3(PO4)3 reduces by the common factor 3 to FePO4."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "SO4^2-",
+      "cation_n": 2,
+      "anion_n": 3,
+      "cation_name": "iron(III)",
+      "anion_name": "sulfate",
+      "name": "iron(III) sulfate",
+      "formula": "Fe2(SO4)3",
+      "latex": "\\mathrm{Fe_{2}(SO_{4})_{3}}",
+      "note": "2×(+3) + 3×(−2) = 0",
+      "mistake": {
+        "formula": "Fe3(SO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 2×(−2) = +5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "S^2-",
+      "cation_n": 2,
+      "anion_n": 3,
+      "cation_name": "iron(III)",
+      "anion_name": "sulfide",
+      "name": "iron(III) sulfide",
+      "formula": "Fe2S3",
+      "latex": "\\mathrm{Fe_{2}S_{3}}",
+      "note": "2×(+3) + 3×(−2) = 0",
+      "mistake": {
+        "formula": "Fe3S2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 2×(−2) = +5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "K^+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "acetate",
+      "name": "potassium acetate",
+      "formula": "KC2H3O2",
+      "latex": "\\mathrm{KC_{2}H_{3}O_{2}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "K^+",
+      "anion": "CO3^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "carbonate",
+      "name": "potassium carbonate",
+      "formula": "K2CO3",
+      "latex": "\\mathrm{K_{2}CO_{3}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "K(CO3)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "K^+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "chloride",
+      "name": "potassium chloride",
+      "formula": "KCl",
+      "latex": "\\mathrm{KCl}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "K^+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "fluoride",
+      "name": "potassium fluoride",
+      "formula": "KF",
+      "latex": "\\mathrm{KF}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "K^+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "hydrogen carbonate",
+      "name": "potassium hydrogen carbonate",
+      "formula": "KHCO3",
+      "latex": "\\mathrm{KHCO_{3}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "K^+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "nitrate",
+      "name": "potassium nitrate",
+      "formula": "KNO3",
+      "latex": "\\mathrm{KNO_{3}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "K^+",
+      "anion": "N^3-",
+      "cation_n": 3,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "nitride",
+      "name": "potassium nitride",
+      "formula": "K3N",
+      "latex": "\\mathrm{K_{3}N}",
+      "note": "3×(+1) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "KN3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 3×(−3) = -8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "K^+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "hydroxide",
+      "name": "potassium hydroxide",
+      "formula": "KOH",
+      "latex": "\\mathrm{KOH}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "K^+",
+      "anion": "O^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "oxide",
+      "name": "potassium oxide",
+      "formula": "K2O",
+      "latex": "\\mathrm{K_{2}O}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "KO2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "K^+",
+      "anion": "PO4^3-",
+      "cation_n": 3,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "phosphate",
+      "name": "potassium phosphate",
+      "formula": "K3PO4",
+      "latex": "\\mathrm{K_{3}PO_{4}}",
+      "note": "3×(+1) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "K(PO4)3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 3×(−3) = -8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "K^+",
+      "anion": "SO4^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "sulfate",
+      "name": "potassium sulfate",
+      "formula": "K2SO4",
+      "latex": "\\mathrm{K_{2}SO_{4}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "K(SO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "K^+",
+      "anion": "S^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "sulfide",
+      "name": "potassium sulfide",
+      "formula": "K2S",
+      "latex": "\\mathrm{K_{2}S}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "KS2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Li^+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "acetate",
+      "name": "lithium acetate",
+      "formula": "LiC2H3O2",
+      "latex": "\\mathrm{LiC_{2}H_{3}O_{2}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Li^+",
+      "anion": "CO3^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "carbonate",
+      "name": "lithium carbonate",
+      "formula": "Li2CO3",
+      "latex": "\\mathrm{Li_{2}CO_{3}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Li(CO3)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Li^+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "chloride",
+      "name": "lithium chloride",
+      "formula": "LiCl",
+      "latex": "\\mathrm{LiCl}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Li^+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "fluoride",
+      "name": "lithium fluoride",
+      "formula": "LiF",
+      "latex": "\\mathrm{LiF}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Li^+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "hydrogen carbonate",
+      "name": "lithium hydrogen carbonate",
+      "formula": "LiHCO3",
+      "latex": "\\mathrm{LiHCO_{3}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Li^+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "nitrate",
+      "name": "lithium nitrate",
+      "formula": "LiNO3",
+      "latex": "\\mathrm{LiNO_{3}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Li^+",
+      "anion": "N^3-",
+      "cation_n": 3,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "nitride",
+      "name": "lithium nitride",
+      "formula": "Li3N",
+      "latex": "\\mathrm{Li_{3}N}",
+      "note": "3×(+1) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "LiN3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 3×(−3) = -8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Li^+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "hydroxide",
+      "name": "lithium hydroxide",
+      "formula": "LiOH",
+      "latex": "\\mathrm{LiOH}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Li^+",
+      "anion": "O^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "oxide",
+      "name": "lithium oxide",
+      "formula": "Li2O",
+      "latex": "\\mathrm{Li_{2}O}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "LiO2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Li^+",
+      "anion": "PO4^3-",
+      "cation_n": 3,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "phosphate",
+      "name": "lithium phosphate",
+      "formula": "Li3PO4",
+      "latex": "\\mathrm{Li_{3}PO_{4}}",
+      "note": "3×(+1) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "Li(PO4)3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 3×(−3) = -8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Li^+",
+      "anion": "SO4^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "sulfate",
+      "name": "lithium sulfate",
+      "formula": "Li2SO4",
+      "latex": "\\mathrm{Li_{2}SO_{4}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Li(SO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Li^+",
+      "anion": "S^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "sulfide",
+      "name": "lithium sulfide",
+      "formula": "Li2S",
+      "latex": "\\mathrm{Li_{2}S}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "LiS2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "magnesium",
+      "anion_name": "acetate",
+      "name": "magnesium acetate",
+      "formula": "Mg(C2H3O2)2",
+      "latex": "\\mathrm{Mg(C_{2}H_{3}O_{2})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Mg2C2H3O2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "CO3^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "magnesium",
+      "anion_name": "carbonate",
+      "name": "magnesium carbonate",
+      "formula": "MgCO3",
+      "latex": "\\mathrm{MgCO_{3}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Mg2(CO3)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Mg2(CO3)2 reduces by the common factor 2 to MgCO3."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "magnesium",
+      "anion_name": "chloride",
+      "name": "magnesium chloride",
+      "formula": "MgCl2",
+      "latex": "\\mathrm{MgCl_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Mg2Cl",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "magnesium",
+      "anion_name": "fluoride",
+      "name": "magnesium fluoride",
+      "formula": "MgF2",
+      "latex": "\\mathrm{MgF_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Mg2F",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "magnesium",
+      "anion_name": "hydrogen carbonate",
+      "name": "magnesium hydrogen carbonate",
+      "formula": "Mg(HCO3)2",
+      "latex": "\\mathrm{Mg(HCO_{3})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Mg2HCO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "magnesium",
+      "anion_name": "nitrate",
+      "name": "magnesium nitrate",
+      "formula": "Mg(NO3)2",
+      "latex": "\\mathrm{Mg(NO_{3})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Mg2NO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "N^3-",
+      "cation_n": 3,
+      "anion_n": 2,
+      "cation_name": "magnesium",
+      "anion_name": "nitride",
+      "name": "magnesium nitride",
+      "formula": "Mg3N2",
+      "latex": "\\mathrm{Mg_{3}N_{2}}",
+      "note": "3×(+2) + 2×(−3) = 0",
+      "mistake": {
+        "formula": "Mg2N3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 3×(−3) = -5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "magnesium",
+      "anion_name": "hydroxide",
+      "name": "magnesium hydroxide",
+      "formula": "Mg(OH)2",
+      "latex": "\\mathrm{Mg(OH)_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Mg2OH",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "O^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "magnesium",
+      "anion_name": "oxide",
+      "name": "magnesium oxide",
+      "formula": "MgO",
+      "latex": "\\mathrm{MgO}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Mg2O2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Mg2O2 reduces by the common factor 2 to MgO."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "PO4^3-",
+      "cation_n": 3,
+      "anion_n": 2,
+      "cation_name": "magnesium",
+      "anion_name": "phosphate",
+      "name": "magnesium phosphate",
+      "formula": "Mg3(PO4)2",
+      "latex": "\\mathrm{Mg_{3}(PO_{4})_{2}}",
+      "note": "3×(+2) + 2×(−3) = 0",
+      "mistake": {
+        "formula": "Mg2(PO4)3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 3×(−3) = -5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "SO4^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "magnesium",
+      "anion_name": "sulfate",
+      "name": "magnesium sulfate",
+      "formula": "MgSO4",
+      "latex": "\\mathrm{MgSO_{4}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Mg2(SO4)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Mg2(SO4)2 reduces by the common factor 2 to MgSO4."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "S^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "magnesium",
+      "anion_name": "sulfide",
+      "name": "magnesium sulfide",
+      "formula": "MgS",
+      "latex": "\\mathrm{MgS}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Mg2S2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Mg2S2 reduces by the common factor 2 to MgS."
+      }
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "acetate",
+      "name": "ammonium acetate",
+      "formula": "NH4C2H3O2",
+      "latex": "\\mathrm{NH_{4}C_{2}H_{3}O_{2}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "CO3^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "carbonate",
+      "name": "ammonium carbonate",
+      "formula": "(NH4)2CO3",
+      "latex": "\\mathrm{(NH_{4})_{2}CO_{3}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "NH4(CO3)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "chloride",
+      "name": "ammonium chloride",
+      "formula": "NH4Cl",
+      "latex": "\\mathrm{NH_{4}Cl}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "fluoride",
+      "name": "ammonium fluoride",
+      "formula": "NH4F",
+      "latex": "\\mathrm{NH_{4}F}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "hydrogen carbonate",
+      "name": "ammonium hydrogen carbonate",
+      "formula": "NH4HCO3",
+      "latex": "\\mathrm{NH_{4}HCO_{3}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "nitrate",
+      "name": "ammonium nitrate",
+      "formula": "NH4NO3",
+      "latex": "\\mathrm{NH_{4}NO_{3}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "N^3-",
+      "cation_n": 3,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "nitride",
+      "name": "ammonium nitride",
+      "formula": "(NH4)3N",
+      "latex": "\\mathrm{(NH_{4})_{3}N}",
+      "note": "3×(+1) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "NH4N3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 3×(−3) = -8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "hydroxide",
+      "name": "ammonium hydroxide",
+      "formula": "NH4OH",
+      "latex": "\\mathrm{NH_{4}OH}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "O^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "oxide",
+      "name": "ammonium oxide",
+      "formula": "(NH4)2O",
+      "latex": "\\mathrm{(NH_{4})_{2}O}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "NH4O2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "PO4^3-",
+      "cation_n": 3,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "phosphate",
+      "name": "ammonium phosphate",
+      "formula": "(NH4)3PO4",
+      "latex": "\\mathrm{(NH_{4})_{3}PO_{4}}",
+      "note": "3×(+1) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "NH4(PO4)3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 3×(−3) = -8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "SO4^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "sulfate",
+      "name": "ammonium sulfate",
+      "formula": "(NH4)2SO4",
+      "latex": "\\mathrm{(NH_{4})_{2}SO_{4}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "NH4(SO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "S^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "sulfide",
+      "name": "ammonium sulfide",
+      "formula": "(NH4)2S",
+      "latex": "\\mathrm{(NH_{4})_{2}S}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "NH4S2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Na^+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "acetate",
+      "name": "sodium acetate",
+      "formula": "NaC2H3O2",
+      "latex": "\\mathrm{NaC_{2}H_{3}O_{2}}",
+      "note": "1×(+1) + 1×(−1) = 0"
     },
     {
       "cation": "Na^+",
       "anion": "CO3^2-",
       "cation_n": 2,
       "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "carbonate",
+      "name": "sodium carbonate",
       "formula": "Na2CO3",
       "latex": "\\mathrm{Na_{2}CO_{3}}",
-      "note": "2×(+1) + 1×(−2) = 0"
-    },
-    {
-      "cation": "Ca^2+",
-      "anion": "Cl^-",
-      "cation_n": 1,
-      "anion_n": 2,
-      "formula": "CaCl2",
-      "latex": "\\mathrm{CaCl_{2}}",
-      "note": "1×(+2) + 2×(−1) = 0"
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Na(CO3)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
     },
     {
       "cation": "Na^+",
       "anion": "Cl^-",
       "cation_n": 1,
       "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "chloride",
+      "name": "sodium chloride",
       "formula": "NaCl",
       "latex": "\\mathrm{NaCl}",
       "note": "1×(+1) + 1×(−1) = 0"
     },
     {
-      "cation": "Ca^2+",
-      "anion": "PO4^3-",
+      "cation": "Na^+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "fluoride",
+      "name": "sodium fluoride",
+      "formula": "NaF",
+      "latex": "\\mathrm{NaF}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Na^+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "hydrogen carbonate",
+      "name": "sodium hydrogen carbonate",
+      "formula": "NaHCO3",
+      "latex": "\\mathrm{NaHCO_{3}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Na^+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "nitrate",
+      "name": "sodium nitrate",
+      "formula": "NaNO3",
+      "latex": "\\mathrm{NaNO_{3}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Na^+",
+      "anion": "N^3-",
       "cation_n": 3,
-      "anion_n": 2,
-      "formula": "Ca3(PO4)2",
-      "latex": "\\mathrm{Ca_{3}(PO_{4})_{2}}",
-      "note": "3×(+2) + 2×(−3) = 0"
+      "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "nitride",
+      "name": "sodium nitride",
+      "formula": "Na3N",
+      "latex": "\\mathrm{Na_{3}N}",
+      "note": "3×(+1) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "NaN3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 3×(−3) = -8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Na^+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "hydroxide",
+      "name": "sodium hydroxide",
+      "formula": "NaOH",
+      "latex": "\\mathrm{NaOH}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Na^+",
+      "anion": "O^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "oxide",
+      "name": "sodium oxide",
+      "formula": "Na2O",
+      "latex": "\\mathrm{Na_{2}O}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "NaO2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
     },
     {
       "cation": "Na^+",
       "anion": "PO4^3-",
       "cation_n": 3,
       "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "phosphate",
+      "name": "sodium phosphate",
       "formula": "Na3PO4",
       "latex": "\\mathrm{Na_{3}PO_{4}}",
-      "note": "3×(+1) + 1×(−3) = 0"
+      "note": "3×(+1) + 1×(−3) = 0",
+      "mistake": {
+        "formula": "Na(PO4)3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 3×(−3) = -8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Na^+",
+      "anion": "SO4^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "sulfate",
+      "name": "sodium sulfate",
+      "formula": "Na2SO4",
+      "latex": "\\mathrm{Na_{2}SO_{4}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Na(SO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Na^+",
+      "anion": "S^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "sulfide",
+      "name": "sodium sulfide",
+      "formula": "Na2S",
+      "latex": "\\mathrm{Na_{2}S}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "NaS2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "C2H3O2^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "zinc",
+      "anion_name": "acetate",
+      "name": "zinc acetate",
+      "formula": "Zn(C2H3O2)2",
+      "latex": "\\mathrm{Zn(C_{2}H_{3}O_{2})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Zn2C2H3O2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "CO3^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "zinc",
+      "anion_name": "carbonate",
+      "name": "zinc carbonate",
+      "formula": "ZnCO3",
+      "latex": "\\mathrm{ZnCO_{3}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Zn2(CO3)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Zn2(CO3)2 reduces by the common factor 2 to ZnCO3."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "Cl^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "zinc",
+      "anion_name": "chloride",
+      "name": "zinc chloride",
+      "formula": "ZnCl2",
+      "latex": "\\mathrm{ZnCl_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Zn2Cl",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "F^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "zinc",
+      "anion_name": "fluoride",
+      "name": "zinc fluoride",
+      "formula": "ZnF2",
+      "latex": "\\mathrm{ZnF_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Zn2F",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "HCO3^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "zinc",
+      "anion_name": "hydrogen carbonate",
+      "name": "zinc hydrogen carbonate",
+      "formula": "Zn(HCO3)2",
+      "latex": "\\mathrm{Zn(HCO_{3})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Zn2HCO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "NO3^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "zinc",
+      "anion_name": "nitrate",
+      "name": "zinc nitrate",
+      "formula": "Zn(NO3)2",
+      "latex": "\\mathrm{Zn(NO_{3})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Zn2NO3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "N^3-",
+      "cation_n": 3,
+      "anion_n": 2,
+      "cation_name": "zinc",
+      "anion_name": "nitride",
+      "name": "zinc nitride",
+      "formula": "Zn3N2",
+      "latex": "\\mathrm{Zn_{3}N_{2}}",
+      "note": "3×(+2) + 2×(−3) = 0",
+      "mistake": {
+        "formula": "Zn2N3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 3×(−3) = -5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "OH^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "zinc",
+      "anion_name": "hydroxide",
+      "name": "zinc hydroxide",
+      "formula": "Zn(OH)2",
+      "latex": "\\mathrm{Zn(OH)_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Zn2OH",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "O^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "zinc",
+      "anion_name": "oxide",
+      "name": "zinc oxide",
+      "formula": "ZnO",
+      "latex": "\\mathrm{ZnO}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Zn2O2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Zn2O2 reduces by the common factor 2 to ZnO."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "PO4^3-",
+      "cation_n": 3,
+      "anion_n": 2,
+      "cation_name": "zinc",
+      "anion_name": "phosphate",
+      "name": "zinc phosphate",
+      "formula": "Zn3(PO4)2",
+      "latex": "\\mathrm{Zn_{3}(PO_{4})_{2}}",
+      "note": "3×(+2) + 2×(−3) = 0",
+      "mistake": {
+        "formula": "Zn2(PO4)3",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 3×(−3) = -5, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "SO4^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "zinc",
+      "anion_name": "sulfate",
+      "name": "zinc sulfate",
+      "formula": "ZnSO4",
+      "latex": "\\mathrm{ZnSO_{4}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Zn2(SO4)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Zn2(SO4)2 reduces by the common factor 2 to ZnSO4."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "S^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "zinc",
+      "anion_name": "sulfide",
+      "name": "zinc sulfide",
+      "formula": "ZnS",
+      "latex": "\\mathrm{ZnS}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Zn2S2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Zn2S2 reduces by the common factor 2 to ZnS."
+      }
     }
   ],
   "sources": {
@@ -496,6 +3052,32 @@
     "ion_charge": "openstax-chemistry-2e",
     "electronegativity": "openstax-chemistry-2e",
     "covalent_radius": "cordero-2008-covalent-radii",
-    "ionization_energy": "nist-ionization-energies"
+    "ionization_energy": "nist-ionization-energies",
+    "bonding": "openstax-chemistry-2e"
+  },
+  "bonding": {
+    "source": "openstax-chemistry-2e",
+    "caution": "A general guide with many exceptions — OpenStax's own words. HF sits near the ionic line yet is a polar covalent molecule, and some metal–nonmetal pairs with modest ΔEN are ionic anyway. The better guide is the atoms themselves: two nonmetals share electrons (covalent); a metal with a nonmetal usually transfers them (ionic).",
+    "classes": [
+      {
+        "id": "nonpolar-covalent",
+        "label": "pure (nonpolar) covalent",
+        "description": "The atoms pull electrons about equally, so the pair is shared nearly evenly.",
+        "max": "0.4"
+      },
+      {
+        "id": "polar-covalent",
+        "label": "polar covalent",
+        "description": "The pair is shared, but pulled toward the more electronegative atom — a bond dipole (δ+ / δ−).",
+        "min": "0.4",
+        "max": "1.8"
+      },
+      {
+        "id": "ionic",
+        "label": "ionic",
+        "description": "The pull is lopsided enough that electron transfer is the better model — ions, not a shared pair.",
+        "min": "1.8"
+      }
+    ]
   }
 }

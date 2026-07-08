@@ -151,17 +151,36 @@ export function renderGym(gym) {
   return g;
 }
 
+// Exact ×100 integer for a two-decimal string ("3.98" → 398) so the bonding mode's ΔEN subtraction and
+// threshold comparisons run on integers in the browser — no float noise (ADR-0033, the tally discipline).
+function cents(s) {
+  const [whole, frac = ""] = String(s).split(".");
+  return Number(whole) * 100 + Number((frac + "00").slice(0, 2));
+}
+
 // Deep-render the Valence Table's LaTeX to HTML (build-time) so the ValenceTable island ships no KaTeX.
 export function renderValenceTable(t) {
   const v = structuredClone(t);
+  const renderIon = (i) => ({ ...i, latexHtml: tex(i.latex, false), pretty: prettyIon(i.id) });
   v.elements = v.elements.map((e) => ({
     ...e,
-    ...(e.common_ion ? { common_ion: { ...e.common_ion, latexHtml: tex(e.common_ion.latex, false), pretty: prettyIon(e.common_ion.id) } } : {}),
+    ...(e.common_ion ? { common_ion: renderIon(e.common_ion) } : {}),
+    ...(e.other_ions ? { other_ions: e.other_ions.map(renderIon) } : {}),
+    // exact integer electronegativity for the bonding mode's browser-side ΔEN arithmetic
+    ...(e.electronegativity != null ? { enCents: cents(e.electronegativity) } : {}),
   }));
   v.polyatomic = v.polyatomic.map((p) => ({ ...p, latexHtml: tex(p.latex, false), pretty: prettyIon(p.id) }));
   v.charge_balance = v.charge_balance.map((c) => ({
     ...c, latexHtml: tex(c.latex, false), cationPretty: prettyIon(c.cation), anionPretty: prettyIon(c.anion),
+    ...(c.mistake ? { mistake: { ...c.mistake, pretty: prettyIon(c.mistake.formula) } } : {}),
   }));
+  if (v.bonding) {
+    v.bonding.classes = v.bonding.classes.map((c) => ({
+      ...c,
+      ...(c.min != null ? { minCents: cents(c.min) } : {}),
+      ...(c.max != null ? { maxCents: cents(c.max) } : {}),
+    }));
+  }
   return v;
 }
 

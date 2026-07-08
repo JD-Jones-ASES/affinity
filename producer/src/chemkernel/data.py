@@ -50,11 +50,12 @@ class Ion:
 
 class ChemData:
     def __init__(self, elements: dict[str, Element], ions: dict[str, Ion], sources: dict[str, str],
-                 constants: dict[str, Decimal] | None = None):
+                 constants: dict[str, Decimal] | None = None, bonding: dict | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
         self.constants = constants or {}
+        self.bonding = bonding or {}
 
     @property
     def avogadro(self) -> Decimal:
@@ -118,6 +119,23 @@ class ChemData:
                     except ArithmeticError as exc:
                         raise BuildError(f"data/constants.toml: bad value for '{key}': {exc}") from exc
 
+        # bond-classification ruleset (optional file; ADR-0033). ΔEN class thresholds are a sourced teaching
+        # rule (OpenStax Fig 7.8), kept as data so the bonding mode never hard-codes an empirical boundary.
+        bonding: dict = {}
+        bonding_path = d / "bonding.toml"
+        if bonding_path.exists():
+            bonding = tomllib.loads(bonding_path.read_text(encoding="utf-8"))
+            for key in ("source", "caution", "classes"):
+                if key not in bonding:
+                    raise BuildError(f"data/bonding.toml: missing '{key}'")
+            for c in bonding["classes"]:
+                for key in ("id", "label", "description"):
+                    if key not in c:
+                        raise BuildError(f"data/bonding.toml: class missing '{key}'")
+                for bound in ("min", "max"):
+                    if bound in c:
+                        Decimal(c[bound])  # must parse exactly (ADR-0013); raises on garbage
+
         sources = {
             "atomic_weight": el_doc.get("source", ""),
             "position": el_doc.get("position_source", ""),
@@ -126,8 +144,9 @@ class ChemData:
             "ionization_energy": el_doc.get("ionization_energy_source", ""),
             "ion_charge": ion_doc.get("charge_source", ""),
             "constants": const_source,
+            "bonding": bonding.get("source", ""),
         }
-        obj = cls(elements, ions, sources, constants)
+        obj = cls(elements, ions, sources, constants, bonding)
         obj.validate()
         return obj
 

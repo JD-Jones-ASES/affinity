@@ -238,18 +238,26 @@ interactives/practice for free with a yield card added. The **Avogadro constant*
 exact datum (`data/constants.toml`, `bipm-si-2019`). A `percent-yield` Atlas concept landed; the drill
 island's chain caption is family-aware. **Deferred to Phase 2:** the *particle-count* drills (moles↔particles
 — the datum is in place, but they need sci-notation display and pair with gas/molar-volume work).
-**Counters: 3 lessons (2 precipitation + 1 percent-yield) + 6 gyms (dimensional analysis + ionic nomenclature
-+ balancing + mass stoichiometry + percent yield + limiting reagent; 60 verified problems — the four numeric
-families are **free-entry with a diagnostics catalogue**, not gameable menus, ADR-0032; the lesson Practice
-tab's mass/leftover questions are free-entry too), 1 Valence Table
-(23 elements — the first 20 + Fe/Cu/Zn — with sourced electronegativity/covalent-radius/first-ionization-energy,
-ADR-0031) + 16 cross-linked concept entries (3 rule-sourced, cited), 7 Node gates (validate-reference now
-resolves every emitted source id to SOURCES.md; validate-gyms + check-parity enforce the free-entry/menu split)
-+ CI + live Pages, 156 producer tests green; astro build = 15 pages.**
-**Phase 0 remains complete end to end**; Phase 1 is filling depth-first — **item 5a (the Valence-Table
-element-property data) landed (ADR-0031); item 5b (the trend/bonding/practice lenses) and item 6 (reaction
-families) remain**, each with full scope blocks, plus the 8-session map and a **Phase-1 definition of done**
-in the ROADMAP, with a review gate before Phase 2. See
+**Item 5 (the Valence-Table flagship) is COMPLETE** (ADR-0031 data + ADR-0033/0034 modes, 2026-07-08): the
+table now runs **four modes** — Explore (five lenses, each a sourced color overlay + a pattern panel rendered
+with the **interpretive marker**: architecture Q4 resolved, regime-4 renders under the model-assumed badge, no
+fourth badge), Trends (SVG property graphs by period/group, honest gaps), Formula builder (the full 156-pair
+crossover product, machine-verified **and named** by the nomenclature engine, the own-charge mistake proven
+wrong per pair), and Bonding (exact integer ΔEN against the sourced OpenStax thresholds in `data/bonding.toml`,
+caution attached) — plus a **seventh gym family** `periodic_trends_v1` drilled from the same data (trend
+exceptions like the B/Be and O/N ionization dips are answered from data and named as traps);
+`validate-reference` re-derives valence electrons/names/subscripts/mistakes in pure Node and `validate-gyms`
+cross-checks every embedded value against the committed table.
+**Counters: 3 lessons (2 precipitation + 1 percent-yield) + 7 gyms (dimensional analysis + ionic nomenclature
++ balancing + mass stoichiometry + percent yield + limiting reagent + periodic trends; 70 verified problems —
+the four numeric families are **free-entry with a diagnostics catalogue**, not gameable menus, ADR-0032; the
+lesson Practice tab's mass/leftover questions are free-entry too), 1 Valence Table (23 elements, four modes,
+five lenses, 156 named+verified salts, ADR-0031/0033) + 19 cross-linked concept entries (5 rule-sourced,
+cited; 1 mechanistic/interpretive), 7 Node gates + CI + live Pages, 167 producer tests green; astro build =
+16 pages.**
+**Phase 0 remains complete end to end**; Phase 1 is filling depth-first — **items 1–5 are done; item 6
+(reaction families) remains**, with its full scope block, the 8-session map, and a **Phase-1 definition of
+done** in the ROADMAP, with a review gate before Phase 2. See
 [`ROADMAP.md`](./ROADMAP.md) and [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
 
 ## Where this might go next (paths for a future session)
@@ -264,12 +272,11 @@ check-parity, check-katex, scan-text); (g) the **player** with **both interactiv
 entries, now **13**); (k) `docs/authoring-problems.md`; and **CI/Pages** (live at `/affinity`) — **all eight
 items landed and verified. Phase 0 is complete.**
 
-**Phase 1 is open and filling depth-first** (ADR-0024). Item 1 (the dimensional-analysis gym) landed; the
-remaining procedural-core items each inherit the gym instrument — **item 2 formula/nomenclature engine**,
-**item 3 balancing engine**, **item 4 stoichiometry suite**, **item 5 the Valence Table flagship** (5a data
-landed, ADR-0031; 5b lenses next), **item 6
-reaction families** (brief §17; each adds a `family` to `chemkernel.gym` and, for a new answer shape, a
-per-kind branch to `validate-gyms` — not new plumbing). The **Atlas breadth-fill** (more species/reactions/
+**Phase 1 is open and filling depth-first** (ADR-0024). Items 1–5 are done — the dimensional-analysis gym,
+the formula/nomenclature engine, the balancing engine, the stoichiometry suite, and the **Valence Table
+flagship** (ADR-0031/0033/0034) — leaving **item 6, reaction families** (brief §17; it adds a `family` to
+`chemkernel.gym` and, for a new answer shape, a per-kind branch to `validate-gyms` — not new plumbing —
+plus the reaction-atlas entry kind and the first non-precipitation lesson shape). The **Atlas breadth-fill** (more species/reactions/
 concept-graph edges, `docs/regime-map.md` is the coverage dashboard) runs in parallel, as does another lesson.
 Docs-only sessions are always in season. **Opening Phase 2** (the model-bearing topics — gases,
 thermochemistry, equilibrium, kinetics, electrochemistry) remains a phase boundary the owner opens.

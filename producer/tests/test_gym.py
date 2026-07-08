@@ -21,6 +21,7 @@ SPEC_BALANCING = ROOT / "gyms" / "balancing" / "balance-equations.gym.toml"
 SPEC_MASS_STOICH = ROOT / "gyms" / "stoichiometry" / "mass-stoichiometry.gym.toml"
 SPEC_PERCENT_YIELD = ROOT / "gyms" / "stoichiometry" / "percent-yield.gym.toml"
 SPEC_LIMITING_MASS = ROOT / "gyms" / "stoichiometry" / "limiting-reagent.gym.toml"
+SPEC_TRENDS = ROOT / "gyms" / "periodic-trends" / "periodic-trends.gym.toml"
 
 _TARGET = {
     "volume_molarity_to_moles": "mol", "moles_molarity_to_volume": "mL", "mass_to_moles": "mol",
@@ -312,7 +313,7 @@ def test_stoichiometry_deterministic(spec):
 # ------------------------------ ADR-0032: practice must not be answerable by recognition ------------------------------
 
 _NUMERIC_SPECS = [SPEC, SPEC_MASS_STOICH, SPEC_PERCENT_YIELD, SPEC_LIMITING_MASS]
-_CHOICE_SPECS = [SPEC_NOMENCLATURE, SPEC_BALANCING]
+_CHOICE_SPECS = [SPEC_NOMENCLATURE, SPEC_BALANCING, SPEC_TRENDS]
 
 
 @pytest.mark.parametrize("spec", _NUMERIC_SPECS, ids=lambda p: p.stem)
@@ -329,6 +330,81 @@ def test_categorical_gyms_stay_plausible_menus(spec):
     plausible, same-form answer a specific misconception produces."""
     for p in _gym_from(spec)["problems"]:
         _assert_choice_menu(p)
+
+
+# ------------------------------ periodic trends (item 5b, ADR-0034) ------------------------------
+
+
+def test_trends_shape_and_kind_rotation():
+    g = _gym_from(SPEC_TRENDS)
+    assert g["family"] == "periodic_trends_v1" and len(g["problems"]) == 10
+    assert {p["kind"] for p in g["problems"]} == {"trend_compare", "predict_ion", "order_ionization"}
+    # the drilled properties/charges carry their register ids in provenance (ADR-0034)
+    src = g["provenance"]["sources"]
+    assert src["ionization_energy"] == "nist-ionization-energies"
+    assert src["covalent_radius"] == "cordero-2008-covalent-radii"
+    assert src["electronegativity"] == "openstax-chemistry-2e" == src["ion_charge"]
+    for p in g["problems"]:
+        _assert_choice_menu(p)                             # comparisons/ions/orderings are categorical
+
+
+def test_trend_compare_answers_come_from_the_data():
+    data = ChemData.load(ROOT)
+    for p in _gym_from(SPEC_TRENDS)["problems"]:
+        if p["kind"] != "trend_compare":
+            continue
+        d = p["derivation"]
+        vals = []
+        for c in d["candidates"]:
+            el = data.elements[c["symbol"]]
+            assert c["value"] == str(getattr(el, d["property"]))          # embedded value IS the curated value
+            assert el.block in ("s", "p") and c["symbol"] != "H"
+            assert (el.period if d["series"]["kind"] == "period" else el.group) == d["series"]["n"]
+            vals.append(Decimal(c["value"]))
+        extreme = max(vals) if d["direction"] == "max" else min(vals)
+        assert p["answer"]["value"] == d["candidates"][vals.index(extreme)]["symbol"]
+
+
+def test_order_ionization_sorted_from_data_and_exceptions_named():
+    data = ChemData.load(ROOT)
+    for p in _gym_from(SPEC_TRENDS)["problems"]:
+        if p["kind"] != "order_ionization":
+            continue
+        d = p["derivation"]
+        by_value = sorted(d["candidates"], key=lambda c: Decimal(c["value"]))
+        assert p["answer"]["value"] == ",".join(c["symbol"] for c in by_value)
+        for c in d["candidates"]:
+            assert c["value"] == str(data.elements[c["symbol"]].first_ionization_kj_mol)
+        # when the data order breaks the left-to-right rule, the naive order must appear as a NAMED trap
+        by_group = sorted(d["candidates"], key=lambda c: data.elements[c["symbol"]].group)
+        if by_group != by_value:
+            naive_disp = " < ".join(c["symbol"] for c in by_group)
+            trap = next(c for c in p["choices"] if c["display"] == naive_disp)
+            assert not trap["correct"] and "dip" in trap["misconception"]
+
+
+def test_predict_ion_matches_the_valence_table_pick():
+    from chemkernel.reference import common_monatomic_ions
+    data = ChemData.load(ROOT)
+    common = common_monatomic_ions(data)
+    for p in _gym_from(SPEC_TRENDS)["problems"]:
+        if p["kind"] != "predict_ion":
+            continue
+        d = p["derivation"]
+        el = data.elements[d["element"]]
+        assert el.block in ("s", "p") and d["element"] != "H"            # d-block + H are excluded
+        ion = common[d["element"]]
+        assert d["ion"]["id"] == ion.id == p["answer"]["value"]
+        assert d["ion"]["charge"] == ion.charge
+        # only fixed-charge elements are drilled — "the" common ion must be unambiguous
+        assert sum(1 for i in data.ions.values()
+                   if i.element == d["element"] and i.kind == "monatomic") == 1
+        assert d["ion"]["id"] in p["subscript_tokens"]                   # the view subscripts the ion ids
+
+
+def test_trends_deterministic():
+    assert _gym_from(SPEC_TRENDS) == _gym_from(SPEC_TRENDS)
+    assert _gym_from(SPEC_TRENDS, seed=99)["problems"] != _gym_from(SPEC_TRENDS)["problems"]
 
 
 def test_percent_yield_diagnostics_replace_the_giveaway_menu():

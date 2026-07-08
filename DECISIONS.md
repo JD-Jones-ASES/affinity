@@ -731,3 +731,95 @@ free entry with a `diagnostics` catalogue (the `0 mmol` leftover throwaway becam
 categorical **which reagent limits** stays a menu (both reagents are plausible). Free entry suits numeric
 answers; a menu remains right for genuinely categorical ones (which limiting reagent, classify the reaction)
 where every option is plausible.
+
+## ADR-0033 — Valence-Table flagship modes: lenses, trends, formula builder, bonding; regime-4 renders as an interpretive marker (2026-07-08)
+
+**Context.** Phase-1 item 5b (brief §8): the curated element properties (ADR-0031) exist but the table only
+*lists* them — the flagship needs the lenses (each with the brief-§8.1 pattern panel: what pattern / why /
+exceptions / where it shows up), trend graphs, a real formula mode (brief §8.3, plus the item-2 deferred
+naming hookup), and a bonding mode (ΔEN → polarity). Three open questions: (1) the pattern panels' "why"
+text is the project's **first regime-4 (mechanistic/interpretive) content**, which is exactly the trigger
+architecture Q4 set for deciding its badge; (2) the bonding classification thresholds are a teaching rule that
+must be sourced, not hard-coded (ADR-0006); (3) the player must drive all four modes without computing
+chemistry at runtime (ADR-0008).
+
+**Decision.**
+1. **Q4 resolved — no fourth badge.** Regime-4 content renders under the **model-assumed (amber) badge with an
+   explicit "interpretive" marker** — ADR-0003's documented default made concrete. Each lens panel is emitted
+   with `regime: "mechanistic"` and the player renders it as *interpretive — an explanation, not a proof*,
+   beside the lens's data-source badge: the colored values are the sourced evidence; the "why" is the useful
+   story. The `reference.schema.json` `mechanistic` enum value (reserved since bootstrap) is now live for
+   concept entries too, rendered the same way.
+2. **Lenses are emitted data.** `build_valence_table` emits a `lenses` catalogue — ion charge, valence
+   electrons, electronegativity, covalent radius, first ionization energy — each carrying the element-field it
+   colors by, its unit, its source key (must resolve through the table's `sources` map to a SOURCES.md row),
+   and the four-part pattern panel. **Valence electrons** are emitted per element, derived from the IUPAC
+   group (groups 1–2 → the group number; groups 13–18 → group − 10; He → 2); d-block elements are honestly
+   omitted (the count is convention-dependent) exactly as the noble gases omit electronegativity. The Node
+   gate re-derives the rule from the emitted group/block.
+3. **Formula mode is the full verified crossover product, with names.** `charge_balance` grows from the six
+   lesson salts to **every cation×anion pair** in the ion table (H⁺ excluded — acid naming remains the item-2
+   deferred follow-up), each still assembled by `assemble_formula` (machine-verified neutral + composition)
+   and now carrying the compound **name** from `chemkernel.nomenclature` (the item-2 hookup) plus the ion
+   `compound_name` parts so `validate-reference` re-derives the name by concatenation and the formula by gcd
+   crossover in pure Node (the ADR-0027 pattern). Where the canonical mistake — each ion's own charge as its
+   own subscript — differs from the crossover, the entry emits a named `mistake`, proven at emit time to be
+   **non-neutral** (charge sum shown) or **unreduced** (neutral but not the smallest whole-number ratio);
+   pairs where it coincides with the answer emit none. Variable-charge metals surface **all** their common
+   ions (`other_ions` beside the lens's lowest-charge `common_ion`), closing item 2's deferred
+   full-variable-charge display.
+4. **Bonding mode is a sourced rule over emitted data.** A new curated ruleset `data/bonding.toml` — the
+   OpenStax Chemistry 2e Fig 7.8 (§7.2) ΔEN classification: pure covalent < 0.4, polar covalent 0.4–1.8,
+   ionic > 1.8 — with OpenStax's own caveat carried as data: *a general guide with many exceptions* (HF sits
+   near the line yet is polar covalent; the better guide is the atoms — two nonmetals bond covalently, metal +
+   nonmetal usually ionically). Folded into the already-registered `openstax-chemistry-2e` source (coverage
+   extended). The island computes ΔEN by **integer arithmetic over build-time ×100 values** (exact — no float
+   noise) and compares against the emitted thresholds: stepping producer data, the ADR-0028 tally discipline.
+   The caution renders always, under the interpretive treatment.
+5. **Trend mode plots committed values.** No new data: the island renders an SVG of the already-emitted sourced
+   values across a chosen period or down a chosen group. Missing values (noble-gas EN, transition-metal radii)
+   render as labeled gaps, never interpolated; partial period 4 says so.
+
+**Consequences.** All five brief-§8 modes are live on the curated data, none of it computed at runtime; Q4 is
+closed (no honesty-model change — the three badges stand); the interpretive marker is the pattern for all
+future regime-4 content. `valence-table.schema.json` grows the lens/bonding/name/mistake/other-ion shapes;
+`validate-reference` gains pure-Node re-derivations (valence electrons, salt names, crossover subscripts,
+mistake honesty). Deferred: oxidation-state, electron-affinity, metallic-character, density, abundance lenses
+(brief §8.1 lists more than the curated properties support — each needs a data-curation pass first); a
+metal/nonmetal field for a data-driven bonding caution.
+
+## ADR-0034 — periodic_trends_v1: the practice mode is a gym generated from the table's own data (2026-07-08)
+
+**Context.** Brief §8.5: the table generates targeted drills "from the same data source and explanation
+rules." Item 5b's practice mode should be a gym family (ADR-0024 template: a generator + a `validate-gyms`
+branch, no new plumbing). Two honesty questions: (1) periodic trends have real exceptions (B < Be and O < N in
+first ionization energy — visible in the curated NIST data), and drills must answer from **data**, never from
+the naive trend rule; (2) the gym's embedded property values must be *the same values* the Valence Table
+renders, or the corpus contradicts itself.
+
+**Decision.** A `periodic_trends_v1` family in `chemkernel.gym`, three kinds, **all categorical menus**
+(`mode: "choice"`, ADR-0032 — an element, an ion, or an ordering is a plausible same-form choice):
+1. **`trend_compare`** — which of three same-period (or same-group) elements has the largest/smallest covalent
+   radius, first ionization energy, or electronegativity. The answer is the curated extreme; every wrong
+   choice's misconception states both values and the trend it misread. H and the d-block are excluded from
+   trend series (anomalous placement / no curated radius); an extreme tie rejects the candidate.
+2. **`predict_ion`** — the common monatomic ion for a fixed-charge main-group element (variable-charge metals
+   and H excluded), distractors being the sign flip ("metals lose, nonmetals gain") and the miscounted charge
+   (an anion charged by its valence-electron count instead of its vacancy count; a metal losing the wrong
+   number).
+3. **`order_ionization`** — three same-period elements ordered by increasing first ionization energy.
+   Distractors: the reversed order, and — when the data order differs from left-to-right position order — the
+   **naive trend order itself**, with the exception named (the B/Be and O/N dips become the teaching moment
+   instead of a lie).
+Each problem's `derivation` embeds the property, the per-element values, and (for ions) the predicted ion, so
+`validate-gyms.mjs` re-compares/re-sorts numerically in pure Node **and cross-checks every embedded value,
+ion, and symbol against the committed `derived/reference/valence-table.json`** — one source of truth across
+the corpus (the molar-mass-consistency idea extended to reference data). Provenance carries the property
+source ids.
+
+**Consequences.** Gym family #7; the drill island renders it with zero new plumbing (choice mode, no chain);
+`gym.schema.json` grows the three kinds + a `candidates`/`ion`/`property` derivation shape. Trend exceptions
+are answered honestly by construction — if the curated data and the naive rule disagree, the data wins and
+the explanation says why. Deferred: radius/EN orderings (IE has the instructive exceptions; one ordering kind
+keeps the menu space clean), "which compound is most likely ionic" (needs the metal/nonmetal field),
+electron-configuration matching (needs configurations curated).
