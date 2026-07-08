@@ -1,0 +1,59 @@
+# The Phase-2 bonding & structure lesson (ADR-0045): the electron ledger's presentation shape generalised past
+# a reaction to a SINGLE MOLECULE. No equations, no species ledger over extent, no reported product — the pivot
+# is the Lewis ELECTRON ledger (valence electrons → bonds + lone pairs → octets → formal charge), machine-checked
+# by chemkernel.structure.compute_ledger, the SAME engine the `molecule` Atlas kind and the `lewis_structures_v1`
+# gym use. The lesson names a molecule Atlas entry and reuses its authored connectivity (one source of truth), so
+# it can never describe a different structure than the Atlas. Three honesty layers, not mixed: the electron
+# ledger is MACHINE-CHECKED (regime-1); the VSEPR shape is RULE-SOURCED (data/vsepr.toml, regime-3); the polarity
+# is a disclosed MODEL conclusion (regime-2). The author writes the scenario, the four step prose blocks, the
+# misconception, and the assumptions; ChemKernel derives + verifies the rest. Root keys precede any [table]
+# header (TOML trap #4). Formula tokens in prose use literal sub/superscripts, matching the molecule summaries.
+
+id = "bonding-water-molecular-shape"
+title = "Why water is bent: the electron ledger of a single molecule"
+slug = "water-molecular-shape"
+topic = "bonding"
+tags = ["bonding", "lewis-structure", "vsepr", "molecular-geometry", "polarity", "electron-ledger", "water"]
+author = "Affinity"
+created = "2026-07-08"
+
+# the molecule Atlas entry this lesson embeds — build.py resolves its authored atoms/bonds and re-derives the
+# electron ledger with compute_ledger. molecule-water is neutral and carries a disclosed polarity (the payoff).
+molecule = "molecule-water"
+
+scenario = "Water is the most familiar molecule there is, and almost everyone first pictures it as a straight line: H–O–H. It isn't. Water is bent — and that bend is the reason it dissolves salt, climbs up plant stems, and boils at 100 °C instead of somewhere below −80 °C like a nonpolar molecule its size. We'll build H₂O one accounting step at a time — count its valence electrons, place them into bonds and lone pairs, read the shape off the electron domains, and let the shape decide the polarity — and watch where the 'straight line' picture breaks."
+
+reference_links = ["lewis-structure", "vsepr", "molecule-water", "molecule-carbon-dioxide", "electronegativity"]
+
+# the four teaching steps — the producer fixes each step's title + regime (the honesty badge); this is only the
+# prose. valence + lewis are machine-checked (the electron ledger); shape is sourced (VSEPR); polarity is the
+# disclosed model. [steps] must hold exactly these four keys (an extra key is the TOML trap-#4 signature).
+[steps]
+valence = """
+Start with the electrons you have to work with. Only the **valence** electrons — the outer shell — form bonds and lone pairs, so those are the only ones we count. Each hydrogen brings 1 (2 in all); oxygen brings 6. That is **8 valence electrons**, or four pairs, to place. A tempting first mistake is to count *all* the electrons in the molecule — that would be 10, including oxygen's two inner (core) electrons — but core electrons are locked in tight and never bond. The engine derives this total from each atom's group in the periodic table and holds every later step to it.
+"""
+lewis = """
+Now place the four pairs so every atom completes its shell. Two pairs become **O–H bonds** — one shared pair each, which is all a hydrogen needs (its complete shell is a *duet*, just 2 electrons). The remaining two pairs stay on oxygen as **lone pairs**. Count oxygen's shell: 2 bonding pairs + 2 lone pairs = 8 electrons — a full **octet**. Every atom's **formal charge** works out to 0 (oxygen: 6 valence − 4 lone-pair electrons − 2 bonding = 0), and they sum to 0, the neutral molecule. The ledger closes exactly: 4 bonding + 4 nonbonding = the 8 electrons we counted. ChemKernel refuses to emit any structure where that accounting doesn't balance — the same discipline that makes it refuse an unbalanced equation.
+"""
+shape = """
+This is the step the formula H₂O quietly hides. VSEPR predicts shape from the number of **electron domains** around the central atom — and a domain is *any* group of electrons that takes up space: a bond **or** a lone pair. Oxygen has four domains (2 bonds + 2 lone pairs), so they spread toward the corners of a tetrahedron (electron geometry: **tetrahedral**, ideal 109.5°). But you only *see* the atoms, and the atoms trace a **bent** line: the two lone pairs are invisible in the drawn shape yet they occupy space and press the two O–H bonds together, squeezing the real H–O–H angle down to about **104.5°**. The lone pairs are the hidden variable — leave them out and you'd wrongly predict a straight line.
+"""
+polarity = """
+Shape now decides polarity. Each O–H bond is **polar**: oxygen is far more electronegative (ΔEN 1.24), so it pulls the shared electrons toward itself, and each bond becomes a little arrow pointing at oxygen. If water were linear the two arrows would point exactly opposite and cancel — which is precisely why **CO₂**, genuinely linear, is nonpolar despite two polar bonds. But water is **bent**, so the two arrows don't cancel; they add to a net dipole pointing from the two hydrogens toward oxygen. Water is **polar**, and that one fact carries an enormous amount of chemistry: the dipoles let water surround and pull apart ionic salts (dissolving them), tug on neighboring water molecules (hydrogen bonding — the high boiling point), and make water the medium nearly all of biochemistry runs in.
+"""
+
+[misconception]
+claim = "Water is linear: the formula is H–O–H, so the three atoms line up at 180° and the molecule is symmetric — which would make it nonpolar."
+refuted_by = "lone_pairs_are_electron_domains"
+
+[[assumptions]]
+claim = "The Lewis localized-pair model: the valence electrons sit either in shared bonding pairs between two atoms or in lone pairs on a single atom. It is a model of where electrons are — useful and predictive, not a photograph."
+kind = "model"
+
+[[assumptions]]
+claim = "VSEPR: electron domains — bonds and lone pairs alike — arrange around the central atom to get as far apart as possible, and that arrangement sets the geometry. Lone pairs are treated as slightly 'larger' than bonds, which is why they compress the H–O–H angle below the ideal 109.5°."
+kind = "model"
+
+[[assumptions]]
+claim = "Molecular polarity is the vector sum of the individual bond dipoles taken over the molecule's geometry. Here the bent shape leaves a net dipole; in a symmetric shape (like linear CO₂) equal bond dipoles cancel and the molecule is nonpolar even with polar bonds."
+kind = "model"

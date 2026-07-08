@@ -34,7 +34,7 @@ from .reactivity import AcidBase, Decomposition
 from .reference import (build_formula_entry, build_reaction_family, build_reference_entry,
                         build_species_entry, build_valence_table)
 from .solubility import Solubility
-from .structure import build_molecule_entry
+from .structure import build_molecule_entry, build_structure_lesson
 from .units import Quantity
 
 _REGIME_NAME = {"ledger": "ledger-exact", "solubility": "rule-sourced",
@@ -535,6 +535,38 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
     return solution, f"{spec['topic']}/{spec['slug']}.solution.json"
 
 
+def _load_molecule_specs(root: Path) -> dict[str, dict]:
+    """Map every authored molecule Atlas entry's id → its parsed TOML spec (ADR-0045). A structure lesson names
+    a molecule by id and REUSES its authored connectivity — one source of truth for the structure, so the lesson
+    and the Atlas can never drift."""
+    specs: dict[str, dict] = {}
+    for path in sorted((root / "reference" / "molecules").glob("*.toml")):
+        spec = tomllib.loads(path.read_text(encoding="utf-8"))
+        mid = spec.get("id")
+        if mid is None:
+            raise BuildError(f"{path.name}: molecule spec has no id")
+        specs[mid] = spec
+    return specs
+
+
+def build_structure(path: Path, root: Path) -> tuple[dict, str]:
+    """An authored structure lesson (ADR-0045): a single molecule stepped valence → Lewis → VSEPR → polarity.
+    Resolves the referenced `molecule` Atlas entry, then hands both specs to `build_structure_lesson`, which
+    re-derives + machine-checks the electron ledger via the shared `compute_ledger` engine."""
+    spec = tomllib.loads(path.read_text(encoding="utf-8"))
+    ctx = spec.get("id", path.stem)
+    data = ChemData.load(root)
+    mol_id = spec.get("molecule")
+    if not mol_id:
+        raise BuildError(f"{ctx}: structure lesson needs a `molecule` (a molecule Atlas entry id)")
+    molecules = _load_molecule_specs(root)
+    molecule_spec = molecules.get(mol_id)
+    if molecule_spec is None:
+        raise BuildError(f"{ctx}: molecule '{mol_id}' resolves to no reference/molecules/*.toml entry")
+    lesson = build_structure_lesson(spec, molecule_spec, data, ctx)
+    return lesson, f"{spec['topic']}/{spec['slug']}.structure.json"
+
+
 def build_reference_main(argv: list[str] | None = None) -> int:
     """Build the Chemical Atlas: the Valence Table (from data/) + authored concept and reaction-family
     entries (reference/**). Reaction-family examples are balanced + classified by the engine (ADR-0035)."""
@@ -615,17 +647,24 @@ def build_gyms_main(argv: list[str] | None = None) -> int:
 
 
 def build_problems_main(argv: list[str] | None = None) -> int:
+    """Build every authored lesson under problems/ (ADR-0019/0045). Two lesson shapes, dispatched by file
+    extension: a **reaction** lesson `*.problem.toml` → `build_problem` (equations + species ledger over extent
+    + a reported product), and a **structure** lesson `*.structure.toml` → `build_structure` (a single molecule's
+    Lewis electron ledger, stepped valence → shape → polarity). Both write verified derived JSON."""
     root = Path.cwd()
-    problems = sorted((root / "problems").glob("**/*.problem.toml"))
-    if not problems:
-        print("no *.problem.toml found under problems/", file=sys.stderr)
+    reactions = sorted((root / "problems").glob("**/*.problem.toml"))
+    structures = sorted((root / "problems").glob("**/*.structure.toml"))
+    if not reactions and not structures:
+        print("no *.problem.toml or *.structure.toml found under problems/", file=sys.stderr)
         return 1
-    for path in problems:
+    lessons = ([(p, build_problem) for p in reactions]
+               + [(p, build_structure) for p in structures])
+    for path, builder in lessons:
         try:
-            solution, out_rel = build_problem(path, root)
+            obj, out_rel = builder(path, root)
         except BuildError as e:
             print(f"BUILD FAILED — {e}", file=sys.stderr)
             return 1
-        _write_json(root / "derived" / out_rel, solution)
+        _write_json(root / "derived" / out_rel, obj)
         print(f"  built {path.relative_to(root).as_posix()} -> derived/{out_rel}")
     return 0

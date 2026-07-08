@@ -31,13 +31,33 @@ discloses the net-polarity conclusion.
 
 from __future__ import annotations
 
+import platform
 from decimal import Decimal
 
-from . import BuildError
+from . import BuildError, __version__
 from .formula import parse_formula
 from .reference import valence_electrons
 
 _POLARITY = ("polar", "nonpolar")
+
+# The four teaching steps of a structure lesson, always in this order (ADR-0045). The producer fixes each
+# step's title + regime (so the honesty badge is uniform across structure lessons — as a reaction lesson's
+# tab names are fixed); the author supplies only the prose. Each step's regime is the badge the player shows:
+# the electron ledger is machine-checked (regime-1), the shape is sourced (regime-3), polarity is a disclosed
+# model (regime-2). This is the three-badge honesty model, layered over one molecule.
+_STEP_META = [
+    ("valence", "Count the valence electrons", "ledger-exact"),
+    ("lewis", "Build the Lewis structure", "ledger-exact"),
+    ("shape", "Predict the shape (VSEPR)", "rule-sourced"),
+    ("polarity", "Decide the polarity", "model-exact"),
+]
+# the per-facet regime summary a structure lesson always carries — the electron ledger (machine-checked), the
+# VSEPR geometry (sourced), and molecular polarity (disclosed model). Fixed: it IS the lesson's honesty shape.
+_STRUCTURE_REGIMES = [
+    {"facet": "electron ledger", "regime": "ledger-exact"},
+    {"facet": "molecular geometry", "regime": "rule-sourced"},
+    {"facet": "molecular polarity", "regime": "model-exact"},
+]
 
 
 def _bond_class(delta: Decimal, data, ctx: str) -> str:
@@ -248,3 +268,102 @@ def build_molecule_entry(spec: dict, data, ctx: str = "") -> dict:
     if "notes" in spec:
         entry["notes"] = list(spec["notes"])
     return entry
+
+
+def build_structure_lesson(spec: dict, molecule_spec: dict, data, ctx: str = "") -> dict:
+    """An authored structure lesson → the verified `*.structure.json` lesson object (ADR-0045). This is the
+    electron ledger's presentation shape generalised past a reaction to a single molecule: no equations, no
+    species ledger over extent, no reported product — the pivot is the Lewis ELECTRON ledger, machine-checked.
+
+    The lesson names a `molecule` Atlas entry (`spec['molecule']`); `molecule_spec` is that entry's authored
+    TOML, resolved by build.py. The ledger is re-derived from its authored atoms + bonds by `compute_ledger` —
+    the SAME engine the Atlas builder and the `lewis_structures_v1` gym use, so the lesson can never describe a
+    different structure than the Atlas (and the gate re-derives it again in pure Node + matches it to the Atlas
+    JSON). The producer REFUSES to emit on any electron-accounting failure, exactly as build.py refuses an
+    unbalanced reaction (ADR-0008). The four teaching steps carry authored prose over the fixed step frame."""
+    for key in ("id", "title", "slug", "topic", "scenario", "molecule", "steps", "misconception"):
+        if key not in spec:
+            raise BuildError(f"{ctx}: structure lesson missing required key '{key}'")
+
+    led = compute_ledger(molecule_spec["atoms"], molecule_spec["bonds"], molecule_spec["central"],
+                         molecule_spec["formula"], data, ctx)
+    # a structure lesson's payoff is molecular polarity — stated only for a neutral molecule (a charged ion
+    # carries a net charge, not a dipole). So the lesson's molecule must be neutral and carry a disclosed reason.
+    if led["charge"] != 0:
+        raise BuildError(f"{ctx}: structure lesson molecule '{molecule_spec['formula']}' is charged "
+                         f"({led['charge']}) — a polarity payoff needs a neutral molecule")
+    for key in ("polarity", "polarity_reason", "names"):
+        if not molecule_spec.get(key):
+            raise BuildError(f"{ctx}: referenced molecule '{molecule_spec.get('id')}' is missing '{key}'")
+    if molecule_spec["polarity"] not in _POLARITY:
+        raise BuildError(f"{ctx}: molecule polarity '{molecule_spec['polarity']}' must be one of {_POLARITY}")
+
+    molecule = {
+        "ref_id": molecule_spec["id"],
+        "formula": molecule_spec["formula"],
+        "latex": led["latex"],
+        "names": list(molecule_spec["names"]),
+        "charge": led["charge"],
+        "valence_electrons": led["valence_electrons"],
+        "valence_breakdown": led["valence_breakdown"],
+        "electron_check": led["electron_check"],
+        "atoms": led["atoms"],
+        "bonds": led["bonds"],
+        "geometry": led["geometry"],   # carries its own sourced `source` (data/vsepr.toml)
+        "polarity": molecule_spec["polarity"],
+        "polarity_reason": molecule_spec["polarity_reason"],
+        "en_source": data.sources.get("electronegativity", ""),
+        "bonding_source": data.sources.get("bonding", ""),
+    }
+
+    # the four steps: fixed frame (key/title/regime) + authored prose. `[steps]` is a table of exactly the four
+    # keys; an unexpected key is the TOML trap-#4 signature (a bare key absorbed into the table) — refuse it.
+    steps_spec = spec["steps"]
+    if not isinstance(steps_spec, dict):
+        raise BuildError(f"{ctx}: [steps] must be a table with keys valence/lewis/shape/polarity")
+    expected = {k for k, _t, _r in _STEP_META}
+    extra = set(steps_spec) - expected
+    if extra:
+        raise BuildError(f"{ctx}: [steps] carries unexpected key(s) {sorted(extra)} — a top-level bare key was "
+                         f"absorbed into [steps] (bare keys must precede any [table] header)")
+    steps = []
+    for key, title, regime in _STEP_META:
+        prose = steps_spec.get(key)
+        if not prose or not str(prose).strip():
+            raise BuildError(f"{ctx}: [steps].{key} prose is missing or empty")
+        steps.append({"key": key, "title": title, "regime": regime, "prose": prose})
+
+    return {
+        "kind": "structure",
+        "id": spec["id"],
+        "title": spec["title"],
+        "slug": spec["slug"],
+        "topic": spec["topic"],
+        "tags": spec.get("tags", []),
+        "scenario": spec["scenario"],
+        "regimes": [dict(r) for r in _STRUCTURE_REGIMES],
+        "assumptions": spec.get("assumptions", []),
+        "molecule": molecule,
+        "steps": steps,
+        "misconception": spec["misconception"],
+        "reference_links": spec.get("reference_links", []),
+        # the machine-checked facts, SHOWN not asserted (compute_ledger raised if any failed) — the structure
+        # lesson's counterpart of a reaction lesson's atom/charge/unit/extent checks.
+        "checks": {"electrons_conserved": True, "octets_complete": True,
+                   "formal_charge_sum": True, "geometry_keyed": True},
+        "provenance": {
+            "producer": "chemkernel",
+            "version": __version__,
+            "python": platform.python_version(),
+            "author": spec.get("author", "Affinity"),
+            "created": spec.get("created", ""),
+            # every value is traceable: valence electrons from the IUPAC group (ADR-0033), the geometry from the
+            # sourced VSEPR table, bond ΔEN from the sourced electronegativities + thresholds.
+            "sources": {
+                "valence_electrons": data.sources.get("position", ""),
+                "geometry": data.sources.get("vsepr", ""),
+                "electronegativity": data.sources.get("electronegativity", ""),
+                "bonding": data.sources.get("bonding", ""),
+            },
+        },
+    }

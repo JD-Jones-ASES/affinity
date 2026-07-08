@@ -22,7 +22,9 @@
       "type": "see-also"
     }
   ],
-  "lessons": [],
+  "lessons": [
+    "water-molecular-shape"
+  ],
   "regime": "ledger-exact",
   "latex": "\\text{FC} = V_{\\text{atom}} - N_{\\text{nonbonding}} - \\tfrac{1}{2}B_{\\text{bonding}}"
 }

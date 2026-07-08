@@ -270,16 +270,11 @@ export function renderFormula(f) {
 // (C=O ×2) for a compact ΔEN row; the summary/polarity/notes may carry inline $…$ + the molecule's formula.
 const _BOND_MARK = { 1: "–", 2: "=", 3: "≡" };
 const _fcDisplay = (q) => (q > 0 ? `+${q}` : q < 0 ? `−${Math.abs(q)}` : "0");
-export function renderMolecule(m) {
-  const r = structuredClone(m);
-  const toks = [m.formula];
-  r.latexHtml = tex(m.latex, false);
-  r.formulaPretty = prettyIon(m.formula);
-  r.summaryHtml = inline(prettyText(m.summary, toks));
-  r.polarityReasonHtml = m.polarity_reason ? inline(prettyText(m.polarity_reason, toks)) : null;
-  r.notesHtml = (m.notes ?? []).map((n) => inline(prettyText(n, toks)));
-  r.atoms = m.atoms.map((a) => ({ ...a, fcDisplay: _fcDisplay(a.formal_charge) }));
-  // group the connectivity into distinct bond TYPES for display (identical C=O bonds collapse to one row ×2)
+// Decorate a molecule block (the `molecule` Atlas entry OR a structure lesson's embedded block — same
+// structural shape) with the display fields the atlas/lesson render: the formula symbol, per-atom formal-charge
+// display, and the connectivity grouped into distinct bond TYPES (identical C=O bonds collapse to one row ×2).
+function decorateMoleculeCore(m) {
+  const atoms = m.atoms.map((a) => ({ ...a, fcDisplay: _fcDisplay(a.formal_charge) }));
   const byType = new Map();
   for (const b of m.bonds) {
     const key = `${b.between.join("-")}|${b.order}`;
@@ -288,8 +283,32 @@ export function renderMolecule(m) {
     else byType.set(key, { label: `${b.between[0]}${_BOND_MARK[b.order] ?? "–"}${b.between[1]}`,
                            order: b.order, delta_en: b.delta_en, bond_class: b.bond_class, polar: b.polar, count: 1 });
   }
-  r.bondTypes = [...byType.values()];
+  return { atoms, bondTypes: [...byType.values()], latexHtml: tex(m.latex, false), formulaPretty: prettyIon(m.formula) };
+}
+export function renderMolecule(m) {
+  const r = structuredClone(m);
+  const toks = [m.formula];
+  Object.assign(r, decorateMoleculeCore(m));
+  r.summaryHtml = inline(prettyText(m.summary, toks));
+  r.polarityReasonHtml = m.polarity_reason ? inline(prettyText(m.polarity_reason, toks)) : null;
+  r.notesHtml = (m.notes ?? []).map((n) => inline(prettyText(n, toks)));
   return r;
+}
+
+// Render a structure lesson (ADR-0045): the electron ledger's presentation shape over a single molecule. The
+// molecule block decorates exactly as the Atlas does (shared engine); the authored scenario / step prose /
+// misconception / assumptions / polarity reason get their formula tokens subscripted + inline $…$ rendered.
+export function renderStructureLesson(lesson) {
+  const s = structuredClone(lesson);
+  const toks = [s.molecule.formula];
+  s.scenarioHtml = inline(prettyText(s.scenario, toks));
+  delete s.scenario;
+  Object.assign(s.molecule, decorateMoleculeCore(s.molecule));
+  s.molecule.polarityReasonHtml = inline(prettyText(s.molecule.polarity_reason, toks));
+  s.steps = s.steps.map((st) => ({ ...st, proseHtml: inline(prettyText(st.prose, toks)) }));
+  s.assumptions = (s.assumptions ?? []).map((a) => ({ ...a, claimHtml: inline(prettyText(a.claim, toks)) }));
+  if (s.misconception) s.misconception.claimHtml = inline(prettyText(s.misconception.claim, toks));
+  return s;
 }
 
 // Render a concept entry (definition may carry inline $…$; latex is a standalone display formula).

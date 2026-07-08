@@ -1364,3 +1364,59 @@ new gym; the refactor left the molecule JSONs byte-identical). 6-way tamper-test
 geometry shape / the central lone-pair count / a numeric-question menu / a too-close diagnostic — each caught). A design
 note: the electron-domain **count** is bond-order-independent (a multiple bond is one domain), so the gym gate correctly
 does not depend on bond order.
+
+## ADR-0045 — The `structure` lesson kind: the electron ledger's presentation shape over a single molecule (2026-07-08)
+
+**Context.** The bonding tier had its engine (`compute_ledger`, ADR-0044), its reference surface (the `molecule` Atlas
+kind), and its drill surface (the `lewis_structures_v1` gym). The flagged next increment was the tier's **deep vertical
+slice — a bonding & structure lesson**: a molecule stepped from valence electrons → Lewis structure → VSEPR shape →
+polarity, with the misconception register. Every prior lesson is a *reaction*: `solution.schema.json` (ADR-0020) requires
+`equations.molecular`, a species `ledger` over extent, and a reported `result` (precipitate/product/gas/energy). A
+single-molecule lesson has **none** of those — no reactants, no extent, no product. The question was how to represent it
+without weakening the reaction schema that guards the six reaction lessons.
+
+**Decision.** A **new, tight `structure` lesson kind** — its own `schemas/structure-lesson.schema.json`, its own builder
+`structure.build_structure_lesson`, emitting `derived/<topic>/<slug>.structure.json` — rather than bending
+`solution.schema.json` into a discriminated union (which would force `equations`/`ledger`/`result` optional and branch
+every reaction-shaped gate + player). This mirrors the house pattern: a genuinely new object shape gets a new tight schema
+(as reaction-family/species/formula/molecule each did), and the reaction schema stays pristine ("every `solution.json` is
+a verified reaction"). Design specifics:
+1. **The pivot is the Lewis ELECTRON ledger, not a species ledger.** The lesson names a `molecule` Atlas entry by id and
+   **reuses its authored connectivity** (one source of truth — the lesson can never describe a different structure than
+   the Atlas); the ledger is re-derived by the SAME `compute_ledger` engine the Atlas builder and the gym use (no
+   hard-coded counts). The producer refuses to emit on any electron-accounting failure, exactly as `build_problem` refuses
+   an unbalanced reaction (ADR-0008). The lesson's payoff is molecular **polarity**, so it is authored only for a **neutral**
+   molecule (a charged ion carries a net charge, not a dipole — refused).
+2. **Four fixed teaching steps, authored prose.** `[steps]` carries exactly `valence`/`lewis`/`shape`/`polarity`; the
+   producer fixes each step's title + **regime** (the honesty badge — valence/lewis are machine-checked, shape is
+   rule-sourced, polarity is model-assumed), the author supplies only the prose. This is the **three-badge honesty model
+   layered over one molecule** — the same "layered, not mixed" discipline as the molecule Atlas kind. The four
+   machine-checked facts (electrons conserved, octets/duets complete, formal charges sum to the charge, domain count keys
+   the geometry) are SHOWN not asserted — the structure lesson's counterpart of a reaction lesson's atom/charge/unit/extent
+   checks.
+3. **Node re-verification via a shared engine.** The molecule electron-ledger re-derivation was **factored out** of
+   `validate-reference.mjs` into `scripts/validate/structurecheck.mjs` (`verifyElectronLedger` + `ledgerTables` +
+   `classifyBond`) — the Node counterpart of `compute_ledger`. Both `validate-reference` (the molecule kind) and
+   `validate-solutions` (the structure lesson) call it, so a structure lesson's electron ledger stands on its own
+   re-proof, and the gate additionally **cross-checks the embedded ledger byte-for-byte against the Atlas molecule** with
+   the same `ref_id` (no drift). `validate-reference`'s lesson-slug walk + the five reference pages' lesson-title maps now
+   include `*.structure.json` so the Atlas ↔ lesson backlinks resolve.
+4. **The player is fully static.** A structure lesson has no interactivity (the electron ledger is fixed — no sliders), so
+   it renders server-side in a plain Astro component `StructureLesson.astro` (the dumbest stepper of all), integrated into
+   the existing `/lessons/<slug>/` route (both lesson pages glob `*.solution.json` + `*.structure.json` and branch on kind).
+
+**Consequences.** The first molecule lesson: **`bonding/water-molecular-shape`** — *why water is bent*. Valence (8
+electrons, machine-checked) → Lewis (2 O–H bonds + 2 lone pairs on O, octet + formal-charge sum machine-checked) → VSEPR
+(4 domains → tetrahedral electron geometry → **bent**, sourced) → polarity (bent + polar O–H bonds → **polar**,
+model-assumed). The misconception ("water is linear") is refuted **from the verified geometry** — the two lone pairs are
+electron domains, so 4 domains → bent, not a straight line — and CO₂ (genuinely linear, nonpolar despite polar bonds) is
+the contrast. Lesson #7; the tier's deep slice. New (additive): `schemas/structure-lesson.schema.json`,
+`structure.build_structure_lesson` (+ `build.py`'s extension dispatch + molecule-spec resolver),
+`scripts/validate/structurecheck.mjs` (factored from validate-reference — the molecule JSON is byte-identical after the
+refactor), `src/components/StructureLesson.astro` + `view.renderStructureLesson`. **306 producer tests** (+8 —
+`test_structure.py`); **validate-solutions = 6 + 1 structure lesson**; check-katex = **498** (+1); **28 pages** (+1);
+`derived/` byte-stable; **no existing derived changed** except the 3 authored `lessons` backlinks (molecule-water,
+lewis-structure, vsepr). 7-way tamper-tested (corrupt the valence total / a formal charge / the step order / the geometry
+shape / drop the model assumption / a bad ref_id / a flipped check — each caught by a distinct gate branch). **Deferred:**
+generated practice on the lesson (the gym already drills the counting); more structure lessons (CO₂'s linear-nonpolar
+contrast as its own slice; NH₃/CH₄) once wanted; IMFs (the tier's next increment, building on molecular polarity).

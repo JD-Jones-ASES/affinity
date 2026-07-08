@@ -9,7 +9,7 @@ import pytest
 
 from chemkernel import BuildError
 from chemkernel.data import ChemData
-from chemkernel.structure import build_molecule_entry
+from chemkernel.structure import build_molecule_entry, build_structure_lesson
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -20,6 +20,10 @@ def _data():
 
 def _mol(spec):
     return build_molecule_entry(spec, _data(), ctx=spec.get("id", "test"))
+
+
+def _lesson(spec, molecule_spec):
+    return build_structure_lesson(spec, molecule_spec, _data(), ctx=spec.get("id", "test"))
 
 
 # ── base specs (valid) — copied + mutated for the refusal tests ──
@@ -186,3 +190,88 @@ def test_all_authored_molecules_build():
         # electron conservation holds for every shipped molecule
         assert entry["electron_check"]["total"] == entry["valence_electrons"]
         assert sum(a["formal_charge"] for a in entry["atoms"]) == entry["charge"]
+
+
+# ── structure lessons (ADR-0045): the single-molecule lesson shape, sharing the compute_ledger engine ──
+LESSON = {
+    "id": "bonding-water-molecular-shape", "title": "Why water is bent", "slug": "water-molecular-shape",
+    "topic": "bonding", "scenario": "Water looks linear. It isn't.", "molecule": "molecule-water",
+    "steps": {"valence": "Count the 8 valence electrons.", "lewis": "Place two O–H bonds and two lone pairs.",
+              "shape": "Four domains → bent.", "polarity": "Bent, so polar."},
+    "misconception": {"claim": "Water is linear.", "refuted_by": "lone_pairs_are_electron_domains"},
+}
+
+
+def test_structure_lesson_shape():
+    les = _lesson(LESSON, WATER)
+    assert les["kind"] == "structure" and les["slug"] == "water-molecular-shape" and les["topic"] == "bonding"
+    assert les["molecule"]["ref_id"] == "molecule-water"
+    assert les["molecule"]["valence_electrons"] == 8 and les["molecule"]["charge"] == 0
+    assert les["molecule"]["polarity"] == "polar"
+    # the four steps in canonical order, with the producer-fixed titles/regimes + authored prose
+    assert [s["key"] for s in les["steps"]] == ["valence", "lewis", "shape", "polarity"]
+    assert [s["regime"] for s in les["steps"]] == ["ledger-exact", "ledger-exact", "rule-sourced", "model-exact"]
+    assert les["steps"][0]["title"] == "Count the valence electrons"
+    # the machine-checked facts are SHOWN (all true — compute_ledger raised otherwise)
+    assert les["checks"] == {"electrons_conserved": True, "octets_complete": True,
+                             "formal_charge_sum": True, "geometry_keyed": True}
+    # the per-facet regime summary + traceable sources
+    assert {r["regime"] for r in les["regimes"]} == {"ledger-exact", "rule-sourced", "model-exact"}
+    assert les["provenance"]["sources"]["valence_electrons"] and les["provenance"]["sources"]["geometry"]
+
+
+def test_structure_lesson_reuses_compute_ledger():
+    # the lesson's embedded ledger must be identical to the molecule Atlas entry's — one engine, no drift
+    les = _lesson(LESSON, WATER)
+    atlas = _mol(WATER)
+    for key in ("valence_electrons", "valence_breakdown", "electron_check", "atoms", "bonds", "geometry", "charge"):
+        assert les["molecule"][key] == atlas[key], f"{key} drifts from the Atlas molecule"
+
+
+def test_refuse_charged_molecule_lesson():
+    # a structure lesson's payoff is polarity — forbidden on an ion; NH4+ must be refused
+    with pytest.raises(BuildError, match="charged"):
+        _lesson({**LESSON, "molecule": "molecule-ammonium"}, NH4)
+
+
+def test_refuse_missing_step():
+    bad = copy.deepcopy(LESSON)
+    del bad["steps"]["shape"]
+    with pytest.raises(BuildError, match="shape.* prose is missing"):
+        _lesson(bad, WATER)
+
+
+def test_refuse_empty_step_prose():
+    bad = copy.deepcopy(LESSON)
+    bad["steps"]["polarity"] = "   "
+    with pytest.raises(BuildError, match="polarity.* prose is missing"):
+        _lesson(bad, WATER)
+
+
+def test_steps_trap4_guard():
+    bad = copy.deepcopy(LESSON)
+    bad["steps"]["author"] = "Affinity"                     # a bare key absorbed into [steps]
+    with pytest.raises(BuildError, match="unexpected key"):
+        _lesson(bad, WATER)
+
+
+def test_refuse_missing_required_lesson_key():
+    bad = copy.deepcopy(LESSON)
+    del bad["scenario"]
+    with pytest.raises(BuildError, match="missing required key 'scenario'"):
+        _lesson(bad, WATER)
+
+
+def test_authored_structure_lesson_builds():
+    # the shipped lesson TOML + its referenced molecule TOML build end to end
+    data = _data()
+    lesson_spec = tomllib.loads((ROOT / "problems" / "bonding" / "water-molecular-shape.structure.toml")
+                                .read_text(encoding="utf-8"))
+    molecules = {}
+    for path in (ROOT / "reference" / "molecules").glob("*.toml"):
+        s = tomllib.loads(path.read_text(encoding="utf-8"))
+        molecules[s["id"]] = s
+    les = build_structure_lesson(lesson_spec, molecules[lesson_spec["molecule"]], data, ctx=lesson_spec["id"])
+    assert les["kind"] == "structure" and les["molecule"]["ref_id"] == "molecule-water"
+    assert les["molecule"]["geometry"]["molecular_shape"] == "bent"
+    assert len(les["steps"]) == 4 and len(les["assumptions"]) == 3

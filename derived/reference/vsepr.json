@@ -14,7 +14,9 @@
       "type": "see-also"
     }
   ],
-  "lessons": [],
+  "lessons": [
+    "water-molecular-shape"
+  ],
   "regime": "rule-sourced",
   "source": "openstax-chemistry-2e"
 }

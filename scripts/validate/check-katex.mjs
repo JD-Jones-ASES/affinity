@@ -14,7 +14,7 @@ function walk(dir) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (statSync(p).isDirectory()) out.push(...walk(p));
-    else if (name.endsWith(".solution.json")) out.push(p);
+    else if (name.endsWith(".solution.json") || name.endsWith(".structure.json")) out.push(p);
   }
   return out;
 }
@@ -38,6 +38,20 @@ function latexStrings(sol) {
   (sol.ledger?.species ?? []).forEach((s, i) => {
     if (s.latex) out.push([`ledger.species[${i}].latex`, s.latex]);
   });
+  return out;
+}
+
+// Collect LaTeX in a structure lesson (ADR-0045): the molecule's formula symbol (display), plus any inline
+// $…$ math in the scenario, the four step prose blocks, the misconception, the polarity reason, and the
+// assumptions — the authored prose surfaces a reader sees rendered.
+function structureLatex(les) {
+  const out = [];
+  if (les.molecule?.latex) out.push(["molecule.latex", les.molecule.latex]);
+  out.push(...inlineMath("scenario", les.scenario));
+  (les.steps ?? []).forEach((s, i) => out.push(...inlineMath(`steps[${i}].prose`, s.prose)));
+  if (les.misconception?.claim) out.push(...inlineMath("misconception.claim", les.misconception.claim));
+  if (les.molecule?.polarity_reason) out.push(...inlineMath("molecule.polarity_reason", les.molecule.polarity_reason));
+  (les.assumptions ?? []).forEach((a, i) => out.push(...inlineMath(`assumptions[${i}].claim`, a.claim)));
   return out;
 }
 
@@ -112,8 +126,9 @@ const render = (rel, where, latex) => {
 
 for (const file of files) {
   const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
-  const sol = JSON.parse(readFileSync(file, "utf8"));
-  for (const [where, latex] of latexStrings(sol)) render(rel, where, latex);
+  const obj = JSON.parse(readFileSync(file, "utf8"));
+  const strings = file.endsWith(".structure.json") ? structureLatex(obj) : latexStrings(obj);
+  for (const [where, latex] of strings) render(rel, where, latex);
 }
 for (const file of refFiles) {
   const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");

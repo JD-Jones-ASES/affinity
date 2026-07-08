@@ -3,6 +3,33 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — bonding & structure lesson: the electron ledger over a single molecule (ADR-0045)
+
+The bonding tier's deep vertical slice — the electron ledger's presentation shape generalised past a reaction to one
+molecule. A new **`structure` lesson kind** (its own tight schema + builder), NOT a bent reaction schema.
+
+- **Lesson `bonding/water-molecular-shape`** — *why water is bent*: stepped **valence** (8 e⁻, machine-checked) →
+  **Lewis** (2 O–H bonds + 2 lone pairs, octet + formal-charge sum machine-checked) → **VSEPR** (4 domains → tetrahedral
+  → **bent**, sourced) → **polarity** (bent + polar bonds → **polar**, model-assumed). The misconception ("water is
+  linear") is refuted from the verified geometry (the 2 lone pairs are electron domains → bent), with CO₂ as the contrast.
+- **New kind** (`schemas/structure-lesson.schema.json`, `structure.build_structure_lesson`): the lesson names a `molecule`
+  Atlas entry and **reuses its authored connectivity**, re-deriving the electron ledger with the SAME `compute_ledger`
+  engine the Atlas + gym use (no hard-coded counts). `build.py` dispatches `*.structure.toml` by extension. Payoff is
+  polarity, so a neutral molecule only.
+- **Gates:** the molecule electron-ledger re-derivation factored out of `validate-reference` into a shared
+  `scripts/validate/structurecheck.mjs` (`verifyElectronLedger`) — the molecule JSON is byte-identical after the refactor.
+  `validate-solutions` walks `*.structure.json`, re-derives the ledger in pure Node, and cross-checks it byte-for-byte
+  against the Atlas molecule (no drift). check-katex + the reference-page backlinks + the lesson-slug walk learn the new
+  suffix. **7-way tamper-tested** (valence total / formal charge / step order / geometry drift / missing model assumption /
+  bad ref_id / flipped check — each caught by a distinct branch).
+- **Player:** fully static `src/components/StructureLesson.astro` (no island — nothing to hydrate); the `/lessons/<slug>/`
+  route + index glob both lesson kinds. The three honesty badges, the four stepped panels, the SHOWN checks, the
+  data-driven misconception refutation, the disclosed assumptions.
+- **Verification:** **306 producer tests** (+8); **validate-solutions = 6 + 1 structure lesson**; check-katex = **498**
+  (+1); 7 gates green; **28 pages** (+1); `derived/` byte-stable, no existing derived changed (bar 3 authored `lessons`
+  backlinks). In-browser: the four steps, the bent/polar payoff cards, and the lone-pair refutation all render; the
+  molecule Atlas + both concepts backlink to the lesson.
+
 ## Phase 2 — 2026-07-08 — Lewis-structures gym: generated electron-counting drills (ADR-0044, 2nd increment)
 
 The electron ledger earns its drill surface — the practice half of the bonding tier opener.

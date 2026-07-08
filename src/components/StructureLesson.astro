@@ -1,0 +1,246 @@
+---
+// The structure-lesson player (ADR-0045): the electron ledger's presentation shape over a single molecule.
+// A fully STATIC Astro component — there is nothing to hydrate (the electron ledger is fixed, no sliders), so
+// it is the dumbest stepper of all. Every value came from ChemKernel and was re-verified by the gates; this
+// renders it, stepped valence → Lewis → VSEPR → polarity, with the three honesty badges layered over one
+// molecule, the misconception register, and the machine-checked facts SHOWN not asserted.
+const { lesson } = Astro.props;
+const m = lesson.molecule;
+const g = m.geometry;
+
+// map each step's regime to its honesty badge (the three-badge model, ADR-0003) — the same badge vocabulary
+// the reaction player and the molecule atlas use.
+const REGIME_BADGE = {
+  "ledger-exact": { cls: "machine", label: "machine-checked" },
+  "rule-sourced": { cls: "sourced", label: "rule-sourced" },
+  "model-exact": { cls: "model", label: "model-assumed" },
+  "mechanistic": { cls: "model", label: "interpretive" },
+};
+const BOND_LABEL = { "nonpolar-covalent": "nonpolar covalent", "polar-covalent": "polar covalent", ionic: "ionic" };
+const bonding = g.domains - g.lone_pairs;
+// the actual (lone-pair-compressed) angle for the misconception refutation: pull it from the sourced angle_note
+// (e.g. "…about 104.5°") when present, else fall back to the ideal angle.
+const compressedAngle = (g.angle_note && g.angle_note.match(/[\d.]+\s*°/)?.[0]?.trim()) || g.ideal_angle;
+---
+
+<section class="player">
+  <header class="head">
+    <div class="badges">
+      <span class="badge machine"><span class="dot"></span>Electron ledger machine-checked — valence total, octets, formal charges, all re-derived by ChemKernel</span>
+      <span class="badge sourced"><span class="dot"></span>Geometry rule-sourced ({g.source})</span>
+      <span class="badge model"><span class="dot"></span>{lesson.assumptions.length} modeling assumption{lesson.assumptions.length === 1 ? "" : "s"} (disclosed)</span>
+    </div>
+    <p class="scenario" set:html={lesson.scenarioHtml} />
+  </header>
+
+  <!-- the payoff, up front: the shape and polarity this molecule resolves to -->
+  <div class="results">
+    <div class="result">
+      <div class="label">Molecule</div>
+      <div class="value"><span set:html={m.latexHtml} /></div>
+      <div class="cond">{m.valence_electrons} valence electrons</div>
+    </div>
+    <div class="result">
+      <div class="label">Shape (VSEPR) <span class="badge sourced tiny"><span class="dot"></span>sourced</span></div>
+      <div class="value shape">{g.molecular_shape}</div>
+      <div class="cond">{g.domains} domains · {g.ideal_angle}{g.angle_note ? " ideal" : ""}</div>
+    </div>
+    <div class="result polar">
+      <div class="label">Polarity <span class="badge model tiny"><span class="dot"></span>model</span></div>
+      <div class={`value ${m.polarity}`}>{m.polarity}</div>
+      <div class="cond">from the shape + bond dipoles</div>
+    </div>
+  </div>
+
+  <!-- the four teaching steps: each carries its honesty badge + the matching slice of the verified ledger -->
+  <ol class="steps">
+    {lesson.steps.map((st, i) => {
+      const badge = REGIME_BADGE[st.regime];
+      return (
+        <li class="step">
+          <div class="s-head">
+            <span class="s-num">{i + 1}</span>
+            <h3>{st.title}</h3>
+            <span class={`badge ${badge.cls} tiny`}><span class="dot"></span>{badge.label}</span>
+          </div>
+
+          {st.key === "valence" && (
+            <div class="data valence">
+              <p class="vline">
+                {m.valence_breakdown.map((b, j) => (
+                  <>{j > 0 && " + "}<span class="mono">{b.symbol} {b.count}×{b.per_atom} = {b.subtotal}</span></>
+                ))}
+                <span class="arrow"> → </span>
+                <strong class="mono">{m.valence_electrons} valence electrons</strong>
+              </p>
+            </div>
+          )}
+
+          {st.key === "lewis" && (
+            <div class="data">
+              <p class="echeck mono">{m.electron_check.bonding} bonding
+                ({m.electron_check.bonding / 2} shared {m.electron_check.bonding / 2 === 1 ? "pair" : "pairs"})
+                + {m.electron_check.nonbonding} nonbonding
+                ({m.electron_check.nonbonding / 2} lone {m.electron_check.nonbonding / 2 === 1 ? "pair" : "pairs"})
+                = {m.electron_check.total} ✓</p>
+              <table class="atoms">
+                <thead><tr><th>Atom</th><th>Lone pairs</th><th>Bonds (Σ order)</th><th>Formal charge</th></tr></thead>
+                <tbody>
+                  {m.atoms.map((a) => (
+                    <tr>
+                      <td class="el">{a.element}<span class="aid">{a.id}</span></td>
+                      <td class="num">{a.lone_pairs}</td>
+                      <td class="num">{a.bond_order_sum}</td>
+                      <td class={`num fc${a.formal_charge !== 0 ? " nz" : ""}`}>{a.fcDisplay}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {st.key === "shape" && (
+            <div class="data">
+              <p class="geo">
+                <strong>{g.domains} electron domains</strong> ({bonding} bonding + {g.lone_pairs} lone)
+                → electron geometry <strong>{g.electron_geometry}</strong>, molecular shape
+                <strong> {g.molecular_shape}</strong>.
+              </p>
+              <p class="angle mono">ideal angle {g.ideal_angle}{g.angle_note ? ` — ${g.angle_note}` : ""}</p>
+            </div>
+          )}
+
+          {st.key === "polarity" && (
+            <div class="data">
+              <ul class="bonds">
+                {m.bondTypes.map((b) => (
+                  <li>
+                    <span class="btype mono">{b.label}{b.count > 1 ? ` ×${b.count}` : ""}</span>
+                    <span class="bmeta">ΔEN {b.delta_en} · {BOND_LABEL[b.bond_class]}</span>
+                  </li>
+                ))}
+              </ul>
+              <p class="polv">Net: <strong class={`pol ${m.polarity}`}>{m.polarity}</strong>
+                <span set:html={" — " + m.polarityReasonHtml} /></p>
+            </div>
+          )}
+
+          <p class="prose" set:html={st.proseHtml} />
+        </li>
+      );
+    })}
+  </ol>
+
+  <!-- the machine-checked facts, SHOWN not asserted (the structure lesson's proof panel) -->
+  <div class="proof">
+    <div class="proof-head">
+      <span class="badge machine"><span class="dot"></span>Verification</span>
+      <strong>Every claim below was proven at build time — not asserted.</strong>
+    </div>
+    <ul class="checks">
+      <li><span class="tick">✓</span> Electrons conserved: {m.electron_check.bonding} bonding + {m.electron_check.nonbonding} nonbonding = {m.valence_electrons} valence <span class="tier">[electron ledger]</span></li>
+      <li><span class="tick">✓</span> Every atom completes its shell — octet (a duet for H) <span class="tier">[octet check]</span></li>
+      <li><span class="tick">✓</span> Formal charges sum to the molecular charge ({m.charge}) <span class="tier">[formal-charge sum]</span></li>
+      <li><span class="tick">✓</span> Electron-domain count keys the sourced VSEPR geometry <span class="tier">[VSEPR table]</span></li>
+    </ul>
+  </div>
+
+  <!-- misconception register (ADR-0011 / brief §13): refuted from the verified geometry, not scolded -->
+  {lesson.misconception && (
+    <div class="misconception">
+      <div class="mis-claim"><span class="x">✗</span> Common misconception: “<span set:html={lesson.misconception.claimHtml} />”</div>
+      <p class="mis-fix">
+        {lesson.misconception.refuted_by === "lone_pairs_are_electron_domains" ? (
+          <>
+            The shape depends on <strong>electron domains</strong>, not just the atoms you can see. The central
+            atom carries <strong>{g.lone_pairs} lone pair{g.lone_pairs === 1 ? "" : "s"}</strong>, and each one
+            is an electron domain that takes up space — so there are <strong>{g.domains} electron domains</strong>
+            {" "}in all ({bonding} bonding + {g.lone_pairs} lone), the electron geometry is
+            {" "}<strong>{g.electron_geometry}</strong>, and the visible atoms trace a
+            {" "}<strong>{g.molecular_shape}</strong> shape (about {compressedAngle}) — not a straight line. And
+            because the molecule is {g.molecular_shape}, the bond dipoles do not cancel: the molecule is
+            {" "}<strong>{m.polarity}</strong>. Leave the lone pairs out and you predict the wrong shape and the
+            wrong polarity.
+          </>
+        ) : (
+          <>The electron-domain count — bonds <em>and</em> lone pairs — sets the shape, and the shape sets the
+            polarity. This molecule has {g.domains} domains → {g.molecular_shape}, and is {m.polarity}.</>
+        )}
+      </p>
+    </div>
+  )}
+
+  <!-- assumptions, disclosed not discharged (ADR-0003) -->
+  <details class="assumptions">
+    <summary><span class="badge model"><span class="dot"></span>Modeling assumptions</span> — author-asserted, disclosed not discharged</summary>
+    <ul>
+      {lesson.assumptions.map((a) => (
+        <li><span class={`akind ${a.kind}`}>{a.kind}</span> <span set:html={a.claimHtml} /></li>
+      ))}
+    </ul>
+  </details>
+</section>
+
+<style>
+  .player { display: grid; gap: 1.1rem; }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .scenario { font-size: 1.05rem; margin: 0.6rem 0 0; }
+
+  .results { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+  .result { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.6rem 0.9rem; min-width: 9rem; }
+  .result .label { font-size: 0.75rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 0.35rem; }
+  .result .value { font-size: 1.35rem; font-weight: 700; margin-top: 0.15rem; }
+  .result .value.shape { text-transform: capitalize; }
+  .result .cond { font-size: 0.74rem; color: var(--ink-faint); margin-top: 0.15rem; font-family: var(--font-mono); }
+  .result.polar { border-color: color-mix(in srgb, var(--model) 40%, var(--line)); }
+  .value.polar, .value.nonpolar { text-transform: lowercase; }
+  .value.polar { color: var(--model); }
+  .badge.tiny { font-size: 0.66rem; padding: 0.03rem 0.35rem; }
+
+  .steps { list-style: none; counter-reset: none; padding: 0; margin: 0; display: grid; gap: 0.9rem; }
+  .step { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem; }
+  .s-head { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+  .s-num { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 0.85rem; flex: none; }
+  .s-head h3 { margin: 0; font-size: 1.08rem; flex: 1 1 auto; }
+  .data { margin: 0.7rem 0 0.5rem; }
+  .mono { font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+  .vline { margin: 0; font-size: 0.98rem; }
+  .vline .arrow { color: var(--ink-faint); }
+  .echeck { font-size: 0.88rem; color: var(--ink-2); margin: 0 0 0.5rem; }
+  .atoms { border-collapse: collapse; font-size: 0.9rem; width: auto; min-width: 24rem; }
+  .atoms th, .atoms td { text-align: left; padding: 0.25rem 1rem 0.25rem 0; border-bottom: 1px solid var(--line); }
+  .atoms thead th { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); font-weight: 600; }
+  .atoms .el { font-weight: 600; }
+  .atoms .aid { font-size: 0.7rem; color: var(--ink-faint); margin-left: 0.35rem; font-weight: 400; }
+  .atoms .num { font-variant-numeric: tabular-nums; }
+  .atoms .fc.nz { color: var(--accent); font-weight: 600; }
+  .geo { margin: 0.2rem 0; font-size: 0.95rem; }
+  .angle { font-size: 0.84rem; color: var(--ink-faint); margin: 0.2rem 0 0; }
+  .bonds { list-style: none; margin: 0 0 0.5rem; padding: 0; }
+  .bonds li { display: flex; gap: 0.6rem; align-items: baseline; padding: 0.12rem 0; font-size: 0.9rem; }
+  .btype { font-weight: 600; min-width: 4rem; }
+  .bmeta { color: var(--ink-2); }
+  .polv { margin: 0.2rem 0 0; font-size: 0.94rem; }
+  .pol { text-transform: lowercase; font-weight: 700; }
+  .pol.polar { color: var(--model); }
+  .pol.nonpolar { color: var(--ink-2); }
+  .prose { margin: 0.6rem 0 0; color: var(--ink-2); line-height: 1.55; }
+
+  .proof { border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: var(--radius); padding: 0.6rem 0.9rem 0.9rem; }
+  .proof-head { display: flex; align-items: center; gap: 0.7rem; padding: 0.3rem 0; flex-wrap: wrap; }
+  .checks { list-style: none; padding: 0; margin: 0.3rem 0; display: grid; gap: 0.35rem; }
+  .checks li { font-size: 0.92rem; }
+  .tick { color: var(--accent); font-weight: 700; }
+  .tier { color: var(--ink-faint); font-family: var(--font-mono); font-size: 0.76rem; }
+
+  .misconception { background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); border-radius: var(--radius); padding: 0.8rem 1rem; }
+  .mis-claim { font-weight: 600; color: var(--warn); }
+  .mis-claim .x { font-weight: 700; }
+  .mis-fix { margin: 0.4rem 0 0; color: var(--ink-2); font-size: 0.95rem; line-height: 1.55; }
+
+  .assumptions summary { cursor: pointer; color: var(--ink-2); }
+  .assumptions ul { color: var(--ink-2); font-size: 0.93rem; }
+  .akind { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; padding: 0.05rem 0.35rem; border-radius: 5px; margin-right: 0.3rem; }
+  .akind.model { background: var(--model-soft); color: var(--model); }
+  .akind.rule { background: var(--sourced-soft); color: var(--sourced); }
+</style>

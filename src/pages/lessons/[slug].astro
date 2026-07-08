@@ -1,33 +1,40 @@
 ---
 import Base from "../../layouts/Base.astro";
 import SolutionPlayer from "../../islands/SolutionPlayer.svelte";
+import StructureLesson from "../../components/StructureLesson.astro";
 import { withBase } from "../../lib/withBase.js";
-import { renderSolution } from "../../lib/view.js";
+import { renderSolution, renderStructureLesson } from "../../lib/view.js";
 import { plain } from "../../lib/katex.js";
 
-// One page per committed solution JSON (ADR-0019). The producer is the source of truth; this page only reads
-// and renders it — no chemistry happens here.
+// One page per committed lesson JSON. Two lesson shapes share the /lessons/<slug>/ route (ADR-0045): a
+// reaction lesson (*.solution.json → SolutionPlayer, the extent ledger) and a structure lesson
+// (*.structure.json → StructureLesson, the single-molecule electron ledger). The producer is the source of
+// truth; this page only reads and renders — no chemistry happens here.
 export function getStaticPaths() {
-  const all = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
-  return Object.values(all).map((m) => ({ params: { slug: m.default.slug }, props: { solution: m.default } }));
+  const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
+  const structs = import.meta.glob("../../../derived/**/*.structure.json", { eager: true });
+  return [
+    ...Object.values(sols).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "reaction" } })),
+    ...Object.values(structs).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "structure" } })),
+  ];
 }
 
-const { solution } = Astro.props;
-const view = renderSolution(solution);
+const { lesson, kind } = Astro.props;
+const isStructure = kind === "structure";
+const view = isStructure ? renderStructureLesson(lesson) : renderSolution(lesson);
 
-const metaRaw = plain(solution.scenario);
+const metaRaw = plain(lesson.scenario);
 const metaDesc = metaRaw.length > 157 ? metaRaw.slice(0, 156).replace(/\s+\S*$/, "") + "…" : metaRaw;
 
 // Concept chips link into the Chemical Atlas where they resolve — routed by the target entry's KIND to the
-// page that hosts it (concept → the index; reaction-family / species / formula → their own pages), or, for an
-// element or ion topic, to the Valence Table. Ids without an entry yet render as plain chips (the Atlas
-// breadth-fills). The chip label prefers the entry's real title when one exists.
+// page that hosts it (concept → the index; reaction-family / species / formula / molecule → their own pages),
+// or, for an element or ion topic, to the Valence Table. Ids without an entry yet render as plain chips.
 const refs = import.meta.glob("../../../derived/reference/*.json", { eager: true });
 const byId = new Map(Object.values(refs).map((m) => [m.default.id, m.default]));
 const valenceTopics = new Set(["calcium", "carbonate", "sodium", "chloride", "chlorine", "sulfate", "nitrate", "phosphate", "acetate", "ammonium", "hydroxide", "oxide"]);
-const kindPage = { concept: "/reference/", "reaction-family": "/reference/reactions/", species: "/reference/species/", formula: "/reference/formulas/" };
+const kindPage = { concept: "/reference/", "reaction-family": "/reference/reactions/", species: "/reference/species/", formula: "/reference/formulas/", molecule: "/reference/molecules/" };
 const titleCase = (id) => id.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
-const concepts = (solution.reference_links ?? []).map((id) => {
+const concepts = (lesson.reference_links ?? []).map((id) => {
   const entry = byId.get(id);
   const page = entry && kindPage[entry.kind];
   return {
@@ -38,13 +45,15 @@ const concepts = (solution.reference_links ?? []).map((id) => {
 });
 ---
 
-<Base title={`${solution.title} — Affinity`} description={metaDesc}>
-  <p class="crumb faint"><a href={withBase("/lessons/")}>Lessons</a> · {solution.topic}</p>
-  <h1>{solution.title}</h1>
+<Base title={`${lesson.title} — Affinity`} description={metaDesc}>
+  <p class="crumb faint"><a href={withBase("/lessons/")}>Lessons</a> · {lesson.topic}</p>
+  <h1>{lesson.title}</h1>
 
-  {/* client:load (not client:visible): the player IS the lesson and sits above the fold; client:visible never
-      hydrates in a headless preview loading at a 0×0 viewport (the IntersectionObserver never fires). */}
-  <SolutionPlayer solution={view} client:load />
+  {isStructure
+    ? <StructureLesson lesson={view} />
+    /* client:load (not client:visible): the player IS the lesson and sits above the fold; client:visible never
+       hydrates in a headless preview loading at a 0×0 viewport (the IntersectionObserver never fires). */
+    : <SolutionPlayer solution={view} client:load />}
 
   <section class="links">
     <h2>Concepts in this lesson</h2>

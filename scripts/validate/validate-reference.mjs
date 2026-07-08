@@ -14,6 +14,7 @@ import addFormats from "ajv-formats";
 import { verifyBalance, redoxFreeElements } from "./balancecheck.mjs";
 import { parseFormula } from "./formula.mjs";
 import { unitDimension, eq as dimEq, addScaled, DIMENSIONLESS } from "./dimension.mjs";
+import { verifyElectronLedger, ledgerTables } from "./structurecheck.mjs";
 
 const ROOT = process.cwd();
 const refDir = join(ROOT, "derived", "reference");
@@ -35,18 +36,6 @@ const schemas = {
 
 const fail = (file, msg) => { console.error(`REFERENCE GATE FAILED — ${file}: ${msg}`); process.exit(1); };
 
-// classify a bond's ΔEN against the Valence Table's sourced ΔEN thresholds (ADR-0033/0044) — half-open
-// [min, max), so ΔEN 0.4 exactly is polar covalent. The molecule gate re-derives every bond's class this way,
-// so a corrupted class or ΔEN fails loud against the same sourced table the bonding mode uses.
-function classifyBond(delta, vt) {
-  for (const c of vt?.bonding?.classes ?? []) {
-    const lo = c.min != null ? Number(c.min) : null;
-    const hi = c.max != null ? Number(c.max) : null;
-    if ((lo === null || delta >= lo) && (hi === null || delta < hi)) return c.id;
-  }
-  return "(unclassified)";
-}
-
 // The honesty register (docs/SOURCES.md, ADR-0003/0006): collect every registered source id from the
 // register table (rows are `| \`source-id\` | … |`). Every `source` an emitted object cites must resolve
 // to one of these — SOURCES.md promises exactly this enforcement.
@@ -57,13 +46,14 @@ const registeredSources = new Set();
   if (registeredSources.size === 0) fail("docs/SOURCES.md", "no registered source ids found — parser drift?");
 }
 
-// every real lesson route slug, for the "used in" links
+// every real lesson route slug, for the "used in" links — both reaction lessons (*.solution.json) and
+// structure lessons (*.structure.json, ADR-0045), which share the /lessons/<slug>/ route.
 const slugs = new Set();
 (function walk(d) {
   for (const n of readdirSync(d)) {
     const p = join(d, n);
     if (statSync(p).isDirectory()) walk(p);
-    else if (n.endsWith(".solution.json")) slugs.add(JSON.parse(readFileSync(p, "utf8")).slug);
+    else if (n.endsWith(".solution.json") || n.endsWith(".structure.json")) slugs.add(JSON.parse(readFileSync(p, "utf8")).slug);
   }
 })(join(ROOT, "derived"));
 
@@ -87,9 +77,8 @@ const vt = entries.find((e) => e.obj.kind === "valence-table")?.obj;
 const atomicWeight = new Map((vt?.elements ?? []).map((e) => [e.symbol, e.atomic_weight]));
 // the Valence Table's derived valence-electron counts + sourced electronegativities, for re-deriving a
 // molecule's electron ledger + bond ΔEN in pure Node (ADR-0044) — one source of truth, as species molar
-// masses re-sum the table's weights (ADR-0038).
-const valenceE = new Map((vt?.elements ?? []).filter((e) => e.valence_electrons != null).map((e) => [e.symbol, e.valence_electrons]));
-const electroneg = new Map((vt?.elements ?? []).filter((e) => e.electronegativity != null).map((e) => [e.symbol, Number(e.electronegativity)]));
+// masses re-sum the table's weights (ADR-0038). Shared with validate-solutions' structure lessons (ADR-0045).
+const ledgerT = ledgerTables(vt);
 
 // cross-checks
 for (const { rel, obj } of entries) {
@@ -223,107 +212,16 @@ for (const { rel, obj } of entries) {
     if (obj.regime === "model-exact" && obj.assumptions.length === 0)
       fail(rel, `model-exact formula discloses no assumption`);
   } else if (obj.kind === "molecule") {
-    // ADR-0044: a molecule's ELECTRON LEDGER is re-derived in pure Node. The valence total, per-atom octet/
-    // duet, formal charges (and their sum), and the domain count all re-derive from the exact `formula` +
-    // authored atoms/bonds — the machine-checked core. Bond ΔEN re-derives from the Valence Table's sourced
-    // electronegativities and re-classifies against its sourced ΔEN thresholds. The VSEPR geometry NAMES are
-    // the sourced convention (source register-checked); the domain COUNT that keys them is re-derived here.
+    // ADR-0044/0045: a molecule's ELECTRON LEDGER is re-derived in pure Node by the SHARED engine
+    // (structurecheck.mjs) — the same one validate-solutions runs over a structure lesson's embedded molecule.
+    // The valence total, per-atom octet/duet, formal charges (+ their sum), the domain count, and every bond's
+    // ΔEN + class all re-derive from the exact `formula` + authored atoms/bonds + the sourced table. Here the
+    // gate additionally checks the Atlas-specific facets: the cited sources register, and the edges/lessons resolve.
     for (const s of [obj.source, obj.en_source, obj.bonding_source, obj.geometry.source])
       if (!registeredSources.has(s)) fail(rel, `source '${s}' is not registered in docs/SOURCES.md`);
     for (const e of obj.related) if (!ids.has(e.to)) fail(rel, `related edge → '${e.to}' resolves to no reference`);
     for (const s of obj.lessons) if (!slugs.has(s)) fail(rel, `lesson '${s}' is not a real lesson slug`);
-
-    // re-parse the formula: charge reproduces, and the authored atoms reproduce its composition
-    let parsed;
-    try { parsed = parseFormula(obj.formula); }
-    catch (e) { fail(rel, `formula '${obj.formula}' does not parse: ${e.message}`); }
-    if (parsed.charge !== obj.charge) fail(rel, `charge ${obj.charge} != re-parsed ${parsed.charge}`);
-    const elementOf = new Map();
-    const lonePairs = new Map();
-    const structCounts = {};
-    for (const a of obj.atoms) {
-      if (elementOf.has(a.id)) fail(rel, `duplicate atom id '${a.id}'`);
-      elementOf.set(a.id, a.element);
-      lonePairs.set(a.id, a.lone_pairs);
-      structCounts[a.element] = (structCounts[a.element] ?? 0) + 1;
-    }
-    for (const el of new Set([...Object.keys(parsed.counts), ...Object.keys(structCounts)]))
-      if (parsed.counts[el] !== structCounts[el])
-        fail(rel, `atom count for '${el}' is ${structCounts[el] ?? "absent"} but the formula parses to ${parsed.counts[el] ?? "absent"}`);
-
-    // valence total = Σ group valence electrons − charge (re-derived from the table's counts)
-    let valence = 0;
-    for (const a of obj.atoms) {
-      const ve = valenceE.get(a.element);
-      if (ve === undefined) fail(rel, `element '${a.element}' has no valence-electron count in the Valence Table`);
-      valence += ve;
-    }
-    valence -= obj.charge;
-    if (valence !== obj.valence_electrons) fail(rel, `valence_electrons ${obj.valence_electrons} != re-derived ${valence}`);
-    // the per-element breakdown must re-sum to it (per_atom = the sourced count, subtotal = per_atom × count)
-    let bdVal = 0;
-    for (const b of obj.valence_breakdown) {
-      if (valenceE.get(b.symbol) !== b.per_atom) fail(rel, `${b.symbol}: per_atom ${b.per_atom} != table ${valenceE.get(b.symbol)}`);
-      if (b.subtotal !== b.per_atom * b.count) fail(rel, `${b.symbol}: subtotal ${b.subtotal} != per_atom × count`);
-      bdVal += b.subtotal;
-    }
-    if (bdVal - obj.charge !== valence) fail(rel, `valence_breakdown Σ ${bdVal} − charge ${obj.charge} != ${valence}`);
-
-    // re-accumulate per-atom bond-order totals + neighbour (domain) counts from the bond list
-    const orderSum = new Map(obj.atoms.map((a) => [a.id, 0]));
-    const neighbours = new Map(obj.atoms.map((a) => [a.id, 0]));
-    for (const bd of obj.bonds) {
-      if (!elementOf.has(bd.a) || !elementOf.has(bd.b)) fail(rel, `bond references unknown atom(s) '${bd.a}'/'${bd.b}'`);
-      if (bd.a === bd.b) fail(rel, `bond from atom '${bd.a}' to itself`);
-      orderSum.set(bd.a, orderSum.get(bd.a) + bd.order);
-      orderSum.set(bd.b, orderSum.get(bd.b) + bd.order);
-      neighbours.set(bd.a, neighbours.get(bd.a) + 1);
-      neighbours.set(bd.b, neighbours.get(bd.b) + 1);
-      // bond ΔEN re-derives from the sourced electronegativities; re-classify against the sourced thresholds
-      const ea = electroneg.get(elementOf.get(bd.a)), eb = electroneg.get(elementOf.get(bd.b));
-      if (ea === undefined || eb === undefined) fail(rel, `bond '${bd.a}-${bd.b}' element has no electronegativity`);
-      const delta = Math.abs(ea - eb);
-      if (Math.abs(delta - Number(bd.delta_en)) > 1e-9) fail(rel, `bond '${bd.a}-${bd.b}' ΔEN '${bd.delta_en}' != re-derived ${delta}`);
-      const wantClass = classifyBond(delta, vt);
-      if (bd.bond_class !== wantClass) fail(rel, `bond '${bd.a}-${bd.b}' class '${bd.bond_class}' != re-derived '${wantClass}'`);
-      if (bd.polar !== (bd.bond_class !== "nonpolar-covalent")) fail(rel, `bond '${bd.a}-${bd.b}' polar flag disagrees with its class`);
-      const want = [elementOf.get(bd.a), elementOf.get(bd.b)].sort();
-      if (bd.between[0] !== want[0] || bd.between[1] !== want[1]) fail(rel, `bond '${bd.a}-${bd.b}' between [${bd.between}] != [${want}]`);
-    }
-
-    // electron conservation: Σ bond-order electrons (2·order, summed as orderSum totals) + Σ 2·lone_pairs = V
-    let bondingE = 0, nonbondingE = 0, fcSum = 0;
-    for (const a of obj.atoms) {
-      const os = orderSum.get(a.id);
-      if (a.bond_order_sum !== os) fail(rel, `atom '${a.id}' bond_order_sum ${a.bond_order_sum} != re-derived ${os}`);
-      const target = a.element === "H" ? 2 : 8;
-      const shell = 2 * os + 2 * a.lone_pairs;
-      if (shell !== target) fail(rel, `atom '${a.id}' (${a.element}) shell ${shell} != completed ${target === 2 ? "duet" : "octet"} (${target})`);
-      const ve = valenceE.get(a.element);
-      const fc = ve - 2 * a.lone_pairs - os;
-      if (a.formal_charge !== fc) fail(rel, `atom '${a.id}' formal_charge ${a.formal_charge} != re-derived ${fc}`);
-      bondingE += os;                 // Σ over atoms of order = 2·Σ(bond order) = the bonding electrons
-      nonbondingE += 2 * a.lone_pairs;
-      fcSum += fc;
-    }
-    if (bondingE + nonbondingE !== valence)
-      fail(rel, `electrons not conserved — ${bondingE} bonding + ${nonbondingE} nonbonding != ${valence} valence`);
-    if (obj.electron_check.bonding !== bondingE || obj.electron_check.nonbonding !== nonbondingE || obj.electron_check.total !== bondingE + nonbondingE)
-      fail(rel, `electron_check ${JSON.stringify(obj.electron_check)} != re-derived {bonding:${bondingE}, nonbonding:${nonbondingE}, total:${bondingE + nonbondingE}}`);
-    if (fcSum !== obj.charge) fail(rel, `formal charges sum to ${fcSum}, not the molecular charge ${obj.charge}`);
-
-    // the VSEPR domain count (bonded neighbours + lone pairs on the central atom) keys the sourced geometry
-    const g = obj.geometry;
-    if (!elementOf.has(g.central)) fail(rel, `geometry central '${g.central}' is not an atom`);
-    if (g.central_element !== elementOf.get(g.central)) fail(rel, `geometry central_element '${g.central_element}' != '${elementOf.get(g.central)}'`);
-    const domains = neighbours.get(g.central) + lonePairs.get(g.central);
-    if (g.domains !== domains) fail(rel, `geometry domains ${g.domains} != re-derived ${domains}`);
-    if (g.lone_pairs !== lonePairs.get(g.central)) fail(rel, `geometry lone_pairs ${g.lone_pairs} != central's ${lonePairs.get(g.central)}`);
-
-    // polarity is authored + model-assumed: present iff the species is neutral (a charged ion carries a charge, not a dipole)
-    if (obj.charge === 0 && obj.polarity === undefined) fail(rel, `neutral molecule states no polarity`);
-    if (obj.charge !== 0 && obj.polarity !== undefined) fail(rel, `charged species must not state a molecular polarity`);
-    if (obj.polarity !== undefined && !obj.polarity_reason) fail(rel, `polarity stated without a polarity_reason`);
+    verifyElectronLedger(rel, obj, ledgerT, fail);
   } else if (obj.kind === "valence-table") {
     // every source id the table cites (atomic weight, position, ion charge, and the ADR-0031 properties)
     // must resolve to a SOURCES.md register row

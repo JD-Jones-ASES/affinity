@@ -20,6 +20,10 @@ problems/<topic>/<slug>.problem.toml
 writes `derived/<topic>/<slug>.solution.json`, and the gate refuses a file whose emitted `topic`/`slug`
 don't match its path. One lesson per file.
 
+Most of this guide covers the **reaction** lesson (`*.problem.toml` → a species ledger over reaction extent). A
+single-**molecule** lesson (Lewis structure → VSEPR → polarity) is a different spec — `*.structure.toml`, its own
+schema — covered in [Structure lessons](#structure-lessons--a-single-molecule-structuretoml-adr-0045) below.
+
 ## The one TOML gotcha
 
 **Bare keys must precede any `[table]` or `[[array]]` header**, or TOML absorbs them into the preceding
@@ -203,6 +207,45 @@ limiting reagent. A `[practice]` block (seed + count) yields energy-ledger drill
 leftover, categorical limiting) even with no slider interactive — the reaction constants travel in a `practice.energetics`
 block so check-parity re-derives every answer; pick a seed that yields both reactants limiting across the set. See
 [`problems/thermochemistry/methane-combustion-enthalpy.problem.toml`](../problems/thermochemistry/methane-combustion-enthalpy.problem.toml).
+
+### Structure lessons — a single molecule (`*.structure.toml`, ADR-0045)
+
+A **structure lesson** is a *different lesson kind* — not a reaction. It teaches one molecule's **Lewis electron
+ledger**, stepped valence electrons → Lewis structure → VSEPR shape → polarity. It has **no reactants/products, no
+`[[given]]`, no `[energetics]`** — its own tight schema (`schemas/structure-lesson.schema.json`) and file extension
+`*.structure.toml` under `problems/<topic>/`. It **names a `molecule` Atlas entry** and reuses that entry's authored
+connectivity (one source of truth), re-deriving + machine-checking the electron ledger with the same `compute_ledger`
+engine. Author only a neutral molecule (the payoff is polarity, forbidden on ions):
+
+```toml
+id = "bonding-water-molecular-shape"
+title = "Why water is bent: the electron ledger of a single molecule"
+slug = "water-molecular-shape"
+topic = "bonding"
+tags = ["bonding", "lewis-structure", "vsepr", "polarity"]
+scenario = "…"                       # the hook; formula tokens (H₂O) get subscripted
+molecule = "molecule-water"          # the molecule Atlas entry id whose atoms/bonds this lesson embeds
+reference_links = ["lewis-structure", "vsepr", "molecule-water", "molecule-carbon-dioxide", "electronegativity"]
+
+[steps]                              # exactly these four keys (an extra key = a TOML trap-#4 absorption → refused).
+valence  = "…"                       # the producer fixes each step's title + honesty badge; you write the prose.
+lewis    = "…"                       # valence + lewis are machine-checked; shape is sourced; polarity is model-assumed.
+shape    = "…"
+polarity = "…"
+
+[misconception]
+claim = "Water is linear…"
+refuted_by = "lone_pairs_are_electron_domains"   # the player renders a data-driven refutation for this key
+
+[[assumptions]]                      # disclose the Lewis-pair / VSEPR / dipole-cancellation models (kind = "model")
+claim = "…"
+kind = "model"
+```
+
+The producer derives the whole `molecule` block (valence total, octets, formal charges, VSEPR geometry, bond ΔEN,
+polarity) from the referenced entry and **refuses to emit** on any electron-accounting failure. `regimes`, the four
+step titles/regimes, `checks`, and `provenance` are all machine-set — do not author them. See
+[`problems/bonding/water-molecular-shape.structure.toml`](../problems/bonding/water-molecular-shape.structure.toml).
 
 ### Other optional keys
 

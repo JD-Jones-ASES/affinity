@@ -8,22 +8,33 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 ## Status
 
 - **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed; Phase 2 (the
-  model-bearing tier) has landed its **gases + thermochemistry** tiers and has now **opened bonding & structure**.
-  Landed: the **formula/equation sheet** (ADR-0039), **`gas_laws_v1` gym** (ADR-0040), **gas-stoichiometry lesson**
-  (ADR-0041), **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043 — q=ΔH_rxn·ξ via Hess's law, with
-  practice + Hess formula entry), and the **bonding tier** (ADR-0044 — the Lewis electron-ledger engine +
-  `molecule` Atlas kind + the **`lewis_structures_v1` gym**). **Next inside Phase 2:** the rest of bonding (a structure
-  lesson, IMFs), then equilibrium/acid-base, kinetics, electrochemistry, each opening with its stress scenario. Counters live in
-  `AGENTS.md ## Current state`; per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) +
-  [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+  model-bearing tier) has landed its **gases + thermochemistry** tiers and its **bonding & structure** tier's engine +
+  Atlas + gym + **lesson**. Landed: the **formula/equation sheet** (ADR-0039), **`gas_laws_v1` gym** (ADR-0040),
+  **gas-stoichiometry lesson** (ADR-0041), **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043 — q=ΔH_rxn·ξ
+  via Hess's law), the **bonding tier** (ADR-0044 — Lewis electron-ledger engine + `molecule` Atlas kind +
+  `lewis_structures_v1` gym), and the **bonding & structure lesson** (ADR-0045 — the `structure` lesson kind; water's
+  valence → Lewis → VSEPR → polarity). **Next inside Phase 2:** IMFs (the rest of bonding), then equilibrium/acid-base,
+  kinetics, electrochemistry, each opening with its stress scenario. Counters live in `AGENTS.md ## Current state`;
+  per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are
+  the plan of record.
+- **Bonding & structure lesson — LANDED** (2026-07-08, ADR-0045): `bonding/water-molecular-shape` — the tier's deep
+  vertical slice and the **first single-molecule lesson**. A new **`structure` lesson kind** (own tight
+  `schemas/structure-lesson.schema.json` + `build_structure_lesson`, `*.structure.json`) rather than a bent reaction
+  schema: the pivot is the Lewis **electron** ledger (no equations / species-ledger / reported product). The lesson names
+  a `molecule` Atlas entry and reuses its connectivity, re-deriving the ledger with the shared `compute_ledger`; four
+  fixed steps (valence/lewis/shape/polarity) carry authored prose under the three honesty badges; the "water is linear"
+  misconception is refuted from the verified geometry (lone pairs are domains → bent). The molecule electron-ledger
+  re-derivation was factored into a shared `structurecheck.mjs` (`verifyElectronLedger`) used by both the reference + the
+  solutions gate, which also cross-checks the embedded ledger against the Atlas (no drift). A fully static player. Lesson #7.
 - **Bonding & structure tier — OPEN** (2026-07-08, ADR-0044): the **Lewis electron-ledger engine** (`chemkernel.structure`,
-  `compute_ledger`) + the **`molecule` Atlas kind** + the **`lewis_structures_v1` gym**. The electron ledger — valence
-  total, octet/duet, formal charge, their conservation — is exact integer arithmetic, **machine-checked** (the gate
-  re-derives it all in pure Node); VSEPR geometry keys a sourced table (`data/vsepr.toml`) on the machine-derived domain
-  count; bond ΔEN reuses the sourced electronegativities; molecular polarity is authored + disclosed (model-assumed,
-  neutral molecules only). 6 molecules (H₂O/CO₂/NH₃/CH₄/CH₂O/NH₄⁺) + 2 concepts (`lewis-structure`, `vsepr`);
-  `/reference/molecules/`; the gym drills valence total / electron domains (free-entry) + molecular geometry (categorical)
-  off the shared engine (gym family #11). The Atlas's 5th reference surface. **Next in-tier:** a structure lesson + IMFs.
+  `compute_ledger`) + the **`molecule` Atlas kind** + the **`lewis_structures_v1` gym** (+ the structure lesson, ADR-0045).
+  The electron ledger — valence total, octet/duet, formal charge, their conservation — is exact integer arithmetic,
+  **machine-checked** (the gate re-derives it all in pure Node); VSEPR geometry keys a sourced table (`data/vsepr.toml`) on
+  the machine-derived domain count; bond ΔEN reuses the sourced electronegativities; molecular polarity is authored +
+  disclosed (model-assumed, neutral molecules only). 6 molecules (H₂O/CO₂/NH₃/CH₄/CH₂O/NH₄⁺) + 2 concepts
+  (`lewis-structure`, `vsepr`); `/reference/molecules/`; the gym drills valence total / electron domains (free-entry) +
+  molecular geometry (categorical) off the shared engine (gym family #11). The Atlas's 5th reference surface. **Next
+  in-tier:** IMFs (build on molecular polarity); octet exceptions + resonance are corpus-depth deferrals.
 - **Energy-ledger lesson — LANDED** (2026-07-08, ADR-0043): `thermochemistry/methane-combustion-enthalpy` — the ledger
   drives an **energy** (q=ΔH_rxn·ξ; CH₄ + 2 O₂ → CO₂ + 2 H₂O). ΔH_rxn is **Hess's law** over sourced ΔH_f°
   (`data/formation-enthalpies.toml`, OpenStax Appendix G), exact Decimal arithmetic; `build.py` gains a fourth
@@ -343,10 +354,13 @@ are **machine-checked** (exact integer accounting, re-derived in pure Node); the
 values + `data/bonding.toml`; **molecular polarity** is authored + disclosed (model-assumed, neutral molecules only). 6
 molecules (H₂O/CO₂/NH₃/CH₄/CH₂O/NH₄⁺) + the `lewis-structure`/`vsepr` concepts; `/reference/molecules/`. The gym drills
 valence total / electron domains (free-entry) + molecular geometry (categorical, the electron-domain-geometry distractor)
-off the shared engine — the counting practice for the ledger. **Deferred within:** octet exceptions (electron-deficient
-BeH₂/BF₃, expanded PCl₅/SF₆); resonance (CO₃²⁻/NO₃⁻ — equivalent-structure handling); a bonding & structure lesson (the
-deep vertical slice); IMFs (build on molecular polarity); a formal-charge gym drill (wants nonzero-FC molecules, i.e.
-resonance).
+off the shared engine — the counting practice for the ledger. The **deep vertical slice — the `structure` lesson kind**
+(`bonding/water-molecular-shape`, ADR-0045) — landed: a single molecule stepped valence → Lewis → VSEPR → polarity on the
+shared `compute_ledger`, a new tight `structure-lesson.schema.json` (no reaction), the electron-ledger re-derivation
+factored into a shared `structurecheck.mjs`. **Deferred within:** octet exceptions (electron-deficient BeH₂/BF₃, expanded
+PCl₅/SF₆); resonance (CO₃²⁻/NO₃⁻ — equivalent-structure handling); **IMFs** (build on molecular polarity — the tier's next
+increment); more structure lessons (CO₂'s linear-nonpolar contrast; NH₃/CH₄); a formal-charge gym drill (wants nonzero-FC
+molecules, i.e. resonance).
 
 **Then (each its own increment, sketch):** the rest of bonding (above); equilibrium & acid-base (ICE table = the ledger
 with reversible extent — $n_i = n_{i,0} + \nu_i\xi$ solved for the $\xi$ that satisfies mass action; K, Q, pH, weak

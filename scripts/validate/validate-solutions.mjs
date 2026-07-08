@@ -6,22 +6,27 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
+import { verifyElectronLedger, ledgerTables } from "./structurecheck.mjs";
 
 const ROOT = process.cwd();
 const schema = JSON.parse(readFileSync(join(ROOT, "schemas", "solution.schema.json"), "utf8"));
+const structureSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "structure-lesson.schema.json"), "utf8"));
 const ajv = new Ajv({ allErrors: true, strict: true });
 addFormats(ajv);
 const validate = ajv.compile(schema);
+const validateStructure = ajv.compile(structureSchema);
 
-function walk(dir) {
+// walk derived/ for lesson files matching a suffix (*.solution.json reactions, *.structure.json structures)
+function walkSuffix(dir, suffix) {
   const out = [];
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
-    if (statSync(p).isDirectory()) out.push(...walk(p));
-    else if (name.endsWith(".solution.json")) out.push(p);
+    if (statSync(p).isDirectory()) out.push(...walkSuffix(p, suffix));
+    else if (name.endsWith(suffix)) out.push(p);
   }
   return out;
 }
+const walk = (dir) => walkSuffix(dir, ".solution.json");
 
 const derived = join(ROOT, "derived");
 let files = [];
@@ -136,4 +141,70 @@ for (const file of files) {
   }
 }
 
-console.log(`validate-solutions: ${files.length} solution(s) valid; ${ids.size} unique id(s).`);
+// ── structure lessons (ADR-0045): a single-molecule lesson, its own tight schema. The Lewis ELECTRON ledger is
+// re-derived in pure Node by the SHARED engine (structurecheck.mjs) — the same one the molecule Atlas kind uses,
+// so the lesson's claim stands on its own re-proof — and cross-checked against the Atlas molecule with the same
+// ref_id (no drift). No equations/species-ledger/reported-product here; the electron ledger IS the object.
+const structureFiles = walkSuffix(derived, ".structure.json");
+const STEP_KEYS = ["valence", "lewis", "shape", "polarity"];
+let ledgerT = null;      // built lazily from the emitted valence-table.json
+const moleculeById = new Map();
+if (structureFiles.length) {
+  const vtPath = join(derived, "reference", "valence-table.json");
+  let vt;
+  try { vt = JSON.parse(readFileSync(vtPath, "utf8")); }
+  catch { fail("derived/reference/valence-table.json", "missing — a structure lesson needs the Valence Table to re-derive its ledger"); }
+  ledgerT = ledgerTables(vt);
+  // the molecule Atlas entries, for the no-drift cross-check
+  const refDir = join(derived, "reference");
+  for (const name of readdirSync(refDir).filter((n) => n.endsWith(".json"))) {
+    const obj = JSON.parse(readFileSync(join(refDir, name), "utf8"));
+    if (obj.kind === "molecule") moleculeById.set(obj.id, obj);
+  }
+}
+for (const file of structureFiles) {
+  const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
+  const les = JSON.parse(readFileSync(file, "utf8"));
+
+  if (!validateStructure(les)) fail(rel, ajv.errorsText(validateStructure.errors, { separator: "; " }));
+
+  // 1. derived path matches declared topic/slug; 2. id unique across ALL lessons (shared set)
+  const expected = `derived/${les.topic}/${les.slug}.structure.json`;
+  if (rel !== expected) fail(rel, `path does not match topic/slug (expected ${expected})`);
+  if (ids.has(les.id)) fail(rel, `duplicate id ${les.id}`);
+  ids.add(les.id);
+
+  // 3. every machine-checked fact must hold (schema pins const:true; assert here as the honesty gate)
+  for (const [k, v] of Object.entries(les.checks)) if (v !== true) fail(rel, `check ${k} is not true`);
+
+  // 4. the four teaching steps are exactly valence → lewis → shape → polarity, in order
+  const keys = les.steps.map((s) => s.key);
+  if (keys.length !== 4 || keys.some((k, i) => k !== STEP_KEYS[i]))
+    fail(rel, `steps must be ${STEP_KEYS.join(" → ")} in order, got ${keys.join(" → ")}`);
+
+  // 5. the electron ledger re-derives in pure Node (the machine-checked core) — the SAME engine as the Atlas
+  verifyElectronLedger(rel, les.molecule, ledgerT, fail);
+
+  // 6. the electron ledger is claimed machine-checked (regime-1); polarity is model-assumed, so a model
+  // assumption must be disclosed (the model-assumed badge does honest work) — mirrors the gas/energy gates
+  if (!les.regimes.some((r) => r.regime === "ledger-exact"))
+    fail(rel, "structure lesson has no ledger-exact regime — the electron ledger is the machine-checked core");
+  if (!les.assumptions.some((a) => a.kind === "model"))
+    fail(rel, "structure lesson discloses no model assumption (polarity + VSEPR are model-assumed)");
+
+  // 7. the named molecule Atlas entry exists AND the embedded ledger matches it byte-for-byte (no drift): the
+  // lesson and the Atlas describe the SAME machine-checked structure (one authored source, ADR-0045).
+  const atlas = moleculeById.get(les.molecule.ref_id);
+  if (!atlas) fail(rel, `molecule.ref_id '${les.molecule.ref_id}' resolves to no molecule Atlas entry`);
+  for (const k of ["formula", "latex", "charge", "valence_electrons", "valence_breakdown", "electron_check",
+                   "atoms", "bonds", "geometry", "polarity", "polarity_reason", "names"]) {
+    if (JSON.stringify(les.molecule[k]) !== JSON.stringify(atlas[k]))
+      fail(rel, `molecule.${k} drifts from the Atlas entry ${les.molecule.ref_id} — the lesson must embed the same structure`);
+  }
+
+  // 8. provenance sources non-empty (each is a source id the Atlas molecule already register-checks)
+  for (const [k, v] of Object.entries(les.provenance.sources))
+    if (!v) fail(rel, `provenance.sources.${k} is empty`);
+}
+
+console.log(`validate-solutions: ${files.length} solution(s) + ${structureFiles.length} structure lesson(s) valid; ${ids.size} unique id(s).`);

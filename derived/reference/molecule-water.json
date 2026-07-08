@@ -111,7 +111,9 @@
       "type": "species"
     }
   ],
-  "lessons": [],
+  "lessons": [
+    "water-molecular-shape"
+  ],
   "polarity": "polar",
   "polarity_reason": "The molecule is bent, so the two polar O–H bond dipoles (ΔEN 1.24) add rather than cancel — a net dipole points from the H side toward oxygen."
 }

@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://affinity/schemas/structure-lesson.schema.json",
+  "title": "Affinity structure lesson",
+  "description": "One verified single-MOLECULE lesson (ADR-0045): the electron ledger's presentation shape generalised past a reaction to one molecule. Where a `solution.json` (ADR-0020) is reaction-shaped — equations, a species ledger over extent, a reported product — a structure lesson has none of those; its pivot is the Lewis ELECTRON ledger (chemkernel.structure.compute_ledger — the same engine the `molecule` Atlas kind and the `lewis_structures_v1` gym use), machine-checked, stepped valence electrons → Lewis structure → VSEPR shape → polarity. A distinct, tight schema keeps solution.schema.json pristine. additionalProperties:false everywhere.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind", "id", "title", "slug", "topic", "scenario", "regimes", "assumptions",
+    "molecule", "steps", "misconception", "checks", "provenance"
+  ],
+  "properties": {
+    "kind": { "const": "structure" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "topic": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "scenario": { "type": "string", "minLength": 1 },
+    "regimes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["facet", "regime"],
+        "properties": {
+          "facet": { "type": "string" },
+          "regime": { "enum": ["ledger-exact", "model-exact", "rule-sourced", "mechanistic"] }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim", "kind"],
+        "properties": {
+          "claim": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["model", "rule"] }
+        }
+      }
+    },
+    "molecule": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The lesson's molecule, re-embedded from the referenced `molecule` Atlas entry and re-derived by chemkernel.structure.compute_ledger — the machine-checked electron ledger. Its structural fields (charge, valence_electrons, electron_check, atoms, bonds, geometry) mirror molecule.schema.json exactly, so validate-solutions re-derives the whole ledger in pure Node (structurecheck.mjs) AND cross-checks it against the Atlas molecule with the same `ref_id` (no drift).",
+      "required": ["ref_id", "formula", "latex", "names", "charge", "valence_electrons", "valence_breakdown", "electron_check", "atoms", "bonds", "geometry", "polarity", "polarity_reason", "en_source", "bonding_source"],
+      "properties": {
+        "ref_id": { "type": "string", "pattern": "^[a-z0-9-]+$", "$comment": "the molecule Atlas entry id this lesson embeds (e.g. molecule-water); must resolve to a real molecule entry with an identical ledger" },
+        "formula": { "type": "string", "minLength": 1 },
+        "latex": { "type": "string", "minLength": 1 },
+        "names": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "charge": { "type": "integer" },
+        "valence_electrons": { "type": "integer", "minimum": 0 },
+        "valence_breakdown": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["symbol", "count", "per_atom", "subtotal"],
+            "properties": {
+              "symbol": { "type": "string", "pattern": "^[A-Z][a-z]?$" },
+              "count": { "type": "integer", "minimum": 1 },
+              "per_atom": { "type": "integer", "minimum": 1 },
+              "subtotal": { "type": "integer", "minimum": 1 }
+            }
+          }
+        },
+        "electron_check": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["bonding", "nonbonding", "total"],
+          "properties": {
+            "bonding": { "type": "integer", "minimum": 0 },
+            "nonbonding": { "type": "integer", "minimum": 0 },
+            "total": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "atoms": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "element", "lone_pairs", "bond_order_sum", "formal_charge"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "element": { "type": "string", "pattern": "^[A-Z][a-z]?$" },
+              "lone_pairs": { "type": "integer", "minimum": 0 },
+              "bond_order_sum": { "type": "integer", "minimum": 0 },
+              "formal_charge": { "type": "integer" }
+            }
+          }
+        },
+        "bonds": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["a", "b", "order", "between", "delta_en", "bond_class", "polar"],
+            "properties": {
+              "a": { "type": "string", "minLength": 1 },
+              "b": { "type": "string", "minLength": 1 },
+              "order": { "type": "integer", "minimum": 1 },
+              "between": {
+                "type": "array", "minItems": 2, "maxItems": 2,
+                "items": { "type": "string", "pattern": "^[A-Z][a-z]?$" }
+              },
+              "delta_en": { "type": "string", "minLength": 1 },
+              "bond_class": { "enum": ["nonpolar-covalent", "polar-covalent", "ionic"] },
+              "polar": { "type": "boolean" }
+            }
+          }
+        },
+        "geometry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["central", "central_element", "domains", "lone_pairs", "electron_geometry", "molecular_shape", "ideal_angle", "source"],
+          "properties": {
+            "central": { "type": "string", "minLength": 1 },
+            "central_element": { "type": "string", "pattern": "^[A-Z][a-z]?$" },
+            "domains": { "type": "integer", "minimum": 2 },
+            "lone_pairs": { "type": "integer", "minimum": 0 },
+            "electron_geometry": { "type": "string", "minLength": 1 },
+            "molecular_shape": { "type": "string", "minLength": 1 },
+            "ideal_angle": { "type": "string", "minLength": 1 },
+            "angle_note": { "type": "string", "minLength": 1 },
+            "source": { "type": "string", "minLength": 1 }
+          }
+        },
+        "polarity": { "enum": ["polar", "nonpolar"], "$comment": "authored + disclosed (model-assumed); a structure lesson is authored only for a neutral molecule so the polarity payoff is present" },
+        "polarity_reason": { "type": "string", "minLength": 1 },
+        "en_source": { "type": "string", "minLength": 1 },
+        "bonding_source": { "type": "string", "minLength": 1 }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "$comment": "the four teaching steps, always in this order: valence → lewis → shape → polarity. The producer fixes each step's key/title/regime (the honesty badge follows from the regime); the author supplies the prose. The player renders each step with its badge and the matching slice of the molecule block.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "title", "regime", "prose"],
+        "properties": {
+          "key": { "enum": ["valence", "lewis", "shape", "polarity"] },
+          "title": { "type": "string", "minLength": 1 },
+          "regime": { "enum": ["ledger-exact", "model-exact", "rule-sourced", "mechanistic"] },
+          "prose": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "misconception": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "refuted_by"],
+      "properties": {
+        "claim": { "type": "string", "minLength": 1 },
+        "refuted_by": { "type": "string" }
+      }
+    },
+    "reference_links": { "type": "array", "items": { "type": "string" } },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "the machine-checked facts, SHOWN not asserted (as a reaction lesson shows atom/charge/unit/extent). All const true — compute_ledger refuses to emit otherwise (ADR-0008).",
+      "required": ["electrons_conserved", "octets_complete", "formal_charge_sum", "geometry_keyed"],
+      "properties": {
+        "electrons_conserved": { "const": true },
+        "octets_complete": { "const": true },
+        "formal_charge_sum": { "const": true },
+        "geometry_keyed": { "const": true }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer", "version", "author", "created", "sources"],
+      "properties": {
+        "producer": { "const": "chemkernel" },
+        "version": { "type": "string" },
+        "python": { "type": "string" },
+        "author": { "type": "string" },
+        "created": { "type": "string" },
+        "sources": {
+          "type": "object",
+          "additionalProperties": false,
+          "$comment": "the electron ledger is machine-derived from the sourced valence-electron counts (ADR-0033); the geometry keys the sourced VSEPR table; bond ΔEN rides the sourced electronegativities + thresholds. Every value is traceable.",
+          "required": ["valence_electrons", "geometry", "electronegativity", "bonding"],
+          "properties": {
+            "valence_electrons": { "type": "string", "minLength": 1 },
+            "geometry": { "type": "string", "minLength": 1 },
+            "electronegativity": { "type": "string", "minLength": 1 },
+            "bonding": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}
