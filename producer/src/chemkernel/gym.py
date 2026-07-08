@@ -1266,6 +1266,273 @@ def _generate_reaction_families(seed, count, data, ctx):
     return problems
 
 
+# ------------------------------ gas laws (Phase 2 / brief §17.7, ADR-0040) ------------------------------
+
+# The first REGIME-2 (model-exact) gym: the ideal-gas law PV=nRT and the combined gas law. Two honesty
+# departures from the Phase-1 families, both recorded in ADR-0040: (1) the answer is NOT an exact terminating
+# decimal — the gas constant R is non-terminating — so it is computed at Decimal precision and reported ROUNDED
+# to 3 significant figures (ADR-0025), the model-exact-then-rounded pattern; (2) the whole family rests on the
+# ideal-gas MODEL, disclosed as a model-assumed assumption on the gym (the three-badge honesty model, ADR-0003).
+# What stays machine-honest: the answer is computed THROUGH the units engine (`Quantity`), so the dimensions are
+# certified (mol·L·atm·mol⁻¹·K⁻¹·K / atm → L) exactly as the conversion gym certifies L × mol/L = mol; and the
+# Node gate re-derives PV=nRT numerically from the emitted givens + R (within a tolerance above the rounding but
+# below the 3% diagnostic gap). Temperature is absolute (K); a °C given is converted (K = °C + 273.15) as a
+# shown step, and forgetting it is a named diagnostic — the canonical gas-law mistake.
+_GAS_P = [Decimal(x) for x in ("0.500", "0.750", "1.00", "1.25", "1.50", "2.00", "2.50", "3.00")]   # atm
+_GAS_V = [Decimal(x) for x in ("0.500", "1.00", "2.00", "4.00", "5.00", "10.0", "12.0", "22.4")]     # L
+_GAS_N = [Decimal(x) for x in ("0.100", "0.250", "0.500", "0.750", "1.00", "1.50", "2.00", "3.00")]  # mol
+_GAS_TK = [Decimal(x) for x in ("273", "290", "298", "300", "350", "400", "450", "500")]             # K
+_GAS_TC = [Decimal(x) for x in ("0", "20", "25", "27", "50", "100", "127", "200", "250")]            # °C
+_ABSZERO = Decimal("273.15")
+
+
+def _sigdec(d: Decimal, digits: int) -> str:
+    """Round a Decimal to `digits` significant figures and render fixed (no exponent), trimmed."""
+    if d == 0:
+        return "0"
+    with localcontext() as ctx:
+        ctx.prec = digits
+        ctx.rounding = ROUND_HALF_UP
+        return _trim(format(+d, "f"))
+
+
+def _round_sig(d: Decimal, digits: int) -> Decimal:
+    """Round a Decimal to `digits` significant figures, staying a Decimal (for further computation)."""
+    if d == 0:
+        return Decimal(0)
+    with localcontext() as ctx:
+        ctx.prec = digits
+        ctx.rounding = ROUND_HALF_UP
+        return +d
+
+
+def _gnum(d) -> str:
+    """A given value rendered in fixed notation, trimmed (a rounded Decimal can otherwise stringify as 1E+2)."""
+    return _sigdec(d, 12) if isinstance(d, Decimal) else str(d)
+
+
+def _rounded_response(answer: Decimal, unit: str, wrongs):
+    """Free-entry response for a model-exact-then-rounded numeric answer (ADR-0040/0032). Reports the answer at
+    3 sig figs (display) and 4 sig figs (the value the player checks against, 1% tolerance); each named-mistake
+    value becomes a diagnostic if it is ≥3.5% from the answer (so the 1% entry tolerance never mis-flags it)."""
+    value = _sigdec(answer, 4)
+    display = f"{_sigdec(answer, 3)} {unit}".strip()
+    ans = float(answer)
+    diags, seen = [], set()
+    for wv, why in wrongs:
+        try:
+            fv = float(wv)
+        except (ZeroDivisionError, ValueError, ArithmeticError):
+            continue
+        if fv != fv or abs(fv - ans) <= 0.035 * max(abs(ans), 1e-9):
+            continue
+        key = _sigdec(wv, 4)
+        if key in seen:
+            continue
+        seen.add(key)
+        diags.append({"value": key, "unit": unit, "misconception": why})
+    return value, display, diags
+
+
+def _q(v, u):
+    return Quantity.of(v, u)
+
+
+# solve PV=nRT for one variable, through the units engine (dimensions certified) at the given R. The three
+# non-target values are passed; the target is computed. Returns (Decimal answer, canonical unit).
+_IDEAL_UNIT = {"P": "atm", "V": "L", "n": "mol", "T": "K"}
+
+
+def _solve_ideal(solve_for, P, V, n, T, R):
+    QR = _q(R, "L*atm/(mol*K)")
+    if solve_for == "P":
+        return (_q(n, "mol") * QR * _q(T, "K") / _q(V, "L")).to("atm").value
+    if solve_for == "V":
+        return (_q(n, "mol") * QR * _q(T, "K") / _q(P, "atm")).to("L").value
+    if solve_for == "n":
+        return (_q(P, "atm") * _q(V, "L") / (QR * _q(T, "K"))).to("mol").value
+    return (_q(P, "atm") * _q(V, "L") / (_q(n, "mol") * QR)).to("K").value    # T
+
+
+_R_SI = Decimal("8.314")   # the SI gas constant in J/(mol·K) — the classic wrong R for an atm/L problem
+
+
+def _gas_ideal_problem(rng, R, ctx):
+    """One PV=nRT problem, solving for one of P/V/n/T given the other three. The state is generated CONSISTENT
+    and realistic — n, P, T are chosen and V computed from PV=nRT — so the answer is always physical; the given
+    volume is shown at 3 sig figs, and the answer re-derives from the emitted givens. None to reject."""
+    solve_for = rng.choice(["P", "V", "n", "T"])
+    n, P = rng.choice(_GAS_N), rng.choice(_GAS_P)
+    celsius = None
+    if solve_for != "T" and rng.random() < 0.5:
+        celsius = rng.choice(_GAS_TC)
+        T = celsius + _ABSZERO
+    else:
+        T = rng.choice(_GAS_TK)
+
+    unit = _IDEAL_UNIT[solve_for]
+    label = {"P": "pressure", "V": "volume", "n": "amount", "T": "temperature"}[solve_for]
+    with localcontext() as c:
+        c.prec = 28
+        V = _round_sig(_solve_ideal("V", P, None, n, T, R), 3)   # the consistent volume, as a 3-sig-fig given
+        known = {"P": P, "V": V, "n": n, "T": T}
+        answer = _solve_ideal(solve_for, known["P"], known["V"], known["n"], known["T"], R)
+    if not (Decimal("0.05") <= answer <= Decimal(2000)):
+        return None                                            # keep answers in a sane, learnable range
+    given = {f"{k}_{u}": known[k] for k, u in (("P", "atm"), ("V", "L"), ("n", "mol"), ("T", "K"))
+             if k != solve_for}
+
+    # named-mistake diagnostics — each a wrong VALUE a specific misconception produces (ADR-0032). Two robust
+    # mistakes (never collapse onto the answer): the wrong R (SI J-units instead of L·atm), and — when the
+    # temperature is given in °C — using it directly without converting to kelvin.
+    wrongs = []
+    with localcontext() as c:
+        c.prec = 28
+        wrongs.append((_solve_ideal(solve_for, P, V, n, T, _R_SI),
+                       f"Used R = 8.314 (the SI value in J/mol·K) — for pressure in atm and volume in L, use "
+                       f"R = {_sigdec(R, 4)} L·atm/mol·K."))
+        if celsius is not None:
+            wrongs.append((_solve_ideal(solve_for, P, V, n, celsius, R),
+                           f"Used the Celsius temperature directly — PV=nRT needs ABSOLUTE (kelvin) "
+                           f"temperature. Convert first: {_trim(str(celsius))} °C + 273.15 = "
+                           f"{_trim(str(T))} K."))
+
+    value, display, diagnostics = _rounded_response(answer, unit, wrongs)
+    if len(diagnostics) < 1:
+        return None
+
+    disp = {"P": ("atm", P), "V": ("L", V), "n": ("mol", n), "T": ("K", T)}
+    given_phrase = ", ".join(f"{_gnum(disp[k][1])} {disp[k][0]}"
+                             for k in ("P", "V", "n", "T") if k != solve_for)
+    if celsius is not None:                                     # phrase the temperature in the °C the student sees
+        given_phrase = given_phrase.replace(f"{_gnum(T)} K", f"{_gnum(celsius)} °C")
+    ask = {"P": "the pressure (atm)", "V": "the volume (L)", "n": "the amount (mol)",
+           "T": "the temperature (K)"}[solve_for]
+    prompt = (f"An ideal gas sample has {given_phrase}. Using PV = nRT "
+              f"(R = {_sigdec(R, 4)} L·atm/mol·K), what is {ask}?")
+
+    chain = []
+    if celsius is not None:
+        chain.append({"value": _gnum(T), "unit": "K",
+                      "note": f"convert temperature: {_gnum(celsius)} °C + 273.15"})
+    rearr = {"P": "P = nRT / V", "V": "V = nRT / P", "n": "n = PV / (RT)", "T": "T = PV / (nR)"}[solve_for]
+    chain.append({"value": rearr, "unit": "", "note": "rearrange PV = nRT"})
+    chain.append({"value": _sigdec(answer, 3), "unit": unit, "note": f"solve for {label}"})
+
+    explain = (f"PV = nRT rearranges to {rearr}. "
+               + (f"First put the temperature in kelvin ({_gnum(celsius)} °C + 273.15 = "
+                  f"{_gnum(T)} K). " if celsius is not None else "")
+               + f"Substituting gives {display}.")
+
+    return {
+        "kind": "gas_ideal", "mode": "numeric", "prompt": prompt, "chain": chain, "target_unit": unit,
+        "answer": {"value": value, "unit": unit, "display": display},
+        "derivation": {"kind": "gas_ideal", "gas": {"solve_for": solve_for, "R": _trim(str(R)), **given}},
+        "diagnostics": diagnostics, "explain": explain,
+    }
+
+
+def _gas_combined_problem(rng, R, ctx):
+    """One combined-gas-law problem: a fixed gas sample goes state 1 → state 2; solve for one state-2 quantity.
+    P₁V₁/T₁ = P₂V₂/T₂ (R cancels). Both states are generated CONSISTENT and realistic (a real gas sample of a
+    fixed amount at each state), so the answer is always physical. None to reject."""
+    solve_for = rng.choice(["P2", "V2", "T2"])
+    n = rng.choice(_GAS_N)
+    P1, T1 = rng.choice(_GAS_P), rng.choice(_GAS_TK)
+    P2, T2 = rng.choice(_GAS_P), rng.choice(_GAS_TK)
+    unit = {"P2": "atm", "V2": "L", "T2": "K"}[solve_for]
+    label = {"P2": "pressure", "V2": "volume", "T2": "temperature"}[solve_for]
+
+    with localcontext() as c:
+        c.prec = 28
+        V1 = _round_sig(_solve_ideal("V", P1, None, n, T1, R), 3)   # each state's consistent volume (3 sig figs)
+        V2 = _round_sig(_solve_ideal("V", P2, None, n, T2, R), 3)
+        k = _q(P1, "atm") * _q(V1, "L") / _q(T1, "K")              # the invariant nR (as a Quantity)
+        if solve_for == "P2":
+            answer = (k * _q(T2, "K") / _q(V2, "L")).to("atm").value
+        elif solve_for == "V2":
+            answer = (k * _q(T2, "K") / _q(P2, "atm")).to("L").value
+        else:  # T2
+            answer = (_q(P2, "atm") * _q(V2, "L") / k).to("K").value
+
+    if not (Decimal("0.05") <= answer <= Decimal(2000)):
+        return None
+
+    wrongs = []
+    with localcontext() as c:
+        c.prec = 28
+        # a flipped ratio — the commonest combined-gas-law slip (uses the emitted, rounded state values)
+        if solve_for == "V2":
+            wrongs.append(((k * _q(P2, "atm") / _q(T2, "K")).canonical,
+                           "Flipped a ratio — set up P₁V₁/T₁ = P₂V₂/T₂ and solve V₂ = P₁V₁T₂ / (T₁P₂)."))
+            wrongs.append(((_q(P1, "atm") * _q(V1, "L") * _q(T1, "K") / (_q(T2, "K") * _q(P2, "atm"))).canonical,
+                           "Inverted the temperatures — T₂ goes on top, T₁ on the bottom (V₂ = P₁V₁T₂/(T₁P₂))."))
+        elif solve_for == "P2":
+            wrongs.append(((k * _q(V2, "L") / _q(T2, "K")).canonical,
+                           "Flipped a ratio — P₂ = P₁V₁T₂ / (T₁V₂), so V₂ divides and T₂ multiplies."))
+        else:  # T2
+            wrongs.append(((_q(T1, "K") * _q(V1, "L") * _q(P1, "atm") / (_q(P2, "atm") * _q(V2, "L"))).canonical,
+                           "Inverted the state ratio — T₂ = T₁ · (P₂V₂)/(P₁V₁), not its reciprocal."))
+
+    value, display, diagnostics = _rounded_response(answer, unit, wrongs)
+    if len(diagnostics) < 1:
+        return None
+
+    st1 = f"{_gnum(P1)} atm, {_gnum(V1)} L, {_gnum(T1)} K"
+    disp2 = {"P2": ("atm", P2), "V2": ("L", V2), "T2": ("K", T2)}
+    st2 = ", ".join(f"{_gnum(disp2[k][1])} {disp2[k][0]}" for k in ("P2", "V2", "T2") if k != solve_for)
+    ask = {"P2": "the new pressure (atm)", "V2": "the new volume (L)", "T2": "the new temperature (K)"}[solve_for]
+    prompt = (f"A fixed sample of gas starts at {st1}. It changes to {st2}. "
+              f"Using P₁V₁/T₁ = P₂V₂/T₂, what is {ask}?")
+
+    rearr = {"P2": "P₂ = P₁V₁T₂ / (T₁V₂)", "V2": "V₂ = P₁V₁T₂ / (T₁P₂)",
+             "T2": "T₂ = P₂V₂T₁ / (P₁V₁)"}[solve_for]
+    chain = [
+        {"value": rearr, "unit": "", "note": "rearrange P₁V₁/T₁ = P₂V₂/T₂"},
+        {"value": _sigdec(answer, 3), "unit": unit, "note": f"solve for the new {label}"},
+    ]
+    explain = f"Hold the amount fixed: P₁V₁/T₁ = P₂V₂/T₂. Rearranged, {rearr} = {display}."
+
+    gas = {"solve_for": solve_for, "P1_atm": P1, "V1_L": V1, "T1_K": T1}
+    for key, name, vv in (("P2", "P2_atm", P2), ("V2", "V2_L", V2), ("T2", "T2_K", T2)):
+        if key != solve_for:                                   # the solved-for state-2 variable is not a given
+            gas[name] = vv
+    return {
+        "kind": "gas_combined", "mode": "numeric", "prompt": prompt, "chain": chain, "target_unit": unit,
+        "answer": {"value": value, "unit": unit, "display": display},
+        "derivation": {"kind": "gas_combined", "gas": gas},
+        "diagnostics": diagnostics, "explain": explain,
+    }
+
+
+_GAS_KINDS = ["gas_ideal", "gas_combined"]
+
+
+def _generate_gas_laws(seed, count, data, ctx):
+    if "gas_constant" not in data.constants:
+        raise BuildError(f"{ctx}: gas-laws gym needs the gas constant in data/constants.toml")
+    R = data.constants["gas_constant"]
+    rng = random.Random(seed)
+    problems: list[dict] = []
+    seen: set = set()
+    attempts = 0
+    while len(problems) < count and attempts < 8000:
+        attempts += 1
+        kind = _GAS_KINDS[len(problems) % len(_GAS_KINDS)]
+        q = _gas_ideal_problem(rng, R, ctx) if kind == "gas_ideal" else _gas_combined_problem(rng, R, ctx)
+        if q is None or q["prompt"] in seen:
+            continue
+        seen.add(q["prompt"])
+        # stringify the gas derivation's Decimal values (emitted JSON is all strings, ADR-0013)
+        q["derivation"]["gas"] = {k: (_trim(str(v)) if isinstance(v, Decimal) else v)
+                                  for k, v in q["derivation"]["gas"].items()}
+        q["id"] = f"q{len(problems) + 1}"
+        problems.append(q)
+    if len(problems) < count:
+        raise BuildError(f"{ctx}: gas-laws gym could not generate {count} problems at seed {seed}")
+    return problems
+
+
 _FAMILIES = {
     "solution_conversions_v1": _generate_conversions,
     "ionic_nomenclature_v1": _generate_nomenclature,
@@ -1275,6 +1542,7 @@ _FAMILIES = {
     "limiting_mass_v1": _rotating_generator(_limiting_mass_problem),
     "periodic_trends_v1": _generate_trends,
     "reaction_families_v1": _generate_reaction_families,
+    "gas_laws_v1": _generate_gas_laws,
 }
 
 
@@ -1298,8 +1566,11 @@ def generate_gym(spec: dict, data, ctx: str = "") -> dict:
         # rules, acid/base + decomposition tables — all openstax-chemistry-2e, via the ion-charge source key)
         sources["ion_charge"] = data.sources.get("ion_charge", "")
         sources["reaction_classes"] = data.sources.get("ion_charge", "")
+    if family == "gas_laws_v1":
+        # the ideal-gas answers use the sourced gas constant R (data/constants.toml)
+        sources["constants"] = data.sources.get("constants", "")
 
-    return {
+    gym = {
         "kind": "gym",
         "id": spec["id"],
         "title": spec["title"],
@@ -1317,3 +1588,20 @@ def generate_gym(spec: dict, data, ctx: str = "") -> dict:
             "sources": sources,
         },
     }
+    # a model-bearing gym discloses its model assumption (regime-2, the three-badge honesty model, ADR-0040).
+    # Added only for families that need it, so the existing families' derived JSON stays byte-identical.
+    assumptions = _FAMILY_ASSUMPTIONS.get(family)
+    if assumptions:
+        gym["assumptions"] = assumptions
+    return gym
+
+
+# model assumptions disclosed on a regime-2 gym (ADR-0040). The ideal-gas law is exact only inside the
+# ideal-gas model — so the gas-laws gym carries the model-assumed badge, exactly as a model-exact lesson does.
+_FAMILY_ASSUMPTIONS = {
+    "gas_laws_v1": [
+        {"claim": "The gas behaves ideally: PV = nRT holds exactly only for a dilute gas (low pressure, "
+                  "temperature well above condensation). A disclosed model, not a law of algebra.",
+         "kind": "model"},
+    ],
+}

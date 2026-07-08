@@ -46,3 +46,23 @@ def test_add_incompatible_raises():
 def test_unknown_unit_raises():
     with pytest.raises(BuildError):
         Q.of(1, "furlong")
+
+
+def test_gas_law_product_lands_in_volume():
+    # nRT/P through the units engine (ADR-0040): the dimensions cancel to a volume, and the value is the gas
+    # volume in L.
+    # n=1 mol, R=0.082057 L·atm/(mol·K), T=273 K, P=1 atm → V ≈ 22.4 L (units certified, not asserted).
+    n = Q.of(Decimal("1"), "mol")
+    R = Q.of(Decimal("0.0820573660809596"), "L*atm/(mol*K)")
+    T = Q.of(Decimal("273"), "K")
+    P = Q.of(Decimal("1"), "atm")
+    V = (n * R * T / P).to("L")
+    assert V.dim == Dim(volume=1)
+    assert abs(V.value - Decimal("22.4")) < Decimal("0.05")
+
+
+def test_pressure_and_temperature_are_distinct_dimensions():
+    assert Q.of(1, "atm").dim == Dim(pressure=1)
+    assert Q.of(1, "K").dim == Dim(temperature=1)
+    with pytest.raises(BuildError):                             # atm and K are not interconvertible
+        Q.of(1, "atm").to("K")

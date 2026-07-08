@@ -18,6 +18,7 @@
     mass_stoichiometry_v1: "Convert to moles, cross the mole ratio, convert back:",
     percent_yield_v1: "Theoretical yield first, then compare the actual:",
     limiting_mass_v1: "From the limiting reagent, convert to the product mass:",
+    gas_laws_v1: "Convert to kelvin, rearrange, and substitute:",
   };
   const chainLabel = CHAIN_LABELS[gym.family] ?? "Work through it, step by step:";
 

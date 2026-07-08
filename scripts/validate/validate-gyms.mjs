@@ -33,6 +33,7 @@ const close = (got, want) => Math.abs(got - want) <= ATOL + RTOL * Math.abs(want
 const NUMERIC_KINDS = new Set([
   "volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass",
   "volume_molarity_to_mass", "mass_stoichiometry", "percent_yield", "limiting_mass",
+  "gas_ideal", "gas_combined",
 ]);
 
 // re-derive an answer purely from the raw inputs — the same arithmetic a student does, unit by unit
@@ -243,6 +244,40 @@ function verifyReactionFamily(rel, p, fail) {
   }
 }
 
+// --- gas laws (Phase 2, ADR-0040): re-derive the answer numerically from the emitted state values + the
+// sourced gas constant R (ideal) or from the two states (combined). The answer is model-exact-then-rounded to
+// 4 sig figs, so the tolerance sits above the rounding (~0.05%) but well below the 3% diagnostic gap. The
+// dimensions were certified at emit time by the units engine (ADR-0040); here we re-prove the arithmetic.
+function verifyGasLaw(rel, p, fail) {
+  const d = p.derivation.gas;
+  if (!d || !d.solve_for) fail(rel, `${p.id}: gas derivation missing solve_for`);
+  const num = (k) => { if (!(k in d)) fail(rel, `${p.id}: gas derivation missing '${k}' for ${p.kind}/${d.solve_for}`); return Number(d[k]); };
+  let got;
+  if (p.kind === "gas_ideal") {
+    const R = num("R");
+    if (d.solve_for === "P") got = (num("n_mol") * R * num("T_K")) / num("V_L");
+    else if (d.solve_for === "V") got = (num("n_mol") * R * num("T_K")) / num("P_atm");
+    else if (d.solve_for === "n") got = (num("P_atm") * num("V_L")) / (R * num("T_K"));
+    else if (d.solve_for === "T") got = (num("P_atm") * num("V_L")) / (num("n_mol") * R);
+    else fail(rel, `${p.id}: unknown ideal solve_for '${d.solve_for}'`);
+  } else { // gas_combined — P1V1/T1 = P2V2/T2 (R cancels)
+    const K = (num("P1_atm") * num("V1_L")) / num("T1_K");
+    if (d.solve_for === "P2") got = (K * num("T2_K")) / num("V2_L");
+    else if (d.solve_for === "V2") got = (K * num("T2_K")) / num("P2_atm");
+    else if (d.solve_for === "T2") got = (num("P2_atm") * num("V2_L")) / K;
+    else fail(rel, `${p.id}: unknown combined solve_for '${d.solve_for}'`);
+  }
+  const want = Number(p.answer.value);
+  if (!Number.isFinite(got)) fail(rel, `${p.id}: gas re-derivation is not finite`);
+  if (Math.abs(got - want) > 0.005 * Math.abs(want) + 1e-9)
+    fail(rel, `${p.id}: answer ${p.answer.value} != re-derived ${got} (Δrel=${(Math.abs(got - want) / Math.abs(want)).toExponential(2)})`);
+  if (p.answer.unit !== p.target_unit) fail(rel, `${p.id}: answer unit '${p.answer.unit}' != target_unit '${p.target_unit}'`);
+  const last = p.chain[p.chain.length - 1];
+  if (last.unit !== p.target_unit) fail(rel, `${p.id}: chain ends in '${last.unit}', not target '${p.target_unit}'`);
+  if (Math.abs(Number(last.value) - want) > 0.01 * Math.abs(want) + 1e-9)
+    fail(rel, `${p.id}: chain end ${last.value} != answer ${p.answer.value}`);
+}
+
 const files = readdirSync(gymDir).filter((n) => n.endsWith(".gym.json"));
 if (files.length === 0) { console.log("validate-gyms: no *.gym.json — nothing to check."); process.exit(0); }
 
@@ -294,6 +329,9 @@ for (const name of files) {
     } else if (p.kind === "classify_family" || p.kind === "name_spectators") {
       // 1r. reaction families (ADR-0035/0036): re-prove the molecular (and, for spectators, the net) balance
       verifyReactionFamily(rel, p, fail);
+    } else if (p.kind === "gas_ideal" || p.kind === "gas_combined") {
+      // 1g. gas laws (ADR-0040): re-derive PV=nRT / the combined law numerically from the emitted state + R
+      verifyGasLaw(rel, p, fail);
     } else {
       // 1c. conversion: the answer re-derives from the raw inputs; units line up; the chain ends at the answer
       const got = rederive(p.kind, p.derivation.inputs, rel, p.id);

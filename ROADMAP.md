@@ -8,11 +8,18 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 ## Status
 
 - **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed; Phase 2 (the
-  model-bearing tier) opened on **gases + thermochemistry** by landing the **formula/equation-sheet Atlas kind**
-  (ADR-0039) — the fourth brief-§10 kind, verified by machine-checked dimensional homogeneity. **Next inside
-  Phase 2:** the numeric gas-law instrument (the `units.py` pressure/temperature/energy extension + a `gas_laws_v1`
-  gym), then a gas-stoichiometry lesson. Counters live in `AGENTS.md ## Current state`; per-increment detail in
-  [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+  model-bearing tier) is filling depth-first on **gases + thermochemistry**. Landed so far: the **formula/equation
+  sheet** (ADR-0039) and the **`gas_laws_v1` gym** (ADR-0040). **Next inside Phase 2:** a **gas-stoichiometry
+  lesson** (the extent ledger drives a gas volume via PV=nRT — needs `build.py` generalised past two-solution
+  double-displacement), then thermochemistry (the energy ledger). Counters live in `AGENTS.md ## Current state`;
+  per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks
+  below are the plan of record.
+- **Gas-laws gym — LANDED** (2026-07-08, ADR-0040): `gas_laws_v1` (PV=nRT + combined gas law; solve for any
+  variable), the first **model-exact** gym. The `units.py` engine gained the deferred pressure/temperature
+  dimensions (ADR-0015) — answers are computed *through* it (dimensions certified) — and the first
+  **model-exact-then-rounded** numeric answer (3-sig-fig display; the gate re-derives PV=nRT numerically). Model
+  disclosed under the model-assumed badge; °C→K is an affine boundary conversion, and forgetting it is a named
+  diagnostic. Gym family #9.
 - **Phase 2 opener — formula/equation sheet — LANDED** (2026-07-08, ADR-0039): the `formula` Atlas kind
   (`schemas/formula.schema.json`, `build_formula_entry`) — 8 relations (mole–mass, molarity, dilution,
   Avogadro's-number, percent yield; ideal gas law, combined gas law, calorimetry), each with variables/units and
@@ -270,12 +277,13 @@ rest sequences after, each with its own scope block when its increment opens.
   variables/units, **dimensional homogeneity machine-checked** (native `chemkernel.dimension` SI-vector engine,
   re-derived in pure Node); model-exact relations disclose their assumptions; the gas constant R registered. This
   is the reference instrument the gas/thermo gym + lesson link to.
-- **Gas-law computation — NEXT:** extend `units.py` with the deferred pressure/temperature/energy dimensions
-  (ADR-0015; °C→K handled as an affine boundary conversion, not a scaling unit); a `gas_laws_v1` gym (PV=nRT +
+- **Gas-law computation — LANDED** (ADR-0040): `units.py` gained the deferred pressure/temperature dimensions
+  (ADR-0015; °C→K is an affine boundary conversion, not a scaling unit); the `gas_laws_v1` gym (PV=nRT +
   combined-gas-law, numeric free-entry per ADR-0032, model-assumed badge — regime-2 answers are model-exact then
-  sig-fig-rounded, gate re-derives numerically within tolerance). Then a **gas-stoichiometry lesson** (the vertical
-  slice: the extent ledger drives a gas volume via PV=nRT) — needs `build.py` generalised past two-solution
-  double-displacement to a single-limiting-reactant gas product.
+  3-sig-fig-rounded, gate re-derives PV=nRT numerically within tolerance). **Deferred within:** kPa/torr units and
+  °C display niceties; energy/charge dimensions (thermo/electrochem).
+- **Gas-stoichiometry lesson — NEXT (the vertical slice):** the extent ledger drives a gas volume via PV=nRT —
+  needs `build.py` generalised past two-solution double-displacement to a single-limiting-reactant gas product.
 - **Thermochemistry (energy ledger) — after gases:** calorimetry ($q=mc\Delta T$, specific-heat data curated),
   reaction enthalpy attached to extent ($\Delta H_\text{rxn}\cdot\xi$), Hess's law. The `formula-calorimetry` entry
   is already on the sheet.

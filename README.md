@@ -3,14 +3,15 @@
 **A beginning-chemistry portal where the verification system is the product.**
 
 **Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — four machine-verified lessons (precipitation,
-percent yield, and acid-base neutralization), eight procedural gyms (dimensional analysis, nomenclature,
-balancing, the full stoichiometry suite, periodic trends, reaction families), the Chemical Atlas — now all four
-reference kinds: a typed concept graph + **7 reaction families** with engine-classified example reactions + **14
-species entries** with engine-derived molar masses + the **Valence Table flagship** (five lenses, trend graphs, a
-156-salt formula builder, a ΔEN bonding mode over 23 sourced elements) + the new **formula & equation sheet**
-(the ideal gas law, calorimetry, mole–mass and more, each with its **dimensional homogeneity machine-checked**) —
-and generated practice. Phase 2 (gases, thermochemistry, and the rest of the model-bearing topics) opened on the
-formula sheet; see [`ROADMAP.md`](./ROADMAP.md). See [`AGENTS.md`](./AGENTS.md) to work the repo.
+percent yield, and acid-base neutralization), nine procedural gyms (dimensional analysis, nomenclature,
+balancing, the full stoichiometry suite, periodic trends, reaction families, and now **gas laws** — PV=nRT and
+the combined gas law), the Chemical Atlas — now all four reference kinds: a typed concept graph + **7 reaction
+families** with engine-classified example reactions + **14 species entries** with engine-derived molar masses +
+the **Valence Table flagship** (five lenses, trend graphs, a 156-salt formula builder, a ΔEN bonding mode over 23
+sourced elements) + the **formula & equation sheet** (the ideal gas law, calorimetry, mole–mass and more, each
+with its **dimensional homogeneity machine-checked**) — and generated practice. Phase 2 (gases, thermochemistry,
+and the rest of the model-bearing topics) is filling depth-first on gases; see [`ROADMAP.md`](./ROADMAP.md). See
+[`AGENTS.md`](./AGENTS.md) to work the repo.
 
 ## The idea in three lines
 

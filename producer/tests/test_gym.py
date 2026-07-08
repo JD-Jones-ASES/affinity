@@ -474,3 +474,74 @@ def test_reaction_families_spectators_absent_from_net():
 def test_reaction_families_deterministic():
     assert _gym_from(SPEC_FAMILIES) == _gym_from(SPEC_FAMILIES)
     assert _gym_from(SPEC_FAMILIES, seed=99)["problems"] != _gym_from(SPEC_FAMILIES)["problems"]
+
+
+# --- gas laws (Phase 2, ADR-0040) ---------------------------------------------------------------------
+
+SPEC_GAS = ROOT / "gyms" / "gas-laws" / "gas-laws.gym.toml"
+
+
+def _rederive_ideal(gas):
+    """Re-derive PV=nRT for the solved variable from the emitted state — the same arithmetic the gate does."""
+    R, num, sf = float(gas["R"]), lambda k: float(gas[k]), gas["solve_for"]
+    if sf == "P":
+        return num("n_mol") * R * num("T_K") / num("V_L")
+    if sf == "V":
+        return num("n_mol") * R * num("T_K") / num("P_atm")
+    if sf == "n":
+        return num("P_atm") * num("V_L") / (R * num("T_K"))
+    return num("P_atm") * num("V_L") / (num("n_mol") * R)          # T
+
+
+def _rederive_combined(gas):
+    num, sf = lambda k: float(gas[k]), gas["solve_for"]
+    K = num("P1_atm") * num("V1_L") / num("T1_K")
+    if sf == "P2":
+        return K * num("T2_K") / num("V2_L")
+    if sf == "V2":
+        return K * num("T2_K") / num("P2_atm")
+    return num("P2_atm") * num("V2_L") / K                         # T2
+
+
+def test_gas_laws_shape_kinds_and_model_badge():
+    gym = _gym_from(SPEC_GAS)
+    kinds = {p["kind"] for p in gym["problems"]}
+    assert kinds == {"gas_ideal", "gas_combined"}                 # both drills present
+    # the gym is REGIME-2: it discloses the ideal-gas model assumption (the model-assumed badge, ADR-0040)
+    assert gym["assumptions"] and gym["assumptions"][0]["kind"] == "model"
+    assert "ideally" in gym["assumptions"][0]["claim"]
+    assert gym["provenance"]["sources"]["constants"]              # R is a sourced datum
+    for p in gym["problems"]:
+        _assert_numeric_response(p)                               # free entry, never a gameable menu
+
+
+def test_gas_laws_answers_reproduce_the_law():
+    """Every committed answer re-derives from PV=nRT (or the combined law) within the rounding tolerance —
+    the machine-checked part of a model-exact claim."""
+    for p in _gym_from(SPEC_GAS)["problems"]:
+        gas = p["derivation"]["gas"]
+        got = _rederive_ideal(gas) if p["kind"] == "gas_ideal" else _rederive_combined(gas)
+        want = float(p["answer"]["value"])
+        assert abs(got - want) <= 0.005 * abs(want) + 1e-9, (p["kind"], gas, got, want)
+
+
+def test_gas_laws_answers_are_physical():
+    """The generator builds a CONSISTENT state, so no absurd temperatures/volumes ship."""
+    for p in _gym_from(SPEC_GAS)["problems"]:
+        v = float(p["answer"]["value"])
+        assert 0.05 <= v <= 2000                                  # a sane, learnable magnitude
+
+
+def test_gas_laws_celsius_conversion_is_a_diagnostic():
+    """A problem that states its temperature in °C carries the 'forgot to convert to kelvin' diagnostic —
+    the canonical gas-law mistake."""
+    problems = [p for p in _gym_from(SPEC_GAS)["problems"]
+                if p["kind"] == "gas_ideal" and "°C" in p["prompt"]]
+    assert problems, "the seeded gym should include at least one Celsius-stated problem"
+    for p in problems:
+        assert any("kelvin" in d["misconception"].lower() for d in p["diagnostics"])
+
+
+def test_gas_laws_deterministic():
+    assert _gym_from(SPEC_GAS) == _gym_from(SPEC_GAS)
+    assert _gym_from(SPEC_GAS, seed=7)["problems"] != _gym_from(SPEC_GAS)["problems"]

@@ -1053,3 +1053,51 @@ non-homogeneity, empty model assumption, dangling edge, unregistered source — 
 numeric gas-law **computation** (the `units.py` pressure/temperature/energy extension + a `gas_laws_v1` gym) and a
 gas-stoichiometry **lesson** are the next Phase-2 increments; specific-heat / thermodynamic-table data curate when a
 calorimetry gym/lesson needs values; further sheet entries (Hess's law, pH, K, ΔG, Nernst) land with their topics.
+
+## ADR-0040 — Gas-laws gym: the units engine gains pressure/temperature; the first model-exact-then-rounded numeric answer (2026-07-08)
+
+**Context.** The second Phase-2 increment: the practice instrument for gases — a `gas_laws_v1` gym over PV=nRT and
+the combined gas law, the reusable-instrument half of the gas/thermo opener (the formula sheet, ADR-0039, is the
+reference half). Three things Phase-1's gym families never had to face: (1) the units engine (`units.py`) had
+**no pressure or temperature dimension** — ADR-0015 deferred them "to gases … add basis components then"; (2)
+the answer **cannot be an exact terminating decimal** — the gas constant R is non-terminating — so the Phase-1
+"reject any non-terminating candidate, emit the exact value" contract (ADR-0013/0024) does not apply; (3) the
+ideal-gas law is **regime-2 (model-exact)**, not ledger-exact, so the model must be disclosed (ADR-0003).
+
+**Decision.**
+1. **Extend the units engine with `pressure` and `temperature` basis components** (`Dim` grows from 3 fields to
+   5; ADR-0015's deferred extension). Registered units: `atm`, `K`, and the molar gas constant's composite unit
+   `L*atm/(mol*K)`. The gym computes every answer **through the units engine** — `(n·R·T / P).to("L")` — so the
+   dimensions are *certified* (mol·L·atm·mol⁻¹·K⁻¹·K / atm → L) exactly as the conversion gym certifies
+   L × mol/L = mol, and the answer value falls out of the same Decimal arithmetic. Temperature is **absolute
+   (kelvin) only** — a multiplicative basis; **°C is NOT a units-registry entry** (it is an affine, not a ratio,
+   scale). A °C given is converted at the boundary in the generator (K = °C + 273.15), shown as a chain step, and
+   **forgetting it is the canonical named diagnostic**. Energy/charge dimensions still wait (thermo/electrochem).
+2. **The first model-exact-then-rounded numeric answer.** A gas-law answer is computed at Decimal precision, then
+   **reported ROUNDED** — `answer.display` at 3 significant figures (ADR-0025), `answer.value` at 4 (the value the
+   player checks a free entry against, 1% tolerance). The Node gate **re-derives PV=nRT (or the combined law)
+   numerically** from the emitted state + R and accepts it within **0.5%** — comfortably above the 4-sig-fig
+   rounding (~0.05%) and below the ADR-0032 3% diagnostic gap. This is not a weakening of ADR-0013 (which governs
+   *ledger* exactness): a gas-law result is a rounded physical quantity by nature, and the honest move is to round
+   it and re-prove it consistent with the law, not to fake exactness. Free entry + named diagnostics (ADR-0032)
+   carry over unchanged — the two robust diagnostics never collapse onto the answer: the **wrong R** (8.314 SI
+   J-units instead of 0.08206 L·atm) and, when applicable, the **unconverted °C**.
+3. **The problems are generated CONSISTENT and realistic.** A base state is built (n, P, T chosen; V computed from
+   PV=nRT and shown at 3 sig figs), then one variable is hidden and re-solved from the *emitted* givens — so the
+   answer both re-derives from what the student sees and is always physical (no 1.5 K or 16 800 K artifacts).
+4. **The gym discloses its model.** A `gas_laws_v1` gym carries a top-level `assumptions` block (the ideal-gas
+   model) rendered under the **model-assumed (amber) badge** on the gym page — the three-badge honesty model
+   applied to a gym for the first time; the sourced R travels in provenance (`constants` → bipm-si-2019). Added
+   only for model-bearing families, so the Phase-1 gyms' derived JSON stays byte-identical.
+
+**Consequences.** Gym family #9 (`gas_ideal` + `gas_combined`, 10 drills); the drill island renders it with a
+gas-aware chain caption and **zero new interaction plumbing** (the free-entry numeric path from ADR-0032). The
+`gas.schema.json` derivation shape + a `verifyGasLaw` Node branch land per the ADR-0024 template. Gate:
+**validate-gyms = 9 gyms / 90 problems**; the gas branch is **5-way tamper-tested** (corrupt answer / corrupt a
+state value / wrong R / a gameable menu / a too-close diagnostic — each caught). 262 producer tests (+7); 22 pages
+(+1: `/gym/gas-laws/`); `derived/` byte-stable (only the new gym added). In-browser: the model-assumed badge +
+disclosure render, a correct entry is accepted, the wrong-R entry is named, the concept chips resolve to the
+formula-sheet entries. This is the template for every future regime-2 gym (equilibrium, kinetics). **Deferred:**
+`kPa`/`torr` and °C *display* niceties; the gas-stoichiometry **lesson** (the ledger drives a gas volume — needs
+`build.py` generalised past two-solution double-displacement) is the next increment; particle-count (moles↔particles)
+drills now have both prerequisites (Avogadro datum + this numeric-rounding pattern) but still want scientific notation.

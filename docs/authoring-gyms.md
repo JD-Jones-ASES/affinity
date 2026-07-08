@@ -93,6 +93,15 @@ A `family` selects the generator in `chemkernel.gym.generate_gym`. Today:
   over-inclusion (a reacting ion) and the reacting ions themselves. The `derivation` carries `species` +
   `coefficients` (+ `family`, or `net_species`/`net_coefficients`/`spectators`); `validate-gyms.mjs` re-proves
   the molecular (and net-ionic) balance and that no spectator appears in the net equation.
+- **`gas_laws_v1`** (ADR-0040) — the first **model-exact** (regime-2) family: PV=nRT (`gas_ideal`, solve for
+  P/V/n/T) and the combined gas law (`gas_combined`, solve for a state-2 variable). Numeric free-entry. Two
+  differences from the ledger-exact families, both honest: the answer is **model-exact-then-rounded** (3 sig
+  figs — the gas constant R is non-terminating, so it is *not* a terminating Fraction; the gate re-derives
+  PV=nRT numerically within tolerance, not exactly), and the gym **discloses the ideal-gas model** in a
+  top-level `assumptions` block rendered under the model-assumed badge. The state is generated consistent so no
+  absurd values ship; temperature is absolute (K), and a °C given is converted (K = °C + 273.15) — forgetting it
+  is a named diagnostic. The `derivation` carries a `gas` block (the solved variable + the given state values +
+  R). Sourced R travels in provenance (`constants`).
 
 Adding a new procedural skill means adding a new `family` to `generate_gym` and, if it introduces a new answer
 shape, a per-kind branch to `validate-gyms.mjs` so the gate can re-derive it. It does **not** mean new plumbing.

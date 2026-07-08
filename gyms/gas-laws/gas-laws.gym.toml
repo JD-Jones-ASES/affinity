@@ -1,0 +1,19 @@
+# A procedural gym (Phase 2 / brief §17.7, ADR-0040) — the first MODEL-EXACT gym. The ideal gas law PV=nRT and
+# the combined gas law, generated endlessly: solve for any one variable given the others. Two things stay
+# machine-honest even though the model is an assumption — the answer is computed THROUGH the units engine (so
+# the dimensions are certified, mol·L·atm·mol⁻¹·K⁻¹·K/atm → L) and the Node gate re-derives PV=nRT numerically
+# from the givens and the sourced gas constant R. Two things are disclosed, not hidden — the ideal-gas MODEL
+# (a model-assumed badge on the gym) and the fact that answers are reported ROUNDED to 3 significant figures
+# (the gas constant is not a whole number). Temperature is absolute (K); a °C given must be converted first, and
+# forgetting it is the named diagnostic the drill is built to catch.
+
+id = "gas-laws"
+title = "Gas laws: PV = nRT and the combined gas law"
+slug = "gas-laws"
+topic = "gases"
+family = "gas_laws_v1"
+seed = 2718281
+count = 10
+blurb = "The ideal gas law ties a gas's pressure, volume, amount, and temperature into one equation. These drills give you three of the four and ask for the fourth — and a second set walks a fixed sample from one state to another with the combined gas law. Type your answer (rounded to three significant figures); if you slip, the drill names the mistake — most often forgetting to convert °C to kelvin, or reaching for R = 8.314 when a pressure-in-atm problem wants R = 0.08206. The arithmetic is machine-checked; the ideal-gas model is disclosed, not proved."
+skills = ["solve PV = nRT for any single variable", "always convert temperature to kelvin (K = °C + 273.15)", "pick the right R for the units: 0.08206 L·atm/mol·K for atm and litres", "use P₁V₁/T₁ = P₂V₂/T₂ for a fixed sample changing state"]
+reference_links = ["formula-ideal-gas-law", "formula-combined-gas-law"]

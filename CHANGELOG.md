@@ -3,6 +3,32 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — gas-laws gym; the units engine gains pressure/temperature (ADR-0040)
+
+The practice instrument for gases — the second Phase-2 increment, on top of the formula sheet.
+
+- **The `gas_laws_v1` gym** (ADR-0040): PV=nRT and the combined gas law, solve for any variable — the first
+  **model-exact** gym. Two Phase-1 firsts. (1) The **units engine gains pressure + temperature dimensions**
+  (`units.py` `Dim` grows to 5 fields — ADR-0015's deferred extension), and every answer is computed **through**
+  it (`(n·R·T/P).to("L")`) so the dimensions are certified exactly as the conversion gym certifies L × mol/L = mol.
+  (2) The first **model-exact-then-rounded** numeric answer — R is non-terminating, so the answer is reported at
+  3 significant figures (display) / 4 (checked), and the Node gate re-derives PV=nRT numerically within 0.5%
+  (above the rounding, below the 3% diagnostic gap). Not a weakening of ledger exactness (ADR-0013) — a gas-law
+  result is a rounded physical quantity by nature.
+- **Realistic, honest problems.** Each state is generated **consistent** (n, P, T chosen; V computed) so no absurd
+  temperatures/volumes ship; temperature is absolute (K), and a °C given is converted (K = °C + 273.15) as a shown
+  step — **forgetting it is the canonical named diagnostic**, alongside the wrong-R slip (8.314 SI instead of
+  0.08206 L·atm). Free entry, never a gameable menu (ADR-0032).
+- **The model is disclosed.** The gym carries an `assumptions` block (the ideal-gas model) under the
+  **model-assumed (amber) badge** — the three-badge honesty model applied to a gym for the first time; the sourced
+  R travels in provenance. Added only for model-bearing families, so the Phase-1 gyms stay byte-identical.
+- **Gate + player + tests.** A `verifyGasLaw` branch re-derives every answer in pure Node (**validate-gyms = 9
+  gyms / 90 problems**), **5-way tamper-tested** (corrupt answer / state value / R / a gameable menu / a too-close
+  diagnostic — each caught). The drill island renders it with a gas-aware chain caption and zero new interaction
+  plumbing; the gym page shows the model badge + disclosure and resolves the formula-sheet concept chips. **262
+  producer tests** (+7); `astro build` = **22 pages** (+1: `/gym/gas-laws/`); `derived/` byte-stable. In-browser:
+  correct entry accepted, the wrong-R entry named, no console errors.
+
 ## Phase 2 — 2026-07-08 — OPENED: formula/equation-sheet Atlas kind (ADR-0039)
 
 The owner opened **Phase 2** (the model-bearing tier). Following the phase protocol (open with the reusable

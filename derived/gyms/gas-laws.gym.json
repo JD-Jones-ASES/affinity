@@ -1,0 +1,486 @@
+{
+  "kind": "gym",
+  "id": "gas-laws",
+  "title": "Gas laws: PV = nRT and the combined gas law",
+  "slug": "gas-laws",
+  "topic": "gases",
+  "family": "gas_laws_v1",
+  "seed": 2718281,
+  "blurb": "The ideal gas law ties a gas's pressure, volume, amount, and temperature into one equation. These drills give you three of the four and ask for the fourth — and a second set walks a fixed sample from one state to another with the combined gas law. Type your answer (rounded to three significant figures); if you slip, the drill names the mistake — most often forgetting to convert °C to kelvin, or reaching for R = 8.314 when a pressure-in-atm problem wants R = 0.08206. The arithmetic is machine-checked; the ideal-gas model is disclosed, not proved.",
+  "skills": [
+    "solve PV = nRT for any single variable",
+    "always convert temperature to kelvin (K = °C + 273.15)",
+    "pick the right R for the units: 0.08206 L·atm/mol·K for atm and litres",
+    "use P₁V₁/T₁ = P₂V₂/T₂ for a fixed sample changing state"
+  ],
+  "reference_links": [
+    "formula-ideal-gas-law",
+    "formula-combined-gas-law"
+  ],
+  "problems": [
+    {
+      "kind": "gas_ideal",
+      "mode": "numeric",
+      "prompt": "An ideal gas sample has 0.5 atm, 7.39 L, 0.1 mol. Using PV = nRT (R = 0.08206 L·atm/mol·K), what is the temperature (K)?",
+      "chain": [
+        {
+          "value": "T = PV / (nR)",
+          "unit": "",
+          "note": "rearrange PV = nRT"
+        },
+        {
+          "value": "450",
+          "unit": "K",
+          "note": "solve for temperature"
+        }
+      ],
+      "target_unit": "K",
+      "answer": {
+        "value": "450.3",
+        "unit": "K",
+        "display": "450 K"
+      },
+      "derivation": {
+        "kind": "gas_ideal",
+        "gas": {
+          "solve_for": "T",
+          "R": "0.0820573660809596",
+          "P_atm": "0.5",
+          "V_L": "7.39",
+          "n_mol": "0.1"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "4.444",
+          "unit": "K",
+          "misconception": "Used R = 8.314 (the SI value in J/mol·K) — for pressure in atm and volume in L, use R = 0.08206 L·atm/mol·K."
+        }
+      ],
+      "explain": "PV = nRT rearranges to T = PV / (nR). Substituting gives 450 K.",
+      "id": "q1"
+    },
+    {
+      "kind": "gas_combined",
+      "mode": "numeric",
+      "prompt": "A fixed sample of gas starts at 0.5 atm, 43.1 L, 350 K. It changes to 3 atm, 8.21 L. Using P₁V₁/T₁ = P₂V₂/T₂, what is the new temperature (K)?",
+      "chain": [
+        {
+          "value": "T₂ = P₂V₂T₁ / (P₁V₁)",
+          "unit": "",
+          "note": "rearrange P₁V₁/T₁ = P₂V₂/T₂"
+        },
+        {
+          "value": "400",
+          "unit": "K",
+          "note": "solve for the new temperature"
+        }
+      ],
+      "target_unit": "K",
+      "answer": {
+        "value": "400",
+        "unit": "K",
+        "display": "400 K"
+      },
+      "derivation": {
+        "kind": "gas_combined",
+        "gas": {
+          "solve_for": "T2",
+          "P1_atm": "0.5",
+          "V1_L": "43.1",
+          "T1_K": "350",
+          "P2_atm": "3",
+          "V2_L": "8.21"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "306.2",
+          "unit": "K",
+          "misconception": "Inverted the state ratio — T₂ = T₁ · (P₂V₂)/(P₁V₁), not its reciprocal."
+        }
+      ],
+      "explain": "Hold the amount fixed: P₁V₁/T₁ = P₂V₂/T₂. Rearranged, T₂ = P₂V₂T₁ / (P₁V₁) = 400 K.",
+      "id": "q2"
+    },
+    {
+      "kind": "gas_ideal",
+      "mode": "numeric",
+      "prompt": "An ideal gas sample has 1 atm, 23 L, 100 °C. Using PV = nRT (R = 0.08206 L·atm/mol·K), what is the amount (mol)?",
+      "chain": [
+        {
+          "value": "373.15",
+          "unit": "K",
+          "note": "convert temperature: 100 °C + 273.15"
+        },
+        {
+          "value": "n = PV / (RT)",
+          "unit": "",
+          "note": "rearrange PV = nRT"
+        },
+        {
+          "value": "0.751",
+          "unit": "mol",
+          "note": "solve for amount"
+        }
+      ],
+      "target_unit": "mol",
+      "answer": {
+        "value": "0.7512",
+        "unit": "mol",
+        "display": "0.751 mol"
+      },
+      "derivation": {
+        "kind": "gas_ideal",
+        "gas": {
+          "solve_for": "n",
+          "R": "0.0820573660809596",
+          "P_atm": "1",
+          "V_L": "23",
+          "T_K": "373.15"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0.007414",
+          "unit": "mol",
+          "misconception": "Used R = 8.314 (the SI value in J/mol·K) — for pressure in atm and volume in L, use R = 0.08206 L·atm/mol·K."
+        },
+        {
+          "value": "2.803",
+          "unit": "mol",
+          "misconception": "Used the Celsius temperature directly — PV=nRT needs ABSOLUTE (kelvin) temperature. Convert first: 100 °C + 273.15 = 373.15 K."
+        }
+      ],
+      "explain": "PV = nRT rearranges to n = PV / (RT). First put the temperature in kelvin (100 °C + 273.15 = 373.15 K). Substituting gives 0.751 mol.",
+      "id": "q3"
+    },
+    {
+      "kind": "gas_combined",
+      "mode": "numeric",
+      "prompt": "A fixed sample of gas starts at 1.25 atm, 28.6 L, 290 K. It changes to 2 atm, 18.5 L. Using P₁V₁/T₁ = P₂V₂/T₂, what is the new temperature (K)?",
+      "chain": [
+        {
+          "value": "T₂ = P₂V₂T₁ / (P₁V₁)",
+          "unit": "",
+          "note": "rearrange P₁V₁/T₁ = P₂V₂/T₂"
+        },
+        {
+          "value": "300",
+          "unit": "K",
+          "note": "solve for the new temperature"
+        }
+      ],
+      "target_unit": "K",
+      "answer": {
+        "value": "300.1",
+        "unit": "K",
+        "display": "300 K"
+      },
+      "derivation": {
+        "kind": "gas_combined",
+        "gas": {
+          "solve_for": "T2",
+          "P1_atm": "1.25",
+          "V1_L": "28.6",
+          "T1_K": "290",
+          "P2_atm": "2",
+          "V2_L": "18.5"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "280.2",
+          "unit": "K",
+          "misconception": "Inverted the state ratio — T₂ = T₁ · (P₂V₂)/(P₁V₁), not its reciprocal."
+        }
+      ],
+      "explain": "Hold the amount fixed: P₁V₁/T₁ = P₂V₂/T₂. Rearranged, T₂ = P₂V₂T₁ / (P₁V₁) = 300 K.",
+      "id": "q4"
+    },
+    {
+      "kind": "gas_ideal",
+      "mode": "numeric",
+      "prompt": "An ideal gas sample has 1 atm, 0.1 mol, 450 K. Using PV = nRT (R = 0.08206 L·atm/mol·K), what is the volume (L)?",
+      "chain": [
+        {
+          "value": "V = nRT / P",
+          "unit": "",
+          "note": "rearrange PV = nRT"
+        },
+        {
+          "value": "3.69",
+          "unit": "L",
+          "note": "solve for volume"
+        }
+      ],
+      "target_unit": "L",
+      "answer": {
+        "value": "3.693",
+        "unit": "L",
+        "display": "3.69 L"
+      },
+      "derivation": {
+        "kind": "gas_ideal",
+        "gas": {
+          "solve_for": "V",
+          "R": "0.0820573660809596",
+          "P_atm": "1",
+          "n_mol": "0.1",
+          "T_K": "450"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "374.1",
+          "unit": "L",
+          "misconception": "Used R = 8.314 (the SI value in J/mol·K) — for pressure in atm and volume in L, use R = 0.08206 L·atm/mol·K."
+        }
+      ],
+      "explain": "PV = nRT rearranges to V = nRT / P. Substituting gives 3.69 L.",
+      "id": "q5"
+    },
+    {
+      "kind": "gas_combined",
+      "mode": "numeric",
+      "prompt": "A fixed sample of gas starts at 3 atm, 3.73 L, 273 K. It changes to 0.75 atm, 450 K. Using P₁V₁/T₁ = P₂V₂/T₂, what is the new volume (L)?",
+      "chain": [
+        {
+          "value": "V₂ = P₁V₁T₂ / (T₁P₂)",
+          "unit": "",
+          "note": "rearrange P₁V₁/T₁ = P₂V₂/T₂"
+        },
+        {
+          "value": "24.6",
+          "unit": "L",
+          "note": "solve for the new volume"
+        }
+      ],
+      "target_unit": "L",
+      "answer": {
+        "value": "24.59",
+        "unit": "L",
+        "display": "24.6 L"
+      },
+      "derivation": {
+        "kind": "gas_combined",
+        "gas": {
+          "solve_for": "V2",
+          "P1_atm": "3",
+          "V1_L": "3.73",
+          "T1_K": "273",
+          "P2_atm": "0.75",
+          "T2_K": "450"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0.00006832",
+          "unit": "L",
+          "misconception": "Flipped a ratio — set up P₁V₁/T₁ = P₂V₂/T₂ and solve V₂ = P₁V₁T₂ / (T₁P₂)."
+        },
+        {
+          "value": "9.051",
+          "unit": "L",
+          "misconception": "Inverted the temperatures — T₂ goes on top, T₁ on the bottom (V₂ = P₁V₁T₂/(T₁P₂))."
+        }
+      ],
+      "explain": "Hold the amount fixed: P₁V₁/T₁ = P₂V₂/T₂. Rearranged, V₂ = P₁V₁T₂ / (T₁P₂) = 24.6 L.",
+      "id": "q6"
+    },
+    {
+      "kind": "gas_ideal",
+      "mode": "numeric",
+      "prompt": "An ideal gas sample has 3 atm, 2 mol, 250 °C. Using PV = nRT (R = 0.08206 L·atm/mol·K), what is the volume (L)?",
+      "chain": [
+        {
+          "value": "523.15",
+          "unit": "K",
+          "note": "convert temperature: 250 °C + 273.15"
+        },
+        {
+          "value": "V = nRT / P",
+          "unit": "",
+          "note": "rearrange PV = nRT"
+        },
+        {
+          "value": "28.6",
+          "unit": "L",
+          "note": "solve for volume"
+        }
+      ],
+      "target_unit": "L",
+      "answer": {
+        "value": "28.62",
+        "unit": "L",
+        "display": "28.6 L"
+      },
+      "derivation": {
+        "kind": "gas_ideal",
+        "gas": {
+          "solve_for": "V",
+          "R": "0.0820573660809596",
+          "P_atm": "3",
+          "n_mol": "2",
+          "T_K": "523.15"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "2900",
+          "unit": "L",
+          "misconception": "Used R = 8.314 (the SI value in J/mol·K) — for pressure in atm and volume in L, use R = 0.08206 L·atm/mol·K."
+        },
+        {
+          "value": "13.68",
+          "unit": "L",
+          "misconception": "Used the Celsius temperature directly — PV=nRT needs ABSOLUTE (kelvin) temperature. Convert first: 250 °C + 273.15 = 523.15 K."
+        }
+      ],
+      "explain": "PV = nRT rearranges to V = nRT / P. First put the temperature in kelvin (250 °C + 273.15 = 523.15 K). Substituting gives 28.6 L.",
+      "id": "q7"
+    },
+    {
+      "kind": "gas_combined",
+      "mode": "numeric",
+      "prompt": "A fixed sample of gas starts at 3 atm, 7.18 L, 350 K. It changes to 55.4 L, 450 K. Using P₁V₁/T₁ = P₂V₂/T₂, what is the new pressure (atm)?",
+      "chain": [
+        {
+          "value": "P₂ = P₁V₁T₂ / (T₁V₂)",
+          "unit": "",
+          "note": "rearrange P₁V₁/T₁ = P₂V₂/T₂"
+        },
+        {
+          "value": "0.5",
+          "unit": "atm",
+          "note": "solve for the new pressure"
+        }
+      ],
+      "target_unit": "atm",
+      "answer": {
+        "value": "0.4999",
+        "unit": "atm",
+        "display": "0.5 atm"
+      },
+      "derivation": {
+        "kind": "gas_combined",
+        "gas": {
+          "solve_for": "P2",
+          "P1_atm": "3",
+          "V1_L": "7.18",
+          "T1_K": "350",
+          "V2_L": "55.4",
+          "T2_K": "450"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0.007577",
+          "unit": "atm",
+          "misconception": "Flipped a ratio — P₂ = P₁V₁T₂ / (T₁V₂), so V₂ divides and T₂ multiplies."
+        }
+      ],
+      "explain": "Hold the amount fixed: P₁V₁/T₁ = P₂V₂/T₂. Rearranged, P₂ = P₁V₁T₂ / (T₁V₂) = 0.5 atm.",
+      "id": "q8"
+    },
+    {
+      "kind": "gas_ideal",
+      "mode": "numeric",
+      "prompt": "An ideal gas sample has 1.25 atm, 9.78 L, 0.5 mol. Using PV = nRT (R = 0.08206 L·atm/mol·K), what is the temperature (K)?",
+      "chain": [
+        {
+          "value": "T = PV / (nR)",
+          "unit": "",
+          "note": "rearrange PV = nRT"
+        },
+        {
+          "value": "298",
+          "unit": "K",
+          "note": "solve for temperature"
+        }
+      ],
+      "target_unit": "K",
+      "answer": {
+        "value": "298",
+        "unit": "K",
+        "display": "298 K"
+      },
+      "derivation": {
+        "kind": "gas_ideal",
+        "gas": {
+          "solve_for": "T",
+          "R": "0.0820573660809596",
+          "P_atm": "1.25",
+          "V_L": "9.78",
+          "n_mol": "0.5"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "2.941",
+          "unit": "K",
+          "misconception": "Used R = 8.314 (the SI value in J/mol·K) — for pressure in atm and volume in L, use R = 0.08206 L·atm/mol·K."
+        }
+      ],
+      "explain": "PV = nRT rearranges to T = PV / (nR). Substituting gives 298 K.",
+      "id": "q9"
+    },
+    {
+      "kind": "gas_combined",
+      "mode": "numeric",
+      "prompt": "A fixed sample of gas starts at 2 atm, 9.23 L, 450 K. It changes to 36.9 L, 450 K. Using P₁V₁/T₁ = P₂V₂/T₂, what is the new pressure (atm)?",
+      "chain": [
+        {
+          "value": "P₂ = P₁V₁T₂ / (T₁V₂)",
+          "unit": "",
+          "note": "rearrange P₁V₁/T₁ = P₂V₂/T₂"
+        },
+        {
+          "value": "0.5",
+          "unit": "atm",
+          "note": "solve for the new pressure"
+        }
+      ],
+      "target_unit": "atm",
+      "answer": {
+        "value": "0.5003",
+        "unit": "atm",
+        "display": "0.5 atm"
+      },
+      "derivation": {
+        "kind": "gas_combined",
+        "gas": {
+          "solve_for": "P2",
+          "P1_atm": "2",
+          "V1_L": "9.23",
+          "T1_K": "450",
+          "V2_L": "36.9",
+          "T2_K": "450"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0.003364",
+          "unit": "atm",
+          "misconception": "Flipped a ratio — P₂ = P₁V₁T₂ / (T₁V₂), so V₂ divides and T₂ multiplies."
+        }
+      ],
+      "explain": "Hold the amount fixed: P₁V₁/T₁ = P₂V₂/T₂. Rearranged, P₂ = P₁V₁T₂ / (T₁V₂) = 0.5 atm.",
+      "id": "q10"
+    }
+  ],
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights",
+      "constants": "bipm-si-2019"
+    }
+  },
+  "assumptions": [
+    {
+      "claim": "The gas behaves ideally: PV = nRT holds exactly only for a dilute gas (low pressure, temperature well above condensation). A disclosed model, not a law of algebra.",
+      "kind": "model"
+    }
+  ]
+}

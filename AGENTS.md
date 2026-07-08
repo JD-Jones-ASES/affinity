@@ -191,21 +191,22 @@ at its URL even though the repo is private (private/access-controlled Pages need
 
 ## Current state
 
-**Phase 0 + Phase 1 COMPLETE (owner-reviewed). Phase 2 OPEN (2026-07-08, ADR-0039)** — the model-bearing tier,
-opened on gases + thermochemistry by landing the **formula/equation-sheet Atlas kind** (dimensional-homogeneity
-verified). **Next inside Phase 2:** the numeric gas-law instrument (`units.py` pressure/temperature/energy
-extension + a `gas_laws_v1` gym), then a gas-stoichiometry lesson. History lives in
+**Phase 0 + Phase 1 COMPLETE (owner-reviewed). Phase 2 OPEN (2026-07-08, ADR-0039/0040)** — the model-bearing
+tier, filling depth-first on gases + thermochemistry. Landed: the **formula/equation-sheet Atlas kind**
+(dimensional-homogeneity verified) + the **`gas_laws_v1` gym** (PV=nRT + combined gas law). **Next inside Phase 2:**
+a gas-stoichiometry lesson (the ledger drives a gas volume — needs `build.py` generalised past two-solution
+double-displacement), then thermochemistry. History lives in
 [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); plan + scope blocks in
 [`ROADMAP.md`](./ROADMAP.md); module status in [`docs/architecture.md`](./docs/architecture.md) (§as-built).
 States only *what is*.
 
-**Counters:** 4 lessons (2 precipitation + 1 percent-yield + 1 acid-base neutralization) · 8 gyms / 80
+**Counters:** 4 lessons (2 precipitation + 1 percent-yield + 1 acid-base neutralization) · 9 gyms / 90
 verified problems (dimensional analysis · ionic nomenclature · balancing · mass stoichiometry · percent yield
-· limiting reagent · periodic trends · reaction families) · 1 Valence Table (23 elements; four modes; 156
-named + machine-verified salts) · 20 concept entries (6 rule-sourced, 1 interpretive) + 7 reaction families
-(21 engine-classified example reactions) + 14 species entries (derived composition + molar mass) + 8
+· limiting reagent · periodic trends · reaction families · **gas laws**) · 1 Valence Table (23 elements; four
+modes; 156 named + machine-verified salts) · 20 concept entries (6 rule-sourced, 1 interpretive) + 7 reaction
+families (21 engine-classified example reactions) + 14 species entries (derived composition + molar mass) + 8
 formula-sheet entries (dimensional homogeneity machine-checked; ADR-0039) · 7 Node gates + CI + live Pages ·
-255 producer tests · astro build = 21 pages.
+262 producer tests · astro build = 22 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; the honesty
 model is three badges, regime-4 content under the model-assumed badge + an "interpretive" marker (Q4,
@@ -216,21 +217,24 @@ signature, not oxidation numbers (Phase 2). The Atlas carries **all four brief-�
 concepts, reactions, species (molar mass derived, ADR-0038), and the **formula sheet** (ADR-0039). A reference
 relation's honesty = machine-checked **dimensional homogeneity** (native `chemkernel.dimension` SI-vector
 engine, re-derived in pure Node; separate from the Decimal `units.py` engine per ADR-0015) + the model-assumed
-badge disclosing regime-2 assumptions. The producer never runs in CI — the seven Node gates re-verify
-committed `derived/` from scratch.
+badge disclosing regime-2 assumptions. The `units.py` engine now carries pressure + temperature dimensions
+(ADR-0040); a **regime-2 gym answer is model-exact-then-rounded** (3-sig-fig display, gate re-derives
+numerically within tolerance) under the model-assumed badge — not Fraction-exact (that governs *ledger*
+values, ADR-0013). The producer never runs in CI — the seven Node gates re-verify committed `derived/` from scratch.
 
 ## Where this might go next (paths for a future session)
 
-**Phase 2 is open** (ADR-0039) and filling depth-first on gases + thermochemistry. The flagged next increment
-(newest session log's closing block) is the **numeric gas-law instrument**: extend `units.py` with the deferred
-pressure/temperature/energy dimensions (ADR-0015; °C→K is an affine boundary conversion, not a scaling unit) +
-register nothing new (R is already curated), then a `gas_laws_v1` gym (PV=nRT + combined-gas-law, numeric
-free-entry per ADR-0032 — regime-2 answers are model-exact then rounded, gate re-derives numerically). Then a
-**gas-stoichiometry lesson** (the ledger drives a gas volume; needs `build.py` generalised past two-solution
-double-displacement). Always in season inside settled contracts: more formula-sheet entries (Hess, pH, K, ΔG,
-Nernst land with their topics), Atlas breadth-fill, further lessons (gas-evolution / diprotic neutralization,
-item-6 deferrals), an average-atomic-mass gym (needs isotope data), docs-only sessions. **Opening the later
-Phase-2 tiers** (bonding, equilibrium/acid-base, kinetics, electrochemistry) proceeds inside the open phase.
+**Phase 2 is open** (ADR-0039/0040) and filling depth-first on gases + thermochemistry — the formula sheet and
+the `gas_laws_v1` gym have landed. The flagged next increment (newest session log's closing block) is a
+**gas-stoichiometry lesson** — the vertical slice where the extent ledger drives a gas volume via PV=nRT (e.g.
+a metal + acid → H₂ gas collected at stated P, T). This needs `build.py` generalised past the two-solution
+double-displacement shape to a single-limiting-reactant gas product; the `interactive.py`/`practice.py`
+generalisation from ADR-0037 is the template. Then **thermochemistry** (the energy ledger: q=mcΔT with
+specific-heat data curated, ΔH_rxn·ξ, Hess). Always in season inside settled contracts: more formula-sheet
+entries (Hess, pH, K, ΔG, Nernst land with their topics), Atlas breadth-fill, further lessons (gas-evolution /
+diprotic neutralization, item-6 deferrals), an average-atomic-mass or particle-count gym (needs isotope data /
+scientific-notation display), docs-only sessions. **Opening the later Phase-2 tiers** (bonding,
+equilibrium/acid-base, kinetics, electrochemistry) proceeds inside the open phase.
 
 **Known traps (1 and 2 bit the sibling; 3–5 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested
