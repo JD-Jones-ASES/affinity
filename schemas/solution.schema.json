@@ -352,6 +352,21 @@
             "pressure_atm": { "type": "string" }
           }
         },
+        "energetics": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Energy-ledger practice (ADR-0043): the reaction constants check-parity re-derives every answer from (each reactant's molar mass + coefficient, and ΔH_rxn). Present iff there is no interactive block. The heat q = ΔH_rxn·ξ.",
+          "required": ["reactant_a_id", "reactant_a_molar_mass", "reactant_a_coeff", "reactant_b_id", "reactant_b_molar_mass", "reactant_b_coeff", "delta_h_rxn_kj_per_mol"],
+          "properties": {
+            "reactant_a_id": { "type": "string" },
+            "reactant_a_molar_mass": { "type": "string" },
+            "reactant_a_coeff": { "type": "integer" },
+            "reactant_b_id": { "type": "string" },
+            "reactant_b_molar_mass": { "type": "string" },
+            "reactant_b_coeff": { "type": "integer" },
+            "delta_h_rxn_kj_per_mol": { "type": "string" }
+          }
+        },
         "questions": {
           "type": "array",
           "minItems": 1,
@@ -362,7 +377,7 @@
             "$comment": "mode discriminates the response (ADR-0032): 'choice' carries `choices` (categorical — which reagent limits); 'numeric' carries `diagnostics` (free-entry — mass, leftover). check-parity.mjs enforces the per-mode shape.",
             "properties": {
               "id": { "type": "string" },
-              "kind": { "enum": ["limiting", "mass", "leftover", "volume"] },
+              "kind": { "enum": ["limiting", "mass", "leftover", "volume", "heat"] },
               "mode": { "enum": ["choice", "numeric"] },
               "prompt": { "type": "string", "minLength": 1 },
               "given": {

@@ -41,6 +41,15 @@ def _grams(frac: Fraction) -> str:
     return format(to_decimal(frac, 3), "f")
 
 
+def _exact_grams(frac: Fraction) -> str:
+    """A weighed mass at FULL (terminating) precision, trailing zeros trimmed — so a gate re-deriving moles from
+    the displayed mass gets the exact amount back (ADR-0043 energy practice varies BOTH reactant masses, so a
+    3-decimal rounding would compound past the leftover tolerance; the gas practice rounds only the metal since
+    its acid is an exact volume×molarity)."""
+    s = format(to_decimal(frac, 8), "f")
+    return s.rstrip("0").rstrip(".") if "." in s else s
+
+
 def _rel_close(a: float, b: float, tol: float) -> bool:
     return abs(a - b) <= tol * max(abs(b), 1e-9) + 1e-12
 
@@ -324,6 +333,135 @@ def generate_gas_practice(seed: int, count: int, ctx: str = "", *, metal: dict, 
             "acid_id": a_id, "acid_coeff": k_acid, "gas_id": g_id, "gas_coeff": k_gas,
             "gas_constant": format(R, "f"), "temperature_K": format(temperature_K, "f"),
             "pressure_atm": format(pressure_atm, "f"),
+        },
+        "questions": questions,
+    }
+
+
+# ------------------------------ energy-ledger practice (ADR-0043) ------------------------------
+#
+# Variants of the same reaction with the two reactant amounts varied: which reactant limits, how much HEAT the
+# burn releases (q = ΔH_rxn·ξ), how much excess is left. Free-entry numeric (heat, leftover) + categorical
+# (limiting), ADR-0032. Like the gas practice (ADR-0041) there is NO interactive block — the reaction constants
+# (each reactant's molar mass + coefficient, and ΔH_rxn) travel in the practice `energetics` block so check-parity
+# re-derives every answer in pure Node from the emitted `args` (the two masses). The extent ξ is set by the
+# limiting reagent; q rides on the sourced-then-summed ΔH_rxn. Grids are stated as CAPACITIES (mol of reaction) so
+# the limiting reagent switches regardless of the coefficients.
+_ENERGY_CAP_A = [Decimal(c) for c in ("0.0200", "0.0300", "0.0400", "0.0500", "0.0600")]
+_ENERGY_CAP_B = [Decimal(c) for c in ("0.0200", "0.0300", "0.0400", "0.0500", "0.0600", "0.0800")]
+
+
+def generate_energy_practice(seed: int, count: int, ctx: str = "", *, reactant_a: dict, reactant_b: dict,
+                             delta_h_rxn: Decimal, family: str = "energy_ledger_v1") -> dict | None:
+    """Build the energy-ledger practice block. `reactant_a`/`reactant_b` = {id, molar_mass (Decimal), coeff};
+    `delta_h_rxn` the reaction enthalpy (kJ/mol, signed). Deterministic (seeded) and solver-verified; returns
+    None if it cannot fill `count`. The heat q = ΔH_rxn·ξ is model-exact — reported to 3 sig figs (its precision
+    is the sourced ΔH_f°'s), the gate re-derives within tolerance."""
+    a_id, M_a, k_a = reactant_a["id"], Fraction(reactant_a["molar_mass"]), reactant_a["coeff"]
+    b_id, M_b, k_b = reactant_b["id"], Fraction(reactant_b["molar_mass"]), reactant_b["coeff"]
+    dH = Fraction(delta_h_rxn)
+
+    rng = random.Random(seed)
+    questions: list[dict] = []
+    seen: set[tuple] = set()
+    attempts = 0
+    while len(questions) < count and attempts < 4000:
+        attempts += 1
+        cap_a, cap_b = rng.choice(_ENERGY_CAP_A), rng.choice(_ENERGY_CAP_B)
+        key = (cap_a, cap_b)
+        if key in seen:
+            continue
+        cap_a_f, cap_b_f = Fraction(cap_a), Fraction(cap_b)
+        hi, lo = max(cap_a_f, cap_b_f), min(cap_a_f, cap_b_f)
+        if lo == 0 or hi / lo < _MIN_RATIO:        # reject near-ties (no clear limiting reagent)
+            continue
+        a_limits = cap_a_f < cap_b_f
+        xi = lo
+        n_a, n_b = cap_a_f * k_a, cap_b_f * k_b     # initial moles (exact)
+        mass_a, mass_b = n_a * M_a, n_b * M_b        # weighed masses shown to the student
+        limiting_src = a_id if a_limits else b_id
+        excess_src = b_id if a_limits else a_id
+        excess_cap, excess_coeff = (cap_b_f, k_b) if a_limits else (cap_a_f, k_a)
+        excess_start = n_b if a_limits else n_a
+        excess_left = excess_coeff * (excess_cap - xi)   # excess reactant left after ξ
+
+        # q = ΔH_rxn·ξ — exact (terminating), carried as a Decimal so _sig rounds to sig figs (a raw Fraction
+        # would format at full precision, bypassing the rounding). Two named mistakes: the naive ΔH_rxn-as-total
+        # (forgot ξ) and sizing ξ from the reactant in excess.
+        q_correct = to_decimal(dH * xi, 12)          # the heat (exact within 12 places)
+        q_excess = to_decimal(dH * hi, 12)           # sized the extent from the reactant in excess
+
+        ma_s, mb_s = _exact_grams(mass_a), _exact_grams(mass_b)   # full precision → the gate re-derives moles exactly
+        given = [{"species": a_id, "mass_g": ma_s}, {"species": b_id, "mass_g": mb_s}]
+        args = {"mass_a_g": ma_s, "mass_b_g": mb_s}
+        stem = (f"For this reaction ΔH_rxn = {_sig(delta_h_rxn, 5)} kJ/mol. {ma_s} g of {a_id} reacts "
+                f"with {mb_s} g of {b_id} and the reaction goes to completion.")
+
+        kind = ("heat", "limiting", "leftover")[len(questions) % 3]
+        if kind == "heat":
+            q = {
+                "id": f"q{len(questions) + 1}", "kind": "heat", "mode": "numeric",   # free entry (ADR-0032)
+                "prompt": f"{stem} What is q, the heat of reaction (kJ)? A negative value means heat is released.",
+                "given": given, "args": args,
+                "answer": {"display": f"{_sig(q_correct, 3)} kJ", "value": _sig(q_correct, 4), "unit": "kJ"},
+                "diagnostics": _practice_diagnostics(_sig(q_correct, 4), "kJ", [
+                    (_sig(delta_h_rxn, 5), "Used ΔH_rxn as the total heat — that is per mole of reaction. Multiply "
+                                           "by the extent ξ (the moles of reaction the limiting reagent allows)."),
+                    (_sig(q_excess, 4), f"Sized the extent from {excess_src}, the reactant in excess — ξ is capped "
+                                        f"by the limiting reagent {limiting_src}."),
+                ]),
+                "explain": (f"{limiting_src} limits, so ξ = {_mmol(xi)} mmol of reaction; "
+                            f"q = ΔH_rxn × ξ = {_sig(delta_h_rxn, 5)} kJ/mol × {_mmol(xi)} mmol = "
+                            f"{_sig(q_correct, 3)} kJ."),
+            }
+        elif kind == "limiting":
+            q = {
+                "id": f"q{len(questions) + 1}", "kind": "limiting", "mode": "choice",
+                "prompt": f"{stem} Which reactant is the limiting reagent?",
+                "given": given, "args": args,
+                "answer": {"display": limiting_src, "value": limiting_src},
+                "choices": [
+                    {"display": a_id, "correct": a_limits,
+                     "misconception": None if a_limits else
+                     f"{a_id} is in excess here — divide each reactant's moles by its coefficient and compare."},
+                    {"display": b_id, "correct": not a_limits,
+                     "misconception": None if not a_limits else
+                     f"{b_id} is in excess here — divide each reactant's moles by its coefficient and compare."},
+                    {"display": "Neither — both are fully consumed", "correct": False,
+                     "misconception": "One reactant is left over, so they are not both fully consumed."},
+                ],
+                "explain": (f"Capacities (moles ÷ coefficient): {a_id} = {_mmol(n_a)} ÷ {k_a} = {_mmol(cap_a_f)} mmol, "
+                            f"{b_id} = {_mmol(n_b)} ÷ {k_b} = {_mmol(cap_b_f)} mmol. "
+                            f"{limiting_src} is smaller, so it limits."),
+            }
+        else:  # leftover
+            q = {
+                "id": f"q{len(questions) + 1}", "kind": "leftover", "mode": "numeric",
+                "prompt": f"{stem} After the reaction, how many mmol of the excess reactant remain?",
+                "given": given, "args": args,
+                "answer": {"display": f"{_mmol(excess_left)} mmol", "value": _mmol(excess_left), "unit": "mmol"},
+                "diagnostics": _practice_diagnostics(_mmol(excess_left), "mmol", [
+                    (_mmol(excess_start), f"That is all the {excess_src} you started with — some reacts; only the "
+                                          f"surplus over the limiting reagent remains."),
+                    ("0", "Only the limiting reagent reaches 0; the excess reactant leaves a leftover."),
+                ]),
+                "explain": (f"{excess_src} started at {_mmol(excess_start)} mmol and "
+                            f"{_mmol(excess_start - excess_left)} mmol reacted, leaving {_mmol(excess_left)} mmol."),
+            }
+
+        seen.add(key)
+        questions.append(q)
+
+    if len(questions) < count:
+        return None
+    return {
+        "family": family, "seed": seed,
+        "energetics": {
+            "reactant_a_id": a_id, "reactant_a_molar_mass": format(reactant_a["molar_mass"], "f"),
+            "reactant_a_coeff": k_a,
+            "reactant_b_id": b_id, "reactant_b_molar_mass": format(reactant_b["molar_mass"], "f"),
+            "reactant_b_coeff": k_b,
+            "delta_h_rxn_kj_per_mol": format(delta_h_rxn, "f"),
         },
         "questions": questions,
     }

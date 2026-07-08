@@ -206,7 +206,7 @@ balancing · mass stoichiometry · percent yield · limiting reagent · periodic
 calorimetry) · 1 Valence Table (23 elements; four modes; 156 named + machine-verified salts) · 21 concept entries
 (6 rule-sourced, 1 interpretive) + 7 reaction families (21 engine-classified example reactions) + 14 species entries
 (derived composition + molar mass) + 8 formula-sheet entries (dimensional homogeneity machine-checked; ADR-0039) ·
-7 Node gates + CI + live Pages · 275 producer tests · astro build = 25 pages.
+7 Node gates + CI + live Pages · 277 producer tests · astro build = 25 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; the honesty
 model is three badges, regime-4 content under the model-assumed badge + an "interpretive" marker (Q4,

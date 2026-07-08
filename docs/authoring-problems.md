@@ -199,7 +199,9 @@ liquid vs vapor differ — pick the phase in your `products`). Give gaseous reac
 must still divide to a terminating mole count). A **fully molecular** reaction (no aqueous ions) emits only the
 molecular equation — the ionic equations are omitted, honestly (there are no ions). The canonical misconception:
 reading ΔH_rxn (per mole of reaction) as the total heat — the player refutes it with q = ΔH_rxn·ξ scaled by the
-limiting reagent. See
+limiting reagent. A `[practice]` block (seed + count) yields energy-ledger drills (free-entry **heat** q=ΔH_rxn·ξ +
+leftover, categorical limiting) even with no slider interactive — the reaction constants travel in a `practice.energetics`
+block so check-parity re-derives every answer; pick a seed that yields both reactants limiting across the set. See
 [`problems/thermochemistry/methane-combustion-enthalpy.problem.toml`](../problems/thermochemistry/methane-combustion-enthalpy.problem.toml).
 
 ### Other optional keys

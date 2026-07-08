@@ -26,6 +26,14 @@ products = ["CO2(g)", "H2O(l)"]
 
 reference_links = ["reaction-combustion", "reaction-enthalpy", "formula-mole-mass", "formula-calorimetry", "stoichiometry", "limiting-reagent", "extent-of-reaction", "molar-mass", "balancing-equations", "conservation-of-mass", "dimensional-analysis", "carbon-dioxide", "water", "dioxygen"]
 
+# Generated practice (ADR-0011/0043). Deterministic: the molecular energy shape has no cation/anion interactive,
+# so check-parity re-derives every answer from the reaction constants (each reactant's molar mass + coefficient +
+# ΔH_rxn) that travel in the practice `energetics` block. Free-entry heat (q=ΔH_rxn·ξ) + leftover, categorical
+# limiting. This seed yields both CH₄-limiting and O₂-limiting variants.
+[practice]
+seed = 20260714
+count = 6
+
 # energy-ledger marker (ADR-0043): the presence of [energetics] makes the reported result the HEAT q = ΔH_rxn·ξ
 # instead of a product mass. `method = "hess-formation"` derives ΔH_rxn by Hess's law from the sourced standard
 # enthalpies of formation (the only supported method). This [table] header must come after every root key above

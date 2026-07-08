@@ -250,5 +250,256 @@
       "ion_charge": "openstax-chemistry-2e",
       "formation_enthalpies": "openstax-chemistry-2e"
     }
+  },
+  "practice": {
+    "family": "energy_ledger_v1",
+    "seed": 20260714,
+    "energetics": {
+      "reactant_a_id": "CH4",
+      "reactant_a_molar_mass": "16.0430",
+      "reactant_a_coeff": 1,
+      "reactant_b_id": "O2",
+      "reactant_b_molar_mass": "31.998",
+      "reactant_b_coeff": 2,
+      "delta_h_rxn_kj_per_mol": "-890.57"
+    },
+    "questions": [
+      {
+        "id": "q1",
+        "kind": "heat",
+        "mode": "numeric",
+        "prompt": "For this reaction ΔH_rxn = -890.57 kJ/mol. 0.64172 g of CH4 reacts with 5.11968 g of O2 and the reaction goes to completion. What is q, the heat of reaction (kJ)? A negative value means heat is released.",
+        "given": [
+          {
+            "species": "CH4",
+            "mass_g": "0.64172"
+          },
+          {
+            "species": "O2",
+            "mass_g": "5.11968"
+          }
+        ],
+        "args": {
+          "mass_a_g": "0.64172",
+          "mass_b_g": "5.11968"
+        },
+        "answer": {
+          "display": "-35.6 kJ",
+          "value": "-35.62",
+          "unit": "kJ"
+        },
+        "diagnostics": [
+          {
+            "value": "-890.57",
+            "unit": "kJ",
+            "misconception": "Used ΔH_rxn as the total heat — that is per mole of reaction. Multiply by the extent ξ (the moles of reaction the limiting reagent allows)."
+          },
+          {
+            "value": "-71.25",
+            "unit": "kJ",
+            "misconception": "Sized the extent from O2, the reactant in excess — ξ is capped by the limiting reagent CH4."
+          }
+        ],
+        "explain": "CH4 limits, so ξ = 40 mmol of reaction; q = ΔH_rxn × ξ = -890.57 kJ/mol × 40 mmol = -35.6 kJ."
+      },
+      {
+        "id": "q2",
+        "kind": "limiting",
+        "mode": "choice",
+        "prompt": "For this reaction ΔH_rxn = -890.57 kJ/mol. 0.32086 g of CH4 reacts with 2.55984 g of O2 and the reaction goes to completion. Which reactant is the limiting reagent?",
+        "given": [
+          {
+            "species": "CH4",
+            "mass_g": "0.32086"
+          },
+          {
+            "species": "O2",
+            "mass_g": "2.55984"
+          }
+        ],
+        "args": {
+          "mass_a_g": "0.32086",
+          "mass_b_g": "2.55984"
+        },
+        "answer": {
+          "display": "CH4",
+          "value": "CH4"
+        },
+        "choices": [
+          {
+            "display": "CH4",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "O2",
+            "correct": false,
+            "misconception": "O2 is in excess here — divide each reactant's moles by its coefficient and compare."
+          },
+          {
+            "display": "Neither — both are fully consumed",
+            "correct": false,
+            "misconception": "One reactant is left over, so they are not both fully consumed."
+          }
+        ],
+        "explain": "Capacities (moles ÷ coefficient): CH4 = 20 ÷ 1 = 20 mmol, O2 = 80 ÷ 2 = 40 mmol. CH4 is smaller, so it limits."
+      },
+      {
+        "id": "q3",
+        "kind": "leftover",
+        "mode": "numeric",
+        "prompt": "For this reaction ΔH_rxn = -890.57 kJ/mol. 0.48129 g of CH4 reacts with 3.1998 g of O2 and the reaction goes to completion. After the reaction, how many mmol of the excess reactant remain?",
+        "given": [
+          {
+            "species": "CH4",
+            "mass_g": "0.48129"
+          },
+          {
+            "species": "O2",
+            "mass_g": "3.1998"
+          }
+        ],
+        "args": {
+          "mass_a_g": "0.48129",
+          "mass_b_g": "3.1998"
+        },
+        "answer": {
+          "display": "40 mmol",
+          "value": "40",
+          "unit": "mmol"
+        },
+        "diagnostics": [
+          {
+            "value": "100",
+            "unit": "mmol",
+            "misconception": "That is all the O2 you started with — some reacts; only the surplus over the limiting reagent remains."
+          },
+          {
+            "value": "0",
+            "unit": "mmol",
+            "misconception": "Only the limiting reagent reaches 0; the excess reactant leaves a leftover."
+          }
+        ],
+        "explain": "O2 started at 100 mmol and 60 mmol reacted, leaving 40 mmol."
+      },
+      {
+        "id": "q4",
+        "kind": "heat",
+        "mode": "numeric",
+        "prompt": "For this reaction ΔH_rxn = -890.57 kJ/mol. 0.48129 g of CH4 reacts with 1.27992 g of O2 and the reaction goes to completion. What is q, the heat of reaction (kJ)? A negative value means heat is released.",
+        "given": [
+          {
+            "species": "CH4",
+            "mass_g": "0.48129"
+          },
+          {
+            "species": "O2",
+            "mass_g": "1.27992"
+          }
+        ],
+        "args": {
+          "mass_a_g": "0.48129",
+          "mass_b_g": "1.27992"
+        },
+        "answer": {
+          "display": "-17.8 kJ",
+          "value": "-17.81",
+          "unit": "kJ"
+        },
+        "diagnostics": [
+          {
+            "value": "-890.57",
+            "unit": "kJ",
+            "misconception": "Used ΔH_rxn as the total heat — that is per mole of reaction. Multiply by the extent ξ (the moles of reaction the limiting reagent allows)."
+          },
+          {
+            "value": "-26.72",
+            "unit": "kJ",
+            "misconception": "Sized the extent from CH4, the reactant in excess — ξ is capped by the limiting reagent O2."
+          }
+        ],
+        "explain": "O2 limits, so ξ = 20 mmol of reaction; q = ΔH_rxn × ξ = -890.57 kJ/mol × 20 mmol = -17.8 kJ."
+      },
+      {
+        "id": "q5",
+        "kind": "limiting",
+        "mode": "choice",
+        "prompt": "For this reaction ΔH_rxn = -890.57 kJ/mol. 0.96258 g of CH4 reacts with 2.55984 g of O2 and the reaction goes to completion. Which reactant is the limiting reagent?",
+        "given": [
+          {
+            "species": "CH4",
+            "mass_g": "0.96258"
+          },
+          {
+            "species": "O2",
+            "mass_g": "2.55984"
+          }
+        ],
+        "args": {
+          "mass_a_g": "0.96258",
+          "mass_b_g": "2.55984"
+        },
+        "answer": {
+          "display": "O2",
+          "value": "O2"
+        },
+        "choices": [
+          {
+            "display": "CH4",
+            "correct": false,
+            "misconception": "CH4 is in excess here — divide each reactant's moles by its coefficient and compare."
+          },
+          {
+            "display": "O2",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "Neither — both are fully consumed",
+            "correct": false,
+            "misconception": "One reactant is left over, so they are not both fully consumed."
+          }
+        ],
+        "explain": "Capacities (moles ÷ coefficient): CH4 = 60 ÷ 1 = 60 mmol, O2 = 80 ÷ 2 = 40 mmol. O2 is smaller, so it limits."
+      },
+      {
+        "id": "q6",
+        "kind": "leftover",
+        "mode": "numeric",
+        "prompt": "For this reaction ΔH_rxn = -890.57 kJ/mol. 0.48129 g of CH4 reacts with 3.83976 g of O2 and the reaction goes to completion. After the reaction, how many mmol of the excess reactant remain?",
+        "given": [
+          {
+            "species": "CH4",
+            "mass_g": "0.48129"
+          },
+          {
+            "species": "O2",
+            "mass_g": "3.83976"
+          }
+        ],
+        "args": {
+          "mass_a_g": "0.48129",
+          "mass_b_g": "3.83976"
+        },
+        "answer": {
+          "display": "60 mmol",
+          "value": "60",
+          "unit": "mmol"
+        },
+        "diagnostics": [
+          {
+            "value": "120",
+            "unit": "mmol",
+            "misconception": "That is all the O2 you started with — some reacts; only the surplus over the limiting reagent remains."
+          },
+          {
+            "value": "0",
+            "unit": "mmol",
+            "misconception": "Only the limiting reagent reaches 0; the excess reactant leaves a leftover."
+          }
+        ],
+        "explain": "O2 started at 120 mmol and 60 mmol reacted, leaving 60 mmol."
+      }
+    ]
   }
 }

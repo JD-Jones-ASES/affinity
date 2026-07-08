@@ -190,11 +190,53 @@ def test_energy_ledger_lesson():
     echain = next(c for c in sol["dimensional_analysis"] if "ΔH_rxn" in c["target"])
     assert echain["steps"][0]["unit"] == "mol" and echain["steps"][-1]["unit"] == "kJ"
 
-    # honesty: ledger-exact + model-exact regimes; ΔH_f° source cited; a molecular shape has no interactive/practice
+    # honesty: ledger-exact + model-exact regimes; ΔH_f° source cited; a molecular shape has no slider interactive
     assert [r["regime"] for r in sol["regimes"]] == ["ledger-exact", "model-exact"]
     assert sol["provenance"]["sources"]["formation_enthalpies"] == "openstax-chemistry-2e"
     assert "solubility" not in sol["provenance"]["sources"] and "constants" not in sol["provenance"]["sources"]
-    assert "interactive" not in sol and "practice" not in sol
+    assert "interactive" not in sol   # the molecular shape has no cation/anion slider interactive
+
+
+def test_energy_practice():
+    """The energy-ledger lesson's generated practice (ADR-0043): vary the two reactant masses → the heat
+    q=ΔH_rxn·ξ (free entry) + leftover (free entry) + limiting (categorical), re-derived by check-parity from
+    the `energetics` reaction constants with no interactive block."""
+    from decimal import Decimal
+
+    sol, _ = build_problem(SPEC_ENERGY, ROOT)
+    prac = sol["practice"]
+    assert prac["family"] == "energy_ledger_v1"
+    e = prac["energetics"]
+    assert e["reactant_a_id"] == "CH4" and e["reactant_b_id"] == "O2"
+    assert e["reactant_a_coeff"] == 1 and e["reactant_b_coeff"] == 2
+    assert e["delta_h_rxn_kj_per_mol"] == "-890.57"
+
+    kinds = {q["kind"] for q in prac["questions"]}
+    assert kinds == {"heat", "limiting", "leftover"}                 # all three kinds present
+    limits = {q["answer"]["value"] for q in prac["questions"] if q["kind"] == "limiting"}
+    assert limits == {"CH4", "O2"}                                   # the limiting reagent genuinely switches
+    for q in prac["questions"]:
+        assert q["mode"] == ("choice" if q["kind"] == "limiting" else "numeric")
+        assert ("choices" in q) == (q["kind"] == "limiting")         # numeric is free entry, not a menu (ADR-0032)
+        assert ("diagnostics" in q) == (q["kind"] != "limiting")
+
+    # a heat answer must reproduce q = ΔH_rxn·ξ from its emitted args (mass → mol → capacity → ξ)
+    dH = Decimal(e["delta_h_rxn_kj_per_mol"])
+    Ma, Mb = Decimal(e["reactant_a_molar_mass"]), Decimal(e["reactant_b_molar_mass"])
+    for q in prac["questions"]:
+        if q["kind"] != "heat":
+            continue
+        na = Decimal(q["args"]["mass_a_g"]) / Ma
+        nb = Decimal(q["args"]["mass_b_g"]) / Mb
+        xi = min(na / e["reactant_a_coeff"], nb / e["reactant_b_coeff"])
+        assert abs(dH * xi - Decimal(q["answer"]["value"])) < Decimal("0.05")   # within the 4-sf display
+
+
+def test_energy_practice_is_deterministic():
+    """The energy practice must be byte-stable across builds (committed derived/, ADR-0008)."""
+    a, _ = build_problem(SPEC_ENERGY, ROOT)
+    b, _ = build_problem(SPEC_ENERGY, ROOT)
+    assert a["practice"] == b["practice"]
 
 
 def test_neutralization_has_no_percent_yield_support(tmp_path):

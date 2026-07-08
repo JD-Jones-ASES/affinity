@@ -10,9 +10,9 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 - **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed; Phase 2 (the
   model-bearing tier) is filling depth-first on **gases + thermochemistry**. Landed so far: the **formula/equation
   sheet** (ADR-0039), the **`gas_laws_v1` gym** (ADR-0040), the **gas-stoichiometry lesson** (ADR-0041), the
-  **calorimetry gym** (ADR-0042 — q=mcΔT), and the **energy-ledger lesson** (ADR-0043 — the vertical slice: the ledger
-  drives an energy q=ΔH_rxn·ξ via Hess's law). **Next inside Phase 2:** generated energy practice + a Hess formula-sheet
-  entry (thermochemistry breadth), then the rest of the model-bearing topics (bonding, equilibrium/acid-base, kinetics,
+  **calorimetry gym** (ADR-0042 — q=mcΔT), and the **energy-ledger lesson** (ADR-0043 — the ledger drives an energy
+  q=ΔH_rxn·ξ via Hess's law, now with generated practice). **Next inside Phase 2:** a Hess/enthalpy formula-sheet entry
+  (thermochemistry breadth), then the rest of the model-bearing topics (bonding, equilibrium/acid-base, kinetics,
   electrochemistry). Counters live in `AGENTS.md ## Current state`; per-increment detail in
   [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
 - **Energy-ledger lesson — LANDED** (2026-07-08, ADR-0043): `thermochemistry/methane-combustion-enthalpy` — the ledger
@@ -20,7 +20,9 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   (`data/formation-enthalpies.toml`, OpenStax Appendix G), exact Decimal arithmetic; `build.py` gains a fourth
   reported-product shape (a **`result.energy`** headline, no product mass) and the **first fully molecular lesson** (no
   ions → the ionic equations are omitted). Triple-badged (machine-checked ξ + data-sourced ΔH_f° + model-assumed Hess);
-  q exact (all inputs terminate), 3-sf display. `units.py` gains `kJ/mol`; check-ledger re-derives the Hess sum + q. Lesson #6.
+  q exact (all inputs terminate), 3-sf display. `units.py` gains `kJ/mol`; check-ledger re-derives the Hess sum + q.
+  **Generated practice** landed too (2nd increment — 6 variants: free-entry heat q=ΔH_rxn·ξ + leftover, categorical
+  limiting; a `practice.energetics` constants block, check-parity re-derives with no interactive). Lesson #6.
 - **Calorimetry gym — LANDED** (2026-07-08, ADR-0042): `calorimetry_v1` (q=mcΔT, solve for any variable), the
   thermochemistry opener. The `units.py` engine gained the deferred **energy** dimension (J, kJ, J/(g·K); kept
   independent of pressure·volume), and specific heats are curated (`data/specific-heats.toml`, OpenStax Table 5.1).
@@ -318,9 +320,10 @@ rest sequences after, each with its own scope block when its increment opens.
   ($\Delta H_\text{rxn}\cdot\xi$) via **Hess's law** over sourced $\Delta H_f^\circ$ (`data/formation-enthalpies.toml`,
   OpenStax Appendix G) — the `methane-combustion-enthalpy` lesson. `build.py`'s fourth reported-product shape (a
   `result.energy` headline); the first fully **molecular** lesson (no ionic equation); `units.py` gains `kJ/mol`;
-  triple-badged; the `reaction-enthalpy` concept. **Deferred within:** generated energy practice (vary the masses → q,
-  the ADR-0041 template); a Hess formula-sheet entry; endothermic / multi-step Hess-cycle lessons; and within
-  calorimetry, initial/final-temperature framing ($\Delta T = T_f - T_i$) + cooling (negative $q$) drills.
+  triple-badged; the `reaction-enthalpy` concept; **generated practice** (heat/leftover/limiting, a `practice.energetics`
+  constants block re-derived by check-parity — ADR-0043 2nd increment). **Deferred within:** a Hess formula-sheet entry;
+  endothermic / multi-step Hess-cycle lessons; and within calorimetry, initial/final-temperature framing
+  ($\Delta T = T_f - T_i$) + cooling (negative $q$) drills.
 
 **Then (each its own increment, sketch):** bonding & structure (Lewis, VSEPR, polarity, IMFs; the Valence Table's
 bonding mode is seeded, ADR-0033); equilibrium & acid-base (ICE table = the ledger with reversible extent —

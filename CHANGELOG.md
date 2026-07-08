@@ -25,15 +25,21 @@ The thermochemistry vertical slice — **the extent ledger drives an energy**: q
   now optional). Aqueous lessons keep all three, byte-identical.
 - **The `reaction-enthalpy` concept** (Hess's law + ΔH_f° + q = ΔH_rxn·ξ) → **20 → 21 concepts**; the lesson's 14
   reference chips all resolve.
-- **Verification:** 275 producer tests (+4); **validate-solutions = 6**, **validate-reference = 51**, **check-ledger =
-  6 ledgers / 24 rows + 1 gas volume + 1 reaction enthalpy re-derived from Hess's law**, check-katex = 481; 7 gates
-  green; `astro build` = **25 pages** (+1). `derived/` byte-stable (only the new lesson + concept added; no existing
-  solution changed). The energy gates are **7-way tamper-tested** (corrupt q / a Hess contribution / ΔH_rxn / flip
-  classification / drop the model regime / drop the source / add a spurious product — each caught). In-browser: the
-  heat card (−44.5 kJ, exothermic), the Hess table (→ −890.57 kJ/mol), the ξ×ΔH flow, the extent-scaling misconception
-  refuted, and the "no ions in solution" note render; the aqueous lessons keep their 3 equations. No console errors.
-- **Deferred:** generated energy practice (vary the masses → q, the ADR-0041 gas-practice template); a Hess
-  formula-sheet entry; endothermic / multi-step Hess-cycle lessons.
+- **Generated practice** (same session, ADR-0043 second increment): a 6-variant set — free-entry **heat** (q = ΔH_rxn·ξ)
+  + **leftover**, categorical **limiting reagent** — with **no interactive block**. The reaction constants (each
+  reactant's molar mass + coefficient + ΔH_rxn) travel in a `practice.energetics` block so **check-parity re-derives
+  every answer in Node** from the two masses (the ADR-0041 gas-practice template; `heat` joins the numeric kinds). The
+  heat diagnostics: the **naive ΔH_rxn-as-total** (forgot ξ) + **sizing ξ from the excess reactant**. Both masses emitted
+  at full precision so the re-derivation stays exact. 6-way tamper-tested.
+- **Verification:** **277 producer tests** (+6); **validate-solutions = 6**, **validate-reference = 51**, **check-ledger =
+  6 ledgers / 24 rows + 1 gas volume + 1 reaction enthalpy re-derived from Hess's law**, **check-parity = 320 + 36
+  practice answers**, check-katex = 481; 7 gates green; `astro build` = **25 pages** (+1). `derived/` byte-stable (only the
+  new lesson + concept added; no existing solution changed). The energy result gates are **7-way tamper-tested** (corrupt
+  q / a Hess contribution / ΔH_rxn / flip classification / drop the model regime / drop the source / add a spurious
+  product) and the practice gate **6-way** — each caught. In-browser: the heat card (−44.5 kJ, exothermic), the Hess table
+  (→ −890.57 kJ/mol), the ξ×ΔH flow, the extent-scaling misconception refuted, the "no ions in solution" note, and the
+  Practice tab (the naive-ΔH_rxn entry named) render; the aqueous lessons keep their 3 equations. No console errors.
+- **Deferred:** a Hess formula-sheet entry; endothermic / multi-step Hess-cycle lessons; the gas lesson's slider interactive.
 
 ## Phase 2 — 2026-07-08 — calorimetry gym; the units engine gains an energy dimension (ADR-0042)
 

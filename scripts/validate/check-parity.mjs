@@ -35,7 +35,7 @@ const close = (got, want, atol = ATOL, rtol = RTOL) => Math.abs(got - want) <= a
 // (within 3%). Used by both double-displacement practice (re-derived via closed forms) and gas-stoichiometry
 // practice (ADR-0041, re-derived from reaction constants). `volume` joins mass/leftover as a numeric kind.
 function validatePracticeMode(rel, q, fail) {
-  const numericKinds = new Set(["mass", "leftover", "volume"]);
+  const numericKinds = new Set(["mass", "leftover", "volume", "heat"]);
   const expectedMode = numericKinds.has(q.kind) ? "numeric" : "choice";
   if (q.mode !== expectedMode) fail(rel, `practice ${q.id}: mode '${q.mode}' but kind '${q.kind}' expects '${expectedMode}'`);
   if (q.mode === "choice") {
@@ -99,6 +99,46 @@ function checkGasPractice(rel, practice, fail) {
   return n;
 }
 
+// Energy-ledger practice (ADR-0043): no interactive block — re-derive every answer in pure Node from the emitted
+// args (the two reactant masses) + the reaction constants (each reactant's molar mass + coefficient, ΔH_rxn). The
+// heat q = ΔH_rxn·ξ is model-exact (0.5% tol, above the rounding); leftover is at display tolerance; limiting is
+// categorical. Returns the number of questions checked.
+function checkEnergyPractice(rel, practice, fail) {
+  const DTOL = 1e-3;
+  const e = practice.energetics;
+  const Ma = Number(e.reactant_a_molar_mass), ka = e.reactant_a_coeff;
+  const Mb = Number(e.reactant_b_molar_mass), kb = e.reactant_b_coeff;
+  const dH = Number(e.delta_h_rxn_kj_per_mol);
+  if (!(Ma > 0 && Mb > 0 && ka > 0 && kb > 0) || !Number.isFinite(dH))
+    fail(rel, `energy practice: reaction constants must be positive/finite`);
+  let n = 0;
+  for (const q of practice.questions) {
+    validatePracticeMode(rel, q, fail);
+    const ma = Number(q.args.mass_a_g), mb = Number(q.args.mass_b_g);
+    if (![ma, mb].every(Number.isFinite)) fail(rel, `energy practice ${q.id}: non-finite args`);
+    const nA = ma / Ma, nB = mb / Mb;
+    const capA = nA / ka, capB = nB / kb;
+    const aLimits = capA < capB;
+    const xi = Math.min(capA, capB);
+    if (q.kind === "heat") {
+      const qkj = dH * xi;                       // q = ΔH_rxn·ξ
+      if (Math.abs(Number(q.answer.value) - qkj) > 0.005 * Math.abs(qkj) + 1e-9)
+        fail(rel, `energy practice ${q.id}: heat ${q.answer.value} != re-derived ΔH_rxn·ξ = ${qkj.toFixed(6)}`);
+    } else if (q.kind === "leftover") {
+      const leftMol = aLimits ? nB - kb * xi : nA - ka * xi;
+      if (!close(Number(q.answer.value), leftMol * 1000, DTOL, DTOL))
+        fail(rel, `energy practice ${q.id}: leftover ${q.answer.value} mmol != re-derived ${leftMol * 1000}`);
+    } else if (q.kind === "limiting") {
+      const limits = aLimits ? e.reactant_a_id : e.reactant_b_id;
+      if (q.answer.value !== limits) fail(rel, `energy practice ${q.id}: limiting '${q.answer.value}' != re-derived '${limits}'`);
+    } else {
+      fail(rel, `energy practice ${q.id}: unknown kind '${q.kind}'`);
+    }
+    n++;
+  }
+  return n;
+}
+
 const derived = join(ROOT, "derived");
 let files = [];
 try {
@@ -121,9 +161,11 @@ for (const file of files) {
   const sol = JSON.parse(readFileSync(file, "utf8"));
   const ix = sol.interactive;
   if (!ix) {
-    // gas-stoichiometry practice (ADR-0041) carries its own re-derivation constants — no interactive needed.
+    // gas-stoichiometry (ADR-0041) + energy-ledger (ADR-0043) practice carry their own re-derivation constants —
+    // no interactive block needed.
     if (sol.practice) {
       if (sol.practice.gas) practiceChecked += checkGasPractice(rel, sol.practice, fail);
+      else if (sol.practice.energetics) practiceChecked += checkEnergyPractice(rel, sol.practice, fail);
       else fail(rel, "practice block present but no interactive block to re-derive its answers");
     }
     continue;

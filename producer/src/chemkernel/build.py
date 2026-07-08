@@ -28,7 +28,7 @@ from .extent import solve_extent, species_mass_g, to_decimal
 from .formula import Formula, parse_formula
 from .gym import generate_gym
 from .interactive import build_interactive
-from .practice import generate_gas_practice, generate_practice
+from .practice import generate_energy_practice, generate_gas_practice, generate_practice
 from .reaction import complete_ionic, net_ionic
 from .reactivity import AcidBase, Decomposition
 from .reference import (build_formula_entry, build_reaction_family, build_reference_entry,
@@ -511,6 +511,23 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
             pressure_atm=Decimal(result["gas"]["pressure_atm"]))
         if practice is None:
             raise BuildError(f"{ctx}: gas practice generator could not produce {practice_spec.get('count', 6)} "
+                             f"non-rejected variants at seed {practice_spec['seed']}")
+        solution["practice"] = practice
+    elif practice_spec and energy_chain is not None:
+        # energy-ledger practice (ADR-0043): vary the two reactant masses → the heat q=ΔH_rxn·ξ + leftover +
+        # limiting. No interactive; the reaction constants (each reactant's molar mass + coefficient, ΔH_rxn)
+        # travel in the practice `energetics` block so check-parity re-derives every answer in Node.
+        if len(reactants) != 2:
+            raise BuildError(f"{ctx}: energy practice expects exactly two reactants")
+        practice = generate_energy_practice(
+            int(practice_spec["seed"]), int(practice_spec.get("count", 6)), ctx,
+            reactant_a={"id": _core(reactants[0].raw), "molar_mass": data.molar_mass(reactants[0].raw),
+                        "coeff": coeffs[0]},
+            reactant_b={"id": _core(reactants[1].raw), "molar_mass": data.molar_mass(reactants[1].raw),
+                        "coeff": coeffs[1]},
+            delta_h_rxn=Decimal(result["energy"]["delta_h_rxn_kj_per_mol"]))
+        if practice is None:
+            raise BuildError(f"{ctx}: energy practice generator could not produce {practice_spec.get('count', 6)} "
                              f"non-rejected variants at seed {practice_spec['seed']}")
         solution["practice"] = practice
 

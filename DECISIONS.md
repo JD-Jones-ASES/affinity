@@ -1256,8 +1256,24 @@ disclosed model assumption + the ΔH_f° source, and forbids a product headline 
 product — each caught). The lesson is the first object to wear **three** honesty badges at once (machine-checked +
 data-sourced + model-assumed), and the first fully molecular one. 275 producer tests (+4); 25 pages (+1); `derived/`
 byte-stable (only the new lesson + the `reaction-enthalpy` concept added; no existing solution changed — the ionic
-equations stay for every aqueous lesson). **Deferred:** generated energy practice (vary the masses → q, re-derived by
-check-parity from an energetics constants block — the ADR-0041 gas-practice template, a follow-on increment); a
-`formula-enthalpy-of-reaction` / Hess formula-sheet entry (dimensional homogeneity of $\Delta H_\text{rxn}=\sum\nu\Delta H_f^\circ$);
-directly-sourced $\Delta H_\text{rxn}$ (a single measured heat of reaction, as an alternative to the Hess sum);
-endothermic and multi-step (Hess-cycle) lessons.
+equations stay for every aqueous lesson). **Deferred:** a `formula-enthalpy-of-reaction` / Hess formula-sheet entry
+(dimensional homogeneity of $\Delta H_\text{rxn}=\sum\nu\Delta H_f^\circ$); directly-sourced $\Delta H_\text{rxn}$
+(a single measured heat of reaction, as an alternative to the Hess sum); endothermic and multi-step (Hess-cycle) lessons.
+
+**Second increment (same session) — generated practice.** The energy lesson earns a 6-variant practice set (free-entry
+**heat** q = ΔH_rxn·ξ + **leftover**, categorical **limiting reagent**) with **no interactive block** — the molecular
+shape has no cation/anion closed forms, so the reaction constants (each reactant's molar mass + coefficient, and
+ΔH_rxn) travel in a `practice.energetics` block and **check-parity re-derives every answer in pure Node** from the
+emitted args (the two masses), exactly the ADR-0041 gas-practice pattern (`generate_energy_practice`, a `checkEnergyPractice`
+gate branch, a `heat` question kind joining `NUMERIC_KINDS`). The variant grids are stated as **capacities** (mol of
+reaction) so the limiting reagent switches regardless of the coefficients; the seed is scanned for a set carrying both
+CH₄-limiting and O₂-limiting. The heat diagnostics are the **naive ΔH_rxn-as-total** (forgot ξ — the canonical energy-
+ledger error) and **sizing ξ from the excess reactant**. Both reactant masses are emitted at **full precision** (not the
+gas practice's 3-decimal rounding — energy varies BOTH masses, so a rounding would compound past the leftover
+tolerance; the gas practice rounds only the metal, its acid being an exact volume×molarity). Reuses the generic
+free-entry `PracticeQuestion` island (no new frontend); the gas/energy practice are the two families decoupled from an
+interactive block. Schema: a `practice.energetics` block + the `heat` kind. **6-way tamper-tested** (corrupt a heat / a
+leftover / flip a limiting / corrupt ΔH_rxn / a gameable menu / a too-close diagnostic — each caught). 277 producer
+tests (+2); check-parity = 320 + **36** practice answers (+6); `derived/` byte-stable (only the energy lesson's JSON
+changed, the practice block added). **Deferred** (unchanged): the Hess formula-sheet entry; endothermic / multi-step
+lessons; the gas lesson's slider interactive.
