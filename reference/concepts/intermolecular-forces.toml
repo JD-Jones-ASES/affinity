@@ -14,4 +14,4 @@ related = [
   { to = "vsepr", type = "depends-on" },
   { to = "electronegativity", type = "see-also" },
 ]
-lessons = []
+lessons = ["boiling-points-and-imfs"]

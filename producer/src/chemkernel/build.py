@@ -34,7 +34,7 @@ from .reactivity import AcidBase, Decomposition
 from .reference import (build_formula_entry, build_reaction_family, build_reference_entry,
                         build_species_entry, build_valence_table)
 from .solubility import Solubility
-from .structure import build_molecule_entry, build_structure_lesson
+from .structure import build_comparison_lesson, build_molecule_entry, build_structure_lesson
 from .units import Quantity
 
 _REGIME_NAME = {"ledger": "ledger-exact", "solubility": "rule-sourced",
@@ -567,6 +567,20 @@ def build_structure(path: Path, root: Path) -> tuple[dict, str]:
     return lesson, f"{spec['topic']}/{spec['slug']}.structure.json"
 
 
+def build_comparison(path: Path, root: Path) -> tuple[dict, str]:
+    """An authored multi-molecule comparison lesson (ADR-0047): several molecules lined up against a property
+    (boiling point) with the IMF-strength trend machine-verified. Builds every referenced `molecule` Atlas entry
+    from its authored spec (so each row's IMF + boiling point is the same verified value the Atlas shows), then
+    hands them to `build_comparison_lesson`, which sorts by boiling point and proves the trend is monotonic."""
+    spec = tomllib.loads(path.read_text(encoding="utf-8"))
+    ctx = spec.get("id", path.stem)
+    data = ChemData.load(root)
+    entries = {mid: build_molecule_entry(mspec, data, ctx=mid)
+               for mid, mspec in _load_molecule_specs(root).items()}
+    lesson = build_comparison_lesson(spec, entries, data, ctx)
+    return lesson, f"{spec['topic']}/{spec['slug']}.comparison.json"
+
+
 def build_reference_main(argv: list[str] | None = None) -> int:
     """Build the Chemical Atlas: the Valence Table (from data/) + authored concept and reaction-family
     entries (reference/**). Reaction-family examples are balanced + classified by the engine (ADR-0035)."""
@@ -647,18 +661,22 @@ def build_gyms_main(argv: list[str] | None = None) -> int:
 
 
 def build_problems_main(argv: list[str] | None = None) -> int:
-    """Build every authored lesson under problems/ (ADR-0019/0045). Two lesson shapes, dispatched by file
-    extension: a **reaction** lesson `*.problem.toml` → `build_problem` (equations + species ledger over extent
-    + a reported product), and a **structure** lesson `*.structure.toml` → `build_structure` (a single molecule's
-    Lewis electron ledger, stepped valence → shape → polarity). Both write verified derived JSON."""
+    """Build every authored lesson under problems/ (ADR-0019/0045/0047). Three lesson shapes, dispatched by file
+    extension: a **reaction** lesson `*.problem.toml` → `build_problem` (equations + species ledger over extent +
+    a reported product); a **structure** lesson `*.structure.toml` → `build_structure` (a single molecule's Lewis
+    electron ledger, stepped valence → shape → polarity); and a **comparison** lesson `*.comparison.toml` →
+    `build_comparison` (several molecules vs. a property, the IMF-strength trend machine-verified). All write
+    verified derived JSON."""
     root = Path.cwd()
     reactions = sorted((root / "problems").glob("**/*.problem.toml"))
     structures = sorted((root / "problems").glob("**/*.structure.toml"))
-    if not reactions and not structures:
-        print("no *.problem.toml or *.structure.toml found under problems/", file=sys.stderr)
+    comparisons = sorted((root / "problems").glob("**/*.comparison.toml"))
+    if not reactions and not structures and not comparisons:
+        print("no *.problem.toml / *.structure.toml / *.comparison.toml found under problems/", file=sys.stderr)
         return 1
     lessons = ([(p, build_problem) for p in reactions]
-               + [(p, build_structure) for p in structures])
+               + [(p, build_structure) for p in structures]
+               + [(p, build_comparison) for p in comparisons])
     for path, builder in lessons:
         try:
             obj, out_rel = builder(path, root)

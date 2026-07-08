@@ -1,0 +1,130 @@
+---
+// The comparison-lesson player (ADR-0047): several molecules lined up against a property (boiling point), the
+// IMF-strength trend machine-verified. A fully STATIC Astro component (nothing to hydrate) — the sorted table,
+// the machine-checked trend, the takeaway, the misconception, and the SHOWN checks. Every value came from
+// ChemKernel (each row re-embedded from a verified molecule Atlas entry) and was re-verified by the gates.
+const { lesson } = Astro.props;
+const rows = lesson.rows;                 // sorted ascending by boiling point (the producer sorted them)
+const lowest = rows[0];
+const highest = rows[rows.length - 1];
+const IMF_CLASS = { "hydrogen-bonding": "hbond", "dipole-dipole": "dipole", "london-dispersion": "dispersion" };
+---
+
+<section class="player">
+  <header class="head">
+    <div class="badges">
+      <span class="badge machine"><span class="dot"></span>Trend machine-checked — sorted by {lesson.property}, the dominant intermolecular force is non-decreasing in strength</span>
+      <span class="badge sourced"><span class="dot"></span>Boiling points data-sourced ({rows[0].boiling_source})</span>
+      <span class="badge model"><span class="dot"></span>{lesson.assumptions.length} modeling assumption{lesson.assumptions.length === 1 ? "" : "s"} (disclosed)</span>
+    </div>
+    <p class="scenario" set:html={lesson.scenarioHtml} />
+  </header>
+
+  <!-- the comparison table: sorted low → high boiling point, the dominant IMF climbing alongside -->
+  <div class="tablewrap">
+    <table class="cmp">
+      <thead>
+        <tr><th>Molecule</th><th>Dominant intermolecular force</th><th>Forces present</th><th class="num">{lesson.property}</th></tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr>
+            <td class="sym"><span set:html={r.latexHtml} /></td>
+            <td><span class={`imf ${IMF_CLASS[r.dominant]}`}>{r.dominantLabel}</span></td>
+            <td class="forces">{r.forceLabels.join(", ")}</td>
+            <td class="num">{r.phase_change === "sublimation" ? "sublimes " : ""}{r.boiling_point_c} °C</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="trend"><span class="badge machine tiny"><span class="dot"></span>machine-checked</span> <span set:html={lesson.trend.claimHtml} /></p>
+
+  <p class="takeaway" set:html={lesson.takeawayHtml} />
+
+  <!-- the machine-checked facts, SHOWN not asserted -->
+  <div class="proof">
+    <div class="proof-head">
+      <span class="badge machine"><span class="dot"></span>Verification</span>
+      <strong>Proven at build time — not asserted.</strong>
+    </div>
+    <ul class="checks">
+      <li><span class="tick">✓</span> Rows sorted ascending by {lesson.property} <span class="tier">[Decimal compare]</span></li>
+      <li><span class="tick">✓</span> The dominant intermolecular force is non-decreasing in strength as the {lesson.property} rises — IMF strength predicts the ordering <span class="tier">[trend monotonic]</span></li>
+      <li><span class="tick">✓</span> Each row's force + {lesson.property} re-derived from its verified molecule Atlas entry <span class="tier">[no drift]</span></li>
+    </ul>
+  </div>
+
+  <!-- misconception register: intramolecular vs intermolecular, refuted from the table -->
+  {lesson.misconception && (
+    <div class="misconception">
+      <div class="mis-claim"><span class="x">✗</span> Common misconception: “<span set:html={lesson.misconception.claimHtml} />”</div>
+      <p class="mis-fix">
+        {lesson.misconception.refuted_by === "intramolecular_vs_intermolecular" ? (
+          <>
+            Boiling pulls whole molecules <strong>apart from each other</strong> — it overcomes the forces
+            <strong> between</strong> molecules, not the covalent bonds <strong>within</strong> one (steam is
+            still {highest.formulaPretty}, its bonds intact). So {highest.formulaPretty} boils at
+            {" "}{highest.boiling_point_c} °C not because its bonds are strong but because its intermolecular
+            force (<strong>{highest.dominantLabel}</strong>) is the strongest here; {lowest.formulaPretty}, about
+            the same size, has only <strong>{lowest.dominantLabel}</strong> and boils at {lowest.boiling_point_c} °C.
+            The covalent bonds inside are comparably strong in both — they are simply not what boiling breaks.
+          </>
+        ) : (
+          <>The {lesson.property} tracks the force <em>between</em> molecules, not the bonds within them:
+            {highest.formulaPretty} ({highest.dominantLabel}) boils highest, {lowest.formulaPretty}
+            ({lowest.dominantLabel}) lowest.</>
+        )}
+      </p>
+    </div>
+  )}
+
+  <!-- assumptions, disclosed not discharged (ADR-0003) -->
+  <details class="assumptions">
+    <summary><span class="badge model"><span class="dot"></span>Modeling assumptions</span> — author-asserted, disclosed not discharged</summary>
+    <ul>
+      {lesson.assumptions.map((a) => (
+        <li><span class={`akind ${a.kind}`}>{a.kind}</span> <span set:html={a.claimHtml} /></li>
+      ))}
+    </ul>
+  </details>
+</section>
+
+<style>
+  .player { display: grid; gap: 1.1rem; }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .scenario { font-size: 1.05rem; margin: 0.6rem 0 0; }
+  .badge.tiny { font-size: 0.66rem; padding: 0.03rem 0.35rem; }
+
+  .tablewrap { overflow-x: auto; }
+  table.cmp { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+  table.cmp th, table.cmp td { padding: 0.5rem 0.7rem; text-align: left; border-bottom: 1px solid var(--line); }
+  table.cmp th.num, table.cmp td.num { text-align: right; font-family: var(--font-mono); white-space: nowrap; }
+  table.cmp thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); font-weight: 600; }
+  table.cmp .sym { font-size: 1.05rem; }
+  table.cmp .forces { color: var(--ink-faint); font-size: 0.85rem; }
+  .imf { font-weight: 600; }
+  .imf.hbond { color: var(--accent); }
+  .imf.dipole { color: var(--model); }
+  .imf.dispersion { color: var(--ink-2); }
+  .trend { margin: 0; font-size: 0.95rem; color: var(--ink-2); display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; }
+  .takeaway { color: var(--ink-2); line-height: 1.6; margin: 0; max-width: 56rem; }
+
+  .proof { border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: var(--radius); padding: 0.6rem 0.9rem 0.9rem; }
+  .proof-head { display: flex; align-items: center; gap: 0.7rem; padding: 0.3rem 0; flex-wrap: wrap; }
+  .checks { list-style: none; padding: 0; margin: 0.3rem 0; display: grid; gap: 0.35rem; }
+  .checks li { font-size: 0.92rem; }
+  .tick { color: var(--accent); font-weight: 700; }
+  .tier { color: var(--ink-faint); font-family: var(--font-mono); font-size: 0.76rem; }
+
+  .misconception { background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); border-radius: var(--radius); padding: 0.8rem 1rem; }
+  .mis-claim { font-weight: 600; color: var(--warn); }
+  .mis-claim .x { font-weight: 700; }
+  .mis-fix { margin: 0.4rem 0 0; color: var(--ink-2); font-size: 0.95rem; line-height: 1.55; }
+
+  .assumptions summary { cursor: pointer; color: var(--ink-2); }
+  .assumptions ul { color: var(--ink-2); font-size: 0.93rem; }
+  .akind { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; padding: 0.05rem 0.35rem; border-radius: 5px; margin-right: 0.3rem; }
+  .akind.model { background: var(--model-soft); color: var(--model); }
+  .akind.rule { background: var(--sourced-soft); color: var(--sourced); }
+</style>

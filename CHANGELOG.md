@@ -3,6 +3,28 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — IMF comparison lesson: a machine-verified boiling-point trend (ADR-0047)
+
+The bonding tier's capstone — and a third lesson shape. Where a reaction lesson is a species ledger and a structure
+lesson is one molecule's electron ledger, a **comparison lesson** lines up several molecules against a property and
+teaches the trend — with the trend itself machine-checked.
+
+- **Lesson `bonding/boiling-points-and-imfs`** — *same size, different boiling points*: CH₄ (−161.5 °C, dispersion) ≪
+  NH₃ (−33.3 °C, hydrogen bonding) ≪ H₂O (100 °C, hydrogen bonding), three hydrides of nearly equal mass (16/17/18) so
+  **size is controlled and the intermolecular force is the variable**. The misconception is the intramolecular-vs-
+  intermolecular confusion ("water boils high because its O–H bonds are strong / boiling breaks them"), refuted from the
+  table (boiling overcomes the forces *between* molecules, not the covalent bonds *within* — steam is still H₂O).
+- **New kind** (`schemas/comparison-lesson.schema.json`, `structure.build_comparison_lesson`, `*.comparison.json`): rows
+  reference `molecule` Atlas entries and **reuse their verified IMF + boiling point** (no drift). The builder sorts by
+  boiling point and **proves the dominant-IMF rank is non-decreasing** — "IMF strength predicts the ordering" — refusing
+  to emit if the corpus breaks it. A fully static `ComparisonLesson.astro` player; all lesson/reference pages now glob
+  the three lesson suffixes.
+- **Gate:** the trend re-derives in pure Node — rows sorted, rank consistent, monotonic, and each row's IMF re-derived
+  from the Atlas structure (`classifyIMF`) + boiling point matched. **5-way tamper-tested** (unsort / bad imf_rank /
+  non-monotonic / boiling drift / dominant drift — each caught).
+- **Verification:** **315 producer tests** (+4); 7 gates green (validate-solutions = 6 + 2 structure + **1 comparison**;
+  check-katex = 502); **30 pages** (+1); `derived/` byte-stable (only 4 authored backlinks). Three lesson shapes now.
+
 ## Phase 2 — 2026-07-08 — intermolecular forces: a structure-derived dominant-IMF classifier (ADR-0046)
 
 The bonding tier's last core topic — anchored to the machine-verified structure so it stays on-thesis despite being the

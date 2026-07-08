@@ -1,0 +1,127 @@
+{
+  "kind": "comparison",
+  "id": "bonding-boiling-points-and-imfs",
+  "title": "Same size, different boiling points: what intermolecular forces do",
+  "slug": "boiling-points-and-imfs",
+  "topic": "bonding",
+  "tags": [
+    "bonding",
+    "intermolecular-forces",
+    "hydrogen-bonding",
+    "boiling-point",
+    "polarity",
+    "comparison"
+  ],
+  "scenario": "Methane (CH₄), ammonia (NH₃), and water (H₂O) are almost exactly the same size — 16, 17, and 18 grams per mole, three atoms of the second row wrapped around hydrogens. Yet methane boils at −161 °C, ammonia at −33 °C, and water not until +100 °C. That is a spread of more than 250 degrees between molecules of the same mass. If size isn't doing it, what is? The answer is the force acting between the molecules — and it lines up exactly with the boiling point.",
+  "property": "boiling point",
+  "regimes": [
+    {
+      "facet": "electron ledger",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "molecular geometry",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "molecular polarity",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "Boiling point is being used as a stand-in for intermolecular-force strength — a fair comparison only because the three molecules are nearly the same size, so differences in London dispersion (which grows with size) are small and the dominant force is what varies.",
+      "kind": "model"
+    },
+    {
+      "claim": "The dominant intermolecular force is ranked London dispersion < dipole–dipole < hydrogen bonding for molecules of similar size. This is the standard ordering; it can invert when sizes differ a lot, since dispersion grows with molecular size and polarizability.",
+      "kind": "model"
+    }
+  ],
+  "rows": [
+    {
+      "ref_id": "molecule-methane",
+      "formula": "CH4",
+      "latex": "\\mathrm{CH_{4}}",
+      "names": [
+        "methane"
+      ],
+      "dominant": "london-dispersion",
+      "forces": [
+        "london-dispersion"
+      ],
+      "imf_rank": 1,
+      "boiling_point_c": "-161.5",
+      "phase_change": "boiling",
+      "boiling_source": "openstax-chemistry-2e"
+    },
+    {
+      "ref_id": "molecule-ammonia",
+      "formula": "NH3",
+      "latex": "\\mathrm{NH_{3}}",
+      "names": [
+        "ammonia"
+      ],
+      "dominant": "hydrogen-bonding",
+      "forces": [
+        "london-dispersion",
+        "dipole-dipole",
+        "hydrogen-bonding"
+      ],
+      "imf_rank": 3,
+      "boiling_point_c": "-33.3",
+      "phase_change": "boiling",
+      "boiling_source": "openstax-chemistry-2e"
+    },
+    {
+      "ref_id": "molecule-water",
+      "formula": "H2O",
+      "latex": "\\mathrm{H_{2}O}",
+      "names": [
+        "water",
+        "dihydrogen monoxide"
+      ],
+      "dominant": "hydrogen-bonding",
+      "forces": [
+        "london-dispersion",
+        "dipole-dipole",
+        "hydrogen-bonding"
+      ],
+      "imf_rank": 3,
+      "boiling_point_c": "100.0",
+      "phase_change": "boiling",
+      "boiling_source": "openstax-chemistry-2e"
+    }
+  ],
+  "trend": {
+    "property": "boiling point",
+    "monotonic": true,
+    "claim": "Line the three up by boiling point and the dominant intermolecular force climbs right alongside it: methane (London dispersion only) at the bottom, then ammonia and water (both hydrogen bonding) far higher. Stronger forces between molecules take more energy to pull apart, so the substance boils higher."
+  },
+  "takeaway": "Boiling doesn't break the bonds inside a molecule — it pulls whole molecules apart from each other, against their intermolecular forces. So the boiling point measures those forces, not the covalent bonds. With size held nearly constant, methane's weak London dispersion gives way at −161 °C, while water's strong hydrogen bonding holds on until 100 °C. Water tops even ammonia because it has two O–H donors and two lone-pair acceptors — twice the hydrogen bonding. (Size and polarizability matter too, which is why dispersion alone can add up for large molecules; here we held size fixed to isolate the force.)",
+  "misconception": {
+    "claim": "Water boils at a high 100 °C because the O–H bonds holding the molecule together are strong — boiling has to break those bonds.",
+    "refuted_by": "intramolecular_vs_intermolecular"
+  },
+  "reference_links": [
+    "intermolecular-forces",
+    "molecule-water",
+    "molecule-ammonia",
+    "molecule-methane"
+  ],
+  "checks": {
+    "sorted_ascending": true,
+    "imf_trend_monotonic": true,
+    "rows_match_atlas": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "boiling_points": "openstax-chemistry-2e"
+    }
+  }
+}

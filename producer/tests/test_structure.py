@@ -7,9 +7,12 @@ from pathlib import Path
 
 import pytest
 
+from decimal import Decimal
+
 from chemkernel import BuildError
 from chemkernel.data import ChemData
-from chemkernel.structure import build_molecule_entry, build_structure_lesson, classify_imf
+from chemkernel.structure import (build_comparison_lesson, build_molecule_entry, build_structure_lesson,
+                                  classify_imf)
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -302,6 +305,60 @@ def test_molecule_entry_carries_imf_block():
     assert co2["intermolecular"]["phase_change"] == "sublimation"      # CO2 has no liquid at 1 atm
     # a charged species carries NO intermolecular block (IMFs are between neutral molecules)
     assert "intermolecular" not in _mol(NH4)
+
+
+# ── comparison lessons (ADR-0047): several molecules vs. a property, the IMF-strength trend machine-verified ──
+def _all_molecule_entries():
+    data = _data()
+    return {s["id"]: build_molecule_entry(s, data, ctx=s["id"])
+            for s in (tomllib.loads(p.read_text(encoding="utf-8"))
+                      for p in (ROOT / "reference" / "molecules").glob("*.toml"))}
+
+
+_CMP = {
+    "id": "bonding-boiling-points-and-imfs", "title": "T", "slug": "boiling-points-and-imfs", "topic": "bonding",
+    "scenario": "s", "property": "boiling point", "trend": "t", "takeaway": "tk",
+    "molecules": ["molecule-methane", "molecule-ammonia", "molecule-water"],
+    "misconception": {"claim": "c", "refuted_by": "intramolecular_vs_intermolecular"},
+}
+
+
+def test_comparison_lesson_sorts_and_verifies_trend():
+    les = build_comparison_lesson(_CMP, _all_molecule_entries(), _data(), ctx="test")
+    bps = [Decimal(r["boiling_point_c"]) for r in les["rows"]]
+    assert bps == sorted(bps)                                   # rows ascending by boiling point
+    ranks = [r["imf_rank"] for r in les["rows"]]
+    assert all(a <= b for a, b in zip(ranks, ranks[1:]))        # dominant IMF non-decreasing (the trend)
+    assert les["rows"][0]["formula"] == "CH4" and les["rows"][-1]["formula"] == "H2O"
+    assert les["checks"] == {"sorted_ascending": True, "imf_trend_monotonic": True, "rows_match_atlas": True}
+
+
+def test_comparison_refuses_non_monotonic_trend():
+    # a fabricated corpus where a STRONGER IMF sits at a LOWER boiling point breaks the claim → refuse to emit
+    fake = {
+        "mol-a": {"formula": "A", "latex": "A", "names": ["a"], "intermolecular": {
+            "dominant": "hydrogen-bonding", "forces": ["london-dispersion", "dipole-dipole", "hydrogen-bonding"],
+            "boiling_point_c": "-200", "phase_change": "boiling", "boiling_source": "x"}},
+        "mol-b": {"formula": "B", "latex": "B", "names": ["b"], "intermolecular": {
+            "dominant": "london-dispersion", "forces": ["london-dispersion"],
+            "boiling_point_c": "0", "phase_change": "boiling", "boiling_source": "x"}},
+    }
+    with pytest.raises(BuildError, match="not monotonic"):
+        build_comparison_lesson({**_CMP, "molecules": ["mol-a", "mol-b"]}, fake, _data(), ctx="test")
+
+
+def test_comparison_refuses_molecule_without_boiling_point():
+    # formaldehyde has an IMF classification but no curated boiling point — cannot compare on boiling point
+    with pytest.raises(BuildError, match="no curated boiling point"):
+        build_comparison_lesson({**_CMP, "molecules": ["molecule-water", "molecule-formaldehyde"]},
+                                _all_molecule_entries(), _data(), ctx="test")
+
+
+def test_comparison_refuses_charged_molecule():
+    # ammonium is an ion — no intermolecular block, so it cannot enter an IMF comparison
+    with pytest.raises(BuildError, match="no intermolecular block"):
+        build_comparison_lesson({**_CMP, "molecules": ["molecule-water", "molecule-ammonium"]},
+                                _all_molecule_entries(), _data(), ctx="test")
 
 
 def test_all_authored_structure_lessons_build():

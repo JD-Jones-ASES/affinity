@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://affinity/schemas/comparison-lesson.schema.json",
+  "title": "Affinity comparison lesson",
+  "description": "One verified MULTI-molecule comparison lesson (ADR-0047) — the third lesson shape. A reaction lesson (solution.json) is a species ledger over extent; a structure lesson (structure.json) is one molecule's electron ledger; a comparison lesson lines up several molecules against a measurable PROPERTY (boiling point) and teaches the trend. Its machine-checkable spine: the rows are sorted by the property, and the claim 'IMF strength predicts the ordering' is verified — the dominant-IMF rank is non-decreasing as the boiling point rises. Each row's IMF + boiling point is re-embedded from the verified `molecule` Atlas entry (no drift). additionalProperties:false everywhere.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind", "id", "title", "slug", "topic", "scenario", "property", "regimes",
+    "assumptions", "rows", "trend", "takeaway", "misconception", "checks", "provenance"
+  ],
+  "properties": {
+    "kind": { "const": "comparison" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "topic": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "scenario": { "type": "string", "minLength": 1 },
+    "property": { "type": "string", "minLength": 1, "$comment": "the measurable axis the molecules are compared on (here: boiling point)" },
+    "regimes": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["facet", "regime"],
+        "properties": {
+          "facet": { "type": "string" },
+          "regime": { "enum": ["ledger-exact", "model-exact", "rule-sourced", "mechanistic"] }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["claim", "kind"],
+        "properties": { "claim": { "type": "string", "minLength": 1 }, "kind": { "enum": ["model", "rule"] } }
+      }
+    },
+    "rows": {
+      "type": "array", "minItems": 2,
+      "$comment": "one row per compared molecule, SORTED ascending by boiling point. Each row is re-embedded from the molecule Atlas entry with the same ref_id and re-verified by the gate (no drift). imf_rank = dispersion 1 / dipole-dipole 2 / hydrogen-bonding 3 (strength).",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["ref_id", "formula", "latex", "names", "dominant", "forces", "imf_rank", "boiling_point_c", "phase_change", "boiling_source"],
+        "properties": {
+          "ref_id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "formula": { "type": "string", "minLength": 1 },
+          "latex": { "type": "string", "minLength": 1 },
+          "names": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "dominant": { "enum": ["london-dispersion", "dipole-dipole", "hydrogen-bonding"] },
+          "forces": { "type": "array", "minItems": 1, "items": { "enum": ["london-dispersion", "dipole-dipole", "hydrogen-bonding"] } },
+          "imf_rank": { "type": "integer", "minimum": 1, "maximum": 3 },
+          "boiling_point_c": { "type": "string", "minLength": 1 },
+          "phase_change": { "enum": ["boiling", "sublimation"] },
+          "boiling_source": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "trend": {
+      "type": "object", "additionalProperties": false,
+      "$comment": "the machine-verified claim: sorted by boiling point ascending, the dominant IMF is non-decreasing in strength (monotonic). The `claim` is the authored statement of it.",
+      "required": ["property", "monotonic", "claim"],
+      "properties": {
+        "property": { "type": "string", "minLength": 1 },
+        "monotonic": { "const": true },
+        "claim": { "type": "string", "minLength": 1 }
+      }
+    },
+    "takeaway": { "type": "string", "minLength": 1, "$comment": "the lesson's core teaching prose" },
+    "misconception": {
+      "type": "object", "additionalProperties": false,
+      "required": ["claim", "refuted_by"],
+      "properties": { "claim": { "type": "string", "minLength": 1 }, "refuted_by": { "type": "string" } }
+    },
+    "reference_links": { "type": "array", "items": { "type": "string" } },
+    "checks": {
+      "type": "object", "additionalProperties": false,
+      "$comment": "SHOWN not asserted — all const true (the builder refuses to emit otherwise, ADR-0008).",
+      "required": ["sorted_ascending", "imf_trend_monotonic", "rows_match_atlas"],
+      "properties": {
+        "sorted_ascending": { "const": true },
+        "imf_trend_monotonic": { "const": true },
+        "rows_match_atlas": { "const": true }
+      }
+    },
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["producer", "version", "author", "created", "sources"],
+      "properties": {
+        "producer": { "const": "chemkernel" },
+        "version": { "type": "string" },
+        "python": { "type": "string" },
+        "author": { "type": "string" },
+        "created": { "type": "string" },
+        "sources": {
+          "type": "object", "additionalProperties": false,
+          "$comment": "the boiling points are the sourced empirical evidence the lesson displays; each molecule's dominant IMF is machine-derived (the `intermolecular-forces` concept, a reference_link, carries the classification-rule source).",
+          "required": ["boiling_points"],
+          "properties": {
+            "boiling_points": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

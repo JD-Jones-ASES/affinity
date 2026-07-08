@@ -1459,3 +1459,38 @@ forces list / add a block to the ammonium ion / an unregistered boiling source /
 caught). **Deferred:** the **IMF comparison lesson** (a new *multi-molecule* lesson shape — the natural next increment,
 teaching the boiling-point trend as the payoff); ion–dipole + the strength-vs-size nuance as their own content; drilling
 "which IMF dominates?" in the `lewis_structures_v1` gym.
+
+## ADR-0047 — The `comparison` lesson kind: a machine-verified multi-molecule trend (2026-07-08)
+
+**Context.** With IMFs in place (ADR-0046), the bonding tier's teaching payoff is the **boiling-point trend** — line up
+similar-sized molecules and show that the boiling point tracks the dominant intermolecular force. That is inherently a
+**multi-molecule comparison**, which neither existing lesson shape fits: a reaction lesson (`solution.json`) is a species
+ledger over extent; a structure lesson (`structure.json`, ADR-0045) is *one* molecule's electron ledger. The owner
+authorized building this lesson (an AskUserQuestion at the increment-16 boundary).
+
+**Decision.** A **third lesson kind, `comparison`** — its own `schemas/comparison-lesson.schema.json` + builder
+`structure.build_comparison_lesson`, emitting `derived/<topic>/<slug>.comparison.json` (dispatched by extension in
+`build_problems_main` alongside `.problem.toml`/`.structure.toml`). Its rows reference `molecule` Atlas entries by id and
+**reuse their verified data** — the builder resolves each via `build_molecule_entry`, so every row's dominant IMF +
+boiling point is the same machine-derived/sourced value the Atlas shows (no drift). The load-bearing move: **the lesson's
+central claim is itself machine-checked.** The builder sorts the rows ascending by the compared property (boiling point)
+and **proves the dominant-IMF rank is non-decreasing** (dispersion 1 < dipole–dipole 2 < hydrogen bonding 3) — i.e. "IMF
+strength predicts the ordering" — and **refuses to emit if the authored corpus breaks it** (ADR-0008; it will not teach a
+false trend). The gate (`validate-solutions`) re-derives the whole spine in pure Node: rows sorted, rank consistent with
+`dominant`, monotonic, and each row's IMF re-derived from the Atlas structure (`classifyIMF`) + boiling point matched. A
+fully static `ComparisonLesson.astro` player (nothing to hydrate).
+
+**Consequences.** The bonding tier's capstone: **`bonding/boiling-points-and-imfs`** — CH₄ (−161.5 °C, dispersion) ≪ NH₃
+(−33.3 °C, hydrogen bonding) ≪ H₂O (100 °C, hydrogen bonding), three second-row hydrides of nearly equal mass (16/17/18)
+so **size is controlled and the intermolecular force is the variable**. The machine verifies the trend; the misconception
+is the canonical **intramolecular-vs-intermolecular** confusion ("water boils high because O–H bonds are strong / boiling
+breaks them"), refuted from the table (boiling overcomes the forces *between* molecules, not the covalent bonds *within* —
+steam is still H₂O). New (additive): `schemas/comparison-lesson.schema.json`, `structure.build_comparison_lesson` (+
+`build.py`'s `build_comparison` + the third dispatch), `src/components/ComparisonLesson.astro` +
+`view.renderComparisonLesson`; the two lesson pages + five reference pages now glob all three lesson suffixes, and
+`validate-reference`/`check-katex` learn `.comparison.json`. **315 producer tests** (+4); **validate-solutions = 6 + 2
+structure + 1 comparison**; check-katex = 502 (+3); **30 pages** (+1); `derived/` byte-stable (only the 4 authored
+backlinks changed — the concept + the 3 compared molecules). **5-way tamper-tested** (unsort the rows / an inconsistent
+imf_rank / a non-monotonic trend / a boiling-point drift / a dominant-IMF drift — each caught by a distinct branch).
+There are now **three lesson shapes** (reaction / structure / comparison), each a tight schema; the reaction schema stays
+pristine. **Deferred:** more comparison axes (melting point, solubility) once wanted; a "which IMF dominates?" gym drill.

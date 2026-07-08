@@ -8,7 +8,7 @@ summary = "Eight valence electrons: two O–H bonding pairs and two lone pairs o
 source = "openstax-chemistry-2e"
 polarity = "polar"
 polarity_reason = "The molecule is bent, so the two polar O–H bond dipoles (ΔEN 1.24) add rather than cancel — a net dipole points from the H side toward oxygen."
-lessons = ["water-molecular-shape"]
+lessons = ["water-molecular-shape", "boiling-points-and-imfs"]
 
 [[atoms]]
 id = "O1"

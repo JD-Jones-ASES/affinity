@@ -30,7 +30,8 @@ const hrefFor = (id) =>
   : withBase(`/reference/#${id}`);
 const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
 const structs = import.meta.glob("../../../derived/**/*.structure.json", { eager: true });
-const lessonTitle = Object.fromEntries([...Object.values(sols), ...Object.values(structs)].map((m) => [m.default.slug, m.default.title]));
+const cmps = import.meta.glob("../../../derived/**/*.comparison.json", { eager: true });
+const lessonTitle = Object.fromEntries([...Object.values(sols), ...Object.values(structs), ...Object.values(cmps)].map((m) => [m.default.slug, m.default.title]));
 ---
 
 <Base title="Species — Affinity" description="The species atlas: compounds, elemental molecules, and ions, each with its engine-derived composition, charge, and molar mass — re-parsed and re-summed from the sourced atomic weights, never asserted.">

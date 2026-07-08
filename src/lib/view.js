@@ -318,6 +318,25 @@ export function renderStructureLesson(lesson) {
   return s;
 }
 
+// Render a comparison lesson (ADR-0047): several molecules vs. a property, the IMF-strength trend machine-checked.
+// Each row's molecule symbol renders from the producer's upright LaTeX; the dominant IMF gets a display label. The
+// scenario / trend / takeaway / misconception / assumptions get their formula tokens subscripted + inline $…$ rendered.
+export function renderComparisonLesson(lesson) {
+  const s = structuredClone(lesson);
+  const toks = s.rows.map((r) => r.formula);
+  s.scenarioHtml = inline(prettyText(s.scenario, toks));
+  delete s.scenario;
+  s.trend = { ...s.trend, claimHtml: inline(prettyText(s.trend.claim, toks)) };
+  s.takeawayHtml = inline(prettyText(s.takeaway, toks));
+  s.rows = s.rows.map((r) => ({
+    ...r, latexHtml: tex(r.latex, false), formulaPretty: prettyIon(r.formula),
+    dominantLabel: _IMF_LABEL[r.dominant], forceLabels: r.forces.map((f) => _IMF_LABEL[f]),
+  }));
+  s.assumptions = (s.assumptions ?? []).map((a) => ({ ...a, claimHtml: inline(prettyText(a.claim, toks)) }));
+  if (s.misconception) s.misconception.claimHtml = inline(prettyText(s.misconception.claim, toks));
+  return s;
+}
+
 // Render a concept entry (definition may carry inline $…$; latex is a standalone display formula).
 export function renderConcept(c) {
   return {

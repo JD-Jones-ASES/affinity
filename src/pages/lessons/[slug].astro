@@ -2,26 +2,31 @@
 import Base from "../../layouts/Base.astro";
 import SolutionPlayer from "../../islands/SolutionPlayer.svelte";
 import StructureLesson from "../../components/StructureLesson.astro";
+import ComparisonLesson from "../../components/ComparisonLesson.astro";
 import { withBase } from "../../lib/withBase.js";
-import { renderSolution, renderStructureLesson } from "../../lib/view.js";
+import { renderSolution, renderStructureLesson, renderComparisonLesson } from "../../lib/view.js";
 import { plain } from "../../lib/katex.js";
 
-// One page per committed lesson JSON. Two lesson shapes share the /lessons/<slug>/ route (ADR-0045): a
-// reaction lesson (*.solution.json → SolutionPlayer, the extent ledger) and a structure lesson
-// (*.structure.json → StructureLesson, the single-molecule electron ledger). The producer is the source of
-// truth; this page only reads and renders — no chemistry happens here.
+// One page per committed lesson JSON. Three lesson shapes share the /lessons/<slug>/ route: a reaction lesson
+// (*.solution.json → SolutionPlayer, the extent ledger), a structure lesson (*.structure.json → StructureLesson,
+// the single-molecule electron ledger, ADR-0045), and a comparison lesson (*.comparison.json → ComparisonLesson,
+// several molecules vs. a property, ADR-0047). The producer is the source of truth; this page only renders.
 export function getStaticPaths() {
   const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
   const structs = import.meta.glob("../../../derived/**/*.structure.json", { eager: true });
+  const cmps = import.meta.glob("../../../derived/**/*.comparison.json", { eager: true });
   return [
     ...Object.values(sols).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "reaction" } })),
     ...Object.values(structs).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "structure" } })),
+    ...Object.values(cmps).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "comparison" } })),
   ];
 }
 
 const { lesson, kind } = Astro.props;
 const isStructure = kind === "structure";
-const view = isStructure ? renderStructureLesson(lesson) : renderSolution(lesson);
+const isComparison = kind === "comparison";
+const view = isComparison ? renderComparisonLesson(lesson)
+  : isStructure ? renderStructureLesson(lesson) : renderSolution(lesson);
 
 const metaRaw = plain(lesson.scenario);
 const metaDesc = metaRaw.length > 157 ? metaRaw.slice(0, 156).replace(/\s+\S*$/, "") + "…" : metaRaw;
@@ -49,7 +54,9 @@ const concepts = (lesson.reference_links ?? []).map((id) => {
   <p class="crumb faint"><a href={withBase("/lessons/")}>Lessons</a> · {lesson.topic}</p>
   <h1>{lesson.title}</h1>
 
-  {isStructure
+  {isComparison
+    ? <ComparisonLesson lesson={view} />
+    : isStructure
     ? <StructureLesson lesson={view} />
     /* client:load (not client:visible): the player IS the lesson and sits above the fold; client:visible never
        hydrates in a headless preview loading at a 0×0 viewport (the IntersectionObserver never fires). */

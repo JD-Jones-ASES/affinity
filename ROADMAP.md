@@ -13,10 +13,19 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   **gas-stoichiometry lesson** (ADR-0041), **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043 — q=ΔH_rxn·ξ
   via Hess's law), the **bonding tier** (ADR-0044 — Lewis electron-ledger engine + `molecule` Atlas kind +
   `lewis_structures_v1` gym), the **`structure` lesson kind** (ADR-0045 — water bent-polar + CO₂ linear-nonpolar), and
-  **intermolecular forces** (ADR-0046 — a structure-derived dominant-IMF classifier + concept). **Next inside Phase 2:** an
-  IMF comparison lesson (a new multi-molecule shape), then equilibrium/acid-base, kinetics, electrochemistry, each opening
-  with its stress scenario. Counters live in `AGENTS.md ## Current state`; per-increment detail in
-  [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+  **intermolecular forces** (ADR-0046 — a structure-derived dominant-IMF classifier + concept), and the **IMF comparison
+  lesson** (ADR-0047 — a third lesson shape, a machine-verified boiling-point trend). **The bonding & structure tier's
+  teaching arc is complete** (engine + Atlas + gym + 3 lessons + IMFs). **Next inside Phase 2:** the big model-bearing
+  tiers — equilibrium/acid-base (ICE = ledger with reversible extent), kinetics, electrochemistry, each opening with its
+  stress scenario. Counters live in `AGENTS.md ## Current state`; per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md)
+  + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+- **IMF comparison lesson — LANDED** (2026-07-08, ADR-0047): the bonding capstone + a **third lesson shape** (`comparison`).
+  `bonding/boiling-points-and-imfs` lines up CH₄ ≪ NH₃ ≪ H₂O (equal-mass hydrides, so size is controlled) and the
+  machine-checked payoff is the trend itself: sorted by boiling point, the dominant-IMF rank is **non-decreasing** (the
+  builder refuses a non-monotonic corpus). Rows reuse the verified `molecule` Atlas data (no drift); the misconception is
+  the intramolecular-vs-intermolecular confusion. Own tight schema + builder + static player; the gate re-derives the
+  sort + monotonicity + no-drift. **Deferred:** more comparison axes (melting point, solubility); a "which IMF dominates?"
+  gym drill.
 - **Intermolecular forces — LANDED** (2026-07-08, ADR-0046): the bonding tier's last core topic, kept on-thesis by
   anchoring it to the machine-verified structure. `structure.classify_imf` derives a neutral molecule's **dominant IMF**
   (London dispersion / dipole–dipole / hydrogen bonding) from its polarity + an **exact H-on-N/O/F test** (the ranking is

@@ -312,6 +312,83 @@ def build_molecule_entry(spec: dict, data, ctx: str = "") -> dict:
     return entry
 
 
+_IMF_RANK = {"london-dispersion": 1, "dipole-dipole": 2, "hydrogen-bonding": 3}   # strength order (ADR-0046)
+
+
+def build_comparison_lesson(spec: dict, molecule_entries: dict, data, ctx: str = "") -> dict:
+    """An authored multi-molecule comparison lesson → the verified `*.comparison.json` object (ADR-0047) — the
+    third lesson shape. It lines up several molecules against a measurable property (boiling point) and teaches
+    the trend, and its machine-checkable spine is exactly that trend: **sorted by boiling point ascending, the
+    dominant-IMF rank is non-decreasing** (IMF strength predicts the ordering). Each row is re-embedded from the
+    verified `molecule` Atlas entry (`molecule_entries[id]`, built by build_molecule_entry — so the IMF + boiling
+    point are the same machine-derived/sourced values, no drift). The producer REFUSES to emit if the authored
+    corpus does not exhibit the trend (ADR-0008) — it will not teach a false claim."""
+    for key in ("id", "title", "slug", "topic", "scenario", "property", "molecules", "trend", "takeaway",
+                "misconception"):
+        if key not in spec:
+            raise BuildError(f"{ctx}: comparison lesson missing required key '{key}'")
+    mol_ids = spec["molecules"]
+    if not isinstance(mol_ids, list) or len(mol_ids) < 2:
+        raise BuildError(f"{ctx}: a comparison lesson needs at least two `molecules`")
+
+    rows = []
+    for mid in mol_ids:
+        entry = molecule_entries.get(mid)
+        if entry is None:
+            raise BuildError(f"{ctx}: molecule '{mid}' resolves to no reference/molecules/*.toml entry")
+        imf = entry.get("intermolecular")
+        if imf is None:
+            raise BuildError(f"{ctx}: '{mid}' has no intermolecular block (a charged species?) — cannot compare IMFs")
+        if "boiling_point_c" not in imf:
+            raise BuildError(f"{ctx}: '{mid}' has no curated boiling point in data/boiling-points.toml — "
+                             f"cannot compare on boiling point")
+        rows.append({
+            "ref_id": mid, "formula": entry["formula"], "latex": entry["latex"], "names": list(entry["names"]),
+            "dominant": imf["dominant"], "forces": list(imf["forces"]), "imf_rank": _IMF_RANK[imf["dominant"]],
+            "boiling_point_c": imf["boiling_point_c"], "phase_change": imf["phase_change"],
+            "boiling_source": imf["boiling_source"],
+        })
+
+    # sort ascending by boiling point (Decimal — exact compare, ADR-0013)
+    rows.sort(key=lambda r: Decimal(r["boiling_point_c"]))
+    # the machine-checked payoff: the dominant-IMF rank is non-decreasing as the boiling point rises. If the
+    # authored corpus breaks it (a stronger IMF at a lower boiling point), REFUSE — the lesson would teach a
+    # false trend.
+    for a, b in zip(rows, rows[1:]):
+        if b["imf_rank"] < a["imf_rank"]:
+            raise BuildError(f"{ctx}: IMF trend not monotonic — {a['formula']} ({a['dominant']}, "
+                             f"{a['boiling_point_c']} °C) then {b['formula']} ({b['dominant']}, "
+                             f"{b['boiling_point_c']} °C): a stronger intermolecular force at a lower boiling "
+                             f"point breaks the claim this lesson teaches")
+
+    return {
+        "kind": "comparison",
+        "id": spec["id"],
+        "title": spec["title"],
+        "slug": spec["slug"],
+        "topic": spec["topic"],
+        "tags": spec.get("tags", []),
+        "scenario": spec["scenario"],
+        "property": spec["property"],
+        "regimes": [dict(r) for r in _STRUCTURE_REGIMES],   # electron ledger / geometry / polarity all feed the IMF
+        "assumptions": spec.get("assumptions", []),
+        "rows": rows,
+        "trend": {"property": spec["property"], "monotonic": True, "claim": spec["trend"]},
+        "takeaway": spec["takeaway"],
+        "misconception": spec["misconception"],
+        "reference_links": spec.get("reference_links", []),
+        "checks": {"sorted_ascending": True, "imf_trend_monotonic": True, "rows_match_atlas": True},
+        "provenance": {
+            "producer": "chemkernel",
+            "version": __version__,
+            "python": platform.python_version(),
+            "author": spec.get("author", "Affinity"),
+            "created": spec.get("created", ""),
+            "sources": {"boiling_points": data.sources.get("boiling_points", "")},
+        },
+    }
+
+
 def build_structure_lesson(spec: dict, molecule_spec: dict, data, ctx: str = "") -> dict:
     """An authored structure lesson → the verified `*.structure.json` lesson object (ADR-0045). This is the
     electron ledger's presentation shape generalised past a reaction to a single molecule: no equations, no

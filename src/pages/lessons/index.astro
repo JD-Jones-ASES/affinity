@@ -8,14 +8,16 @@ import { prettyText } from "../../lib/view.js";
 // (*.structure.json — a single molecule's electron ledger). Each carries a title, topic, slug, and scenario.
 const mods = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
 const structs = import.meta.glob("../../../derived/**/*.structure.json", { eager: true });
+const cmps = import.meta.glob("../../../derived/**/*.comparison.json", { eager: true });
 // scenario typography: subscript each lesson's known formula tokens (ADR-0025 / brief §6.1)
 const stripPhase = (id) => String(id).replace(/\((?:s|l|g|aq)\)$/, "");
 const tokensOf = (l) => [
   ...(l.given ?? []).flatMap((g) => [g.species, stripPhase(g.species)]),
   l.result?.precipitate?.species,
-  l.molecule?.formula,   // structure lessons carry a molecule, not a reaction
+  l.molecule?.formula,                    // structure lessons carry a molecule, not a reaction
+  ...(l.rows ?? []).map((r) => r.formula), // comparison lessons carry several molecules
 ];
-const lessons = [...Object.values(mods), ...Object.values(structs)].map((m) => m.default)
+const lessons = [...Object.values(mods), ...Object.values(structs), ...Object.values(cmps)].map((m) => m.default)
   .map((l) => ({ ...l, scenarioHtml: inline(prettyText(l.scenario, tokensOf(l))) }));
 
 // Group by topic; topics render alphabetically, lessons by title within each. Resilient to any count — a new

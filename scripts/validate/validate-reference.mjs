@@ -46,14 +46,15 @@ const registeredSources = new Set();
   if (registeredSources.size === 0) fail("docs/SOURCES.md", "no registered source ids found — parser drift?");
 }
 
-// every real lesson route slug, for the "used in" links — both reaction lessons (*.solution.json) and
-// structure lessons (*.structure.json, ADR-0045), which share the /lessons/<slug>/ route.
+// every real lesson route slug, for the "used in" links — reaction (*.solution.json), structure
+// (*.structure.json, ADR-0045), and comparison (*.comparison.json, ADR-0047) lessons all share /lessons/<slug>/.
 const slugs = new Set();
 (function walk(d) {
   for (const n of readdirSync(d)) {
     const p = join(d, n);
     if (statSync(p).isDirectory()) walk(p);
-    else if (n.endsWith(".solution.json") || n.endsWith(".structure.json")) slugs.add(JSON.parse(readFileSync(p, "utf8")).slug);
+    else if (n.endsWith(".solution.json") || n.endsWith(".structure.json") || n.endsWith(".comparison.json"))
+      slugs.add(JSON.parse(readFileSync(p, "utf8")).slug);
   }
 })(join(ROOT, "derived"));
 

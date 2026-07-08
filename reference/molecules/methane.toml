@@ -8,7 +8,7 @@ summary = "Eight valence electrons: four C–H bonding pairs, no lone pairs. Fou
 source = "openstax-chemistry-2e"
 polarity = "nonpolar"
 polarity_reason = "Four identical C–H bonds point to the corners of a symmetric tetrahedron, so any bond dipoles cancel; the C–H bond is nearly nonpolar to begin with (ΔEN 0.35)."
-lessons = []
+lessons = ["boiling-points-and-imfs"]
 
 [[atoms]]
 id = "C1"

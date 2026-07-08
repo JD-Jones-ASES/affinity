@@ -6,15 +6,18 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
-import { verifyElectronLedger, ledgerTables } from "./structurecheck.mjs";
+import { verifyElectronLedger, ledgerTables, classifyIMF } from "./structurecheck.mjs";
 
 const ROOT = process.cwd();
 const schema = JSON.parse(readFileSync(join(ROOT, "schemas", "solution.schema.json"), "utf8"));
 const structureSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "structure-lesson.schema.json"), "utf8"));
+const comparisonSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "comparison-lesson.schema.json"), "utf8"));
 const ajv = new Ajv({ allErrors: true, strict: true });
 addFormats(ajv);
 const validate = ajv.compile(schema);
 const validateStructure = ajv.compile(structureSchema);
+const validateComparison = ajv.compile(comparisonSchema);
+const IMF_RANK = { "london-dispersion": 1, "dipole-dipole": 2, "hydrogen-bonding": 3 };
 
 // walk derived/ for lesson files matching a suffix (*.solution.json reactions, *.structure.json structures)
 function walkSuffix(dir, suffix) {
@@ -146,16 +149,17 @@ for (const file of files) {
 // so the lesson's claim stands on its own re-proof — and cross-checked against the Atlas molecule with the same
 // ref_id (no drift). No equations/species-ledger/reported-product here; the electron ledger IS the object.
 const structureFiles = walkSuffix(derived, ".structure.json");
+const comparisonFiles = walkSuffix(derived, ".comparison.json");
 const STEP_KEYS = ["valence", "lewis", "shape", "polarity"];
 let ledgerT = null;      // built lazily from the emitted valence-table.json
 const moleculeById = new Map();
-if (structureFiles.length) {
+if (structureFiles.length || comparisonFiles.length) {
   const vtPath = join(derived, "reference", "valence-table.json");
   let vt;
   try { vt = JSON.parse(readFileSync(vtPath, "utf8")); }
-  catch { fail("derived/reference/valence-table.json", "missing — a structure lesson needs the Valence Table to re-derive its ledger"); }
+  catch { fail("derived/reference/valence-table.json", "missing — a structure/comparison lesson needs the Valence Table to re-derive its ledger"); }
   ledgerT = ledgerTables(vt);
-  // the molecule Atlas entries, for the no-drift cross-check
+  // the molecule Atlas entries, for the no-drift cross-check (structure + comparison lessons)
   const refDir = join(derived, "reference");
   for (const name of readdirSync(refDir).filter((n) => n.endsWith(".json"))) {
     const obj = JSON.parse(readFileSync(join(refDir, name), "utf8"));
@@ -207,4 +211,43 @@ for (const file of structureFiles) {
     if (!v) fail(rel, `provenance.sources.${k} is empty`);
 }
 
-console.log(`validate-solutions: ${files.length} solution(s) + ${structureFiles.length} structure lesson(s) valid; ${ids.size} unique id(s).`);
+// ── comparison lessons (ADR-0047): several molecules vs. a property, the IMF-strength trend machine-verified.
+// The gate re-derives the whole spine: the rows are sorted ascending by boiling point; the dominant-IMF rank is
+// non-decreasing (the trend); and each row's dominant IMF + boiling point match the Atlas molecule (no drift —
+// the IMF re-derived by classifyIMF from the Atlas structure, the boiling point read off the Atlas entry).
+for (const file of comparisonFiles) {
+  const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
+  const les = JSON.parse(readFileSync(file, "utf8"));
+
+  if (!validateComparison(les)) fail(rel, ajv.errorsText(validateComparison.errors, { separator: "; " }));
+
+  const expected = `derived/${les.topic}/${les.slug}.comparison.json`;
+  if (rel !== expected) fail(rel, `path does not match topic/slug (expected ${expected})`);
+  if (ids.has(les.id)) fail(rel, `duplicate id ${les.id}`);
+  ids.add(les.id);
+  for (const [k, v] of Object.entries(les.checks)) if (v !== true) fail(rel, `check ${k} is not true`);
+
+  // rows sorted ascending by boiling point; the dominant-IMF rank non-decreasing (the machine-verified trend)
+  let prevBp = -Infinity, prevRank = 0;
+  for (const r of les.rows) {
+    const bp = Number(r.boiling_point_c);
+    if (bp < prevBp) fail(rel, `rows not sorted ascending by boiling point (${r.formula} ${r.boiling_point_c} °C after ${prevBp})`);
+    if (IMF_RANK[r.dominant] !== r.imf_rank) fail(rel, `${r.formula}: imf_rank ${r.imf_rank} != rank of '${r.dominant}' (${IMF_RANK[r.dominant]})`);
+    if (r.imf_rank < prevRank) fail(rel, `IMF trend not monotonic — ${r.formula} (${r.dominant}) at ${r.boiling_point_c} °C ranks below a lower-boiling molecule`);
+    if (!r.forces.includes(r.dominant)) fail(rel, `${r.formula}: dominant '${r.dominant}' not among its forces`);
+    prevBp = bp; prevRank = r.imf_rank;
+
+    // no drift: the row is re-derived from the Atlas molecule with the same ref_id
+    const atlas = moleculeById.get(r.ref_id);
+    if (!atlas) fail(rel, `row ref_id '${r.ref_id}' resolves to no molecule Atlas entry`);
+    if (!atlas.intermolecular) fail(rel, `row '${r.ref_id}' Atlas entry has no intermolecular block`);
+    const want = classifyIMF(atlas.atoms, atlas.bonds, atlas.polarity);
+    if (want.dominant !== r.dominant) fail(rel, `${r.formula}: dominant '${r.dominant}' != re-derived '${want.dominant}' from the Atlas structure`);
+    if (JSON.stringify(want.forces) !== JSON.stringify(r.forces)) fail(rel, `${r.formula}: forces drift from the Atlas re-derivation`);
+    if (atlas.intermolecular.boiling_point_c !== r.boiling_point_c) fail(rel, `${r.formula}: boiling_point_c '${r.boiling_point_c}' != Atlas '${atlas.intermolecular.boiling_point_c}'`);
+    if (atlas.formula !== r.formula) fail(rel, `row formula '${r.formula}' != Atlas '${atlas.formula}'`);
+  }
+  for (const [k, v] of Object.entries(les.provenance.sources)) if (!v) fail(rel, `provenance.sources.${k} is empty`);
+}
+
+console.log(`validate-solutions: ${files.length} solution(s) + ${structureFiles.length} structure + ${comparisonFiles.length} comparison lesson(s) valid; ${ids.size} unique id(s).`);

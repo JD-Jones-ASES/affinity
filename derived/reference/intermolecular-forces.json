@@ -18,7 +18,9 @@
       "type": "see-also"
     }
   ],
-  "lessons": [],
+  "lessons": [
+    "boiling-points-and-imfs"
+  ],
   "regime": "rule-sourced",
   "source": "openstax-chemistry-2e"
 }

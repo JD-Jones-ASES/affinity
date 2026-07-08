@@ -139,7 +139,9 @@
       "type": "concept"
     }
   ],
-  "lessons": [],
+  "lessons": [
+    "boiling-points-and-imfs"
+  ],
   "polarity": "nonpolar",
   "polarity_reason": "Four identical C–H bonds point to the corners of a symmetric tetrahedron, so any bond dipoles cancel; the C–H bond is nearly nonpolar to begin with (ΔEN 0.35).",
   "intermolecular": {

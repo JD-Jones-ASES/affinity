@@ -112,7 +112,8 @@
     }
   ],
   "lessons": [
-    "water-molecular-shape"
+    "water-molecular-shape",
+    "boiling-points-and-imfs"
   ],
   "polarity": "polar",
   "polarity_reason": "The molecule is bent, so the two polar O–H bond dipoles (ΔEN 1.24) add rather than cancel — a net dipole points from the H side toward oxygen.",

@@ -125,7 +125,9 @@
       "type": "lone pair → fourth bond"
     }
   ],
-  "lessons": [],
+  "lessons": [
+    "boiling-points-and-imfs"
+  ],
   "polarity": "polar",
   "polarity_reason": "The molecule is trigonal pyramidal (not planar), so the three N–H bond dipoles and the lone pair do not cancel — a net dipole points through the nitrogen toward the lone pair.",
   "intermolecular": {

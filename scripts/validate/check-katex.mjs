@@ -14,7 +14,7 @@ function walk(dir) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (statSync(p).isDirectory()) out.push(...walk(p));
-    else if (name.endsWith(".solution.json") || name.endsWith(".structure.json")) out.push(p);
+    else if (name.endsWith(".solution.json") || name.endsWith(".structure.json") || name.endsWith(".comparison.json")) out.push(p);
   }
   return out;
 }
@@ -51,6 +51,19 @@ function structureLatex(les) {
   (les.steps ?? []).forEach((s, i) => out.push(...inlineMath(`steps[${i}].prose`, s.prose)));
   if (les.misconception?.claim) out.push(...inlineMath("misconception.claim", les.misconception.claim));
   if (les.molecule?.polarity_reason) out.push(...inlineMath("molecule.polarity_reason", les.molecule.polarity_reason));
+  (les.assumptions ?? []).forEach((a, i) => out.push(...inlineMath(`assumptions[${i}].claim`, a.claim)));
+  return out;
+}
+
+// Collect LaTeX in a comparison lesson (ADR-0047): each row's molecule symbol (display), plus any inline $…$
+// in the scenario, trend claim, takeaway, misconception, and assumptions.
+function comparisonLatex(les) {
+  const out = [];
+  (les.rows ?? []).forEach((r, i) => r.latex && out.push([`rows[${i}].latex`, r.latex]));
+  out.push(...inlineMath("scenario", les.scenario));
+  if (les.trend?.claim) out.push(...inlineMath("trend.claim", les.trend.claim));
+  if (les.takeaway) out.push(...inlineMath("takeaway", les.takeaway));
+  if (les.misconception?.claim) out.push(...inlineMath("misconception.claim", les.misconception.claim));
   (les.assumptions ?? []).forEach((a, i) => out.push(...inlineMath(`assumptions[${i}].claim`, a.claim)));
   return out;
 }
@@ -127,7 +140,8 @@ const render = (rel, where, latex) => {
 for (const file of files) {
   const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
   const obj = JSON.parse(readFileSync(file, "utf8"));
-  const strings = file.endsWith(".structure.json") ? structureLatex(obj) : latexStrings(obj);
+  const strings = file.endsWith(".structure.json") ? structureLatex(obj)
+    : file.endsWith(".comparison.json") ? comparisonLatex(obj) : latexStrings(obj);
   for (const [where, latex] of strings) render(rel, where, latex);
 }
 for (const file of refFiles) {

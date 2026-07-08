@@ -20,9 +20,11 @@ problems/<topic>/<slug>.problem.toml
 writes `derived/<topic>/<slug>.solution.json`, and the gate refuses a file whose emitted `topic`/`slug`
 don't match its path. One lesson per file.
 
-Most of this guide covers the **reaction** lesson (`*.problem.toml` → a species ledger over reaction extent). A
-single-**molecule** lesson (Lewis structure → VSEPR → polarity) is a different spec — `*.structure.toml`, its own
-schema — covered in [Structure lessons](#structure-lessons--a-single-molecule-structuretoml-adr-0045) below.
+Most of this guide covers the **reaction** lesson (`*.problem.toml` → a species ledger over reaction extent). Two other
+lesson shapes have their own spec + schema: a single-**molecule** lesson (`*.structure.toml`, Lewis structure → VSEPR →
+polarity — [Structure lessons](#structure-lessons--a-single-molecule-structuretoml-adr-0045) below) and a
+**multi-molecule comparison** (`*.comparison.toml`, several molecules vs. a property — [Comparison
+lessons](#comparison-lessons--several-molecules-vs-a-property-comparisontoml-adr-0047) below).
 
 ## The one TOML gotcha
 
@@ -246,6 +248,39 @@ The producer derives the whole `molecule` block (valence total, octets, formal c
 polarity) from the referenced entry and **refuses to emit** on any electron-accounting failure. `regimes`, the four
 step titles/regimes, `checks`, and `provenance` are all machine-set — do not author them. See
 [`problems/bonding/water-molecular-shape.structure.toml`](../problems/bonding/water-molecular-shape.structure.toml).
+
+### Comparison lessons — several molecules vs. a property (`*.comparison.toml`, ADR-0047)
+
+A **comparison lesson** lines up several molecules against a measurable property (boiling point) and teaches the trend.
+Its machine-checkable spine is the trend itself: the producer sorts the molecules by the property and **proves the
+dominant-IMF rank is non-decreasing** (dispersion < dipole–dipole < hydrogen bonding) — "IMF strength predicts the
+ordering" — and **refuses to emit if your corpus breaks it** (it won't teach a false trend). Each row reuses the
+verified `molecule` Atlas entry (its dominant IMF machine-derived, its boiling point sourced) — so pick molecules that
+have a curated boiling point in `data/boiling-points.toml`, and neutral ones (an ion has no IMF block):
+
+```toml
+id = "bonding-boiling-points-and-imfs"
+title = "…"
+slug = "boiling-points-and-imfs"
+topic = "bonding"
+property = "boiling point"                       # the axis the molecules are compared on
+molecules = ["molecule-methane", "molecule-ammonia", "molecule-water"]   # Atlas ids; the builder sorts them
+scenario = "…"                                   # the hook
+trend = "…"                                      # your statement of the machine-verified ordering
+takeaway = "…"                                   # the core teaching prose
+
+[misconception]
+claim = "…"
+refuted_by = "intramolecular_vs_intermolecular"  # the player renders a data-driven refutation for this key
+
+[[assumptions]]                                  # disclose the "boiling point stands in for IMF strength" framing
+claim = "…"
+kind = "model"
+```
+
+The `rows` (sorted, with each molecule's dominant IMF + boiling point), the `checks`, `regimes`, and `provenance` are
+machine-set — do not author them. See
+[`problems/bonding/boiling-points-and-imfs.comparison.toml`](../problems/bonding/boiling-points-and-imfs.comparison.toml).
 
 ### Other optional keys
 
