@@ -295,11 +295,29 @@
     "practice": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Optional generated practice (ADR-0011, brief §6.8): deterministic solver-verified variants. Answers re-derived in Node via the interactive closed forms (check-parity).",
+      "description": "Optional generated practice (ADR-0011, brief §6.8): deterministic solver-verified variants. Answers re-derived in Node via the interactive closed forms, or — for gas stoichiometry (ADR-0041) — from the `gas` constants block (check-parity).",
       "required": ["family", "seed", "questions"],
       "properties": {
         "family": { "type": "string" },
         "seed": { "type": "integer" },
+        "gas": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Gas-stoichiometry practice (ADR-0041): the reaction constants check-parity re-derives every answer from (metal molar mass + coefficients + R, T, P). Present iff there is no interactive block.",
+          "required": ["metal_id", "metal_molar_mass", "metal_coeff", "acid_id", "acid_coeff", "gas_id", "gas_coeff", "gas_constant", "temperature_K", "pressure_atm"],
+          "properties": {
+            "metal_id": { "type": "string" },
+            "metal_molar_mass": { "type": "string" },
+            "metal_coeff": { "type": "integer" },
+            "acid_id": { "type": "string" },
+            "acid_coeff": { "type": "integer" },
+            "gas_id": { "type": "string" },
+            "gas_coeff": { "type": "integer" },
+            "gas_constant": { "type": "string" },
+            "temperature_K": { "type": "string" },
+            "pressure_atm": { "type": "string" }
+          }
+        },
         "questions": {
           "type": "array",
           "minItems": 1,
@@ -310,20 +328,22 @@
             "$comment": "mode discriminates the response (ADR-0032): 'choice' carries `choices` (categorical — which reagent limits); 'numeric' carries `diagnostics` (free-entry — mass, leftover). check-parity.mjs enforces the per-mode shape.",
             "properties": {
               "id": { "type": "string" },
-              "kind": { "enum": ["limiting", "mass", "leftover"] },
+              "kind": { "enum": ["limiting", "mass", "leftover", "volume"] },
               "mode": { "enum": ["choice", "numeric"] },
               "prompt": { "type": "string", "minLength": 1 },
               "given": {
                 "type": "array",
                 "minItems": 1,
+                "$comment": "a given is a solution (volume_mL + molarity_M) or a weighed mass (mass_g, gas stoichiometry — ADR-0041); species is always present.",
                 "items": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["species", "volume_mL", "molarity_M"],
+                  "required": ["species"],
                   "properties": {
                     "species": { "type": "string" },
                     "volume_mL": { "type": "string" },
-                    "molarity_M": { "type": "string" }
+                    "molarity_M": { "type": "string" },
+                    "mass_g": { "type": "string" }
                   }
                 }
               },

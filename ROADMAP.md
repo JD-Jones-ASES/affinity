@@ -10,9 +10,9 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 - **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed; Phase 2 (the
   model-bearing tier) is filling depth-first on **gases + thermochemistry**. Landed so far: the **formula/equation
   sheet** (ADR-0039), the **`gas_laws_v1` gym** (ADR-0040), and the **gas-stoichiometry lesson** (ADR-0041 — the
-  vertical slice: the ledger drives a gas volume via PV=nRT). **Next inside Phase 2:** the gas lesson's
-  **interactive + generated practice** (the `interactive`/`practice` generalisation past double-displacement), then
-  **thermochemistry** (the energy ledger). Counters live in `AGENTS.md ## Current state`; per-increment detail in
+  vertical slice: the ledger drives a gas volume via PV=nRT — with generated practice). **Next inside Phase 2:**
+  **thermochemistry** (the energy ledger: q=mcΔT), and — smaller — the gas lesson's optional **slider interactive**.
+  Counters live in `AGENTS.md ## Current state`; per-increment detail in
   [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
 - **Gas-stoichiometry lesson — LANDED** (2026-07-08, ADR-0041): the Phase-2 vertical slice — the extent ledger
   drives a **gas volume** (Zn + 2 HCl → ZnCl₂ + H₂; the ledger fixes moles of H₂, PV=nRT fixes the volume). `build.py`
@@ -292,9 +292,11 @@ rest sequences after, each with its own scope block when its increment opens.
   reported-product shape: a **weighed-mass given** (grams ÷ molar mass → moles, dimension-certified, still
   terminating) + a **`result.gas` block** (the collected gas's volume through the units engine from the sourced R,
   model-exact-then-rounded under the model-assumed badge; check-ledger re-derives V=nRT/P, 6-way tamper-tested). The
-  moles/limiting are ledger-exact; the volume is model-exact. **Deferred within (the next increment):** the lesson's
-  **interactive** (mass/volume/molarity sliders → the gas volume, parity-verified) + **generated practice** (the
-  `interactive`/`practice` generalisation past the cation/anion shape); collecting the gas **over water** (a
+  moles/limiting are ledger-exact; the volume is model-exact. **Generated practice** landed too (6 variants —
+  free-entry volume/leftover + categorical limiting; the reaction constants travel in a `practice.gas` block so
+  check-parity re-derives without an interactive; reuses the generic practice island; 6-way tamper-tested).
+  **Deferred within (a follow-on increment):** the lesson's **slider interactive** (mass/volume/molarity sliders →
+  the gas volume — `ExtentBar` is cation/anion-locked, needs its own component); collecting the gas **over water** (a
   vapor-pressure table); `kPa`/`torr` units.
 - **Thermochemistry (energy ledger) — after gases:** calorimetry ($q=mc\Delta T$, specific-heat data curated),
   reaction enthalpy attached to extent ($\Delta H_\text{rxn}\cdot\xi$), Hess's law. The `formula-calorimetry` entry

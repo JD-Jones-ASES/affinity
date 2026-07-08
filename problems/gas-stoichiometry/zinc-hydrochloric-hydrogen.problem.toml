@@ -25,6 +25,13 @@ products = ["ZnCl2(aq)", "H2(g)"]
 
 reference_links = ["reaction-single-replacement", "formula-ideal-gas-law", "formula-mole-mass", "stoichiometry", "limiting-reagent", "extent-of-reaction", "molar-mass", "molarity", "balancing-equations", "net-ionic-equation", "spectator-ion", "dissociation", "conservation-of-mass", "dihydrogen", "hydrogen-chloride", "chloride"]
 
+# Generated practice (ADR-0011/0041). Deterministic: this seed always yields byte-identical variants — the gas
+# shape has no cation/anion interactive, so check-parity re-derives every answer from the reaction constants that
+# travel in the practice block. Free-entry volume (PV=nRT) + leftover, categorical limiting reagent.
+[practice]
+seed = 20260711
+count = 6
+
 # gas collection conditions (ADR-0041): PV=nRT turns the ledger's moles of H2 into a volume. gas_species names
 # which product is the collected gas. Temperature may be given in °C (converted to K at the boundary, K = °C +
 # 273.15 — an affine offset, not a scaling unit) or directly as temperature_K. This [table] header must come

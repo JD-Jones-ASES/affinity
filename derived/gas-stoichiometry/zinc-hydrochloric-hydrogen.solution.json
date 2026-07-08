@@ -251,5 +251,271 @@
       "ion_charge": "openstax-chemistry-2e",
       "constants": "bipm-si-2019"
     }
+  },
+  "practice": {
+    "family": "gas_stoichiometry_v1",
+    "seed": 20260711,
+    "gas": {
+      "metal_id": "Zn",
+      "metal_molar_mass": "65.38",
+      "metal_coeff": 1,
+      "acid_id": "HCl",
+      "acid_coeff": 2,
+      "gas_id": "H2",
+      "gas_coeff": 1,
+      "gas_constant": "0.0820573660809596",
+      "temperature_K": "298.15",
+      "pressure_atm": "1.00"
+    },
+    "questions": [
+      {
+        "id": "q1",
+        "kind": "volume",
+        "mode": "numeric",
+        "prompt": "5.230 g of Zn is dropped into 50.0 mL of 2.50 M HCl, and the H2 gas is collected at 1 atm and 298.2 K. What volume of H2 forms?",
+        "given": [
+          {
+            "species": "Zn",
+            "mass_g": "5.230"
+          },
+          {
+            "species": "HCl",
+            "volume_mL": "50.0",
+            "molarity_M": "2.50"
+          }
+        ],
+        "args": {
+          "metal_mass_g": "5.230",
+          "acid_volume_mL": "50.0",
+          "acid_molarity_M": "2.50"
+        },
+        "answer": {
+          "display": "1.53 L",
+          "value": "1.529",
+          "unit": "L"
+        },
+        "diagnostics": [
+          {
+            "value": "1.4",
+            "unit": "L",
+            "misconception": "Used 22.4 L/mol — that is the molar volume only at STP (0 °C, 1 atm). At these conditions use PV=nRT (RT/P L/mol)."
+          },
+          {
+            "value": "1.957",
+            "unit": "L",
+            "misconception": "Sized the gas from Zn, the reactant in excess — the gas is capped by the limiting reagent HCl."
+          }
+        ],
+        "explain": "HCl limits, so ξ = 62.5 mmol of H2; V = 62.5 mmol × 24.47 L/mol (= RT/P) = 1.53 L."
+      },
+      {
+        "id": "q2",
+        "kind": "limiting",
+        "mode": "choice",
+        "prompt": "1.308 g of Zn is dropped into 50.0 mL of 2.00 M HCl, and the H2 gas is collected at 1 atm and 298.2 K. Which reactant is the limiting reagent?",
+        "given": [
+          {
+            "species": "Zn",
+            "mass_g": "1.308"
+          },
+          {
+            "species": "HCl",
+            "volume_mL": "50.0",
+            "molarity_M": "2.00"
+          }
+        ],
+        "args": {
+          "metal_mass_g": "1.308",
+          "acid_volume_mL": "50.0",
+          "acid_molarity_M": "2.00"
+        },
+        "answer": {
+          "display": "Zn",
+          "value": "Zn"
+        },
+        "choices": [
+          {
+            "display": "Zn",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "HCl",
+            "correct": false,
+            "misconception": "HCl is in excess here — the acid's moles ÷ 2 still beats the metal's capacity."
+          },
+          {
+            "display": "Neither — both are fully consumed",
+            "correct": false,
+            "misconception": "One reactant is left over, so they are not both fully consumed."
+          }
+        ],
+        "explain": "Capacities: Zn = 20 ÷ 1 = 20 mmol, HCl = 100 ÷ 2 = 50 mmol. Zn is smaller, so it limits."
+      },
+      {
+        "id": "q3",
+        "kind": "leftover",
+        "mode": "numeric",
+        "prompt": "5.230 g of Zn is dropped into 60.0 mL of 1.00 M HCl, and the H2 gas is collected at 1 atm and 298.2 K. After the reaction, how many mmol of the excess reactant remain?",
+        "given": [
+          {
+            "species": "Zn",
+            "mass_g": "5.230"
+          },
+          {
+            "species": "HCl",
+            "volume_mL": "60.0",
+            "molarity_M": "1.00"
+          }
+        ],
+        "args": {
+          "metal_mass_g": "5.230",
+          "acid_volume_mL": "60.0",
+          "acid_molarity_M": "1.00"
+        },
+        "answer": {
+          "display": "50 mmol",
+          "value": "50",
+          "unit": "mmol"
+        },
+        "diagnostics": [
+          {
+            "value": "80",
+            "unit": "mmol",
+            "misconception": "That is all the Zn you started with — some reacts; only the surplus over the limiting reagent remains."
+          },
+          {
+            "value": "0",
+            "unit": "mmol",
+            "misconception": "Only the limiting reagent reaches 0; the excess reactant leaves a leftover."
+          }
+        ],
+        "explain": "Zn started at 80 mmol and 30 mmol reacted, leaving 50 mmol."
+      },
+      {
+        "id": "q4",
+        "kind": "volume",
+        "mode": "numeric",
+        "prompt": "2.615 g of Zn is dropped into 80.0 mL of 2.00 M HCl, and the H2 gas is collected at 1 atm and 298.2 K. What volume of H2 forms?",
+        "given": [
+          {
+            "species": "Zn",
+            "mass_g": "2.615"
+          },
+          {
+            "species": "HCl",
+            "volume_mL": "80.0",
+            "molarity_M": "2.00"
+          }
+        ],
+        "args": {
+          "metal_mass_g": "2.615",
+          "acid_volume_mL": "80.0",
+          "acid_molarity_M": "2.00"
+        },
+        "answer": {
+          "display": "0.979 L",
+          "value": "0.9786",
+          "unit": "L"
+        },
+        "diagnostics": [
+          {
+            "value": "0.896",
+            "unit": "L",
+            "misconception": "Used 22.4 L/mol — that is the molar volume only at STP (0 °C, 1 atm). At these conditions use PV=nRT (RT/P L/mol)."
+          },
+          {
+            "value": "1.957",
+            "unit": "L",
+            "misconception": "Sized the gas from HCl, the reactant in excess — the gas is capped by the limiting reagent Zn."
+          }
+        ],
+        "explain": "Zn limits, so ξ = 40 mmol of H2; V = 40 mmol × 24.47 L/mol (= RT/P) = 0.979 L."
+      },
+      {
+        "id": "q5",
+        "kind": "limiting",
+        "mode": "choice",
+        "prompt": "1.961 g of Zn is dropped into 80.0 mL of 0.500 M HCl, and the H2 gas is collected at 1 atm and 298.2 K. Which reactant is the limiting reagent?",
+        "given": [
+          {
+            "species": "Zn",
+            "mass_g": "1.961"
+          },
+          {
+            "species": "HCl",
+            "volume_mL": "80.0",
+            "molarity_M": "0.500"
+          }
+        ],
+        "args": {
+          "metal_mass_g": "1.961",
+          "acid_volume_mL": "80.0",
+          "acid_molarity_M": "0.500"
+        },
+        "answer": {
+          "display": "HCl",
+          "value": "HCl"
+        },
+        "choices": [
+          {
+            "display": "Zn",
+            "correct": false,
+            "misconception": "Zn is in excess here — divide each reactant's moles by its coefficient and compare."
+          },
+          {
+            "display": "HCl",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "Neither — both are fully consumed",
+            "correct": false,
+            "misconception": "One reactant is left over, so they are not both fully consumed."
+          }
+        ],
+        "explain": "Capacities: Zn = 30 ÷ 1 = 30 mmol, HCl = 40 ÷ 2 = 20 mmol. HCl is smaller, so it limits."
+      },
+      {
+        "id": "q6",
+        "kind": "leftover",
+        "mode": "numeric",
+        "prompt": "3.923 g of Zn is dropped into 20.0 mL of 1.00 M HCl, and the H2 gas is collected at 1 atm and 298.2 K. After the reaction, how many mmol of the excess reactant remain?",
+        "given": [
+          {
+            "species": "Zn",
+            "mass_g": "3.923"
+          },
+          {
+            "species": "HCl",
+            "volume_mL": "20.0",
+            "molarity_M": "1.00"
+          }
+        ],
+        "args": {
+          "metal_mass_g": "3.923",
+          "acid_volume_mL": "20.0",
+          "acid_molarity_M": "1.00"
+        },
+        "answer": {
+          "display": "50 mmol",
+          "value": "50",
+          "unit": "mmol"
+        },
+        "diagnostics": [
+          {
+            "value": "60",
+            "unit": "mmol",
+            "misconception": "That is all the Zn you started with — some reacts; only the surplus over the limiting reagent remains."
+          },
+          {
+            "value": "0",
+            "unit": "mmol",
+            "misconception": "Only the limiting reagent reaches 0; the excess reactant leaves a leftover."
+          }
+        ],
+        "explain": "Zn started at 60 mmol and 10 mmol reacted, leaving 50 mmol."
+      }
+    ]
   }
 }

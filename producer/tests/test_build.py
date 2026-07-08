@@ -120,8 +120,29 @@ def test_gas_stoichiometry_lesson():
     assert [r["regime"] for r in sol["regimes"]] == ["ledger-exact", "model-exact"]
     assert sol["provenance"]["sources"]["constants"] == "bipm-si-2019"
     assert "solubility" not in sol["provenance"]["sources"] and "solubility_basis" not in sol
-    # a gas lesson is not the double-displacement shape → no interactive/practice block in the 7a slice
+    # a gas lesson is not the double-displacement shape → no cation/anion interactive block
     assert "interactive" not in sol
+
+    # gas-stoichiometry practice (ADR-0041): free-entry volume/leftover + categorical limiting, re-derived by
+    # check-parity from the reaction constants that travel with the set (no interactive block)
+    prac = sol["practice"]
+    assert prac["family"] == "gas_stoichiometry_v1"
+    assert prac["gas"]["metal_id"] == "Zn" and prac["gas"]["gas_constant"] == "0.0820573660809596"
+    assert prac["gas"]["metal_coeff"] == 1 and prac["gas"]["acid_coeff"] == 2
+    kinds = {q["kind"] for q in prac["questions"]}
+    assert kinds == {"volume", "limiting", "leftover"}          # all three question kinds present
+    limits = {q["answer"]["value"] for q in prac["questions"] if q["kind"] == "limiting"}
+    assert limits == {"Zn", "HCl"}                               # the limiting reagent genuinely switches
+    for q in prac["questions"]:
+        assert q["mode"] == ("choice" if q["kind"] == "limiting" else "numeric")
+        assert ("choices" in q) == (q["kind"] == "limiting")    # numeric is free entry, not a menu (ADR-0032)
+
+
+def test_gas_practice_is_deterministic():
+    """The gas practice must be byte-stable across builds (committed derived/, ADR-0008)."""
+    a, _ = build_problem(SPEC_GAS, ROOT)
+    b, _ = build_problem(SPEC_GAS, ROOT)
+    assert a["practice"] == b["practice"]
 
 
 def test_neutralization_has_no_percent_yield_support(tmp_path):

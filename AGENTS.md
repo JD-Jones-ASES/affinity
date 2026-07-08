@@ -194,8 +194,9 @@ at its URL even though the repo is private (private/access-controlled Pages need
 **Phase 0 + Phase 1 COMPLETE (owner-reviewed). Phase 2 OPEN (2026-07-08, ADR-0039/0040/0041)** — the model-bearing
 tier, filling depth-first on gases + thermochemistry. Landed: the **formula-sheet Atlas kind** (ADR-0039), the
 **`gas_laws_v1` gym** (ADR-0040), and the **gas-stoichiometry lesson** (ADR-0041 — the vertical slice: the ledger
-drives a gas volume via PV=nRT; `build.py` now handles a weighed-mass given + a `result.gas` block). **Next:** the
-gas lesson's interactive + generated practice, then thermochemistry. History in [`CHANGELOG.md`](./CHANGELOG.md) +
+drives a gas volume via PV=nRT; `build.py` now handles a weighed-mass given + a `result.gas` block; with generated
+practice re-derived from reaction constants, no interactive needed). **Next:** thermochemistry (+ the gas lesson's
+optional slider interactive). History in [`CHANGELOG.md`](./CHANGELOG.md) +
 [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
 [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
@@ -205,7 +206,7 @@ percent yield · limiting reagent · periodic trends · reaction families · **g
 elements; four modes; 156 named + machine-verified salts) · 20 concept entries (6 rule-sourced, 1 interpretive) +
 7 reaction families (21 engine-classified example reactions) + 14 species entries (derived composition + molar
 mass) + 8 formula-sheet entries (dimensional homogeneity machine-checked; ADR-0039) · 7 Node gates + CI + live
-Pages · 263 producer tests · astro build = 23 pages.
+Pages · 264 producer tests · astro build = 23 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; the honesty
 model is three badges, regime-4 content under the model-assumed badge + an "interpretive" marker (Q4,
@@ -228,10 +229,11 @@ never runs in CI — the seven Node gates re-verify committed `derived/` from sc
 
 **Phase 2 is open** (ADR-0039/0040/0041) and filling depth-first on gases + thermochemistry — the formula sheet,
 the `gas_laws_v1` gym, and the **gas-stoichiometry lesson** (the vertical slice: the ledger drives a gas volume
-via PV=nRT) have landed. The flagged next increment (newest session log's closing block) is the gas lesson's
-**interactive + generated practice** — the `interactive.py`/`practice.py` generalisation past the cation/anion
-double-displacement shape (ADR-0037 is the template; the mass-given + gas shape is now in `build.py`, ADR-0041).
-Then **thermochemistry** (the energy ledger: q=mcΔT with specific-heat data curated, ΔH_rxn·ξ, Hess). Always in
+via PV=nRT — with generated practice) have landed. The flagged next increment (newest session log's closing block)
+is **thermochemistry** (the energy ledger: q=mcΔT with specific-heat data curated, ΔH_rxn·ξ, Hess). Smaller and
+optional: the gas lesson's **slider interactive** (mass/volume/molarity → the gas volume; `ExtentBar` is
+cation/anion-locked, so it needs its own component — the practice already ships, re-derived without an interactive,
+ADR-0041). Always in
 season inside settled contracts: more formula-sheet entries (Hess, pH, K, ΔG, Nernst land with their topics),
 Atlas breadth-fill, further lessons (gas-evolution / diprotic neutralization, item-6 deferrals), an
 average-atomic-mass or particle-count gym (needs isotope data / scientific-notation display), docs-only sessions.

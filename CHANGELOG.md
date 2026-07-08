@@ -25,14 +25,22 @@ ledger fixes the moles of hydrogen, and PV=nRT turns them into the volume you wo
   sourced constant. Both branches **6-way tamper-tested** (incl. baking in the wrong 22.4 molar volume — caught).
 - **Concept chips now route by entry kind** (concept / reaction-family / species / formula), so the lesson's 16
   Atlas links all resolve — and prior lessons' reaction/formula links light up too.
-- **Verification:** 263 producer tests (+1); 7 Node gates green — validate-solutions = 5, check-ledger = 5 ledgers
-  / 20 rows + **1 gas volume re-derived from PV=nRT**, check-katex = 468; `astro build` = **23 pages** (+1);
-  `derived/` byte-stable (only the new lesson added — no existing solution changed). In-browser: the volume card
-  (1.22 L, model-assumed), the mol×RT/P=volume flow, the g→mol + mol→L chains, and the STP-trap refutation render;
-  no console errors, dark + light clean.
-- **Deferred (a second increment on the same lesson):** the gas-stoichiometry **interactive** (mass/volume/
-  molarity sliders → the gas volume) + **generated practice**; collecting the gas **over water** (vapor-pressure
-  correction); `kPa`/`torr` units.
+- **Generated practice** (ADR-0041): the gas lesson earns a **6-variant practice set** — free-entry **volume**
+  (PV=nRT) + **leftover** (mmol), categorical **limiting reagent** — even though the single-replacement shape has
+  no cation/anion interactive. The reaction constants (metal molar mass + coefficients, R, T, P) travel in a
+  `practice.gas` block, and **check-parity re-derives every answer in pure Node** from the emitted args (metal
+  mass, acid volume/molarity) — no interactive block needed. The volume distractors are the **22.4-L-at-STP** slip
+  and sizing from the excess reactant; the limiting reagent genuinely switches (Zn or HCl). Reuses the generic
+  free-entry `PracticeQuestion` island (no new frontend). The gas-practice branch is **6-way tamper-tested**.
+- **Verification:** 264 producer tests (+2); 7 Node gates green — validate-solutions = 5, check-ledger = 5 ledgers
+  / 20 rows + **1 gas volume re-derived from PV=nRT**, **check-parity = 30 practice answers** (+6 gas), check-katex
+  = 468; `astro build` = **23 pages** (+1); `derived/` byte-stable (only the new lesson added — no existing
+  solution changed). In-browser: the volume card (1.22 L, model-assumed), the mol×RT/P=volume flow, the g→mol +
+  mol→L chains, the STP-trap refutation, and the **Practice tab** (a wrong 22.4-L entry is named) render; no
+  console errors, dark + light clean.
+- **Deferred (a follow-on increment):** the gas-stoichiometry **slider interactive** (mass/volume/molarity sliders
+  → the gas volume — ExtentBar is cation/anion-locked, so it needs its own component); collecting the gas **over
+  water** (vapor-pressure correction); `kPa`/`torr` units.
 
 ## Phase 2 — 2026-07-08 — gas-laws gym; the units engine gains pressure/temperature (ADR-0040)
 

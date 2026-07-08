@@ -1143,10 +1143,19 @@ boundary; **validate-solutions** ties `result.gas` to a model-exact regime + a d
 sourced constant. Both branches **6-way tamper-tested** (corrupt volume / break °C→K / corrupt moles / bake in the
 22.4 molar-volume / drop the model-exact regime / drop the constants source — each caught). The lesson page's
 concept chips now **route by the target entry's kind** (concept / reaction-family / species / formula), so all 16
-links resolve — a fix that lights up prior lessons' reaction/formula links too. 263 producer tests (+1); 23 pages
+links resolve — a fix that lights up prior lessons' reaction/formula links too. 264 producer tests (+2); 23 pages
 (+1); `derived/` byte-stable (only the new lesson added; no existing solution changed — the regime default is
-pinned to its original three facets so adding the `gas_behavior` facet shifts nothing). **Deferred (a second
-increment on the same lesson):** the gas-stoichiometry **interactive** (mass + volume + molarity sliders → the gas
-volume, parity-verified) and **generated practice** (both need the `interactive`/`practice` generalisation past the
-cation/anion double-displacement shape); collecting the gas **over water** (subtract the water-vapor pressure —
-needs a curated vapor-pressure table); `kPa`/`torr` units.
+pinned to its original three facets so adding the `gas_behavior` facet shifts nothing).
+
+**Second increment (same session) — generated practice.** The gas lesson earns a 6-variant practice set (free-entry
+**volume** via PV=nRT + **leftover**, categorical **limiting reagent**) without an interactive block: the
+single-replacement shape has no cation/anion closed forms, so the reaction constants (metal molar mass +
+coefficients, R, T, P) travel in a `practice.gas` block and **check-parity re-derives every answer in pure Node**
+from the emitted args (metal mass, acid volume/molarity) — decoupling practice from the interactive for the first
+time. The volume distractors are the 22.4-L-at-STP slip + sizing from the excess reactant; the metal-mole/acid grids
+are tuned so the limiting reagent genuinely switches. Reuses the generic free-entry `PracticeQuestion` island (no new
+frontend); the gas-practice branch is 6-way tamper-tested. Schema: a `practice.gas` block, a `volume` question kind,
+and `practice.given` relaxed to allow a `mass_g` given (species-only required). **Deferred (a follow-on increment):**
+the gas-stoichiometry **slider interactive** (mass + volume + molarity sliders → the gas volume, parity-verified —
+`ExtentBar` is cation/anion-locked, so it needs its own component); collecting the gas **over water** (subtract the
+water-vapor pressure — needs a curated vapor-pressure table); `kPa`/`torr` units.

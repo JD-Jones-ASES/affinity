@@ -18,7 +18,7 @@ from the parity-verified closed forms — the practice answers are verified twic
 from __future__ import annotations
 
 import random
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal, localcontext
 from fractions import Fraction
 
 from .extent import to_decimal
@@ -179,3 +179,151 @@ def _vol_misconception(this_vol: Decimal, other_vol: Decimal, this_src: str) -> 
     if this_vol < other_vol:
         return f"{this_src} has the smaller volume, but volume alone doesn't decide it — convert to moles first."
     return f"Picking {this_src} by inspection — compare the moles of the reacting ion, not the volumes or concentrations alone."
+
+
+# ------------------------------ gas-stoichiometry practice (ADR-0041) ------------------------------
+#
+# Variants of a weighed metal + an acid solution: which reactant limits, how much gas forms (PV=nRT), how much
+# excess is left. Free-entry numeric (volume, leftover) + categorical (limiting), ADR-0032. The gas volume is
+# model-exact-then-rounded (ADR-0040) — the moles are exact (clean grids), the volume rides on R (non-terminating)
+# and is reported to 3 sig figs. NO interactive block: the reaction constants travel in the practice `gas` block so
+# check-parity re-derives every answer in pure Node from the emitted `args` (metal mass, acid volume/molarity).
+
+# the metal (weighed) and the acid (a stronger solution than the dilute lesson grids, so its capacity is
+# COMPARABLE to the metal's — the limiting reagent then genuinely switches across variants, metal or acid).
+_GAS_METAL_MOL = [Decimal(n) for n in ("0.0200", "0.0300", "0.0400", "0.0500", "0.0600", "0.0800")]
+_GAS_ACID_VOL = [Decimal(v) for v in ("20.0", "30.0", "40.0", "50.0", "60.0", "80.0")]
+_GAS_ACID_CONC = [Decimal(c) for c in ("0.500", "1.00", "1.50", "2.00", "2.50")]
+_STP_MOLAR_VOL = Decimal("22.4")   # the STP-only molar volume — the canonical wrong constant off STP
+
+
+def _sig(d: Decimal, digits: int) -> str:
+    if d == 0:
+        return "0"
+    with localcontext() as c:
+        c.prec = digits
+        c.rounding = ROUND_HALF_UP
+        s = format(+d, "f")
+    return (s.rstrip("0").rstrip(".") if "." in s else s) or "0"
+
+
+def generate_gas_practice(seed: int, count: int, ctx: str = "", *, metal: dict, acid: dict, gas: dict,
+                          R: Decimal, temperature_K: Decimal, pressure_atm: Decimal,
+                          family: str = "gas_stoichiometry_v1") -> dict | None:
+    """Build the gas-stoichiometry practice block. `metal` = {id, molar_mass (Decimal), coeff}; `acid` = {id,
+    coeff}; `gas` = {id, coeff, molar_mass}. The volume answers use the sourced gas constant R at the stated
+    conditions. Deterministic (seeded) and solver-verified; returns None if it cannot fill `count`."""
+    m_id, M_metal, k_metal = metal["id"], Fraction(metal["molar_mass"]), metal["coeff"]
+    a_id, k_acid = acid["id"], acid["coeff"]
+    g_id, k_gas = gas["id"], gas["coeff"]
+    molar_vol = R * temperature_K / pressure_atm   # L/mol at the conditions (Decimal)
+
+    def _vol_L(xi: Fraction) -> Decimal:
+        return k_gas * Decimal(xi.numerator) / Decimal(xi.denominator) * molar_vol
+
+    rng = random.Random(seed)
+    questions: list[dict] = []
+    seen: set[tuple] = set()
+    attempts = 0
+    while len(questions) < count and attempts < 4000:
+        attempts += 1
+        n_metal = rng.choice(_GAS_METAL_MOL)
+        v_acid, c_acid = rng.choice(_GAS_ACID_VOL), rng.choice(_GAS_ACID_CONC)
+        key = (n_metal, v_acid, c_acid)
+        if key in seen:
+            continue
+        n_metal_f = Fraction(n_metal)
+        n_acid_f = Fraction(v_acid) / 1000 * Fraction(c_acid)
+        cap_metal, cap_acid = n_metal_f / k_metal, n_acid_f / k_acid
+
+        hi, lo = max(cap_metal, cap_acid), min(cap_metal, cap_acid)
+        if lo == 0 or hi / lo < _MIN_RATIO:      # reject near-ties (no clear limiting reagent)
+            continue
+        metal_limits = cap_metal < cap_acid
+        xi = lo
+        mass_metal = n_metal_f * M_metal          # the weighed mass shown to the student (exact)
+        left_metal = n_metal_f - k_metal * xi
+        left_acid = n_acid_f - k_acid * xi
+        excess_src = a_id if metal_limits else m_id
+        excess_left = left_acid if metal_limits else left_metal
+        excess_start = n_acid_f if metal_limits else n_metal_f
+        limiting_src = m_id if metal_limits else a_id
+
+        given = [{"species": m_id, "mass_g": _grams(mass_metal)},
+                 {"species": a_id, "volume_mL": format(v_acid, "f"), "molarity_M": format(c_acid, "f")}]
+        args = {"metal_mass_g": _grams(mass_metal), "acid_volume_mL": format(v_acid, "f"),
+                "acid_molarity_M": format(c_acid, "f")}
+        stem = (f"{_grams(mass_metal)} g of {m_id} is dropped into {format(v_acid, 'f')} mL of "
+                f"{format(c_acid, 'f')} M {a_id}, and the {g_id} gas is collected at "
+                f"{_sig(pressure_atm, 3)} atm and {_sig(temperature_K, 4)} K.")
+
+        kind = ("volume", "limiting", "leftover")[len(questions) % 3]
+        if kind == "volume":
+            vol = _vol_L(xi)
+            vol_stp = k_gas * Decimal(xi.numerator) / Decimal(xi.denominator) * _STP_MOLAR_VOL   # the 22.4 slip
+            vol_excess = _vol_L(hi)                                                              # from the excess
+            q = {
+                "id": f"q{len(questions) + 1}", "kind": "volume", "mode": "numeric",
+                "prompt": f"{stem} What volume of {g_id} forms?",
+                "given": given, "args": args,
+                "answer": {"display": f"{_sig(vol, 3)} L", "value": _sig(vol, 4), "unit": "L"},
+                "diagnostics": _practice_diagnostics(_sig(vol, 4), "L", [
+                    (_sig(vol_stp, 4), "Used 22.4 L/mol — that is the molar volume only at STP (0 °C, 1 atm). "
+                                       "At these conditions use PV=nRT (RT/P L/mol)."),
+                    (_sig(vol_excess, 4), f"Sized the gas from {excess_src}, the reactant in excess — the gas is "
+                                          f"capped by the limiting reagent {limiting_src}."),
+                ]),
+                "explain": (f"{limiting_src} limits, so ξ = {_mmol(xi)} mmol of {g_id}; "
+                            f"V = {_mmol(xi)} mmol × {_sig(molar_vol, 4)} L/mol (= RT/P) = {_sig(vol, 3)} L."),
+            }
+        elif kind == "limiting":
+            q = {
+                "id": f"q{len(questions) + 1}", "kind": "limiting", "mode": "choice",
+                "prompt": f"{stem} Which reactant is the limiting reagent?",
+                "given": given, "args": args,
+                "answer": {"display": limiting_src, "value": limiting_src},
+                "choices": [
+                    {"display": m_id, "correct": metal_limits,
+                     "misconception": None if metal_limits else
+                     f"{m_id} is in excess here — divide each reactant's moles by its coefficient and compare."},
+                    {"display": a_id, "correct": not metal_limits,
+                     "misconception": None if not metal_limits else
+                     f"{a_id} is in excess here — the acid's moles ÷ {k_acid} still beats the metal's capacity."},
+                    {"display": "Neither — both are fully consumed", "correct": False,
+                     "misconception": "One reactant is left over, so they are not both fully consumed."},
+                ],
+                "explain": (f"Capacities: {m_id} = {_mmol(n_metal_f)} ÷ {k_metal} = {_mmol(cap_metal)} mmol, "
+                            f"{a_id} = {_mmol(n_acid_f)} ÷ {k_acid} = {_mmol(cap_acid)} mmol. "
+                            f"{limiting_src} is smaller, so it limits."),
+            }
+        else:  # leftover
+            q = {
+                "id": f"q{len(questions) + 1}", "kind": "leftover", "mode": "numeric",
+                "prompt": f"{stem} After the reaction, how many mmol of the excess reactant remain?",
+                "given": given, "args": args,
+                "answer": {"display": f"{_mmol(excess_left)} mmol", "value": _mmol(excess_left), "unit": "mmol"},
+                "diagnostics": _practice_diagnostics(_mmol(excess_left), "mmol", [
+                    (_mmol(excess_start), f"That is all the {excess_src} you started with — some reacts; only the "
+                                          f"surplus over the limiting reagent remains."),
+                    ("0", "Only the limiting reagent reaches 0; the excess reactant leaves a leftover."),
+                ]),
+                "explain": (f"{excess_src} started at {_mmol(excess_start)} mmol and "
+                            f"{_mmol(excess_start - excess_left)} mmol reacted, leaving {_mmol(excess_left)} mmol."),
+            }
+
+        seen.add(key)
+        questions.append(q)
+
+    if len(questions) < count:
+        return None
+    # the reaction constants travel with the set so check-parity re-derives every answer in pure Node
+    return {
+        "family": family, "seed": seed,
+        "gas": {
+            "metal_id": m_id, "metal_molar_mass": format(metal["molar_mass"], "f"), "metal_coeff": k_metal,
+            "acid_id": a_id, "acid_coeff": k_acid, "gas_id": g_id, "gas_coeff": k_gas,
+            "gas_constant": format(R, "f"), "temperature_K": format(temperature_K, "f"),
+            "pressure_atm": format(pressure_atm, "f"),
+        },
+        "questions": questions,
+    }

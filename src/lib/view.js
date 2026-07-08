@@ -107,9 +107,12 @@ export function renderSolution(sol) {
   s.given = (s.given ?? []).map((g) => ({ ...g, idPretty: prettyIon(g.species) }));
 
   // Practice text: subscript the formula tokens the generator embedded (brief §6.1). The token set is the
-  // interactive block's — the same identities the practice generator drew from.
-  if (s.practice && s.interactive) {
-    const tokens = [s.interactive.cation.source, s.interactive.anion.source, s.interactive.product.id];
+  // interactive block's — the same identities the practice generator drew from — or, for gas-stoichiometry
+  // practice (ADR-0041, no interactive), the lesson's own species tokens.
+  if (s.practice) {
+    const tokens = s.interactive
+      ? [s.interactive.cation.source, s.interactive.anion.source, s.interactive.product.id]
+      : lessonTokens;
     s.practice.questions = s.practice.questions.map((q) => ({
       ...q,
       prompt: prettyText(q.prompt, tokens),

@@ -174,7 +174,9 @@ Author notes: set `regimes = ["ledger", "gas_behavior"]` (the moles are ledger-e
 `kind = "model"`); give the metal as a weighed `mass_g` given and the acid as a volumetric one; there is **no**
 solubility claim (omit `solubility`). The gas volume is model-exact-then-rounded (3 sig figs) — the gas constant
 R travels from `data/constants.toml` (its source lands in `provenance.sources.constants`). A great misconception:
-`22.4 L/mol` is the molar volume only at STP; the player refutes it with the actual RT/P. See
+`22.4 L/mol` is the molar volume only at STP; the player refutes it with the actual RT/P. A `[practice]` block
+yields gas-specific drills (free-entry volume via PV=nRT + leftover, categorical limiting reagent) even though the
+single-replacement shape has no slider interactive. See
 [`problems/gas-stoichiometry/zinc-hydrochloric-hydrogen.problem.toml`](../problems/gas-stoichiometry/zinc-hydrochloric-hydrogen.problem.toml).
 
 ### Other optional keys
@@ -192,8 +194,10 @@ ledger** (n = n₀ + ν·ξ, the limiting reagent, leftovers); the reported **pr
 water, or a gas — and a gas's **volume via PV=nRT**, ADR-0041); the **solubility basis** (cited to the ruleset,
 precipitation only); molar masses; display LaTeX; provenance; and — for a supported single-precipitate
 double-displacement — the **`interactive` block** of parity-verified closed forms + engine-computed sample points
-that drive the sliders (ADR-0022). If the reaction is a different shape (e.g. gas stoichiometry today), the
-lesson renders statically (the interactive block is omitted, by design).
+that drive the sliders (ADR-0022). If the reaction is a different shape, the interactive block is omitted (by
+design) — but a gas-stoichiometry lesson with a `[practice]` block still earns **generated practice** (free-entry
+volume via PV=nRT + leftover, categorical limiting reagent), re-derived by check-parity from the reaction
+constants with no interactive (ADR-0041).
 
 ## What makes the build refuse to emit
 

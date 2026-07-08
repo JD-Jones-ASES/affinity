@@ -28,7 +28,7 @@ from .extent import solve_extent, species_mass_g, to_decimal
 from .formula import Formula, parse_formula
 from .gym import generate_gym
 from .interactive import build_interactive
-from .practice import generate_practice
+from .practice import generate_gas_practice, generate_practice
 from .reaction import complete_ionic, net_ionic
 from .reactivity import AcidBase, Decomposition
 from .reference import (build_formula_entry, build_reaction_family, build_reference_entry,
@@ -403,6 +403,29 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
                                      int(practice_spec.get("count", 4)), ctx, family=family, product_noun=noun)
         if practice is None:
             raise BuildError(f"{ctx}: practice generator could not produce {practice_spec.get('count', 4)} "
+                             f"non-rejected variants at seed {practice_spec['seed']}")
+        solution["practice"] = practice
+    elif practice_spec and gas_chain is not None:
+        # gas-stoichiometry practice (ADR-0041): the single-replacement shape has no cation/anion interactive, so
+        # its variants re-derive from the reaction constants (metal + acid coefficients, R, T, P) that travel in
+        # the practice block — check-parity re-proves each answer in Node. metal = the free-element reactant.
+        metal_f = next((f for f in reactants if f.charge == 0 and len(f.counts) == 1), None)
+        acid_f = next((f for f in reactants if f is not metal_f), None)
+        if metal_f is None or acid_f is None:
+            raise BuildError(f"{ctx}: gas practice needs a free-element metal + an acid reactant")
+        idx = {id(f): i for i, f in enumerate(reactants)}
+        gas_id = result["gas"]["species"]
+        gas_prod_i = next(i for i, f in enumerate(products) if _core(f.raw) == gas_id)
+        practice = generate_gas_practice(
+            int(practice_spec["seed"]), int(practice_spec.get("count", 6)), ctx,
+            metal={"id": _core(metal_f.raw), "molar_mass": data.molar_mass(metal_f.raw),
+                   "coeff": coeffs[idx[id(metal_f)]]},
+            acid={"id": _core(acid_f.raw), "coeff": coeffs[idx[id(acid_f)]]},
+            gas={"id": gas_id, "coeff": coeffs[len(reactants) + gas_prod_i], "molar_mass": data.molar_mass(gas_id)},
+            R=data.constants["gas_constant"], temperature_K=Decimal(result["gas"]["temperature_K"]),
+            pressure_atm=Decimal(result["gas"]["pressure_atm"]))
+        if practice is None:
+            raise BuildError(f"{ctx}: gas practice generator could not produce {practice_spec.get('count', 6)} "
                              f"non-rejected variants at seed {practice_spec['seed']}")
         solution["practice"] = practice
 

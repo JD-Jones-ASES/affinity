@@ -30,6 +30,75 @@ function compile(expr, params) {
 
 const close = (got, want, atol = ATOL, rtol = RTOL) => Math.abs(got - want) <= atol + rtol * Math.abs(want);
 
+// Shared response-mode validation (ADR-0032): a categorical question is a one-correct menu with no diagnostics;
+// a numeric question is free entry with a diagnostics catalogue whose values never collapse onto the answer
+// (within 3%). Used by both double-displacement practice (re-derived via closed forms) and gas-stoichiometry
+// practice (ADR-0041, re-derived from reaction constants). `volume` joins mass/leftover as a numeric kind.
+function validatePracticeMode(rel, q, fail) {
+  const numericKinds = new Set(["mass", "leftover", "volume"]);
+  const expectedMode = numericKinds.has(q.kind) ? "numeric" : "choice";
+  if (q.mode !== expectedMode) fail(rel, `practice ${q.id}: mode '${q.mode}' but kind '${q.kind}' expects '${expectedMode}'`);
+  if (q.mode === "choice") {
+    if (q.diagnostics) fail(rel, `practice ${q.id}: a choice question must not carry diagnostics`);
+    const correct = q.choices.filter((c) => c.correct);
+    if (correct.length !== 1) fail(rel, `practice ${q.id}: ${correct.length} correct choices (want exactly 1)`);
+    if (correct[0].display !== q.answer.display)
+      fail(rel, `practice ${q.id}: correct choice '${correct[0].display}' != answer '${q.answer.display}'`);
+    const displays = q.choices.map((c) => c.display);
+    if (new Set(displays).size !== displays.length) fail(rel, `practice ${q.id}: choice displays are not distinct`);
+  } else {
+    if (q.choices) fail(rel, `practice ${q.id}: a numeric answer must not be a multiple-choice menu (gameable — ADR-0032)`);
+    if (!Array.isArray(q.diagnostics)) fail(rel, `practice ${q.id}: numeric question missing diagnostics`);
+    const ans = Number(q.answer.value);
+    for (const d of q.diagnostics) {
+      if (!d.misconception) fail(rel, `practice ${q.id}: a diagnostic has no misconception`);
+      const dv = Number(d.value);
+      if (!Number.isFinite(dv)) fail(rel, `practice ${q.id}: diagnostic value '${d.value}' is not a number`);
+      if (Math.abs(dv - ans) <= 0.03 * Math.max(Math.abs(ans), 1e-9))
+        fail(rel, `practice ${q.id}: diagnostic ${d.value} within 3% of the answer ${q.answer.value} — could mis-flag a correct entry`);
+    }
+  }
+}
+
+// Gas-stoichiometry practice (ADR-0041): no interactive block — re-derive every answer in pure Node from the
+// emitted args (metal mass, acid volume/molarity) + the reaction constants (metal molar mass + coefficients,
+// R, T, P). Volume is model-exact-then-rounded (0.5% tol, above the rounding / below the 3% diagnostic gap);
+// leftover is exact (display tolerance); limiting is categorical. Returns the number of questions checked.
+function checkGasPractice(rel, practice, fail) {
+  const DTOL = 1e-3;
+  const g = practice.gas;
+  const M = Number(g.metal_molar_mass), kM = g.metal_coeff, kA = g.acid_coeff, kG = g.gas_coeff;
+  const R = Number(g.gas_constant), T = Number(g.temperature_K), P = Number(g.pressure_atm);
+  if (![M, R, T, P].every((x) => x > 0) || !(kM > 0 && kA > 0 && kG > 0))
+    fail(rel, `gas practice: reaction constants must be positive`);
+  const molarVol = (R * T) / P;
+  let n = 0;
+  for (const q of practice.questions) {
+    validatePracticeMode(rel, q, fail);
+    const mMass = Number(q.args.metal_mass_g), vAcid = Number(q.args.acid_volume_mL), cAcid = Number(q.args.acid_molarity_M);
+    if (![mMass, vAcid, cAcid].every(Number.isFinite)) fail(rel, `gas practice ${q.id}: non-finite args`);
+    const nMetal = mMass / M, nAcid = (vAcid / 1000) * cAcid;
+    const metalLimits = nMetal / kM < nAcid / kA;
+    const xi = Math.min(nMetal / kM, nAcid / kA);
+    if (q.kind === "volume") {
+      const V = kG * xi * molarVol;
+      if (Math.abs(Number(q.answer.value) - V) > 0.005 * Math.abs(V) + 1e-9)
+        fail(rel, `gas practice ${q.id}: volume ${q.answer.value} != re-derived nRT/P = ${V.toFixed(6)}`);
+    } else if (q.kind === "leftover") {
+      const leftMol = metalLimits ? nAcid - kA * xi : nMetal - kM * xi;
+      if (!close(Number(q.answer.value), leftMol * 1000, DTOL, DTOL))
+        fail(rel, `gas practice ${q.id}: leftover ${q.answer.value} mmol != re-derived ${leftMol * 1000}`);
+    } else if (q.kind === "limiting") {
+      const limits = metalLimits ? g.metal_id : g.acid_id;
+      if (q.answer.value !== limits) fail(rel, `gas practice ${q.id}: limiting '${q.answer.value}' != re-derived '${limits}'`);
+    } else {
+      fail(rel, `gas practice ${q.id}: unknown kind '${q.kind}'`);
+    }
+    n++;
+  }
+  return n;
+}
+
 const derived = join(ROOT, "derived");
 let files = [];
 try {
@@ -52,7 +121,11 @@ for (const file of files) {
   const sol = JSON.parse(readFileSync(file, "utf8"));
   const ix = sol.interactive;
   if (!ix) {
-    if (sol.practice) fail(rel, "practice block present but no interactive block to re-derive its answers");
+    // gas-stoichiometry practice (ADR-0041) carries its own re-derivation constants — no interactive needed.
+    if (sol.practice) {
+      if (sol.practice.gas) practiceChecked += checkGasPractice(rel, sol.practice, fail);
+      else fail(rel, "practice block present but no interactive block to re-derive its answers");
+    }
     continue;
   }
   withBlock++;
@@ -110,29 +183,7 @@ for (const file of files) {
       });
       // response mode (ADR-0032): a categorical question (which reagent limits) is a menu; the numeric ones
       // (mass, leftover) are free entry, so they carry a diagnostics catalogue instead of a gameable menu.
-      const expectedMode = (q.kind === "mass" || q.kind === "leftover") ? "numeric" : "choice";
-      if (q.mode !== expectedMode) fail(rel, `practice ${q.id}: mode '${q.mode}' but kind '${q.kind}' expects '${expectedMode}'`);
-      if (q.mode === "choice") {
-        if (q.diagnostics) fail(rel, `practice ${q.id}: a choice question must not carry diagnostics`);
-        const correct = q.choices.filter((c) => c.correct);
-        if (correct.length !== 1) fail(rel, `practice ${q.id}: ${correct.length} correct choices (want exactly 1)`);
-        if (correct[0].display !== q.answer.display)
-          fail(rel, `practice ${q.id}: correct choice '${correct[0].display}' != answer '${q.answer.display}'`);
-        const displays = q.choices.map((c) => c.display);
-        if (new Set(displays).size !== displays.length)
-          fail(rel, `practice ${q.id}: choice displays are not distinct`);
-      } else {
-        if (q.choices) fail(rel, `practice ${q.id}: a numeric answer must not be a multiple-choice menu (gameable — ADR-0032)`);
-        if (!Array.isArray(q.diagnostics)) fail(rel, `practice ${q.id}: numeric question missing diagnostics`);
-        const ans = Number(q.answer.value);
-        for (const d of q.diagnostics) {
-          if (!d.misconception) fail(rel, `practice ${q.id}: a diagnostic has no misconception`);
-          const dv = Number(d.value);
-          if (!Number.isFinite(dv)) fail(rel, `practice ${q.id}: diagnostic value '${d.value}' is not a number`);
-          if (Math.abs(dv - ans) <= 0.03 * Math.max(Math.abs(ans), 1e-9))
-            fail(rel, `practice ${q.id}: diagnostic ${d.value} within 3% of the answer ${q.answer.value} — could mis-flag a correct entry`);
-        }
-      }
+      validatePracticeMode(rel, q, fail);
 
       if (q.kind === "mass") {
         if (!close(Number(q.answer.value), fns.mass(...qa), DTOL, DTOL))
