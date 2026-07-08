@@ -313,7 +313,8 @@ def test_stoichiometry_deterministic(spec):
 # ------------------------------ ADR-0032: practice must not be answerable by recognition ------------------------------
 
 _NUMERIC_SPECS = [SPEC, SPEC_MASS_STOICH, SPEC_PERCENT_YIELD, SPEC_LIMITING_MASS]
-_CHOICE_SPECS = [SPEC_NOMENCLATURE, SPEC_BALANCING, SPEC_TRENDS]
+_CHOICE_SPECS = [SPEC_NOMENCLATURE, SPEC_BALANCING, SPEC_TRENDS,
+                 ROOT / "gyms" / "reaction-families" / "reaction-families.gym.toml"]
 
 
 @pytest.mark.parametrize("spec", _NUMERIC_SPECS, ids=lambda p: p.stem)
@@ -418,3 +419,58 @@ def test_percent_yield_diagnostics_replace_the_giveaway_menu():
         ans = float(p["answer"]["value"])
         for dgn in p["diagnostics"]:
             assert abs(float(dgn["value"]) - ans) > 0.03 * max(abs(ans), 1e-9)
+
+
+# ------------------------------ reaction families (item 6, ADR-0035/0036) ------------------------------
+
+SPEC_FAMILIES = ROOT / "gyms" / "reaction-families" / "reaction-families.gym.toml"
+
+
+def test_reaction_families_shape_and_kinds():
+    g = _gym_from(SPEC_FAMILIES)
+    assert g["family"] == "reaction_families_v1" and len(g["problems"]) == 10
+    assert {p["kind"] for p in g["problems"]} == {"classify_family", "name_spectators"}
+    assert g["provenance"]["sources"]["reaction_classes"] == "openstax-chemistry-2e"
+    for p in g["problems"]:
+        _assert_choice_menu(p)                                # classifying / naming spectators are categorical
+
+
+def test_reaction_families_classify_answers_are_engine_classified():
+    """Every classify_family answer is the family the classifier assigns to the emitted (balanced) equation."""
+    from chemkernel.reaction import classify_reaction
+    from chemkernel.reactivity import AcidBase, Decomposition
+    from chemkernel.solubility import Solubility
+    d = ChemData.load(ROOT)
+    solub = Solubility.load(ROOT)
+    ab = AcidBase.load(ROOT); ab.validate(d)
+    dec = Decomposition.load(ROOT); dec.validate(d)
+    seen_families = set()
+    for p in _gym_from(SPEC_FAMILIES)["problems"]:
+        if p["kind"] != "classify_family":
+            continue
+        sp = p["derivation"]["species"]
+        r = [parse_formula(s["formula"]) for s in sp if s["role"] == "reactant"]
+        pr = [parse_formula(s["formula"]) for s in sp if s["role"] == "product"]
+        cls = classify_reaction(r, pr, d, solubility=solub, acidbase=ab, decomposition=dec)
+        assert cls["family"] == p["derivation"]["family"] == p["answer"]["value"]
+        seen_families.add(cls["family"])
+    assert len(seen_families) >= 3                             # the corpus spans several families
+
+
+def test_reaction_families_spectators_absent_from_net():
+    """A named spectator never appears in the emitted net-ionic equation — it cancels, by definition."""
+    problems = [p for p in _gym_from(SPEC_FAMILIES)["problems"] if p["kind"] == "name_spectators"]
+    assert problems                                           # the corpus produces spectator drills
+    for p in problems:
+        d = p["derivation"]
+        net_formulas = {s["formula"] for s in d["net_species"]}
+        assert d["spectators"], "a spectator problem must name at least one spectator"
+        for sp in d["spectators"]:
+            assert sp not in net_formulas
+        # the over-inclusion and reacting-ion distractors are present and wrong
+        assert p["answer"]["value"] == ",".join(d["spectators"])
+
+
+def test_reaction_families_deterministic():
+    assert _gym_from(SPEC_FAMILIES) == _gym_from(SPEC_FAMILIES)
+    assert _gym_from(SPEC_FAMILIES, seed=99)["problems"] != _gym_from(SPEC_FAMILIES)["problems"]

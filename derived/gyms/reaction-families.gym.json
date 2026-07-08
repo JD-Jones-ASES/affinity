@@ -1,0 +1,1102 @@
+{
+  "kind": "gym",
+  "id": "reaction-families",
+  "title": "Reaction families: name the pattern",
+  "slug": "reaction-families",
+  "topic": "reaction-families",
+  "family": "reaction_families_v1",
+  "seed": 2718281,
+  "blurb": "Chemists sort reactions by their pattern — and the pattern tells you what to expect. These drills give you a balanced equation and ask which family it belongs to (combustion, synthesis, decomposition, single or double replacement, precipitation, acid-base neutralization, or gas evolution), or which ions are spectators that sit out the reaction. Every equation is balanced and classified by the engine, and the explanations show the evidence — a free element changing hands, an insoluble solid dropping out, an acid meeting a base.",
+  "skills": [
+    "classify a reaction into its family from the balanced equation",
+    "spot the redox signature: a free element going combined, or the reverse",
+    "tell the spectator ions from the ions that actually react",
+    "connect the family to its driving force — a solid, a gas, or water forming"
+  ],
+  "reference_links": [
+    "reaction-precipitation",
+    "reaction-acid-base",
+    "reaction-single-replacement",
+    "net-ionic-equation"
+  ],
+  "problems": [
+    {
+      "kind": "classify_family",
+      "mode": "choice",
+      "prompt": "Classify this reaction:  Zn(s) + 2 HCl(aq) → ZnCl2(aq) + H2(g)",
+      "answer": {
+        "value": "single-replacement",
+        "display": "Single replacement"
+      },
+      "derivation": {
+        "kind": "classify_family",
+        "species": [
+          {
+            "formula": "Zn(s)",
+            "role": "reactant",
+            "counts": {
+              "Zn": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "HCl(aq)",
+            "role": "reactant",
+            "counts": {
+              "H": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "ZnCl2(aq)",
+            "role": "product",
+            "counts": {
+              "Zn": 1,
+              "Cl": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2(g)",
+            "role": "product",
+            "counts": {
+              "H": 2
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          2,
+          1,
+          1
+        ],
+        "family": "single-replacement"
+      },
+      "choices": [
+        {
+          "display": "Single replacement",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Synthesis (combination)",
+          "correct": false,
+          "misconception": "A synthesis combines two or more reactants into a single product."
+        },
+        {
+          "display": "Acid-base neutralization",
+          "correct": false,
+          "misconception": "Acid-base neutralization combines an acid and a base into a salt and water."
+        }
+      ],
+      "explain": "Single replacement. The free element Zn displaces an element from a compound, releasing H2. H, Zn appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "subscript_tokens": [
+        "H2",
+        "ZnCl2"
+      ],
+      "id": "q1"
+    },
+    {
+      "kind": "name_spectators",
+      "mode": "choice",
+      "prompt": "Which ions are spectators (unchanged on both sides) in:  CaCl2(aq) + Na2CO3(aq) → CaCO3(s) + 2 NaCl(aq)?",
+      "answer": {
+        "value": "Cl^-,Na^+",
+        "display": "Cl^-, Na^+"
+      },
+      "derivation": {
+        "kind": "name_spectators",
+        "species": [
+          {
+            "formula": "CaCl2(aq)",
+            "role": "reactant",
+            "counts": {
+              "Ca": 1,
+              "Cl": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Na2CO3(aq)",
+            "role": "reactant",
+            "counts": {
+              "Na": 2,
+              "C": 1,
+              "O": 3
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CaCO3(s)",
+            "role": "product",
+            "counts": {
+              "Ca": 1,
+              "C": 1,
+              "O": 3
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaCl(aq)",
+            "role": "product",
+            "counts": {
+              "Na": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          1,
+          1,
+          2
+        ],
+        "net_species": [
+          {
+            "formula": "Ca^2+",
+            "role": "reactant",
+            "counts": {
+              "Ca": 1
+            },
+            "charge": 2
+          },
+          {
+            "formula": "CO3^2-",
+            "role": "reactant",
+            "counts": {
+              "C": 1,
+              "O": 3
+            },
+            "charge": -2
+          },
+          {
+            "formula": "CaCO3",
+            "role": "product",
+            "counts": {
+              "Ca": 1,
+              "C": 1,
+              "O": 3
+            },
+            "charge": 0
+          }
+        ],
+        "net_coefficients": [
+          1,
+          1,
+          1
+        ],
+        "spectators": [
+          "Cl^-",
+          "Na^+"
+        ]
+      },
+      "choices": [
+        {
+          "display": "Cl^-, Na^+",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "CO3^2-, Cl^-, Na^+",
+          "correct": false,
+          "misconception": "CO3^2- is not a spectator — it changes and appears in the net ionic equation."
+        },
+        {
+          "display": "CO3^2-, Ca^2+",
+          "correct": false,
+          "misconception": "Those are the ions that react (the net ionic equation) — the spectators are the ones that stay unchanged."
+        }
+      ],
+      "explain": "Spectators: Cl^-, Na^+. They appear unchanged on both sides of the complete ionic equation, so they cancel — leaving the net ionic equation with only CO3^2-, Ca^2+.",
+      "subscript_tokens": [
+        "CO3^2-",
+        "CaCO3",
+        "CaCl2",
+        "Ca^2+",
+        "Cl^-",
+        "Na2CO3",
+        "Na^+"
+      ],
+      "id": "q2"
+    },
+    {
+      "kind": "classify_family",
+      "mode": "choice",
+      "prompt": "Classify this reaction:  NH4Cl(aq) + NaOH(aq) → NaCl(aq) + NH3(g) + H2O(l)",
+      "answer": {
+        "value": "gas-evolution",
+        "display": "Gas evolution"
+      },
+      "derivation": {
+        "kind": "classify_family",
+        "species": [
+          {
+            "formula": "NH4Cl(aq)",
+            "role": "reactant",
+            "counts": {
+              "N": 1,
+              "H": 4,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaOH(aq)",
+            "role": "reactant",
+            "counts": {
+              "Na": 1,
+              "O": 1,
+              "H": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaCl(aq)",
+            "role": "product",
+            "counts": {
+              "Na": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NH3(g)",
+            "role": "product",
+            "counts": {
+              "N": 1,
+              "H": 3
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O(l)",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "family": "gas-evolution"
+      },
+      "choices": [
+        {
+          "display": "Gas evolution",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Acid-base neutralization",
+          "correct": false,
+          "misconception": "Acid-base neutralization combines an acid and a base into a salt and water."
+        },
+        {
+          "display": "Synthesis (combination)",
+          "correct": false,
+          "misconception": "A synthesis combines two or more reactants into a single product."
+        }
+      ],
+      "explain": "Gas evolution. aqueous ammonia would form but is unstable — it decomposes to NH3 gas and water. Aqueous ammonia (ammonium hydroxide) breaks down into ammonia gas and water.",
+      "subscript_tokens": [
+        "H2O",
+        "NH3",
+        "NH4Cl"
+      ],
+      "id": "q3"
+    },
+    {
+      "kind": "name_spectators",
+      "mode": "choice",
+      "prompt": "Which ions are spectators (unchanged on both sides) in:  HCl(aq) + NaOH(aq) → NaCl(aq) + H2O(l)?",
+      "answer": {
+        "value": "Cl^-,Na^+",
+        "display": "Cl^-, Na^+"
+      },
+      "derivation": {
+        "kind": "name_spectators",
+        "species": [
+          {
+            "formula": "HCl(aq)",
+            "role": "reactant",
+            "counts": {
+              "H": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaOH(aq)",
+            "role": "reactant",
+            "counts": {
+              "Na": 1,
+              "O": 1,
+              "H": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaCl(aq)",
+            "role": "product",
+            "counts": {
+              "Na": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O(l)",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "net_species": [
+          {
+            "formula": "H^+",
+            "role": "reactant",
+            "counts": {
+              "H": 1
+            },
+            "charge": 1
+          },
+          {
+            "formula": "OH^-",
+            "role": "reactant",
+            "counts": {
+              "O": 1,
+              "H": 1
+            },
+            "charge": -1
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "net_coefficients": [
+          1,
+          1,
+          1
+        ],
+        "spectators": [
+          "Cl^-",
+          "Na^+"
+        ]
+      },
+      "choices": [
+        {
+          "display": "Cl^-, Na^+",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Cl^-, H^+, Na^+",
+          "correct": false,
+          "misconception": "H^+ is not a spectator — it changes and appears in the net ionic equation."
+        },
+        {
+          "display": "H^+, OH^-",
+          "correct": false,
+          "misconception": "Those are the ions that react (the net ionic equation) — the spectators are the ones that stay unchanged."
+        }
+      ],
+      "explain": "Spectators: Cl^-, Na^+. They appear unchanged on both sides of the complete ionic equation, so they cancel — leaving the net ionic equation with only H^+, OH^-.",
+      "subscript_tokens": [
+        "Cl^-",
+        "H2O",
+        "H^+",
+        "Na^+",
+        "OH^-"
+      ],
+      "id": "q4"
+    },
+    {
+      "kind": "classify_family",
+      "mode": "choice",
+      "prompt": "Classify this reaction:  2 HCl(aq) + Na2CO3(aq) → 2 NaCl(aq) + H2O(l) + CO2(g)",
+      "answer": {
+        "value": "gas-evolution",
+        "display": "Gas evolution"
+      },
+      "derivation": {
+        "kind": "classify_family",
+        "species": [
+          {
+            "formula": "HCl(aq)",
+            "role": "reactant",
+            "counts": {
+              "H": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Na2CO3(aq)",
+            "role": "reactant",
+            "counts": {
+              "Na": 2,
+              "C": 1,
+              "O": 3
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaCl(aq)",
+            "role": "product",
+            "counts": {
+              "Na": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O(l)",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO2(g)",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 2
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "family": "gas-evolution"
+      },
+      "choices": [
+        {
+          "display": "Gas evolution",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Acid-base neutralization",
+          "correct": false,
+          "misconception": "Acid-base neutralization combines an acid and a base into a salt and water."
+        },
+        {
+          "display": "Single replacement",
+          "correct": false,
+          "misconception": "Single replacement has a free element trade places with one inside a compound."
+        }
+      ],
+      "explain": "Gas evolution. carbonic acid would form but is unstable — it decomposes to CO2 gas and water. Carbonic acid is unstable and breaks down into water and carbon dioxide gas.",
+      "subscript_tokens": [
+        "CO2",
+        "H2O",
+        "Na2CO3"
+      ],
+      "id": "q5"
+    },
+    {
+      "kind": "name_spectators",
+      "mode": "choice",
+      "prompt": "Which ions are spectators (unchanged on both sides) in:  NH4Cl(aq) + NaOH(aq) → NaCl(aq) + NH3(g) + H2O(l)?",
+      "answer": {
+        "value": "Cl^-,Na^+",
+        "display": "Cl^-, Na^+"
+      },
+      "derivation": {
+        "kind": "name_spectators",
+        "species": [
+          {
+            "formula": "NH4Cl(aq)",
+            "role": "reactant",
+            "counts": {
+              "N": 1,
+              "H": 4,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaOH(aq)",
+            "role": "reactant",
+            "counts": {
+              "Na": 1,
+              "O": 1,
+              "H": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaCl(aq)",
+            "role": "product",
+            "counts": {
+              "Na": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NH3(g)",
+            "role": "product",
+            "counts": {
+              "N": 1,
+              "H": 3
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O(l)",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "net_species": [
+          {
+            "formula": "NH4^+",
+            "role": "reactant",
+            "counts": {
+              "N": 1,
+              "H": 4
+            },
+            "charge": 1
+          },
+          {
+            "formula": "OH^-",
+            "role": "reactant",
+            "counts": {
+              "O": 1,
+              "H": 1
+            },
+            "charge": -1
+          },
+          {
+            "formula": "NH3",
+            "role": "product",
+            "counts": {
+              "N": 1,
+              "H": 3
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          }
+        ],
+        "net_coefficients": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "spectators": [
+          "Cl^-",
+          "Na^+"
+        ]
+      },
+      "choices": [
+        {
+          "display": "Cl^-, Na^+",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Cl^-, NH4^+, Na^+",
+          "correct": false,
+          "misconception": "NH4^+ is not a spectator — it changes and appears in the net ionic equation."
+        },
+        {
+          "display": "NH4^+, OH^-",
+          "correct": false,
+          "misconception": "Those are the ions that react (the net ionic equation) — the spectators are the ones that stay unchanged."
+        }
+      ],
+      "explain": "Spectators: Cl^-, Na^+. They appear unchanged on both sides of the complete ionic equation, so they cancel — leaving the net ionic equation with only NH4^+, OH^-.",
+      "subscript_tokens": [
+        "Cl^-",
+        "H2O",
+        "NH3",
+        "NH4Cl",
+        "NH4^+",
+        "Na^+",
+        "OH^-"
+      ],
+      "id": "q6"
+    },
+    {
+      "kind": "classify_family",
+      "mode": "choice",
+      "prompt": "Classify this reaction:  MgCl2(aq) + 2 NaOH(aq) → Mg(OH)2(s) + 2 NaCl(aq)",
+      "answer": {
+        "value": "precipitation",
+        "display": "Precipitation"
+      },
+      "derivation": {
+        "kind": "classify_family",
+        "species": [
+          {
+            "formula": "MgCl2(aq)",
+            "role": "reactant",
+            "counts": {
+              "Mg": 1,
+              "Cl": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaOH(aq)",
+            "role": "reactant",
+            "counts": {
+              "Na": 1,
+              "O": 1,
+              "H": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Mg(OH)2(s)",
+            "role": "product",
+            "counts": {
+              "Mg": 1,
+              "O": 2,
+              "H": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaCl(aq)",
+            "role": "product",
+            "counts": {
+              "Na": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          2,
+          1,
+          2
+        ],
+        "family": "precipitation"
+      },
+      "choices": [
+        {
+          "display": "Precipitation",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Synthesis (combination)",
+          "correct": false,
+          "misconception": "A synthesis combines two or more reactants into a single product."
+        },
+        {
+          "display": "Combustion",
+          "correct": false,
+          "misconception": "Combustion is a fuel burning in O2 to give carbon dioxide and water."
+        }
+      ],
+      "explain": "Precipitation. Mg(OH)2 is insoluble (insol-hydroxide) and drops out as a solid.",
+      "subscript_tokens": [
+        "Mg(OH)2",
+        "MgCl2"
+      ],
+      "id": "q7"
+    },
+    {
+      "kind": "name_spectators",
+      "mode": "choice",
+      "prompt": "Which ions are spectators (unchanged on both sides) in:  2 HCl(aq) + Na2CO3(aq) → 2 NaCl(aq) + H2O(l) + CO2(g)?",
+      "answer": {
+        "value": "Cl^-,Na^+",
+        "display": "Cl^-, Na^+"
+      },
+      "derivation": {
+        "kind": "name_spectators",
+        "species": [
+          {
+            "formula": "HCl(aq)",
+            "role": "reactant",
+            "counts": {
+              "H": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Na2CO3(aq)",
+            "role": "reactant",
+            "counts": {
+              "Na": 2,
+              "C": 1,
+              "O": 3
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NaCl(aq)",
+            "role": "product",
+            "counts": {
+              "Na": 1,
+              "Cl": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2O(l)",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO2(g)",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 2
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "net_species": [
+          {
+            "formula": "H^+",
+            "role": "reactant",
+            "counts": {
+              "H": 1
+            },
+            "charge": 1
+          },
+          {
+            "formula": "CO3^2-",
+            "role": "reactant",
+            "counts": {
+              "C": 1,
+              "O": 3
+            },
+            "charge": -2
+          },
+          {
+            "formula": "H2O",
+            "role": "product",
+            "counts": {
+              "H": 2,
+              "O": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CO2",
+            "role": "product",
+            "counts": {
+              "C": 1,
+              "O": 2
+            },
+            "charge": 0
+          }
+        ],
+        "net_coefficients": [
+          2,
+          1,
+          1,
+          1
+        ],
+        "spectators": [
+          "Cl^-",
+          "Na^+"
+        ]
+      },
+      "choices": [
+        {
+          "display": "Cl^-, Na^+",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "CO3^2-, Cl^-, Na^+",
+          "correct": false,
+          "misconception": "CO3^2- is not a spectator — it changes and appears in the net ionic equation."
+        },
+        {
+          "display": "CO3^2-, H^+",
+          "correct": false,
+          "misconception": "Those are the ions that react (the net ionic equation) — the spectators are the ones that stay unchanged."
+        }
+      ],
+      "explain": "Spectators: Cl^-, Na^+. They appear unchanged on both sides of the complete ionic equation, so they cancel — leaving the net ionic equation with only CO3^2-, H^+.",
+      "subscript_tokens": [
+        "CO2",
+        "CO3^2-",
+        "Cl^-",
+        "H2O",
+        "H^+",
+        "Na2CO3",
+        "Na^+"
+      ],
+      "id": "q8"
+    },
+    {
+      "kind": "classify_family",
+      "mode": "choice",
+      "prompt": "Classify this reaction:  N2(g) + 3 H2(g) → 2 NH3(g)",
+      "answer": {
+        "value": "synthesis",
+        "display": "Synthesis (combination)"
+      },
+      "derivation": {
+        "kind": "classify_family",
+        "species": [
+          {
+            "formula": "N2(g)",
+            "role": "reactant",
+            "counts": {
+              "N": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "H2(g)",
+            "role": "reactant",
+            "counts": {
+              "H": 2
+            },
+            "charge": 0
+          },
+          {
+            "formula": "NH3(g)",
+            "role": "product",
+            "counts": {
+              "N": 1,
+              "H": 3
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          3,
+          2
+        ],
+        "family": "synthesis"
+      },
+      "choices": [
+        {
+          "display": "Synthesis (combination)",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Single replacement",
+          "correct": false,
+          "misconception": "Single replacement has a free element trade places with one inside a compound."
+        },
+        {
+          "display": "Combustion",
+          "correct": false,
+          "misconception": "Combustion is a fuel burning in O2 to give carbon dioxide and water."
+        }
+      ],
+      "explain": "Synthesis (combination). N2 + H2 combine into the single product NH3. H, N appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "subscript_tokens": [
+        "H2",
+        "N2",
+        "NH3"
+      ],
+      "id": "q9"
+    },
+    {
+      "kind": "name_spectators",
+      "mode": "choice",
+      "prompt": "Which ions are spectators (unchanged on both sides) in:  Fe(s) + CuSO4(aq) → FeSO4(aq) + Cu(s)?",
+      "answer": {
+        "value": "SO4^2-",
+        "display": "SO4^2-"
+      },
+      "derivation": {
+        "kind": "name_spectators",
+        "species": [
+          {
+            "formula": "Fe(s)",
+            "role": "reactant",
+            "counts": {
+              "Fe": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "CuSO4(aq)",
+            "role": "reactant",
+            "counts": {
+              "Cu": 1,
+              "S": 1,
+              "O": 4
+            },
+            "charge": 0
+          },
+          {
+            "formula": "FeSO4(aq)",
+            "role": "product",
+            "counts": {
+              "Fe": 1,
+              "S": 1,
+              "O": 4
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Cu(s)",
+            "role": "product",
+            "counts": {
+              "Cu": 1
+            },
+            "charge": 0
+          }
+        ],
+        "coefficients": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "net_species": [
+          {
+            "formula": "Fe",
+            "role": "reactant",
+            "counts": {
+              "Fe": 1
+            },
+            "charge": 0
+          },
+          {
+            "formula": "Cu^2+",
+            "role": "reactant",
+            "counts": {
+              "Cu": 1
+            },
+            "charge": 2
+          },
+          {
+            "formula": "Fe^2+",
+            "role": "product",
+            "counts": {
+              "Fe": 1
+            },
+            "charge": 2
+          },
+          {
+            "formula": "Cu",
+            "role": "product",
+            "counts": {
+              "Cu": 1
+            },
+            "charge": 0
+          }
+        ],
+        "net_coefficients": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "spectators": [
+          "SO4^2-"
+        ]
+      },
+      "choices": [
+        {
+          "display": "SO4^2-",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Cu^2+, SO4^2-",
+          "correct": false,
+          "misconception": "Cu^2+ is not a spectator — it changes and appears in the net ionic equation."
+        },
+        {
+          "display": "Cu^2+, Fe^2+",
+          "correct": false,
+          "misconception": "Those are the ions that react (the net ionic equation) — the spectators are the ones that stay unchanged."
+        }
+      ],
+      "explain": "Spectators: SO4^2-. They appear unchanged on both sides of the complete ionic equation, so they cancel — leaving the net ionic equation with only Cu^2+, Fe^2+.",
+      "subscript_tokens": [
+        "CuSO4",
+        "Cu^2+",
+        "FeSO4",
+        "Fe^2+",
+        "SO4^2-"
+      ],
+      "id": "q10"
+    }
+  ],
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights",
+      "ion_charge": "openstax-chemistry-2e",
+      "reaction_classes": "openstax-chemistry-2e"
+    }
+  }
+}

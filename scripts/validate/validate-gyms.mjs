@@ -221,6 +221,28 @@ function verifyPredictIon(rel, p, fail) {
   if (p.answer.value !== d.ion.id) fail(rel, `${p.id}: answer '${p.answer.value}' != ion '${d.ion.id}'`);
 }
 
+// --- reaction families (ADR-0035/0036): re-prove the molecular equation balances (so the shown reaction is
+// real); for name_spectators additionally re-prove the NET equation balances (atoms + charge) and that every
+// claimed spectator is ABSENT from the net equation — a spectator, by definition, cancels. The family LABEL
+// and the spectator SET are the tested Python classifier's/net_ionic's (as with the reaction-family Atlas,
+// ADR-0035); the gate re-derives the balance-checkable claims and the spectator/net-equation invariants.
+function verifyReactionFamily(rel, p, fail) {
+  const d = p.derivation;
+  verifyBalance(rel, p.id, d.species, d.coefficients, fail);
+  if (p.kind === "classify_family") {
+    if (p.answer.value !== d.family) fail(rel, `${p.id}: answer '${p.answer.value}' != derivation family '${d.family}'`);
+  } else { // name_spectators
+    if (!Array.isArray(d.net_species) || !Array.isArray(d.spectators) || !d.spectators.length)
+      fail(rel, `${p.id}: name_spectators derivation missing net_species/spectators`);
+    verifyBalance(rel, `${p.id}(net)`, d.net_species, d.net_coefficients, fail);   // the net eq conserves atoms + charge
+    const netFormulas = new Set(d.net_species.map((s) => s.formula));
+    for (const sp of d.spectators)
+      if (netFormulas.has(sp)) fail(rel, `${p.id}: '${sp}' is claimed a spectator but appears in the net ionic equation`);
+    if (p.answer.value !== d.spectators.join(","))
+      fail(rel, `${p.id}: answer '${p.answer.value}' != spectators '${d.spectators.join(",")}'`);
+  }
+}
+
 const files = readdirSync(gymDir).filter((n) => n.endsWith(".gym.json"));
 if (files.length === 0) { console.log("validate-gyms: no *.gym.json — nothing to check."); process.exit(0); }
 
@@ -269,6 +291,9 @@ for (const name of files) {
       verifyOrderIonization(rel, p, fail);
     } else if (p.kind === "predict_ion") {
       verifyPredictIon(rel, p, fail);
+    } else if (p.kind === "classify_family" || p.kind === "name_spectators") {
+      // 1r. reaction families (ADR-0035/0036): re-prove the molecular (and, for spectators, the net) balance
+      verifyReactionFamily(rel, p, fail);
     } else {
       // 1c. conversion: the answer re-derives from the raw inputs; units line up; the chain ends at the answer
       const got = rederive(p.kind, p.derivation.inputs, rel, p.id);

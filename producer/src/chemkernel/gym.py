@@ -22,6 +22,7 @@ reviewable. Molar masses come from `data/` (sourced, and separately tested in `t
 from __future__ import annotations
 
 import random
+import re
 from decimal import Context, Decimal, ROUND_HALF_UP, localcontext
 from fractions import Fraction
 
@@ -1077,6 +1078,194 @@ def _generate_trends(seed, count, data, ctx):
     return problems
 
 
+# ------------------------------ reaction families (item 6, ADR-0035/0036) ------------------------------
+
+# A curated corpus of phased reactions spanning the first-course families — the same reactions the Atlas
+# ships (reference/reactions/*.toml). Each is balanced + classified BY THE ENGINE at generation time, so the
+# gym never trusts an authored label; classify_reaction is the single source of truth (ADR-0035).
+_FAMILY_REACTIONS = [
+    {"reactants": ["CH4(g)", "O2(g)"], "products": ["CO2(g)", "H2O(g)"]},
+    {"reactants": ["C3H8(g)", "O2(g)"], "products": ["CO2(g)", "H2O(g)"]},
+    {"reactants": ["N2(g)", "H2(g)"], "products": ["NH3(g)"]},
+    {"reactants": ["Na(s)", "Cl2(g)"], "products": ["NaCl(s)"]},
+    {"reactants": ["KClO3(s)"], "products": ["KCl(s)", "O2(g)"]},
+    {"reactants": ["CaCO3(s)"], "products": ["CaO(s)", "CO2(g)"]},
+    {"reactants": ["Zn(s)", "HCl(aq)"], "products": ["ZnCl2(aq)", "H2(g)"]},
+    {"reactants": ["Fe(s)", "CuSO4(aq)"], "products": ["FeSO4(aq)", "Cu(s)"]},
+    {"reactants": ["CaCl2(aq)", "Na2CO3(aq)"], "products": ["CaCO3(s)", "NaCl(aq)"]},
+    {"reactants": ["MgCl2(aq)", "NaOH(aq)"], "products": ["Mg(OH)2(s)", "NaCl(aq)"]},
+    {"reactants": ["HCl(aq)", "NaOH(aq)"], "products": ["NaCl(aq)", "H2O(l)"]},
+    {"reactants": ["H2SO4(aq)", "NaOH(aq)"], "products": ["Na2SO4(aq)", "H2O(l)"]},
+    {"reactants": ["HCl(aq)", "Na2CO3(aq)"], "products": ["NaCl(aq)", "H2O(l)", "CO2(g)"]},
+    {"reactants": ["NH4Cl(aq)", "NaOH(aq)"], "products": ["NaCl(aq)", "NH3(g)", "H2O(l)"]},
+]
+
+_FAMILY_LABEL = {
+    "combustion": "Combustion",
+    "synthesis": "Synthesis (combination)",
+    "decomposition": "Decomposition",
+    "single-replacement": "Single replacement",
+    "double-replacement": "Double replacement",
+    "precipitation": "Precipitation",
+    "acid-base": "Acid-base neutralization",
+    "gas-evolution": "Gas evolution",
+}
+# a definitional (always-true) description of each family — used as a wrong choice's misconception so the gym
+# never makes a false claim about the specific reaction, only states what the wrong family would require.
+_FAMILY_DEF = {
+    "combustion": "Combustion is a fuel burning in O2 to give carbon dioxide and water.",
+    "synthesis": "A synthesis combines two or more reactants into a single product.",
+    "decomposition": "A decomposition breaks a single compound into two or more products.",
+    "single-replacement": "Single replacement has a free element trade places with one inside a compound.",
+    "precipitation": "Precipitation forms an insoluble solid that drops out of two solutions.",
+    "acid-base": "Acid-base neutralization combines an acid and a base into a salt and water.",
+    "gas-evolution": "Gas evolution forms a product that decomposes and releases a gas.",
+}
+
+
+def _load_reactivity(data, root_ctx):
+    """Load the sourced datasets the classifier needs, validating them (regime-1 composition check)."""
+    from pathlib import Path
+    from .reactivity import AcidBase, Decomposition
+    from .solubility import Solubility
+    root = Path.cwd()
+    solub = Solubility.load(root)
+    ab = AcidBase.load(root)
+    ab.validate(data)
+    dec = Decomposition.load(root)
+    dec.validate(data)
+    return solub, ab, dec
+
+
+def _fam_species(reaction, ctx):
+    r_forms, p_forms, species = _species_of(reaction["reactants"], reaction["products"], ctx)
+    coeffs = balance(r_forms, p_forms, ctx)
+    return r_forms, p_forms, species, coeffs
+
+
+def _fam_tokens(species, extra=()):
+    """Phase-stripped formula tokens for the view (ADR-0025). Cores (H2, ZnCl2) still match inside the phased
+    prompt text ('H2(g)'), and they match the phase-stripped cores the classifier's evidence prose uses."""
+    cores = {re.sub(r"\((?:s|l|g|aq)\)$", "", s["formula"]) for s in species}
+    toks = {t for t in cores if any(c.isdigit() for c in t) or "^" in t}
+    return sorted(toks | set(extra))
+
+
+def _classify_family_problem(reaction, rng, data, rx, ctx):
+    from .reaction import classify_reaction
+    solub, ab, dec = rx
+    r_forms, p_forms, species, coeffs = _fam_species(reaction, ctx)
+    cls = classify_reaction(r_forms, p_forms, data, solubility=solub, acidbase=ab, decomposition=dec, ctx=ctx)
+    fam = cls["family"]
+    prompt = "Classify this reaction:  " + _eq_str(species, coeffs)
+    # distractors: other specific families (never the parent 'double-replacement', which a sub-type also is)
+    pool = [k for k in _FAMILY_LABEL if k not in (fam, "double-replacement")]
+    rng.shuffle(pool)
+    choices = [{"display": _FAMILY_LABEL[fam], "correct": True, "misconception": None}]
+    for k in pool[:2]:
+        choices.append({"display": _FAMILY_LABEL[k], "correct": False, "misconception": _FAMILY_DEF[k]})
+    explain = f"{_FAMILY_LABEL[fam]}. {cls['evidence']}"
+    if cls.get("redox_reason"):
+        explain += f" {cls['redox_reason']}"
+    tokens = _fam_tokens(species)
+    return {
+        "kind": "classify_family", "mode": "choice", "prompt": prompt,
+        "answer": {"value": fam, "display": _FAMILY_LABEL[fam]},
+        "derivation": {"kind": "classify_family", "species": species, "coefficients": list(coeffs), "family": fam},
+        "choices": choices, "explain": explain, "subscript_tokens": tokens,
+    }
+
+
+def _ion_list(ids):
+    """A readable ion set for a choice display (ASCII caret ids; the view prettifies)."""
+    return ", ".join(ids)
+
+
+def _name_spectators_problem(reaction, rng, data, rx, ctx):
+    from .reaction import complete_ionic, net_ionic
+    r_forms, p_forms, species, coeffs = _fam_species(reaction, ctx)
+    try:
+        left, right = complete_ionic(r_forms, p_forms, coeffs, data, ctx)
+        net_left, net_right, spectators = net_ionic(left, right, ctx)
+    except BuildError:
+        return None
+    if len(spectators) < 1:
+        return None
+    # the net equation as species + coefficients (for the gate to re-verify it balances), and the ions that
+    # actually react (charged net species) for building honest distractors
+    def _net_row(sid, role):
+        f = parse_formula(sid)
+        return {"formula": sid, "role": role, "counts": dict(f.counts), "charge": f.charge}
+    net_species = ([_net_row(sid, "reactant") for (sid, _ph) in net_left]
+                   + [_net_row(sid, "product") for (sid, _ph) in net_right])
+    net_coeffs = list(net_left.values()) + list(net_right.values())
+    participating_ions = sorted({sid for (sid, _ph) in list(net_left) + list(net_right)
+                                 if parse_formula(sid).charge != 0})
+    if not participating_ions:
+        return None                                            # nothing to build an over-inclusion distractor
+    spectators = sorted(spectators)
+    correct = _ion_list(spectators)
+    seen = {correct}
+    choices = [{"display": correct, "correct": True, "misconception": None}]
+    # distractor A: spectators + one reacting ion (over-inclusion)
+    intruder = participating_ions[0]
+    over = _ion_list(sorted(spectators + [intruder]))
+    if over not in seen:
+        seen.add(over)
+        choices.append({"display": over, "correct": False,
+                        "misconception": f"{intruder} is not a spectator — it changes and appears in the net "
+                                         f"ionic equation."})
+    # distractor B: the reacting ions themselves (the opposite of spectators)
+    react = _ion_list(participating_ions)
+    if react not in seen:
+        seen.add(react)
+        choices.append({"display": react, "correct": False,
+                        "misconception": "Those are the ions that react (the net ionic equation) — the "
+                                         "spectators are the ones that stay unchanged."})
+    if len(choices) < 3:
+        return None
+    eq = _eq_str(species, coeffs)
+    prompt = f"Which ions are spectators (unchanged on both sides) in:  {eq}?"
+    explain = (f"Spectators: {correct}. They appear unchanged on both sides of the complete ionic equation, "
+               f"so they cancel — leaving the net ionic equation with only {_ion_list(participating_ions)}.")
+    tokens = _fam_tokens(species, extra=set(spectators) | set(participating_ions))
+    return {
+        "kind": "name_spectators", "mode": "choice", "prompt": prompt,
+        "answer": {"value": ",".join(spectators), "display": correct},
+        "derivation": {"kind": "name_spectators", "species": species, "coefficients": list(coeffs),
+                       "net_species": net_species, "net_coefficients": net_coeffs, "spectators": spectators},
+        "choices": choices, "explain": explain, "subscript_tokens": tokens,
+    }
+
+
+_FAMILY_KINDS = ["classify_family", "name_spectators"]
+
+
+def _generate_reaction_families(seed, count, data, ctx):
+    rx = _load_reactivity(data, ctx)
+    rng = random.Random(seed)
+    problems: list[dict] = []
+    seen: set = set()
+    order = list(range(len(_FAMILY_REACTIONS)))
+    attempts = 0
+    while len(problems) < count and attempts < 8000:
+        attempts += 1
+        kind = _FAMILY_KINDS[len(problems) % len(_FAMILY_KINDS)]
+        reaction = _FAMILY_REACTIONS[rng.choice(order)]
+        if kind == "classify_family":
+            q = _classify_family_problem(reaction, rng, data, rx, ctx)
+        else:
+            q = _name_spectators_problem(reaction, rng, data, rx, ctx)
+        if q is None or (q["kind"], q["prompt"]) in seen:
+            continue
+        seen.add((q["kind"], q["prompt"]))
+        q["id"] = f"q{len(problems) + 1}"
+        problems.append(q)
+    if len(problems) < count:
+        raise BuildError(f"{ctx}: reaction-families gym could not generate {count} problems at seed {seed}")
+    return problems
+
+
 _FAMILIES = {
     "solution_conversions_v1": _generate_conversions,
     "ionic_nomenclature_v1": _generate_nomenclature,
@@ -1085,6 +1274,7 @@ _FAMILIES = {
     "percent_yield_v1": _rotating_generator(_percent_yield_problem),
     "limiting_mass_v1": _rotating_generator(_limiting_mass_problem),
     "periodic_trends_v1": _generate_trends,
+    "reaction_families_v1": _generate_reaction_families,
 }
 
 
@@ -1103,6 +1293,11 @@ def generate_gym(spec: dict, data, ctx: str = "") -> dict:
     if family == "periodic_trends_v1":
         for key in ("position", "ion_charge", "electronegativity", "covalent_radius", "ionization_energy"):
             sources[key] = data.sources.get(key, "")
+    if family == "reaction_families_v1":
+        # the family labels + spectator determination rest on the sourced classification data (solubility
+        # rules, acid/base + decomposition tables — all openstax-chemistry-2e, via the ion-charge source key)
+        sources["ion_charge"] = data.sources.get("ion_charge", "")
+        sources["reaction_classes"] = data.sources.get("ion_charge", "")
 
     return {
         "kind": "gym",

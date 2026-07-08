@@ -1,0 +1,18 @@
+# A procedural gym (Phase 1 item 6, ADR-0036) — reaction families. Every drill is generated from a curated
+# corpus of reactions, each BALANCED and CLASSIFIED by the engine at build time (chemkernel.reaction). Two
+# kinds: classify the reaction into its family (combustion, synthesis, decomposition, single/double
+# replacement, precipitation, acid-base, gas evolution), and name the spectator ions in a reaction that has a
+# net-ionic form. Distractors are honest — a wrong family choice states what that family would require (a
+# definition, never a false claim about this reaction), and a wrong spectator choice confuses the ions that
+# react with the ions that watch.
+
+id = "reaction-families"
+title = "Reaction families: name the pattern"
+slug = "reaction-families"
+topic = "reaction-families"
+family = "reaction_families_v1"
+seed = 2718281
+count = 10
+blurb = "Chemists sort reactions by their pattern — and the pattern tells you what to expect. These drills give you a balanced equation and ask which family it belongs to (combustion, synthesis, decomposition, single or double replacement, precipitation, acid-base neutralization, or gas evolution), or which ions are spectators that sit out the reaction. Every equation is balanced and classified by the engine, and the explanations show the evidence — a free element changing hands, an insoluble solid dropping out, an acid meeting a base."
+skills = ["classify a reaction into its family from the balanced equation", "spot the redox signature: a free element going combined, or the reverse", "tell the spectator ions from the ions that actually react", "connect the family to its driving force — a solid, a gas, or water forming"]
+reference_links = ["reaction-precipitation", "reaction-acid-base", "reaction-single-replacement", "net-ionic-equation"]

@@ -14,24 +14,32 @@ export function getStaticPaths() {
 const { gym: gymRaw } = Astro.props;
 const gym = renderGym(gymRaw);   // build-time view prep: Unicode subscripts in prompts/explanations
 
-// Concept chips → the Atlas, mirroring the lesson page.
+// Concept chips → the Atlas, mirroring the lesson page. Concept ids link to /reference/#id; reaction-family
+// ids (ADR-0035) link to /reference/reactions/#id.
 const refs = import.meta.glob("../../../derived/reference/*.json", { eager: true });
 const conceptIds = new Set(Object.values(refs).map((m) => m.default).filter((r) => r.kind === "concept").map((r) => r.id));
+const familyIds = new Set(Object.values(refs).map((m) => m.default).filter((r) => r.kind === "reaction-family").map((r) => r.id));
 const valenceTopics = new Set(["calcium", "carbonate", "sodium", "chloride", "chlorine", "sulfate", "nitrate", "phosphate", "acetate", "ammonium", "hydroxide", "oxide"]);
-const conceptLabel = (id) => id.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+const conceptLabel = (id) => id.replace(/^reaction-/, "").split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
 const concepts = (gym.reference_links ?? []).map((id) => ({
   id,
   label: conceptLabel(id),
-  href: conceptIds.has(id) ? withBase(`/reference/#${id}`) : valenceTopics.has(id) ? withBase("/reference/valence-table/") : null,
+  href: conceptIds.has(id) ? withBase(`/reference/#${id}`)
+    : familyIds.has(id) ? withBase(`/reference/reactions/#${id}`)
+    : valenceTopics.has(id) ? withBase("/reference/valence-table/") : null,
 }));
 // the sourced-data badge names what the family actually drills: the periodic-trends gym embeds sourced
-// properties/charges (ADR-0034); every other family rests on the sourced molar masses.
-const trendSources = gym.provenance?.sources ?? {};
+// properties/charges (ADR-0034); the reaction-families gym rests on the sourced classification data
+// (ADR-0035); every other family rests on the sourced molar masses.
+const gymSources = gym.provenance?.sources ?? {};
 const isTrends = gym.family === "periodic_trends_v1";
+const isFamilies = gym.family === "reaction_families_v1";
 const sourceLabel = isTrends
-  ? `properties sourced (${[trendSources.electronegativity, trendSources.covalent_radius, trendSources.ionization_energy].filter(Boolean).join(", ")})`
-  : `molar masses sourced (${trendSources.atomic_weight})`;
-const source = isTrends ? trendSources.ionization_energy : trendSources.atomic_weight;
+  ? `properties sourced (${[gymSources.electronegativity, gymSources.covalent_radius, gymSources.ionization_energy].filter(Boolean).join(", ")})`
+  : isFamilies
+  ? `reaction classes sourced (${gymSources.reaction_classes})`
+  : `molar masses sourced (${gymSources.atomic_weight})`;
+const source = isTrends ? gymSources.ionization_energy : isFamilies ? gymSources.reaction_classes : gymSources.atomic_weight;
 ---
 
 <Base title={`${gym.title} — Affinity`} description={gym.blurb}>

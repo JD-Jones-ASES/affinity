@@ -882,3 +882,38 @@ corpus (ADR-0026). The classifier is the shared instrument items 6c (the `reacti
 redox topic — this ships the free-element signature only); a generic double-replacement Atlas entry (a
 no-driving-force ion swap is not a real reaction to teach); further gas-forming intermediates (sulfurous acid
 needs the sulfite ion curated).
+
+## ADR-0036 — reaction_families_v1: classify-the-family + name-the-spectators, engine-classified (2026-07-08)
+
+**Context.** Item 6's gym (brief §10.4, ROADMAP): *given a reaction → classify its family / predict products
+/ name the spectators*. It reuses the ADR-0035 classifier (the gym template, ADR-0024: a generator + a
+`validate-gyms` branch, no new plumbing). Reaction-family answers are categorical (a family label, an ion
+set), so the ADR-0032 menu is honest. Two honesty questions: (1) the family label must be the *engine's*
+classification, not an authored guess; (2) the gym's equations and net-ionic forms must be real (balanced +
+conserving).
+
+**Decision.** A `reaction_families_v1` family, two kinds, both `mode: "choice"` (ADR-0032):
+1. **`classify_family`** — a balanced equation → its family. The reaction is **balanced by `balance()` and
+   classified by `classify_reaction`** at generation (never an authored label); distractors are other
+   specific families, each carrying a **definitional** misconception (what that family *would* require) so the
+   gym never makes a false claim about the specific reaction, and never the parent "double replacement" of a
+   precip/acid-base/gas sub-type (which would be ambiguous). The explanation is the classifier's evidence +
+   redox reason.
+2. **`name_spectators`** — a reaction with a net-ionic form → its spectator ions. Generated via
+   `complete_ionic`/`net_ionic`; distractors are **over-inclusion** (spectators + one reacting ion) and the
+   **reacting ions themselves** (the opposite of spectators), each named.
+The gate (`validate-gyms`, via the shared `balancecheck.mjs`) re-proves the **molecular** balance and, for
+spectators, the **net-ionic** balance (atoms + charge), and checks every claimed spectator is **absent from
+the net equation** — a spectator, by definition, cancels. The family label and spectator set rest on the
+tested Python classifier/`net_ionic` (as the ADR-0035 Atlas gate does); the gate re-derives the
+balance-checkable claims + the spectator invariant. Provenance carries the classification source id
+(`reaction_classes` → openstax-chemistry-2e). The gym drill island renders it with **zero new plumbing**
+(choice mode, no chain); the gym page's sourced-data badge became reaction-family-aware, and the concept
+chips resolve reaction-family ids to the reactions Atlas page.
+
+**Consequences.** Gym family #8; the corpus spans all the families, cross-linked to the reaction-family
+Atlas. `gym.schema.json` grows the two kinds + a `family`/`net_species`/`net_coefficients`/`spectators`
+derivation shape + the `reaction_classes` provenance key. A subscript-token fix (phase-stripped cores) keeps
+the classifier's evidence prose typographically consistent with the phased prompt. **Deferred:**
+predict-products drills (honest product-distractor generation needs a careful crossover-mistake generator —
+a follow-up), and a redox yes/no kind (thin as a 2-choice menu; the classify explanations already teach it).
