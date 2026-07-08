@@ -1,0 +1,43 @@
+# Specific heat capacities c in J/(g·°C) at about 25 °C, 1 atm — a sourced empirical dataset (ADR-0006).
+# Curated from OpenStax *Chemistry 2e* Table 5.1 (§5.2), already a registered source. A specific heat is a
+# MEASURED value that varies with temperature and purity, so it is a rounded, data-sourced datum (regime-3) —
+# carried under the data/rule-sourced badge, never dressed up as exact. J/(g·°C) and J/(g·K) are the same number
+# (c multiplies a temperature DIFFERENCE, where a change of 1 °C equals a change of 1 K). Read as Decimal
+# (ADR-0013). Every substance key is a bare display name; the calorimetry gym draws its c from here, never
+# hard-coded. Bare `source` key precedes the [substances] tables (TOML trap #4).
+source = "openstax-chemistry-2e"
+
+[substances.water]
+name = "water"
+phase = "l"
+specific_heat = "4.184"
+
+[substances.aluminum]
+name = "aluminum"
+phase = "s"
+specific_heat = "0.897"
+
+[substances.iron]
+name = "iron"
+phase = "s"
+specific_heat = "0.449"
+
+[substances.copper]
+name = "copper"
+phase = "s"
+specific_heat = "0.385"
+
+[substances.silver]
+name = "silver"
+phase = "s"
+specific_heat = "0.233"
+
+[substances.gold]
+name = "gold"
+phase = "s"
+specific_heat = "0.129"
+
+[substances.lead]
+name = "lead"
+phase = "s"
+specific_heat = "0.130"

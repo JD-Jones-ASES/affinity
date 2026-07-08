@@ -3,6 +3,32 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — calorimetry gym; the units engine gains an energy dimension (ADR-0042)
+
+The thermochemistry opener — the energy ledger's first rung, **q = m·c·ΔT**, generated endlessly.
+
+- **The `calorimetry_v1` gym** (ADR-0042): solve q = m·c·ΔT for any of the four variables, over a sourced
+  specific-heat table (water 4.184 down to gold 0.129 J/(g·°C)). Gym family #10.
+- **The units engine gains an `energy` dimension** (`units.py` `Dim` → 6 fields — ADR-0040's deferred extension):
+  `J`, `kJ`, `J/(g*K)` registered, and every answer is computed **through** the engine (g × J·g⁻¹·K⁻¹ × K → J,
+  dimensions certified). Energy stays **independent of pressure·volume** — a chemistry-bookkeeping basis, so a
+  gas-law product (L·atm) and a calorimetry heat (J) never silently equate. ΔT rides the temperature basis as a
+  **difference** (1 °C = 1 K), distinct from the gas law's absolute kelvin.
+- **The first object with BOTH honesty badges:** the specific heat is a measured, **data-sourced** datum
+  (`data/specific-heats.toml`, OpenStax Table 5.1 — the data/rule-sourced badge), *and* the relation is exact only
+  inside the **calorimetry model** (no heat loss, constant c, no phase change — the model-assumed badge). Both render
+  on the gym.
+- **Model-exact-then-rounded** (a specific heat carries only so many figures): 3-sig-fig answers, the gate
+  re-derives q = m·c·ΔT within 0.5%. Solving **for c** is the identify-the-substance experiment (the answer is the
+  tabulated value, machine-confirmed). Named diagnostics: **using another substance's c** (treating everything like
+  water) + dropping a factor.
+- **Verification:** 271 producer tests (+7); **validate-gyms = 10 gyms / 100 problems**; 7 gates green; `astro build`
+  = **24 pages** (+1: `/gym/calorimetry/`); `derived/` byte-stable (only the new gym added). The `verifyCalorimetry`
+  gate branch is **4-way tamper-tested**. In-browser: the three badges + the model disclosure render; a "used water's
+  c" entry is named; the chips resolve to the calorimetry formula-sheet entry. No console errors.
+- **Deferred:** initial/final-temperature framing (ΔT = T_f − T_i) + cooling (negative q) as distinct drills; the
+  **energy-ledger lesson** (ΔH_rxn·ξ, Hess) — the next thermochemistry increment.
+
 ## Phase 2 — 2026-07-08 — gas-stoichiometry lesson: the ledger drives a gas volume (ADR-0041)
 
 The Phase-2 vertical slice — the extent ledger drives a **gas volume**. A weighed metal + an acid react; the

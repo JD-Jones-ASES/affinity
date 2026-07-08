@@ -63,7 +63,7 @@
             "required": ["kind"],
             "properties": {
               "kind": {
-                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield", "limiting_mass", "trend_compare", "predict_ion", "order_ionization", "classify_family", "name_spectators", "gas_ideal", "gas_combined"]
+                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield", "limiting_mass", "trend_compare", "predict_ion", "order_ionization", "classify_family", "name_spectators", "gas_ideal", "gas_combined", "calorimetry"]
               },
               "inputs": {
                 "type": "object",
@@ -145,6 +145,18 @@
                   "P1_atm": { "type": "string" }, "V1_L": { "type": "string" }, "T1_K": { "type": "string" },
                   "P2_atm": { "type": "string" }, "V2_L": { "type": "string" }, "T2_K": { "type": "string" }
                 }
+              },
+              "calorimetry": {
+                "type": "object",
+                "additionalProperties": false,
+                "$comment": "calorimetry kind (ADR-0042): the target variable + the sourced substance + the three given values of q_J/m_g/c_JgK/dT_K (all decimal strings). validate-gyms re-derives q = m·c·ΔT numerically.",
+                "required": ["solve_for", "substance"],
+                "properties": {
+                  "solve_for": { "type": "string", "minLength": 1 },
+                  "substance": { "type": "string", "minLength": 1 },
+                  "q": { "type": "string" }, "m": { "type": "string" },
+                  "c": { "type": "string" }, "dT": { "type": "string" }
+                }
               }
             }
           },
@@ -199,7 +211,8 @@
             "covalent_radius": { "type": "string" },
             "ionization_energy": { "type": "string" },
             "reaction_classes": { "type": "string" },
-            "constants": { "type": "string" }
+            "constants": { "type": "string" },
+            "specific_heats": { "type": "string" }
           }
         }
       }

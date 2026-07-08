@@ -34,19 +34,23 @@ const concepts = (gym.reference_links ?? []).map((id) => ({
 }));
 // the sourced-data badge names what the family actually drills: the periodic-trends gym embeds sourced
 // properties/charges (ADR-0034); the reaction-families gym rests on the sourced classification data
-// (ADR-0035); the gas-laws gym on the sourced gas constant (ADR-0040); every other family on sourced molar masses.
+// (ADR-0035); the gas-laws gym on the sourced gas constant (ADR-0040); the calorimetry gym on the sourced
+// specific heats (ADR-0042); every other family on sourced molar masses.
 const gymSources = gym.provenance?.sources ?? {};
 const isTrends = gym.family === "periodic_trends_v1";
 const isFamilies = gym.family === "reaction_families_v1";
 const isGas = gym.family === "gas_laws_v1";
+const isCalor = gym.family === "calorimetry_v1";
 const sourceLabel = isTrends
   ? `properties sourced (${[gymSources.electronegativity, gymSources.covalent_radius, gymSources.ionization_energy].filter(Boolean).join(", ")})`
   : isFamilies
   ? `reaction classes sourced (${gymSources.reaction_classes})`
   : isGas
   ? `gas constant sourced (${gymSources.constants})`
+  : isCalor
+  ? `specific heats sourced (${gymSources.specific_heats})`
   : `molar masses sourced (${gymSources.atomic_weight})`;
-const source = isTrends ? gymSources.ionization_energy : isFamilies ? gymSources.reaction_classes : isGas ? gymSources.constants : gymSources.atomic_weight;
+const source = isTrends ? gymSources.ionization_energy : isFamilies ? gymSources.reaction_classes : isGas ? gymSources.constants : isCalor ? gymSources.specific_heats : gymSources.atomic_weight;
 // a regime-2 gym discloses its model assumption under the model-assumed (amber) badge (ADR-0040)
 const assumptions = gym.assumptions ?? [];
 ---

@@ -545,3 +545,60 @@ def test_gas_laws_celsius_conversion_is_a_diagnostic():
 def test_gas_laws_deterministic():
     assert _gym_from(SPEC_GAS) == _gym_from(SPEC_GAS)
     assert _gym_from(SPEC_GAS, seed=7)["problems"] != _gym_from(SPEC_GAS)["problems"]
+
+
+# --- calorimetry gym (ADR-0042) --------------------------------------------------------------------------
+SPEC_CALOR = ROOT / "gyms" / "calorimetry" / "calorimetry.gym.toml"
+
+
+def test_calorimetry_shape_kinds_and_both_badges():
+    gym = _gym_from(SPEC_CALOR)
+    assert {p["kind"] for p in gym["problems"]} == {"calorimetry"}
+    # every one of the four solve targets appears across the seeded set
+    assert {p["derivation"]["calorimetry"]["solve_for"] for p in gym["problems"]} == {"q", "m", "c", "dT"}
+    # REGIME-2 + REGIME-3: it discloses the calorimetry model (model badge) AND cites the specific heats (sourced)
+    assert gym["assumptions"] and all(a["kind"] == "model" for a in gym["assumptions"])
+    assert gym["provenance"]["sources"]["specific_heats"]          # c is a sourced datum
+    for p in gym["problems"]:
+        _assert_numeric_response(p)                                # free entry, never a gameable menu
+
+
+def test_calorimetry_answers_reproduce_q_equals_mcdt():
+    """Every committed answer re-derives from q = m·c·ΔT within the rounding tolerance."""
+    for p in _gym_from(SPEC_CALOR)["problems"]:
+        d = p["derivation"]["calorimetry"]
+        sf = d["solve_for"]
+        if sf == "q":
+            got = float(d["m"]) * float(d["c"]) * float(d["dT"])
+        elif sf == "m":
+            got = float(d["q"]) / (float(d["c"]) * float(d["dT"]))
+        elif sf == "dT":
+            got = float(d["q"]) / (float(d["m"]) * float(d["c"]))
+        else:  # c
+            got = float(d["q"]) / (float(d["m"]) * float(d["dT"]))
+        want = float(p["answer"]["value"])
+        assert abs(got - want) <= 0.005 * abs(want) + 1e-9, (sf, d, got, want)
+
+
+def test_calorimetry_specific_heat_is_the_sourced_value():
+    """A 'solve for c' problem's answer is the substance's sourced specific heat — identify-the-metal, from data."""
+    data = ChemData.load(ROOT)
+    for p in _gym_from(SPEC_CALOR)["problems"]:
+        d = p["derivation"]["calorimetry"]
+        if d["solve_for"] != "c":
+            continue
+        sourced = next(v["specific_heat"] for v in data.specific_heats.values() if v["name"] == d["substance"])
+        assert abs(float(p["answer"]["value"]) - float(sourced)) <= 0.005 * float(sourced)
+
+
+def test_calorimetry_wrong_substance_c_is_a_diagnostic():
+    """A q/m/ΔT problem carries the 'used another substance's specific heat' diagnostic — the canonical error."""
+    problems = [p for p in _gym_from(SPEC_CALOR)["problems"]
+                if p["derivation"]["calorimetry"]["solve_for"] in ("q", "m", "dT")]
+    assert any(any("specific heat of another" in dg["misconception"] for dg in p["diagnostics"])
+               for p in problems)
+
+
+def test_calorimetry_deterministic():
+    assert _gym_from(SPEC_CALOR) == _gym_from(SPEC_CALOR)
+    assert _gym_from(SPEC_CALOR, seed=7)["problems"] != _gym_from(SPEC_CALOR)["problems"]

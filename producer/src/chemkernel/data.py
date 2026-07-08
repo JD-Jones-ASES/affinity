@@ -51,13 +51,14 @@ class Ion:
 class ChemData:
     def __init__(self, elements: dict[str, Element], ions: dict[str, Ion], sources: dict[str, str],
                  constants: dict[str, Decimal] | None = None, bonding: dict | None = None,
-                 constant_units: dict[str, str] | None = None):
+                 constant_units: dict[str, str] | None = None, specific_heats: dict | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
         self.constants = constants or {}
         self.constant_units = constant_units or {}
         self.bonding = bonding or {}
+        self.specific_heats = specific_heats or {}   # display name -> {name, phase, specific_heat (Decimal)}
 
     @property
     def avogadro(self) -> Decimal:
@@ -147,6 +148,21 @@ class ChemData:
                     if bound in c:
                         Decimal(c[bound])  # must parse exactly (ADR-0013); raises on garbage
 
+        # specific-heat capacities (optional file; ADR-0006/0042). A measured, data-sourced datum (regime-3) for
+        # the calorimetry gym — read as Decimal (ADR-0013), the substance keyed by its display name.
+        specific_heats: dict = {}
+        sh_source = ""
+        sh_path = d / "specific-heats.toml"
+        if sh_path.exists():
+            sh_doc = tomllib.loads(sh_path.read_text(encoding="utf-8"))
+            sh_source = sh_doc.get("source", "")
+            for key, v in sh_doc.get("substances", {}).items():
+                try:
+                    specific_heats[key] = {"name": v["name"], "phase": v.get("phase"),
+                                           "specific_heat": Decimal(v["specific_heat"])}
+                except (KeyError, ArithmeticError) as exc:
+                    raise BuildError(f"data/specific-heats.toml: bad entry for '{key}': {exc}") from exc
+
         sources = {
             "atomic_weight": el_doc.get("source", ""),
             "position": el_doc.get("position_source", ""),
@@ -156,8 +172,9 @@ class ChemData:
             "ion_charge": ion_doc.get("charge_source", ""),
             "constants": const_source,
             "bonding": bonding.get("source", ""),
+            "specific_heats": sh_source,
         }
-        obj = cls(elements, ions, sources, constants, bonding, constant_units)
+        obj = cls(elements, ions, sources, constants, bonding, constant_units, specific_heats)
         obj.validate()
         return obj
 

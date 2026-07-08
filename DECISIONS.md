@@ -1159,3 +1159,45 @@ and `practice.given` relaxed to allow a `mass_g` given (species-only required). 
 the gas-stoichiometry **slider interactive** (mass + volume + molarity sliders → the gas volume, parity-verified —
 `ExtentBar` is cation/anion-locked, so it needs its own component); collecting the gas **over water** (subtract the
 water-vapor pressure — needs a curated vapor-pressure table); `kPa`/`torr` units.
+
+## ADR-0042 — Calorimetry gym: the units engine gains an energy dimension; a gym with both the data-sourced and model-assumed badges (2026-07-08)
+
+**Context.** The thermochemistry opener (brief §17.7) — the energy ledger's first rung, $q = mc\Delta T$. Like the
+gas-laws gym (ADR-0040) it is the reusable *instrument* half of a tier (the `formula-calorimetry` sheet entry,
+ADR-0039, is the reference half). Two things it needs that no prior gym had: (1) the units engine (`units.py`) has
+**no energy dimension** — ADR-0040 deferred energy "when thermochemistry needs them"; (2) the specific heat is an
+**empirical, measured** value (regime-3, data-sourced) *as well as* the relation being model-exact (regime-2) — so
+the gym must carry **two** honesty badges at once, a first.
+
+**Decision.**
+1. **Extend the units engine with an `energy` basis component** (`Dim` grows to 6 fields; ADR-0040's deferred
+   extension). Registered units: `J`, `kJ`, and the specific-heat unit `J/(g*K)`. Every answer is computed
+   **through** the units engine — $q = (m \cdot c \cdot \Delta T)$, `.to("J")` — so the dimensions are certified
+   (g × J·g⁻¹·K⁻¹ × K → J) exactly as the gas gym certifies the ideal-gas product. **Energy is kept INDEPENDENT
+   of pressure·volume** in this basis: it is a chemistry-bookkeeping engine, not a physics-equivalence engine, so
+   a gas-law product stays in L·atm and a calorimetry heat stays in J — the two never silently equate. $\Delta T$
+   rides the **temperature** basis as a *difference* (a change of 1 °C equals a change of 1 K), so the prompt shows
+   °C and the machine uses K with no offset — distinct from the gas law's *absolute* kelvin (ADR-0040).
+2. **A gym with both the data-sourced and model-assumed badges.** The specific heat is a curated, sourced datum
+   (`data/specific-heats.toml`, OpenStax Table 5.1 — water 4.184 down to gold 0.129 J/(g·°C)); the gym's provenance
+   carries its source (`specific_heats`), rendered as the **data/rule-sourced** badge ("specific heats sourced …").
+   Simultaneously the relation is exact only inside the **calorimetry model** (no heat loss, constant $c$, no phase
+   change), disclosed in the `assumptions` block under the **model-assumed** badge (ADR-0040's mechanism). This is
+   the first object to wear both badges — the honest picture of a model computation over an empirical constant.
+3. **Model-exact-then-rounded, solving for any variable.** $q/m/c/\Delta T$: a consistent state is generated
+   (m, ΔT chosen, the sourced c, q computed) and one variable hidden and re-solved from the *emitted* givens; the
+   answer is reported to 3 sig figs (a specific heat carries only so many figures) and the Node gate re-derives
+   $q = mc\Delta T$ within 0.5%. Solving **for c** is the "identify the substance" experiment — the answer is the
+   tabulated value, machine-confirmed. Named diagnostics (ADR-0032): using **another substance's specific heat**
+   (treating everything like water — the canonical calorimetry error, robust for q/m/ΔT) and **dropping a factor**.
+
+**Consequences.** Gym family #10 (`calorimetry`, 10 drills). `units.py` `Dim` → 6 fields; `data.py` loads the new
+dataset (`ChemData.specific_heats`, a `specific_heats` source key); `gym.py` gains `_calorimetry_problem`/
+`_generate_calorimetry` + the family assumptions; `gym.schema.json` a `calorimetry` derivation shape + the
+`specific_heats` source key; `validate-gyms.mjs` a `verifyCalorimetry` branch (4-way tamper-tested — corrupt answer /
+corrupt a derivation input / a gameable menu / a too-close diagnostic, each caught). The gym page renders the
+specific-heats source badge; the drill island a calorimetry chain caption. **validate-gyms = 10 gyms / 100 problems**;
+271 producer tests (+7); 24 pages (+1: `/gym/calorimetry/`); `derived/` byte-stable (only the new gym added). This is
+the thermochemistry instrument the **energy-ledger lesson** ($\Delta H_\text{rxn}\cdot\xi$, the next increment) builds
+on. **Deferred:** initial/final-temperature framing ($\Delta T = T_f - T_i$) + cooling (negative $q$) as distinct
+drills; heat of reaction / Hess's law; the energy ledger attaching $\Delta H$ to extent.

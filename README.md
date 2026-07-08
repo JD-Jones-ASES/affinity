@@ -4,14 +4,14 @@
 
 **Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — five machine-verified lessons (precipitation,
 percent yield, acid-base neutralization, and now **gas stoichiometry** — a weighed metal + acid whose hydrogen
-volume falls out of the ledger via PV=nRT), nine procedural gyms (dimensional analysis, nomenclature,
-balancing, the full stoichiometry suite, periodic trends, reaction families, and now **gas laws** — PV=nRT and
-the combined gas law), the Chemical Atlas — now all four reference kinds: a typed concept graph + **7 reaction
+volume falls out of the ledger via PV=nRT), ten procedural gyms (dimensional analysis, nomenclature,
+balancing, the full stoichiometry suite, periodic trends, reaction families, **gas laws** — PV=nRT and the
+combined gas law — and now **calorimetry** — q=mcΔT), the Chemical Atlas — now all four reference kinds: a typed concept graph + **7 reaction
 families** with engine-classified example reactions + **14 species entries** with engine-derived molar masses +
 the **Valence Table flagship** (five lenses, trend graphs, a 156-salt formula builder, a ΔEN bonding mode over 23
 sourced elements) + the **formula & equation sheet** (the ideal gas law, calorimetry, mole–mass and more, each
 with its **dimensional homogeneity machine-checked**) — and generated practice. Phase 2 (gases, thermochemistry,
-and the rest of the model-bearing topics) is filling depth-first on gases; see [`ROADMAP.md`](./ROADMAP.md). See
+and the rest of the model-bearing topics) is filling depth-first on gases + thermochemistry; see [`ROADMAP.md`](./ROADMAP.md). See
 [`AGENTS.md`](./AGENTS.md) to work the repo.
 
 ## The idea in three lines

@@ -1,0 +1,19 @@
+# A procedural gym (Phase 2 / brief §17.7, ADR-0042) — the thermochemistry opener: q = m·c·ΔT, the first rung
+# of the energy ledger. Generated endlessly: given three of the four (heat, mass, specific heat, temperature
+# change), solve for the fourth. Two honesty layers, both kept: the specific heat is a MEASURED, data-sourced
+# datum (regime-3, OpenStax Table 5.1 — the data/rule-sourced badge), AND the relation is exact only inside the
+# calorimetry MODEL (regime-2 — no heat loss, constant c, no phase change — the model-assumed badge). Machine-
+# honest even so: every answer is computed THROUGH the units engine (g × J·g⁻¹·K⁻¹ × K → J, dimensions certified)
+# and the Node gate re-derives q = m·c·ΔT numerically. ΔT is a temperature DIFFERENCE, so °C and K give the same
+# number. Answers are reported ROUNDED to 3 significant figures (a specific heat carries only so many figures).
+
+id = "calorimetry"
+title = "Calorimetry: q = m·c·ΔT"
+slug = "calorimetry"
+topic = "thermochemistry"
+family = "calorimetry_v1"
+seed = 3141592
+count = 10
+blurb = "Heat, mass, specific heat, temperature change — one equation ties them together: q = m·c·ΔT. These drills give you three and ask for the fourth, drawing each substance's specific heat from a sourced table (water 4.184, aluminum 0.897, and metals down to gold's 0.129 J/g·°C). Type your answer (rounded to three significant figures); if you slip, the drill names the mistake — most often treating every substance like water, or dropping a factor. The arithmetic is machine-checked; the specific heats are sourced and the calorimetry model is disclosed, not proved."
+skills = ["solve q = m·c·ΔT for any single variable", "read the right specific heat for the substance — each has its own", "remember ΔT is a temperature difference (°C and K are interchangeable here)", "keep the units straight: q in J, m in g, c in J/(g·°C), ΔT in °C"]
+reference_links = ["formula-calorimetry", "conservation-of-mass"]

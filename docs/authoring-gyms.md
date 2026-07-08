@@ -102,6 +102,15 @@ A `family` selects the generator in `chemkernel.gym.generate_gym`. Today:
   absurd values ship; temperature is absolute (K), and a °C given is converted (K = °C + 273.15) — forgetting it
   is a named diagnostic. The `derivation` carries a `gas` block (the solved variable + the given state values +
   R). Sourced R travels in provenance (`constants`).
+- **`calorimetry_v1`** (ADR-0042) — the thermochemistry opener: q = m·c·ΔT (`calorimetry`, solve for q/m/c/ΔT).
+  Numeric free-entry, **model-exact-then-rounded** like `gas_laws_v1` (a specific heat carries only so many
+  figures; the gate re-derives q=mcΔT within tolerance). The first family with **both** honesty badges: the
+  specific heat is a **data-sourced** datum (`data/specific-heats.toml`, OpenStax Table 5.1 — the `specific_heats`
+  source travels in provenance, rendered as the data/rule-sourced badge) *and* the relation is exact only inside
+  the **calorimetry model** (no heat loss, constant c, no phase change — an `assumptions` block under the
+  model-assumed badge). Solving for c is the identify-the-substance experiment. ΔT is a temperature *difference*
+  (°C = K, no offset). The `derivation` carries a `calorimetry` block (the solved variable + substance + the three
+  given values). Named diagnostics: using another substance's specific heat, and dropping a factor.
 
 Adding a new procedural skill means adding a new `family` to `generate_gym` and, if it introduces a new answer
 shape, a per-kind branch to `validate-gyms.mjs` so the gate can re-derive it. It does **not** mean new plumbing.

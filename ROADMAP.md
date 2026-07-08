@@ -10,10 +10,15 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 - **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed; Phase 2 (the
   model-bearing tier) is filling depth-first on **gases + thermochemistry**. Landed so far: the **formula/equation
   sheet** (ADR-0039), the **`gas_laws_v1` gym** (ADR-0040), and the **gas-stoichiometry lesson** (ADR-0041 — the
-  vertical slice: the ledger drives a gas volume via PV=nRT — with generated practice). **Next inside Phase 2:**
-  **thermochemistry** (the energy ledger: q=mcΔT), and — smaller — the gas lesson's optional **slider interactive**.
-  Counters live in `AGENTS.md ## Current state`; per-increment detail in
+  vertical slice: the ledger drives a gas volume via PV=nRT — with generated practice), and the **calorimetry gym**
+  (ADR-0042 — q=mcΔT, the thermochemistry opener). **Next inside Phase 2:** the **energy-ledger lesson** (ΔH_rxn·ξ,
+  Hess), then the rest of the model-bearing topics. Counters live in `AGENTS.md ## Current state`; per-increment detail in
   [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+- **Calorimetry gym — LANDED** (2026-07-08, ADR-0042): `calorimetry_v1` (q=mcΔT, solve for any variable), the
+  thermochemistry opener. The `units.py` engine gained the deferred **energy** dimension (J, kJ, J/(g·K); kept
+  independent of pressure·volume), and specific heats are curated (`data/specific-heats.toml`, OpenStax Table 5.1).
+  The **first gym with both honesty badges** — data-sourced (the specific heats) + model-assumed (the calorimetry
+  model). Model-exact-then-rounded; the gate re-derives q=mcΔT. Gym family #10.
 - **Gas-stoichiometry lesson — LANDED** (2026-07-08, ADR-0041): the Phase-2 vertical slice — the extent ledger
   drives a **gas volume** (Zn + 2 HCl → ZnCl₂ + H₂; the ledger fixes moles of H₂, PV=nRT fixes the volume). `build.py`
   generalised to a third reported-product shape: a **weighed-mass given** (g→mol) + a **`result.gas` block** (volume
@@ -298,9 +303,14 @@ rest sequences after, each with its own scope block when its increment opens.
   **Deferred within (a follow-on increment):** the lesson's **slider interactive** (mass/volume/molarity sliders →
   the gas volume — `ExtentBar` is cation/anion-locked, needs its own component); collecting the gas **over water** (a
   vapor-pressure table); `kPa`/`torr` units.
-- **Thermochemistry (energy ledger) — after gases:** calorimetry ($q=mc\Delta T$, specific-heat data curated),
-  reaction enthalpy attached to extent ($\Delta H_\text{rxn}\cdot\xi$), Hess's law. The `formula-calorimetry` entry
-  is already on the sheet.
+- **Calorimetry gym — LANDED** (ADR-0042): $q=mc\Delta T$, solve for any variable, over sourced specific heats
+  (`data/specific-heats.toml`, OpenStax Table 5.1). The `units.py` engine gained the deferred **energy** dimension
+  (J, kJ, J/(g·K), kept independent of pressure·volume); the first gym wearing **both** the data-sourced (specific
+  heats) and model-assumed (calorimetry model) badges; model-exact-then-rounded, the gate re-derives $q=mc\Delta T$.
+- **Thermochemistry (energy ledger) — NEXT:** reaction enthalpy attached to extent ($\Delta H_\text{rxn}\cdot\xi$),
+  Hess's law — the energy-ledger lesson. The `formula-calorimetry` entry is already on the sheet, the gym is landed.
+  **Deferred within calorimetry:** initial/final-temperature framing ($\Delta T = T_f - T_i$) + cooling (negative
+  $q$) as distinct drills.
 
 **Then (each its own increment, sketch):** bonding & structure (Lewis, VSEPR, polarity, IMFs; the Valence Table's
 bonding mode is seeded, ADR-0033); equilibrium & acid-base (ICE table = the ledger with reversible extent —

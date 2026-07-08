@@ -1533,6 +1533,136 @@ def _generate_gas_laws(seed, count, data, ctx):
     return problems
 
 
+# ------------------------------ calorimetry (Phase 2 / brief §17.7, ADR-0042) ------------------------------
+#
+# The thermochemistry opener: q = m·c·ΔT, the first rung of the energy ledger. Like the gas-laws gym (ADR-0040)
+# it is model-exact-then-rounded (the specific heat is a rounded measured value, so the answer is reported to
+# 3 sig figs and the gate re-derives within tolerance), but it adds a SECOND honesty layer: the specific heat is
+# an empirical, **data-sourced** datum (regime-3, OpenStax Table 5.1) as well as the relation being model-exact
+# (regime-2, the calorimetry idealization). So the gym carries BOTH the data-sourced badge (the specific heats)
+# and the model-assumed badge (constant c, no heat loss, no phase change). Every answer is computed THROUGH the
+# units engine (g × J·g⁻¹·K⁻¹ × K → J, dimensions certified). ΔT rides the temperature basis as a difference —
+# a change of 1 °C equals a change of 1 K — so the prompt shows °C and the machine uses K with no offset.
+
+_CAL_MASS = [Decimal(m) for m in ("10.0", "25.0", "50.0", "75.0", "100.0", "150.0", "200.0", "250.0")]
+_CAL_DT = [Decimal(t) for t in ("5.00", "10.0", "15.0", "20.0", "25.0", "30.0", "40.0", "50.0")]
+# EMITTED (display) units — pretty forms; the units engine computes with the registry units (J, g, J/(g*K), K)
+# internally in `_solve_calor`. ΔT is a difference so it reads in °C (= K). The gate checks these display units
+# only for internal consistency (answer.unit == target_unit == chain's last unit), never against the registry.
+_CAL_UNIT = {"q": "J", "m": "g", "c": "J/(g·°C)", "dT": "°C"}
+
+
+def _solve_calor(solve_for, q, m, c, dT):
+    """Solve q = m·c·ΔT for one variable, through the units engine (dimensions certified). Returns a Decimal."""
+    if solve_for == "q":
+        return (_q(m, "g") * _q(c, "J/(g*K)") * _q(dT, "K")).to("J").value
+    if solve_for == "m":
+        return (_q(q, "J") / (_q(c, "J/(g*K)") * _q(dT, "K"))).to("g").value
+    if solve_for == "dT":
+        return (_q(q, "J") / (_q(m, "g") * _q(c, "J/(g*K)"))).to("K").value
+    return (_q(q, "J") / (_q(m, "g") * _q(dT, "K"))).to("J/(g*K)").value    # c
+
+
+def _calorimetry_problem(rng, data, ctx):
+    """One q = mcΔT problem, solving for one of q/m/c/ΔT given the other three. The state is generated CONSISTENT
+    (m, ΔT chosen, the substance's sourced c, q computed) so the answer is always physical; the given q is shown
+    at 4 sig figs and the answer re-derives from the emitted givens. Returns None if it lands out of range."""
+    subs = list(data.specific_heats.items())
+    key, info = rng.choice(subs)
+    c, sub = info["specific_heat"], info["name"]
+    solve_for = rng.choice(["q", "m", "c", "dT"])
+    m, dT = rng.choice(_CAL_MASS), rng.choice(_CAL_DT)
+
+    with localcontext() as lc:
+        lc.prec = 28
+        q_J = _round_sig(_solve_calor("q", None, m, c, dT), 4)   # the consistent heat, a 4-sig-fig given
+        known = {"q": q_J, "m": m, "c": c, "dT": dT}
+        answer = _solve_calor(solve_for, known["q"], known["m"], known["c"], known["dT"])
+    lo, hi = {"q": (Decimal(5), Decimal(200000)), "m": (Decimal("0.5"), Decimal(5000)),
+              "c": (Decimal("0.05"), Decimal(10)), "dT": (Decimal("0.5"), Decimal(500))}[solve_for]
+    if not (lo <= answer <= hi):
+        return None
+
+    unit = _CAL_UNIT[solve_for]
+    # named-mistake diagnostics (ADR-0032). The canonical calorimetry error is treating every substance like
+    # water — using another substance's specific heat — which is robust for the q/m/ΔT targets; solving FOR c
+    # instead exposes the dropped-factor slips (forgetting the mass or the temperature change).
+    others = [v["specific_heat"] for k, v in subs if k != key and abs(v["specific_heat"] - c) > c / 10]
+    other_c = rng.choice(others) if others else None
+    wrongs = []
+    with localcontext() as lc:
+        lc.prec = 28
+        if solve_for == "q":
+            wrongs.append((m * dT, f"Left out the specific heat — q = m·c·ΔT, not m·ΔT. Multiply by "
+                                   f"c = {_trim(str(c))} J/(g·°C) too."))
+            if other_c is not None:
+                wrongs.append((_solve_calor("q", None, m, other_c, dT),
+                               f"Used the specific heat of another substance ({_trim(str(other_c))}) — {sub} "
+                               f"has its own, c = {_trim(str(c))} J/(g·°C)."))
+        elif solve_for == "c":
+            wrongs.append((q_J / m, "Divided by the mass only — c = q / (m·ΔT); you left out the temperature change."))
+            wrongs.append((q_J / dT, "Divided by the temperature change only — c = q / (m·ΔT); you left out the mass."))
+        else:  # m or dT
+            if other_c is not None:
+                wrongs.append((_solve_calor(solve_for, q_J, m, other_c, dT),
+                               f"Used the specific heat of another substance ({_trim(str(other_c))}) instead of "
+                               f"{sub}'s c = {_trim(str(c))} J/(g·°C)."))
+            drop = q_J / dT if solve_for == "m" else q_J / m       # dropped c (used q = m·ΔT rearranged)
+            wrongs.append((drop, f"Left out the specific heat — rearrange q = m·c·ΔT, keeping "
+                                 f"c = {_trim(str(c))} J/(g·°C)."))
+
+    value, display, diagnostics = _rounded_response(answer, unit, wrongs)
+    if len(diagnostics) < 1:
+        return None
+
+    # prompt + chain. ΔT is shown in °C (a difference; = K), c in the familiar J/(g·°C); the machine unit is K.
+    disp = {"q": ("J", q_J), "m": ("g", m), "c": ("J/(g·°C)", c), "dT": ("°C", dT)}
+    known_phrase = {
+        "m": f"a {_gnum(m)} g sample of {sub}",
+        "dT": f"its temperature changes by {_gnum(dT)} °C",
+        "c": f"the specific heat of {sub} is c = {_trim(str(c))} J/(g·°C)",
+        "q": f"it absorbs {_gnum(q_J)} J of heat",
+    }
+    ask = {"q": "how much heat does it absorb (J)", "m": f"what is the mass of the {sub} sample (g)",
+           "c": "what is its specific heat (J/(g·°C))", "dT": "by how many degrees does it change (°C)"}[solve_for]
+    parts = [known_phrase[k] for k in ("m", "c", "dT", "q") if k != solve_for]
+    prompt = f"Using q = m·c·ΔT: {parts[0]}, {parts[1]}, and {parts[2]}. Then {ask}?"
+
+    rearr = {"q": "q = m·c·ΔT", "m": "m = q / (c·ΔT)", "c": "c = q / (m·ΔT)", "dT": "ΔT = q / (m·c)"}[solve_for]
+    chain = [{"value": rearr, "unit": "", "note": "rearrange q = m·c·ΔT"},
+             {"value": _sigdec(answer, 3), "unit": unit, "note": f"solve for {solve_for}"}]
+    explain = f"q = m·c·ΔT rearranges to {rearr}. Substituting the sourced c gives {display}."
+
+    given = {f"{k}": _trim(str(known[k])) for k in ("q", "m", "c", "dT") if k != solve_for}
+    return {
+        "kind": "calorimetry", "mode": "numeric", "prompt": prompt, "chain": chain, "target_unit": unit,
+        "answer": {"value": value, "unit": unit, "display": display},
+        "derivation": {"kind": "calorimetry",
+                       "calorimetry": {"solve_for": solve_for, "substance": sub, **given}},
+        "diagnostics": diagnostics, "explain": explain,
+    }
+
+
+def _generate_calorimetry(seed, count, data, ctx):
+    if not data.specific_heats:
+        raise BuildError(f"{ctx}: calorimetry gym needs data/specific-heats.toml")
+    rng = random.Random(seed)
+    problems: list[dict] = []
+    seen: set = set()
+    attempts = 0
+    while len(problems) < count and attempts < 8000:
+        attempts += 1
+        p = _calorimetry_problem(rng, data, ctx)
+        if p is None or p["prompt"] in seen:
+            continue
+        seen.add(p["prompt"])
+        p["id"] = f"q{len(problems) + 1}"
+        problems.append(p)
+    if len(problems) < count:
+        raise BuildError(f"{ctx}: calorimetry gym could not generate {count} problems at seed {seed}")
+    return problems
+
+
 _FAMILIES = {
     "solution_conversions_v1": _generate_conversions,
     "ionic_nomenclature_v1": _generate_nomenclature,
@@ -1543,6 +1673,7 @@ _FAMILIES = {
     "periodic_trends_v1": _generate_trends,
     "reaction_families_v1": _generate_reaction_families,
     "gas_laws_v1": _generate_gas_laws,
+    "calorimetry_v1": _generate_calorimetry,
 }
 
 
@@ -1569,6 +1700,9 @@ def generate_gym(spec: dict, data, ctx: str = "") -> dict:
     if family == "gas_laws_v1":
         # the ideal-gas answers use the sourced gas constant R (data/constants.toml)
         sources["constants"] = data.sources.get("constants", "")
+    if family == "calorimetry_v1":
+        # the calorimetry answers use the sourced specific heats (data/specific-heats.toml, ADR-0042)
+        sources["specific_heats"] = data.sources.get("specific_heats", "")
 
     gym = {
         "kind": "gym",
@@ -1603,5 +1737,11 @@ _FAMILY_ASSUMPTIONS = {
         {"claim": "The gas behaves ideally: PV = nRT holds exactly only for a dilute gas (low pressure, "
                   "temperature well above condensation). A disclosed model, not a law of algebra.",
          "kind": "model"},
+    ],
+    "calorimetry_v1": [
+        {"claim": "The calorimeter loses no heat to the surroundings — all the heat stays in the sample.",
+         "kind": "model"},
+        {"claim": "The specific heat capacity c is constant over the temperature range and there is no phase "
+                  "change (no melting or boiling).", "kind": "model"},
     ],
 }

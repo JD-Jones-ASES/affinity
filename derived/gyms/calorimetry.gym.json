@@ -1,0 +1,510 @@
+{
+  "kind": "gym",
+  "id": "calorimetry",
+  "title": "Calorimetry: q = m·c·ΔT",
+  "slug": "calorimetry",
+  "topic": "thermochemistry",
+  "family": "calorimetry_v1",
+  "seed": 3141592,
+  "blurb": "Heat, mass, specific heat, temperature change — one equation ties them together: q = m·c·ΔT. These drills give you three and ask for the fourth, drawing each substance's specific heat from a sourced table (water 4.184, aluminum 0.897, and metals down to gold's 0.129 J/g·°C). Type your answer (rounded to three significant figures); if you slip, the drill names the mistake — most often treating every substance like water, or dropping a factor. The arithmetic is machine-checked; the specific heats are sourced and the calorimetry model is disclosed, not proved.",
+  "skills": [
+    "solve q = m·c·ΔT for any single variable",
+    "read the right specific heat for the substance — each has its own",
+    "remember ΔT is a temperature difference (°C and K are interchangeable here)",
+    "keep the units straight: q in J, m in g, c in J/(g·°C), ΔT in °C"
+  ],
+  "reference_links": [
+    "formula-calorimetry",
+    "conservation-of-mass"
+  ],
+  "problems": [
+    {
+      "kind": "calorimetry",
+      "mode": "numeric",
+      "prompt": "Using q = m·c·ΔT: the specific heat of gold is c = 0.129 J/(g·°C), its temperature changes by 20 °C, and it absorbs 387 J of heat. Then what is the mass of the gold sample (g)?",
+      "chain": [
+        {
+          "value": "m = q / (c·ΔT)",
+          "unit": "",
+          "note": "rearrange q = m·c·ΔT"
+        },
+        {
+          "value": "150",
+          "unit": "g",
+          "note": "solve for m"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "150",
+        "unit": "g",
+        "display": "150 g"
+      },
+      "derivation": {
+        "kind": "calorimetry",
+        "calorimetry": {
+          "solve_for": "m",
+          "substance": "gold",
+          "q": "387",
+          "c": "0.129",
+          "dT": "20"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "4.625",
+          "unit": "g",
+          "misconception": "Used the specific heat of another substance (4.184) instead of gold's c = 0.129 J/(g·°C)."
+        },
+        {
+          "value": "19.35",
+          "unit": "g",
+          "misconception": "Left out the specific heat — rearrange q = m·c·ΔT, keeping c = 0.129 J/(g·°C)."
+        }
+      ],
+      "explain": "q = m·c·ΔT rearranges to m = q / (c·ΔT). Substituting the sourced c gives 150 g.",
+      "id": "q1"
+    },
+    {
+      "kind": "calorimetry",
+      "mode": "numeric",
+      "prompt": "Using q = m·c·ΔT: a 75 g sample of silver, the specific heat of silver is c = 0.233 J/(g·°C), and its temperature changes by 30 °C. Then how much heat does it absorb (J)?",
+      "chain": [
+        {
+          "value": "q = m·c·ΔT",
+          "unit": "",
+          "note": "rearrange q = m·c·ΔT"
+        },
+        {
+          "value": "524",
+          "unit": "J",
+          "note": "solve for q"
+        }
+      ],
+      "target_unit": "J",
+      "answer": {
+        "value": "524.3",
+        "unit": "J",
+        "display": "524 J"
+      },
+      "derivation": {
+        "kind": "calorimetry",
+        "calorimetry": {
+          "solve_for": "q",
+          "substance": "silver",
+          "m": "75",
+          "c": "0.233",
+          "dT": "30"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "2250",
+          "unit": "J",
+          "misconception": "Left out the specific heat — q = m·c·ΔT, not m·ΔT. Multiply by c = 0.233 J/(g·°C) too."
+        },
+        {
+          "value": "1010",
+          "unit": "J",
+          "misconception": "Used the specific heat of another substance (0.449) — silver has its own, c = 0.233 J/(g·°C)."
+        }
+      ],
+      "explain": "q = m·c·ΔT rearranges to q = m·c·ΔT. Substituting the sourced c gives 524 J.",
+      "id": "q2"
+    },
+    {
+      "kind": "calorimetry",
+      "mode": "numeric",
+      "prompt": "Using q = m·c·ΔT: a 150 g sample of iron, the specific heat of iron is c = 0.449 J/(g·°C), and its temperature changes by 15 °C. Then how much heat does it absorb (J)?",
+      "chain": [
+        {
+          "value": "q = m·c·ΔT",
+          "unit": "",
+          "note": "rearrange q = m·c·ΔT"
+        },
+        {
+          "value": "1010",
+          "unit": "J",
+          "note": "solve for q"
+        }
+      ],
+      "target_unit": "J",
+      "answer": {
+        "value": "1010",
+        "unit": "J",
+        "display": "1010 J"
+      },
+      "derivation": {
+        "kind": "calorimetry",
+        "calorimetry": {
+          "solve_for": "q",
+          "substance": "iron",
+          "m": "150",
+          "c": "0.449",
+          "dT": "15"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "2250",
+          "unit": "J",
+          "misconception": "Left out the specific heat — q = m·c·ΔT, not m·ΔT. Multiply by c = 0.449 J/(g·°C) too."
+        },
+        {
+          "value": "9414",
+          "unit": "J",
+          "misconception": "Used the specific heat of another substance (4.184) — iron has its own, c = 0.449 J/(g·°C)."
+        }
+      ],
+      "explain": "q = m·c·ΔT rearranges to q = m·c·ΔT. Substituting the sourced c gives 1010 J.",
+      "id": "q3"
+    },
+    {
+      "kind": "calorimetry",
+      "mode": "numeric",
+      "prompt": "Using q = m·c·ΔT: a 150 g sample of copper, its temperature changes by 30 °C, and it absorbs 1733 J of heat. Then what is its specific heat (J/(g·°C))?",
+      "chain": [
+        {
+          "value": "c = q / (m·ΔT)",
+          "unit": "",
+          "note": "rearrange q = m·c·ΔT"
+        },
+        {
+          "value": "0.385",
+          "unit": "J/(g·°C)",
+          "note": "solve for c"
+        }
+      ],
+      "target_unit": "J/(g·°C)",
+      "answer": {
+        "value": "0.3851",
+        "unit": "J/(g·°C)",
+        "display": "0.385 J/(g·°C)"
+      },
+      "derivation": {
+        "kind": "calorimetry",
+        "calorimetry": {
+          "solve_for": "c",
+          "substance": "copper",
+          "q": "1733",
+          "m": "150",
+          "dT": "30"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "11.55",
+          "unit": "J/(g·°C)",
+          "misconception": "Divided by the mass only — c = q / (m·ΔT); you left out the temperature change."
+        },
+        {
+          "value": "57.77",
+          "unit": "J/(g·°C)",
+          "misconception": "Divided by the temperature change only — c = q / (m·ΔT); you left out the mass."
+        }
+      ],
+      "explain": "q = m·c·ΔT rearranges to c = q / (m·ΔT). Substituting the sourced c gives 0.385 J/(g·°C).",
+      "id": "q4"
+    },
+    {
+      "kind": "calorimetry",
+      "mode": "numeric",
+      "prompt": "Using q = m·c·ΔT: a 10 g sample of aluminum, its temperature changes by 50 °C, and it absorbs 448.5 J of heat. Then what is its specific heat (J/(g·°C))?",
+      "chain": [
+        {
+          "value": "c = q / (m·ΔT)",
+          "unit": "",
+          "note": "rearrange q = m·c·ΔT"
+        },
+        {
+          "value": "0.897",
+          "unit": "J/(g·°C)",
+          "note": "solve for c"
+        }
+      ],
+      "target_unit": "J/(g·°C)",
+      "answer": {
+        "value": "0.897",
+        "unit": "J/(g·°C)",
+        "display": "0.897 J/(g·°C)"
+      },
+      "derivation": {
+        "kind": "calorimetry",
+        "calorimetry": {
+          "solve_for": "c",
+          "substance": "aluminum",
+          "q": "448.5",
+          "m": "10",
+          "dT": "50"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "44.85",
+          "unit": "J/(g·°C)",
+          "misconception": "Divided by the mass only — c = q / (m·ΔT); you left out the temperature change."
+        },
+        {
+          "value": "8.97",
+          "unit": "J/(g·°C)",
+          "misconception": "Divided by the temperature change only — c = q / (m·ΔT); you left out the mass."
+        }
+      ],
+      "explain": "q = m·c·ΔT rearranges to c = q / (m·ΔT). Substituting the sourced c gives 0.897 J/(g·°C).",
+      "id": "q5"
+    },
+    {
+      "kind": "calorimetry",
+      "mode": "numeric",
+      "prompt": "Using q = m·c·ΔT: the specific heat of lead is c = 0.13 J/(g·°C), its temperature changes by 25 °C, and it absorbs 812.5 J of heat. Then what is the mass of the lead sample (g)?",
+      "chain": [
+        {
+          "value": "m = q / (c·ΔT)",
+          "unit": "",
+          "note": "rearrange q = m·c·ΔT"
+        },
+        {
+          "value": "250",
+          "unit": "g",
+          "note": "solve for m"
+        }
+      ],
+      "target_unit": "g",
+      "answer": {
+        "value": "250",
+        "unit": "g",
+        "display": "250 g"
+      },
+      "derivation": {
+        "kind": "calorimetry",
+        "calorimetry": {
+          "solve_for": "m",
+          "substance": "lead",
+          "q": "812.5",
+          "c": "0.13",
+          "dT": "25"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "36.23",
+          "unit": "g",
+          "misconception": "Used the specific heat of another substance (0.897) instead of lead's c = 0.13 J/(g·°C)."
+        },
+        {
+          "value": "32.5",
+          "unit": "g",
+          "misconception": "Left out the specific heat — rearrange q = m·c·ΔT, keeping c = 0.13 J/(g·°C)."
+        }
+      ],
+      "explain": "q = m·c·ΔT rearranges to m = q / (c·ΔT). Substituting the sourced c gives 250 g.",
+      "id": "q6"
+    },
+    {
+      "kind": "calorimetry",
+      "mode": "numeric",
+      "prompt": "Using q = m·c·ΔT: a 75 g sample of water, the specific heat of water is c = 4.184 J/(g·°C), and it absorbs 15690 J of heat. Then by how many degrees does it change (°C)?",
+      "chain": [
+        {
+          "value": "ΔT = q / (m·c)",
+          "unit": "",
+          "note": "rearrange q = m·c·ΔT"
+        },
+        {
+          "value": "50",
+          "unit": "°C",
+          "note": "solve for dT"
+        }
+      ],
+      "target_unit": "°C",
+      "answer": {
+        "value": "50",
+        "unit": "°C",
+        "display": "50 °C"
+      },
+      "derivation": {
+        "kind": "calorimetry",
+        "calorimetry": {
+          "solve_for": "dT",
+          "substance": "water",
+          "q": "1.569E+4",
+          "m": "75",
+          "c": "4.184"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "1622",
+          "unit": "°C",
+          "misconception": "Used the specific heat of another substance (0.129) instead of water's c = 4.184 J/(g·°C)."
+        },
+        {
+          "value": "209.2",
+          "unit": "°C",
+          "misconception": "Left out the specific heat — rearrange q = m·c·ΔT, keeping c = 4.184 J/(g·°C)."
+        }
+      ],
+      "explain": "q = m·c·ΔT rearranges to ΔT = q / (m·c). Substituting the sourced c gives 50 °C.",
+      "id": "q7"
+    },
+    {
+      "kind": "calorimetry",
+      "mode": "numeric",
+      "prompt": "Using q = m·c·ΔT: a 100 g sample of iron, its temperature changes by 40 °C, and it absorbs 1796 J of heat. Then what is its specific heat (J/(g·°C))?",
+      "chain": [
+        {
+          "value": "c = q / (m·ΔT)",
+          "unit": "",
+          "note": "rearrange q = m·c·ΔT"
+        },
+        {
+          "value": "0.449",
+          "unit": "J/(g·°C)",
+          "note": "solve for c"
+        }
+      ],
+      "target_unit": "J/(g·°C)",
+      "answer": {
+        "value": "0.449",
+        "unit": "J/(g·°C)",
+        "display": "0.449 J/(g·°C)"
+      },
+      "derivation": {
+        "kind": "calorimetry",
+        "calorimetry": {
+          "solve_for": "c",
+          "substance": "iron",
+          "q": "1796",
+          "m": "100",
+          "dT": "40"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "17.96",
+          "unit": "J/(g·°C)",
+          "misconception": "Divided by the mass only — c = q / (m·ΔT); you left out the temperature change."
+        },
+        {
+          "value": "44.9",
+          "unit": "J/(g·°C)",
+          "misconception": "Divided by the temperature change only — c = q / (m·ΔT); you left out the mass."
+        }
+      ],
+      "explain": "q = m·c·ΔT rearranges to c = q / (m·ΔT). Substituting the sourced c gives 0.449 J/(g·°C).",
+      "id": "q8"
+    },
+    {
+      "kind": "calorimetry",
+      "mode": "numeric",
+      "prompt": "Using q = m·c·ΔT: a 150 g sample of aluminum, the specific heat of aluminum is c = 0.897 J/(g·°C), and its temperature changes by 40 °C. Then how much heat does it absorb (J)?",
+      "chain": [
+        {
+          "value": "q = m·c·ΔT",
+          "unit": "",
+          "note": "rearrange q = m·c·ΔT"
+        },
+        {
+          "value": "5380",
+          "unit": "J",
+          "note": "solve for q"
+        }
+      ],
+      "target_unit": "J",
+      "answer": {
+        "value": "5382",
+        "unit": "J",
+        "display": "5380 J"
+      },
+      "derivation": {
+        "kind": "calorimetry",
+        "calorimetry": {
+          "solve_for": "q",
+          "substance": "aluminum",
+          "m": "150",
+          "c": "0.897",
+          "dT": "40"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "6000",
+          "unit": "J",
+          "misconception": "Left out the specific heat — q = m·c·ΔT, not m·ΔT. Multiply by c = 0.897 J/(g·°C) too."
+        },
+        {
+          "value": "780",
+          "unit": "J",
+          "misconception": "Used the specific heat of another substance (0.13) — aluminum has its own, c = 0.897 J/(g·°C)."
+        }
+      ],
+      "explain": "q = m·c·ΔT rearranges to q = m·c·ΔT. Substituting the sourced c gives 5380 J.",
+      "id": "q9"
+    },
+    {
+      "kind": "calorimetry",
+      "mode": "numeric",
+      "prompt": "Using q = m·c·ΔT: a 250 g sample of aluminum, the specific heat of aluminum is c = 0.897 J/(g·°C), and its temperature changes by 30 °C. Then how much heat does it absorb (J)?",
+      "chain": [
+        {
+          "value": "q = m·c·ΔT",
+          "unit": "",
+          "note": "rearrange q = m·c·ΔT"
+        },
+        {
+          "value": "6730",
+          "unit": "J",
+          "note": "solve for q"
+        }
+      ],
+      "target_unit": "J",
+      "answer": {
+        "value": "6728",
+        "unit": "J",
+        "display": "6730 J"
+      },
+      "derivation": {
+        "kind": "calorimetry",
+        "calorimetry": {
+          "solve_for": "q",
+          "substance": "aluminum",
+          "m": "250",
+          "c": "0.897",
+          "dT": "30"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "7500",
+          "unit": "J",
+          "misconception": "Left out the specific heat — q = m·c·ΔT, not m·ΔT. Multiply by c = 0.897 J/(g·°C) too."
+        },
+        {
+          "value": "3368",
+          "unit": "J",
+          "misconception": "Used the specific heat of another substance (0.449) — aluminum has its own, c = 0.897 J/(g·°C)."
+        }
+      ],
+      "explain": "q = m·c·ΔT rearranges to q = m·c·ΔT. Substituting the sourced c gives 6730 J.",
+      "id": "q10"
+    }
+  ],
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights",
+      "specific_heats": "openstax-chemistry-2e"
+    }
+  },
+  "assumptions": [
+    {
+      "claim": "The calorimeter loses no heat to the surroundings — all the heat stays in the sample.",
+      "kind": "model"
+    },
+    {
+      "claim": "The specific heat capacity c is constant over the temperature range and there is no phase change (no melting or boiling).",
+      "kind": "model"
+    }
+  ]
+}

@@ -30,14 +30,17 @@ class Dim:
     volume: int = 0
     pressure: int = 0       # gases (ADR-0040); atm is the canonical pressure unit
     temperature: int = 0    # gases (ADR-0040); K (absolute) is the canonical temperature unit
+    energy: int = 0         # thermochemistry (ADR-0042); J is the canonical energy unit. Kept INDEPENDENT of
+                            # pressure·volume — this is a chemistry-bookkeeping basis, not a physics-equivalence
+                            # engine, so a gas-law product stays in L·atm and a calorimetry heat stays in J.
 
     def __add__(self, o: "Dim") -> "Dim":
         return Dim(self.amount + o.amount, self.mass + o.mass, self.volume + o.volume,
-                   self.pressure + o.pressure, self.temperature + o.temperature)
+                   self.pressure + o.pressure, self.temperature + o.temperature, self.energy + o.energy)
 
     def __sub__(self, o: "Dim") -> "Dim":
         return Dim(self.amount - o.amount, self.mass - o.mass, self.volume - o.volume,
-                   self.pressure - o.pressure, self.temperature - o.temperature)
+                   self.pressure - o.pressure, self.temperature - o.temperature, self.energy - o.energy)
 
 
 # unit label -> (dimension, multiplicative factor to canonical base units [mol, g, L, atm, K])
@@ -58,6 +61,11 @@ _REGISTRY: dict[str, tuple[Dim, Decimal]] = {
     # the molar gas constant's unit: L·atm·mol⁻¹·K⁻¹ (ADR-0040). Lets a gas-law product be built and its
     # dimension certified by the same units engine that proves L × mol/L = mol.
     "L*atm/(mol*K)": (Dim(volume=1, pressure=1, amount=-1, temperature=-1), Decimal(1)),
+    # thermochemistry (ADR-0042): energy + the specific-heat unit, so q = m·c·ΔT is built and certified
+    # (g × J·g⁻¹·K⁻¹ × K → J) by the same engine. ΔT rides the temperature basis (a difference: 1 °C = 1 K).
+    "J": (Dim(energy=1), Decimal(1)),
+    "kJ": (Dim(energy=1), Decimal(1000)),
+    "J/(g*K)": (Dim(energy=1, mass=-1, temperature=-1), Decimal(1)),
 }
 
 # canonical display label for a derived dimension
@@ -71,6 +79,8 @@ _CANON_LABEL: dict[Dim, str] = {
     Dim(pressure=1): "atm",
     Dim(temperature=1): "K",
     Dim(volume=1, pressure=1, amount=-1, temperature=-1): "L*atm/(mol*K)",
+    Dim(energy=1): "J",
+    Dim(energy=1, mass=-1, temperature=-1): "J/(g*K)",
 }
 
 

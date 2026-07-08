@@ -66,3 +66,27 @@ def test_pressure_and_temperature_are_distinct_dimensions():
     assert Q.of(1, "K").dim == Dim(temperature=1)
     with pytest.raises(BuildError):                             # atm and K are not interconvertible
         Q.of(1, "atm").to("K")
+
+
+def test_calorimetry_product_lands_in_energy():
+    # q = m·c·ΔT through the units engine (ADR-0042): g × J·g⁻¹·K⁻¹ × K → J, dimensions certified.
+    # 50 g water, c=4.184 J/(g·K), ΔT=20 K → q = 4184 J (units certified, not asserted).
+    m = Q.of(Decimal("50"), "g")
+    c = Q.of(Decimal("4.184"), "J/(g*K)")
+    dT = Q.of(Decimal("20"), "K")
+    q = (m * c * dT).to("J")
+    assert q.dim == Dim(energy=1)
+    assert q.value == Decimal("4184")
+    # solving back for the specific heat lands in J/(g·K)
+    c_back = (q / (m * dT)).to("J/(g*K)")
+    assert c_back.dim == Dim(energy=1, mass=-1, temperature=-1)
+    assert c_back.value == Decimal("4.184")
+
+
+def test_energy_is_independent_of_pressure_volume():
+    # the chemistry-bookkeeping basis keeps energy separate from pressure·volume (ADR-0042): a gas-law product
+    # (L·atm) and a calorimetry heat (J) never silently equate.
+    assert Q.of(1, "J").dim == Dim(energy=1)
+    assert Q.of(1, "J").dim != Dim(pressure=1, volume=1)
+    with pytest.raises(BuildError):
+        Q.of(1, "J").to("L*atm/(mol*K)")
