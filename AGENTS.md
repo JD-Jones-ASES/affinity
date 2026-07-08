@@ -194,9 +194,9 @@ at its URL even though the repo is private (private/access-controlled Pages need
 **Phase 0 + Phase 1 COMPLETE (owner-reviewed). Phase 2 OPEN (2026-07-08, ADR-0039/0040/0041)** — the model-bearing
 tier, filling depth-first on gases + thermochemistry. Landed: the **formula-sheet Atlas kind** (ADR-0039), the
 **`gas_laws_v1` gym** (ADR-0040), and the **gas-stoichiometry lesson** (ADR-0041 — the vertical slice: the ledger
-drives a gas volume via PV=nRT; `build.py` now handles a weighed-mass given + a `result.gas` block; with generated
-practice re-derived from reaction constants, no interactive needed). **Next:** thermochemistry (+ the gas lesson's
-optional slider interactive). History in [`CHANGELOG.md`](./CHANGELOG.md) +
+drives a gas volume via PV=nRT; `build.py` now handles a weighed-mass given + a `result.gas` block; + generated
+practice). **Next:** thermochemistry (+ the gas lesson's optional slider interactive). History in
+[`CHANGELOG.md`](./CHANGELOG.md) +
 [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
 [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
