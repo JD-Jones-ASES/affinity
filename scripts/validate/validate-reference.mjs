@@ -11,6 +11,7 @@ import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
+import { verifyBalance, redoxFreeElements } from "./balancecheck.mjs";
 
 const ROOT = process.cwd();
 const refDir = join(ROOT, "derived", "reference");
@@ -24,6 +25,7 @@ addFormats(ajv);
 const schemas = {
   "valence-table": ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas", "valence-table.schema.json"), "utf8"))),
   concept: ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas", "reference.schema.json"), "utf8"))),
+  "reaction-family": ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas", "reaction-family.schema.json"), "utf8"))),
 };
 
 const fail = (file, msg) => { console.error(`REFERENCE GATE FAILED — ${file}: ${msg}`); process.exit(1); };
@@ -70,6 +72,38 @@ for (const { rel, obj } of entries) {
     // the honesty model (ADR-0003): a rule-sourced concept must cite its source
     if (obj.regime === "rule-sourced" && !obj.source) fail(rel, `rule-sourced concept has no source`);
     if (obj.source && !registeredSources.has(obj.source)) fail(rel, `source '${obj.source}' is not registered in docs/SOURCES.md`);
+  } else if (obj.kind === "reaction-family") {
+    // ADR-0035: a reaction family cites a registered source, resolves its edges/lessons, and — crucially —
+    // every example is RE-PROVEN in pure Node: the coefficient vector is a true reduced balance of the exact
+    // shown formulas (verifyBalance), and the emitted redox flag reproduces from the free-element signature
+    // (redoxFreeElements). Uniqueness/classification is Python's (the producer refuses an example that does
+    // not classify as the declared family); the gate re-derives the two arithmetic-checkable claims and
+    // enforces label consistency, so a mis-filed or mis-flagged example fails loud.
+    if (!registeredSources.has(obj.source)) fail(rel, `source '${obj.source}' is not registered in docs/SOURCES.md`);
+    for (const e of obj.related) if (!ids.has(e.to)) fail(rel, `related edge → '${e.to}' resolves to no reference`);
+    for (const s of obj.lessons) if (!slugs.has(s)) fail(rel, `lesson '${s}' is not a real lesson slug`);
+    const exRedox = [];
+    for (const [i, ex] of obj.examples.entries()) {
+      const id = `${obj.id}#${i + 1}`;
+      // re-parse + re-balance the exact shown formulas (element + charge conservation, reduced, positive)
+      verifyBalance(rel, id, ex.species, ex.coefficients, fail);
+      // every example must be filed under this entry's family (the producer asserts it; the gate confirms)
+      if (ex.family !== obj.family) fail(rel, `${id}: example family '${ex.family}' != entry family '${obj.family}'`);
+      // re-derive the redox flag from the free-element signature and match the emitted value
+      const changed = redoxFreeElements(ex.species);
+      const wantRedox = changed.length > 0;
+      if (ex.redox !== wantRedox)
+        fail(rel, `${id}: redox ${ex.redox} != re-derived ${wantRedox} (free-element change: [${changed}])`);
+      if (wantRedox && !ex.redox_reason) fail(rel, `${id}: redox example has no redox_reason`);
+      // a net-ionic view, when present, must name its spectators (something actually canceled)
+      if (ex.net_ionic && !(ex.spectators && ex.spectators.length))
+        fail(rel, `${id}: net_ionic emitted without spectators`);
+      exRedox.push(wantRedox);
+    }
+    // the family-level redox flag is present iff the examples agree; re-derive and cross-check
+    const uniform = exRedox.every((r) => r) ? true : exRedox.every((r) => !r) ? false : undefined;
+    if (obj.redox !== uniform)
+      fail(rel, `family redox '${obj.redox}' != re-derived '${uniform}' (examples: [${exRedox}])`);
   } else if (obj.kind === "valence-table") {
     // every source id the table cites (atomic weight, position, ion charge, and the ADR-0031 properties)
     // must resolve to a SOURCES.md register row

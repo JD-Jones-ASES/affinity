@@ -1,0 +1,278 @@
+{
+  "kind": "reaction-family",
+  "id": "reaction-acid-base",
+  "title": "Acid-base neutralization",
+  "family": "acid-base",
+  "general_form": "acid + base -> salt + water",
+  "summary": "An acid supplies H+ and a base supplies OH-; the two combine into water, leaving the acid's anion and the base's cation together as a dissolved salt. Strip the spectators and every strong-acid + strong-base neutralization has the same net-ionic core: H+ + OH- -> water. No element goes free, so neutralization is not a redox reaction.",
+  "regime": "rule-sourced",
+  "source": "openstax-chemistry-2e",
+  "conditions": [
+    "Needs a species that donates H+ (an acid) and one that donates OH- (a base).",
+    "The strong-acid + strong-base examples here go essentially to completion; a weak acid or weak base only partly ionizes and the story is subtler."
+  ],
+  "misconceptions": [
+    {
+      "claim": "Neutralization always leaves a neutral (pH 7) solution.",
+      "refute": "Only when a strong acid exactly cancels a strong base. A leftover of either, or a weak partner, leaves the resulting salt solution slightly acidic or basic — 'neutralize' names the reaction, not a guaranteed pH 7."
+    },
+    {
+      "claim": "The salt and water are brand-new atoms made in the reaction.",
+      "refute": "Every atom is conserved. The water's H and O come from the acid's H+ and the base's OH-; the salt's ions are the acid's anion and the base's cation, just re-paired."
+    }
+  ],
+  "examples": [
+    {
+      "equation": {
+        "text": "HCl(aq) + NaOH(aq) -> NaCl(aq) + H2O(l)",
+        "latex": "\\mathrm{HCl}\\,\\text{(aq)} + \\mathrm{NaOH}\\,\\text{(aq)} \\rightarrow \\mathrm{NaCl}\\,\\text{(aq)} + \\mathrm{H_{2}O}\\,\\text{(l)}"
+      },
+      "species": [
+        {
+          "formula": "HCl(aq)",
+          "role": "reactant",
+          "counts": {
+            "H": 1,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{HCl}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "NaOH(aq)",
+          "role": "reactant",
+          "counts": {
+            "Na": 1,
+            "O": 1,
+            "H": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{NaOH}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "NaCl(aq)",
+          "role": "product",
+          "counts": {
+            "Na": 1,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{NaCl}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "H2O(l)",
+          "role": "product",
+          "counts": {
+            "H": 2,
+            "O": 1
+          },
+          "charge": 0,
+          "phase": "l",
+          "latex": "\\mathrm{H_{2}O}\\,\\text{(l)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "family": "acid-base",
+      "family_label": "acid-base neutralization",
+      "redox": false,
+      "evidence": "hydrochloric acid neutralizes sodium hydroxide: H+ and OH- combine to water, leaving a dissolved salt.",
+      "net_ionic": {
+        "text": "H^+(aq) + OH^-(aq) -> H2O(l)",
+        "latex": "\\mathrm{H}^{+}\\,\\text{(aq)} + \\mathrm{OH}^{-}\\,\\text{(aq)} \\rightarrow \\mathrm{H_{2}O}\\,\\text{(l)}"
+      },
+      "spectators": [
+        "Cl^-",
+        "Na^+"
+      ],
+      "subscript_tokens": [
+        "Cl^-",
+        "H2O",
+        "Na^+"
+      ]
+    },
+    {
+      "equation": {
+        "text": "H2SO4(aq) + 2 NaOH(aq) -> Na2SO4(aq) + 2 H2O(l)",
+        "latex": "\\mathrm{H_{2}SO_{4}}\\,\\text{(aq)} + 2\\,\\mathrm{NaOH}\\,\\text{(aq)} \\rightarrow \\mathrm{Na_{2}SO_{4}}\\,\\text{(aq)} + 2\\,\\mathrm{H_{2}O}\\,\\text{(l)}"
+      },
+      "species": [
+        {
+          "formula": "H2SO4(aq)",
+          "role": "reactant",
+          "counts": {
+            "H": 2,
+            "S": 1,
+            "O": 4
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{H_{2}SO_{4}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "NaOH(aq)",
+          "role": "reactant",
+          "counts": {
+            "Na": 1,
+            "O": 1,
+            "H": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{NaOH}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "Na2SO4(aq)",
+          "role": "product",
+          "counts": {
+            "Na": 2,
+            "S": 1,
+            "O": 4
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{Na_{2}SO_{4}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "H2O(l)",
+          "role": "product",
+          "counts": {
+            "H": 2,
+            "O": 1
+          },
+          "charge": 0,
+          "phase": "l",
+          "latex": "\\mathrm{H_{2}O}\\,\\text{(l)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        2,
+        1,
+        2
+      ],
+      "family": "acid-base",
+      "family_label": "acid-base neutralization",
+      "redox": false,
+      "evidence": "sulfuric acid neutralizes sodium hydroxide: H+ and OH- combine to water, leaving a dissolved salt.",
+      "net_ionic": {
+        "text": "H^+(aq) + OH^-(aq) -> H2O(l)",
+        "latex": "\\mathrm{H}^{+}\\,\\text{(aq)} + \\mathrm{OH}^{-}\\,\\text{(aq)} \\rightarrow \\mathrm{H_{2}O}\\,\\text{(l)}"
+      },
+      "spectators": [
+        "Na^+",
+        "SO4^2-"
+      ],
+      "subscript_tokens": [
+        "H2O",
+        "H2SO4",
+        "Na2SO4",
+        "Na^+",
+        "SO4^2-"
+      ]
+    },
+    {
+      "equation": {
+        "text": "HNO3(aq) + KOH(aq) -> KNO3(aq) + H2O(l)",
+        "latex": "\\mathrm{HNO_{3}}\\,\\text{(aq)} + \\mathrm{KOH}\\,\\text{(aq)} \\rightarrow \\mathrm{KNO_{3}}\\,\\text{(aq)} + \\mathrm{H_{2}O}\\,\\text{(l)}"
+      },
+      "species": [
+        {
+          "formula": "HNO3(aq)",
+          "role": "reactant",
+          "counts": {
+            "H": 1,
+            "N": 1,
+            "O": 3
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{HNO_{3}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "KOH(aq)",
+          "role": "reactant",
+          "counts": {
+            "K": 1,
+            "O": 1,
+            "H": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{KOH}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "KNO3(aq)",
+          "role": "product",
+          "counts": {
+            "K": 1,
+            "N": 1,
+            "O": 3
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{KNO_{3}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "H2O(l)",
+          "role": "product",
+          "counts": {
+            "H": 2,
+            "O": 1
+          },
+          "charge": 0,
+          "phase": "l",
+          "latex": "\\mathrm{H_{2}O}\\,\\text{(l)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "family": "acid-base",
+      "family_label": "acid-base neutralization",
+      "redox": false,
+      "evidence": "nitric acid neutralizes potassium hydroxide: H+ and OH- combine to water, leaving a dissolved salt.",
+      "net_ionic": {
+        "text": "H^+(aq) + OH^-(aq) -> H2O(l)",
+        "latex": "\\mathrm{H}^{+}\\,\\text{(aq)} + \\mathrm{OH}^{-}\\,\\text{(aq)} \\rightarrow \\mathrm{H_{2}O}\\,\\text{(l)}"
+      },
+      "spectators": [
+        "K^+",
+        "NO3^-"
+      ],
+      "subscript_tokens": [
+        "H2O",
+        "HNO3",
+        "KNO3",
+        "K^+",
+        "NO3^-"
+      ]
+    }
+  ],
+  "related": [],
+  "lessons": [],
+  "general_form_latex": "\\mathrm{acid} + \\mathrm{base} \\rightarrow \\mathrm{salt} + \\mathrm{H_{2}O}",
+  "prose_tokens": [
+    "Cl^-",
+    "H2O",
+    "H2SO4",
+    "HNO3",
+    "KNO3",
+    "K^+",
+    "NO3^-",
+    "Na2SO4",
+    "Na^+",
+    "SO4^2-"
+  ],
+  "redox": false
+}

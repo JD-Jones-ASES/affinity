@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://affinity/schemas/reaction-family.schema.json",
+  "title": "Affinity Chemical Atlas reaction-family entry",
+  "description": "One authored reaction family (ADR-0035): general form + conditions + misconceptions + 3-5 machine-verified example reactions (each balanced by the engine and classified into this family, with the redox flag and, where meaningful, the net-ionic particle view). additionalProperties:false everywhere.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "id", "title", "family", "general_form", "summary", "regime", "source", "conditions", "misconceptions", "examples", "related", "lessons"],
+  "properties": {
+    "kind": { "const": "reaction-family" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "family": {
+      "enum": ["combustion", "synthesis", "decomposition", "single-replacement", "double-replacement", "precipitation", "acid-base", "gas-evolution"]
+    },
+    "general_form": { "type": "string", "minLength": 1 },
+    "general_form_latex": { "type": "string" },
+    "summary": { "type": "string", "minLength": 1 },
+    "regime": { "enum": ["rule-sourced", "mechanistic"] },
+    "source": { "type": "string", "minLength": 1 },
+    "redox": { "type": "boolean", "$comment": "family-level redox flag — present only when every example agrees; omitted for mixed families (some synthesis/decomposition). Per-example redox is always emitted." },
+    "prose_tokens": { "type": "array", "items": { "type": "string", "minLength": 1 }, "$comment": "formula tokens the view subscripts in prose (summary/conditions/misconceptions) — the union of every example's species plus author-declared intermediates that never appear as a species (e.g. H2CO3). ADR-0025 typography." },
+    "conditions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "misconceptions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim", "refute"],
+        "properties": {
+          "claim": { "type": "string", "minLength": 1 },
+          "refute": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "examples": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["equation", "species", "coefficients", "family", "family_label", "redox", "evidence"],
+        "properties": {
+          "equation": { "$ref": "#/$defs/rendered" },
+          "species": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/species" } },
+          "coefficients": { "type": "array", "minItems": 2, "items": { "type": "integer", "minimum": 1 } },
+          "family": {
+            "enum": ["combustion", "synthesis", "decomposition", "single-replacement", "double-replacement", "precipitation", "acid-base", "gas-evolution"]
+          },
+          "family_label": { "type": "string", "minLength": 1 },
+          "redox": { "type": "boolean" },
+          "redox_reason": { "type": "string", "minLength": 1 },
+          "evidence": { "type": "string", "minLength": 1 },
+          "net_ionic": { "$ref": "#/$defs/rendered" },
+          "spectators": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "subscript_tokens": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "related": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["to", "type"],
+        "properties": {
+          "to": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "type": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "lessons": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "rendered": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "latex"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "latex": { "type": "string", "minLength": 1 }
+      }
+    },
+    "species": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["formula", "role", "counts", "charge", "phase", "latex"],
+      "properties": {
+        "formula": { "type": "string", "minLength": 1 },
+        "role": { "enum": ["reactant", "product"] },
+        "counts": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": { "pattern": "^[A-Z][a-z]?$" },
+          "additionalProperties": { "type": "integer", "minimum": 1 }
+        },
+        "charge": { "type": "integer" },
+        "phase": { "enum": ["s", "l", "g", "aq"] },
+        "latex": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

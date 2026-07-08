@@ -94,6 +94,31 @@ def test_gym_balancing_corpus_matches_chempy(reaction):
     assert ours == oracle
 
 
+# the item-6 reaction-families corpus (ADR-0035), core neutral formulas — one per first-course family. chempy
+# independently balances each, so the reactions the classifier/Atlas/gym ship are real, not just plausible.
+_FAMILIES_CORPUS = [
+    (["CH4", "O2"], ["CO2", "H2O"]), (["C3H8", "O2"], ["CO2", "H2O"]),
+    (["N2", "H2"], ["NH3"]), (["Na", "Cl2"], ["NaCl"]), (["Mg", "O2"], ["MgO"]),
+    (["KClO3"], ["KCl", "O2"]), (["CaCO3"], ["CaO", "CO2"]),
+    (["Zn", "HCl"], ["ZnCl2", "H2"]), (["Fe", "CuSO4"], ["FeSO4", "Cu"]),
+    (["HCl", "NaOH"], ["NaCl", "H2O"]), (["H2SO4", "NaOH"], ["Na2SO4", "H2O"]),
+    (["HCl", "Na2CO3"], ["NaCl", "H2O", "CO2"]), (["HCl", "CaCO3"], ["CaCl2", "H2O", "CO2"]),
+    (["NH4Cl", "NaOH"], ["NaCl", "NH3", "H2O"]),
+    (["CaCl2", "Na2CO3"], ["CaCO3", "NaCl"]), (["MgCl2", "NaOH"], ["Mg(OH)2", "NaCl"]),
+    (["CuSO4", "Na2CO3"], ["CuCO3", "Na2SO4"]),
+]
+
+
+@pytest.mark.parametrize("reactants,products", _FAMILIES_CORPUS,
+                         ids=[" + ".join(r) for r, _ in _FAMILIES_CORPUS])
+def test_families_corpus_balances_match_chempy(reactants, products):
+    """Every reaction-families corpus reaction (ADR-0035) balances identically under chempy."""
+    ours = balance([parse_formula(s) for s in reactants], [parse_formula(s) for s in products])
+    r_or, p_or = chempy.balance_stoichiometry(set(reactants), set(products))
+    oracle = [int(r_or[s]) for s in reactants] + [int(p_or[s]) for s in products]
+    assert ours == oracle
+
+
 # --- element-property oracle (ADR-0031): mendeleev independently re-checks the periodic-property curation.
 # mendeleev's data pipeline is entirely separate from our cited sources (OpenStax/NIST/Cordero), so agreement
 # is redundant proof and disagreement flags a transcription slip — exactly the failure mode ADR-0026 targets.

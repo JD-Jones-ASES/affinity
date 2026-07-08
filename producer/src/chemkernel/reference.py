@@ -18,9 +18,12 @@ import re
 from math import gcd
 
 from . import BuildError
+from .balance import balance
 from .formula import parse_formula
+from .reaction import classify_reaction, complete_ionic, net_ionic
 
 _MONATOMIC = re.compile(r"^[A-Z][a-z]?$")
+_PHASE_SUFFIX = re.compile(r"\((?:s|l|g|aq)\)$")
 
 
 def _group_str(formula: str, n: int) -> str:
@@ -297,6 +300,133 @@ def build_valence_table(data) -> dict:
 
 def _sign(charge: int) -> str:
     return f"{'+' if charge > 0 else '−'}{abs(charge)}"
+
+
+def _core_no_phase(raw: str) -> str:
+    return _PHASE_SUFFIX.sub("", raw)
+
+
+def _side_text(forms, coeffs) -> str:
+    return " + ".join((f"{c} " if c != 1 else "") + f.raw for f, c in zip(forms, coeffs))
+
+
+def _side_latex(forms, coeffs) -> str:
+    return " + ".join((f"{c}\\," if c != 1 else "") + f.latex for f, c in zip(forms, coeffs))
+
+
+def _net_side_text(side: dict) -> str:
+    return " + ".join((f"{c} " if c != 1 else "") + (sid + (f"({ph})" if ph else ""))
+                      for (sid, ph), c in side.items())
+
+
+def _net_side_latex(side: dict) -> str:
+    parts = []
+    for (sid, ph), c in side.items():
+        lat = parse_formula(sid).latex
+        if ph:
+            lat += r"\,\text{(" + ph + ")}"
+        parts.append((f"{c}\\," if c != 1 else "") + lat)
+    return " + ".join(parts)
+
+
+def build_reaction_family(spec: dict, data, *, solubility, acidbase, decomposition, ctx: str = "") -> dict:
+    """An authored reaction-family entry → the emitted Atlas object (ADR-0035). Each authored example is
+    BALANCED BY THE ENGINE and CLASSIFIED — the producer refuses to emit an example that does not classify as
+    the entry's declared family, so "this is a precipitation reaction" is machine-verified, not asserted. The
+    net-ionic particle view is emitted where spectators actually cancel; the redox flag comes from the
+    classifier's free-element signature (ADR-0035). The Node gate re-proves each example's balance + redox."""
+    for key in ("id", "kind", "title", "family", "general_form", "summary", "source", "examples",
+                "misconceptions"):
+        if key not in spec:
+            raise BuildError(f"{ctx}: reaction-family entry missing required key '{key}'")
+    if spec["kind"] != "reaction-family":
+        raise BuildError(f"{ctx}: build_reaction_family got kind '{spec['kind']}'")
+    family = spec["family"]
+
+    examples = []
+    redox_flags = []
+    for ex in spec["examples"]:
+        r_forms = [parse_formula(s, ctx) for s in ex["reactants"]]
+        p_forms = [parse_formula(s, ctx) for s in ex["products"]]
+        coeffs = balance(r_forms, p_forms, ctx)                    # engine-derived, re-verified (ADR-0014)
+        cls = classify_reaction(r_forms, p_forms, data, solubility=solubility, acidbase=acidbase,
+                                decomposition=decomposition, ctx=ctx)
+        if cls["family"] != family:
+            raise BuildError(f"{ctx}: example '{' + '.join(ex['reactants'])} -> {' + '.join(ex['products'])}' "
+                             f"classifies as '{cls['family']}', not the declared family '{family}'")
+        n_r = len(r_forms)
+        cr, cp = coeffs[:n_r], coeffs[n_r:]
+        species = []
+        for f, role in [(x, "reactant") for x in r_forms] + [(x, "product") for x in p_forms]:
+            if f.phase is None:
+                raise BuildError(f"{ctx}: reaction-family example species '{f.raw}' needs an explicit phase")
+            species.append({"formula": f.raw, "role": role, "counts": dict(f.counts), "charge": f.charge,
+                            "phase": f.phase, "latex": f.latex})
+
+        entry = {
+            "equation": {"text": _side_text(r_forms, cr) + " -> " + _side_text(p_forms, cp),
+                         "latex": _side_latex(r_forms, cr) + r" \rightarrow " + _side_latex(p_forms, cp)},
+            "species": species,
+            "coefficients": list(coeffs),
+            "family": cls["family"],
+            "family_label": cls["family_label"],
+            "redox": cls["redox"],
+            "evidence": cls["evidence"],
+        }
+        if "redox_reason" in cls:
+            entry["redox_reason"] = cls["redox_reason"]
+
+        # the net-ionic particle view, where spectators actually cancel (double/single replacement in
+        # solution). Combustion/synthesis/decomposition have nothing to cancel — omitted, not faked.
+        spectators: list[str] = []
+        try:
+            left, right = complete_ionic(r_forms, p_forms, coeffs, data, ctx)
+            net_left, net_right, spectators = net_ionic(left, right, ctx)
+        except BuildError:
+            net_left = None
+        if net_left and spectators:
+            entry["net_ionic"] = {"text": _net_side_text(net_left) + " -> " + _net_side_text(net_right),
+                                  "latex": _net_side_latex(net_left) + r" \rightarrow " + _net_side_latex(net_right)}
+            entry["spectators"] = spectators
+
+        tokens = {_core_no_phase(f.raw) for f in r_forms + p_forms
+                  if any(ch.isdigit() for ch in f.raw) or "^" in f.raw}
+        tokens |= set(spectators)
+        if tokens:
+            entry["subscript_tokens"] = sorted(tokens)
+        redox_flags.append(cls["redox"])
+        examples.append(entry)
+
+    out = {
+        "kind": "reaction-family",
+        "id": spec["id"],
+        "title": spec["title"],
+        "family": family,
+        "general_form": spec["general_form"],
+        "summary": spec["summary"],
+        "regime": spec.get("regime", "rule-sourced"),
+        "source": spec["source"],
+        "conditions": spec.get("conditions", []),
+        "misconceptions": [{"claim": m["claim"], "refute": m["refute"]} for m in spec["misconceptions"]],
+        "examples": examples,
+        "related": spec.get("related", []),
+        "lessons": spec.get("lessons", []),
+    }
+    if "general_form_latex" in spec:
+        out["general_form_latex"] = spec["general_form_latex"]
+    # prose formula tokens for the view (ADR-0025): every example's species tokens, plus any author-declared
+    # intermediates that never appear as a species (carbonic acid in gas evolution). The view subscripts only
+    # these in the summary/conditions/misconceptions — measurement numbers are never touched.
+    prose = {t for ex in examples for t in ex.get("subscript_tokens", [])}
+    prose |= set(spec.get("prose_tokens", []))
+    out["prose_tokens"] = sorted(prose)
+    # a family-level redox flag only when every example agrees (combustion/single-replacement always;
+    # precipitation/acid-base/gas-evolution never); omitted for mixed families (some synthesis/decomposition)
+    if all(redox_flags):
+        out["redox"] = True
+    elif not any(redox_flags):
+        out["redox"] = False
+    return out
 
 
 def build_reference_entry(spec: dict, ctx: str = "") -> dict:

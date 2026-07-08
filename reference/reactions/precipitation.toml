@@ -1,0 +1,41 @@
+id = "reaction-precipitation"
+kind = "reaction-family"
+title = "Precipitation"
+family = "precipitation"
+general_form = "AB(aq) + CD(aq) -> AD(s) + CB(aq)"
+general_form_latex = "\\mathrm{AB}\\,\\text{(aq)} + \\mathrm{CD}\\,\\text{(aq)} \\rightarrow \\mathrm{AD}\\,\\text{(s)} + \\mathrm{CB}\\,\\text{(aq)}"
+summary = "Two soluble salts swap partners, and one new pairing is insoluble — it drops out as a solid precipitate. The solubility rules decide which pairing is the solid, and the net-ionic equation strips away the spectator ions to show only the ions that actually combine. No element goes free, so precipitation is not a redox reaction."
+regime = "rule-sourced"
+source = "openstax-chemistry-2e"
+conditions = [
+  "Both reactants dissolved (aqueous); the driving force is that one product is insoluble.",
+  "Which product is insoluble comes from the sourced solubility rules — the engine classifies it, it is not guessed.",
+]
+
+[[misconceptions]]
+claim = "The spectator ions disappear once the precipitate forms."
+refute = "Spectator ions stay dissolved and are still there — the complete-ionic equation shows them on both sides, and the net-ionic equation cancels them because they are unchanged, not gone."
+
+[[misconceptions]]
+claim = "The reactant present in the smaller amount is what limits the precipitate."
+refute = "Amount alone does not decide it — the mole ratio does. Run the ledger: the reactant that runs out first at the balanced ratio is limiting, which can be the one you have more of."
+
+[[examples]]
+reactants = ["CaCl2(aq)", "Na2CO3(aq)"]
+products = ["CaCO3(s)", "NaCl(aq)"]
+
+[[examples]]
+reactants = ["MgCl2(aq)", "NaOH(aq)"]
+products = ["Mg(OH)2(s)", "NaCl(aq)"]
+
+[[examples]]
+reactants = ["CuSO4(aq)", "Na2CO3(aq)"]
+products = ["CuCO3(s)", "Na2SO4(aq)"]
+
+related = [
+  { to = "precipitation", type = "defines" },
+  { to = "solubility-rules", type = "depends-on" },
+  { to = "net-ionic-equation", type = "see-also" },
+  { to = "spectator-ion", type = "see-also" },
+]
+lessons = ["precipitation/calcium-carbonate-limiting"]

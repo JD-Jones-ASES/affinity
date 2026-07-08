@@ -1,0 +1,242 @@
+{
+  "kind": "reaction-family",
+  "id": "reaction-combustion",
+  "title": "Combustion",
+  "family": "combustion",
+  "general_form": "fuel (C, H) + O2 -> CO2 + H2O",
+  "summary": "A fuel made of carbon and hydrogen burns in oxygen. Complete combustion sends every carbon to carbon dioxide and every hydrogen to water. Because a free element (O2) becomes combined, combustion is always a redox reaction.",
+  "regime": "rule-sourced",
+  "source": "openstax-chemistry-2e",
+  "conditions": [
+    "Needs O2 as a reactant and enough of it — incomplete combustion (too little O2) also makes carbon monoxide or soot, which this complete-combustion form does not cover.",
+    "The fuel here is a hydrocarbon (only C and H, optionally O); other fuels burn to other oxides."
+  ],
+  "misconceptions": [
+    {
+      "claim": "Combustion just makes a compound disappear into smoke.",
+      "refute": "Nothing disappears — every atom is conserved. Count them: the carbon leaves as CO2 and the hydrogen as H2O, both weighed in the balanced equation."
+    },
+    {
+      "claim": "You can balance the oxygen by writing CO instead of CO2.",
+      "refute": "CO (carbon monoxide) is a different substance from CO2. Balance with coefficients out front, never by changing a formula's subscripts."
+    }
+  ],
+  "examples": [
+    {
+      "equation": {
+        "text": "CH4(g) + 2 O2(g) -> CO2(g) + 2 H2O(g)",
+        "latex": "\\mathrm{CH_{4}}\\,\\text{(g)} + 2\\,\\mathrm{O_{2}}\\,\\text{(g)} \\rightarrow \\mathrm{CO_{2}}\\,\\text{(g)} + 2\\,\\mathrm{H_{2}O}\\,\\text{(g)}"
+      },
+      "species": [
+        {
+          "formula": "CH4(g)",
+          "role": "reactant",
+          "counts": {
+            "C": 1,
+            "H": 4
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{CH_{4}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "O2(g)",
+          "role": "reactant",
+          "counts": {
+            "O": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{O_{2}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "CO2(g)",
+          "role": "product",
+          "counts": {
+            "C": 1,
+            "O": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{CO_{2}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "H2O(g)",
+          "role": "product",
+          "counts": {
+            "H": 2,
+            "O": 1
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{H_{2}O}\\,\\text{(g)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        2,
+        1,
+        2
+      ],
+      "family": "combustion",
+      "family_label": "combustion",
+      "redox": true,
+      "evidence": "CH4 burns in O2, giving only CO2 and H2O — complete combustion.",
+      "redox_reason": "O appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "subscript_tokens": [
+        "CH4",
+        "CO2",
+        "H2O",
+        "O2"
+      ]
+    },
+    {
+      "equation": {
+        "text": "C3H8(g) + 5 O2(g) -> 3 CO2(g) + 4 H2O(g)",
+        "latex": "\\mathrm{C_{3}H_{8}}\\,\\text{(g)} + 5\\,\\mathrm{O_{2}}\\,\\text{(g)} \\rightarrow 3\\,\\mathrm{CO_{2}}\\,\\text{(g)} + 4\\,\\mathrm{H_{2}O}\\,\\text{(g)}"
+      },
+      "species": [
+        {
+          "formula": "C3H8(g)",
+          "role": "reactant",
+          "counts": {
+            "C": 3,
+            "H": 8
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{C_{3}H_{8}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "O2(g)",
+          "role": "reactant",
+          "counts": {
+            "O": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{O_{2}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "CO2(g)",
+          "role": "product",
+          "counts": {
+            "C": 1,
+            "O": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{CO_{2}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "H2O(g)",
+          "role": "product",
+          "counts": {
+            "H": 2,
+            "O": 1
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{H_{2}O}\\,\\text{(g)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        5,
+        3,
+        4
+      ],
+      "family": "combustion",
+      "family_label": "combustion",
+      "redox": true,
+      "evidence": "C3H8 burns in O2, giving only CO2 and H2O — complete combustion.",
+      "redox_reason": "O appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "subscript_tokens": [
+        "C3H8",
+        "CO2",
+        "H2O",
+        "O2"
+      ]
+    },
+    {
+      "equation": {
+        "text": "2 C2H6(g) + 7 O2(g) -> 4 CO2(g) + 6 H2O(g)",
+        "latex": "2\\,\\mathrm{C_{2}H_{6}}\\,\\text{(g)} + 7\\,\\mathrm{O_{2}}\\,\\text{(g)} \\rightarrow 4\\,\\mathrm{CO_{2}}\\,\\text{(g)} + 6\\,\\mathrm{H_{2}O}\\,\\text{(g)}"
+      },
+      "species": [
+        {
+          "formula": "C2H6(g)",
+          "role": "reactant",
+          "counts": {
+            "C": 2,
+            "H": 6
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{C_{2}H_{6}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "O2(g)",
+          "role": "reactant",
+          "counts": {
+            "O": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{O_{2}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "CO2(g)",
+          "role": "product",
+          "counts": {
+            "C": 1,
+            "O": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{CO_{2}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "H2O(g)",
+          "role": "product",
+          "counts": {
+            "H": 2,
+            "O": 1
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{H_{2}O}\\,\\text{(g)}"
+        }
+      ],
+      "coefficients": [
+        2,
+        7,
+        4,
+        6
+      ],
+      "family": "combustion",
+      "family_label": "combustion",
+      "redox": true,
+      "evidence": "C2H6 burns in O2, giving only CO2 and H2O — complete combustion.",
+      "redox_reason": "O appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "subscript_tokens": [
+        "C2H6",
+        "CO2",
+        "H2O",
+        "O2"
+      ]
+    }
+  ],
+  "related": [],
+  "lessons": [],
+  "general_form_latex": "\\mathrm{fuel} + \\mathrm{O_{2}} \\rightarrow \\mathrm{CO_{2}} + \\mathrm{H_{2}O}",
+  "prose_tokens": [
+    "C2H6",
+    "C3H8",
+    "CH4",
+    "CO2",
+    "H2O",
+    "O2"
+  ],
+  "redox": true
+}

@@ -823,3 +823,62 @@ are answered honestly by construction — if the curated data and the naive rule
 the explanation says why. Deferred: radius/EN orderings (IE has the instructive exceptions; one ordering kind
 keeps the menu space clean), "which compound is most likely ionic" (needs the metal/nonmetal field),
 electron-configuration matching (needs configurations curated).
+
+## ADR-0035 — Reaction classifier + reaction-family Atlas kind; redox by the free-element signature (2026-07-08)
+
+**Context.** Phase-1 item 6 (brief §10.4) opens with the stress scenario *classify + predict products for the
+core reaction families* — combustion, synthesis, decomposition, single/double replacement, and the
+double-replacement sub-types precipitation / acid-base / gas-evolution — plus a redox tag. The engine had no
+classifier and no reaction-family reference kind. Two honesty problems: (1) "this is a precipitation reaction"
+is a claim that must be machine-verified, not asserted; (2) full redox bookkeeping needs oxidation numbers,
+which are a Phase-2 topic (regime-map) — so how does a first-course Atlas flag redox honestly without them?
+
+**Decision.**
+1. **`classify_reaction` in `chemkernel.reaction`** is a pure function of the balanced, phased formulas + the
+   injected sourced datasets. Families are recognized most-specific-first: **combustion** (a C/H(/O) fuel +
+   O2 → only CO2/H2O), **synthesis** (n→1), **decomposition** (1→n), **single replacement** (one free element
+   each side), then the double-replacement sub-types **acid-base** (an acid + a base → salt + water),
+   **gas-evolution** (a (g) product justified by an unstable intermediate in the decomposition table), and
+   **precipitation** (an insoluble solid product, cited to the solubility rule), else generic **double
+   replacement**. No family is hard-coded chemistry — each cites data (solubility ruleset, acid/base table,
+   decomposition table). Unclassifiable → BuildError (refuse to emit; the classifier runs on curated corpora).
+2. **Redox by the free-element signature.** An element that is FREE (neutral, one element type) on one side and
+   COMBINED on the other necessarily changed oxidation state → electrons moved. This flags exactly the
+   families a first course calls redox (combustion, single replacement, element-bearing synthesis/
+   decomposition) and never over-claims (a double replacement with no free element is correctly non-redox),
+   *without assigning oxidation numbers* (deferred to Phase 2, per the regime-map). It is re-derived in pure
+   Node in the gate.
+3. **Two curated datasets** (ADR-0006), sourced `openstax-chemistry-2e`, machine-checked on load:
+   `data/acids-bases.toml` (each acid = `protons` H + its named anion; each base = cation + |charge| OH — the
+   composition is regime-1 verified, the acid/base *identity* + names + strong/weak are regime-3 sourced; the
+   names partially close the item-2 acid-naming deferral) and `data/decomposition.toml` (unstable
+   intermediates — carbonic acid → CO2 + water, aqueous ammonia → NH3 + water — that make a double replacement
+   a gas evolution). Loaded by `chemkernel.reactivity` (`AcidBase`/`Decomposition`, mirroring `Solubility`);
+   injected into the classifier so `reaction.py` imports neither (it would cycle through `solubility`).
+4. **The reaction-family Atlas kind** (`schemas/reaction-family.schema.json`, `kind: "reaction-family"`):
+   general form + conditions + misconceptions + **3–5 machine-verified example reactions**. `reference.
+   build_reaction_family` balances each example with the engine and classifies it, and **refuses to emit an
+   example that does not classify as the entry's declared family** — so the family label is proven, not
+   asserted. Each example emits its balanced equation, the classifier's evidence + redox flag, and — where
+   spectators actually cancel — the **net-ionic particle view** (reusing `complete_ionic`/`net_ionic`);
+   combustion/synthesis/decomposition omit it rather than fake one. A family-level `redox` flag is emitted
+   only when every example agrees (omitted for mixed families like decomposition). `prose_tokens` (species ∪
+   author-declared intermediates like H2CO3) drive the view's ADR-0025 subscripting.
+5. **The gate re-proves the arithmetic-checkable claims in pure Node.** `verifyBalance` was extracted from
+   `validate-gyms` into a shared `scripts/validate/balancecheck.mjs` (+ a `redoxFreeElements` re-derivation);
+   `validate-reference` dispatches the new kind, re-parses + re-balances every example (element + charge
+   conservation, reduced, positive), re-derives the redox flag from the free-element signature and matches the
+   emitted value, and enforces family-label consistency. Uniqueness/classification stays Python's (the
+   producer refuses a mis-filed example); the gate re-derives balance + redox and cross-checks the labels.
+   `check-katex` was extended to render every reaction-family LaTeX (equation, net-ionic, species, general
+   form). The player gets `reference/reactions.astro` (all families, jump-nav, net-ionic views, redox badges)
+   + a card on the Atlas index.
+
+**Consequences.** The Atlas gains 7 reaction families / 21 machine-verified example reactions — the
+regime-map "reaction classes" row goes from atlas-thin (concept stubs) to a full family gallery, and every
+"this is family X" / "this is redox" claim is re-proven in CI. `chempy` independently balances the whole
+corpus (ADR-0026). The classifier is the shared instrument items 6c (the `reaction_families_v1` gym) and 6d
+(the acid-base neutralization lesson) build on. **Deferred:** full oxidation-number assignment (a Phase-2
+redox topic — this ships the free-element signature only); a generic double-replacement Atlas entry (a
+no-driving-force ion swap is not a real reaction to teach); further gas-forming intermediates (sulfurous acid
+needs the sulfite ion curated).

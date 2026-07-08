@@ -30,7 +30,8 @@ from .gym import generate_gym
 from .interactive import build_interactive
 from .practice import generate_practice
 from .reaction import complete_ionic, net_ionic
-from .reference import build_reference_entry, build_valence_table
+from .reactivity import AcidBase, Decomposition
+from .reference import build_reaction_family, build_reference_entry, build_valence_table
 from .solubility import Solubility
 from .units import Quantity
 
@@ -264,9 +265,19 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
 
 
 def build_reference_main(argv: list[str] | None = None) -> int:
-    """Build the Chemical Atlas: the Valence Table (from data/) + authored concept entries (reference/**)."""
+    """Build the Chemical Atlas: the Valence Table (from data/) + authored concept and reaction-family
+    entries (reference/**). Reaction-family examples are balanced + classified by the engine (ADR-0035)."""
     root = Path.cwd()
     data = ChemData.load(root)
+    solub = Solubility.load(root)
+    acidbase = AcidBase.load(root)
+    decomp = Decomposition.load(root)
+    try:
+        acidbase.validate(data)     # regime-1 composition self-check of the sourced acid/base + decomp tables
+        decomp.validate(data)
+    except BuildError as e:
+        print(f"BUILD FAILED — {e}", file=sys.stderr)
+        return 1
 
     try:
         table = build_valence_table(data)
@@ -281,7 +292,11 @@ def build_reference_main(argv: list[str] | None = None) -> int:
         spec = tomllib.loads(path.read_text(encoding="utf-8"))
         ctx = spec.get("id", path.stem)
         try:
-            entry = build_reference_entry(spec, ctx)
+            if spec.get("kind") == "reaction-family":
+                entry = build_reaction_family(spec, data, solubility=solub, acidbase=acidbase,
+                                              decomposition=decomp, ctx=ctx)
+            else:
+                entry = build_reference_entry(spec, ctx)
         except BuildError as e:
             print(f"BUILD FAILED — {e}", file=sys.stderr)
             return 1

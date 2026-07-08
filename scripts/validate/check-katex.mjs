@@ -51,6 +51,14 @@ function referenceLatex(ref) {
     (ref.elements ?? []).forEach((e, i) => e.common_ion?.latex && out.push([`elements[${i}].common_ion.latex`, e.common_ion.latex]));
     (ref.polyatomic ?? []).forEach((p, i) => p.latex && out.push([`polyatomic[${i}].latex`, p.latex]));
     (ref.charge_balance ?? []).forEach((c, i) => c.latex && out.push([`charge_balance[${i}].latex`, c.latex]));
+  } else if (ref.kind === "reaction-family") {
+    // ADR-0035: the general form, and every example's balanced equation, net-ionic view, and species symbol
+    if (ref.general_form_latex) out.push(["general_form_latex", ref.general_form_latex]);
+    (ref.examples ?? []).forEach((ex, i) => {
+      if (ex.equation?.latex) out.push([`examples[${i}].equation.latex`, ex.equation.latex]);
+      if (ex.net_ionic?.latex) out.push([`examples[${i}].net_ionic.latex`, ex.net_ionic.latex]);
+      (ex.species ?? []).forEach((s, j) => s.latex && out.push([`examples[${i}].species[${j}].latex`, s.latex]));
+    });
   }
   return out;
 }

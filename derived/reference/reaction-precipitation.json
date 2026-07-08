@@ -1,0 +1,282 @@
+{
+  "kind": "reaction-family",
+  "id": "reaction-precipitation",
+  "title": "Precipitation",
+  "family": "precipitation",
+  "general_form": "AB(aq) + CD(aq) -> AD(s) + CB(aq)",
+  "summary": "Two soluble salts swap partners, and one new pairing is insoluble — it drops out as a solid precipitate. The solubility rules decide which pairing is the solid, and the net-ionic equation strips away the spectator ions to show only the ions that actually combine. No element goes free, so precipitation is not a redox reaction.",
+  "regime": "rule-sourced",
+  "source": "openstax-chemistry-2e",
+  "conditions": [
+    "Both reactants dissolved (aqueous); the driving force is that one product is insoluble.",
+    "Which product is insoluble comes from the sourced solubility rules — the engine classifies it, it is not guessed."
+  ],
+  "misconceptions": [
+    {
+      "claim": "The spectator ions disappear once the precipitate forms.",
+      "refute": "Spectator ions stay dissolved and are still there — the complete-ionic equation shows them on both sides, and the net-ionic equation cancels them because they are unchanged, not gone."
+    },
+    {
+      "claim": "The reactant present in the smaller amount is what limits the precipitate.",
+      "refute": "Amount alone does not decide it — the mole ratio does. Run the ledger: the reactant that runs out first at the balanced ratio is limiting, which can be the one you have more of."
+    }
+  ],
+  "examples": [
+    {
+      "equation": {
+        "text": "CaCl2(aq) + Na2CO3(aq) -> CaCO3(s) + 2 NaCl(aq)",
+        "latex": "\\mathrm{CaCl_{2}}\\,\\text{(aq)} + \\mathrm{Na_{2}CO_{3}}\\,\\text{(aq)} \\rightarrow \\mathrm{CaCO_{3}}\\,\\text{(s)} + 2\\,\\mathrm{NaCl}\\,\\text{(aq)}"
+      },
+      "species": [
+        {
+          "formula": "CaCl2(aq)",
+          "role": "reactant",
+          "counts": {
+            "Ca": 1,
+            "Cl": 2
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{CaCl_{2}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "Na2CO3(aq)",
+          "role": "reactant",
+          "counts": {
+            "Na": 2,
+            "C": 1,
+            "O": 3
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{Na_{2}CO_{3}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "CaCO3(s)",
+          "role": "product",
+          "counts": {
+            "Ca": 1,
+            "C": 1,
+            "O": 3
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{CaCO_{3}}\\,\\text{(s)}"
+        },
+        {
+          "formula": "NaCl(aq)",
+          "role": "product",
+          "counts": {
+            "Na": 1,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{NaCl}\\,\\text{(aq)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "family": "precipitation",
+      "family_label": "precipitation (double replacement)",
+      "redox": false,
+      "evidence": "CaCO3 is insoluble (insol-carbonate) and drops out as a solid.",
+      "net_ionic": {
+        "text": "Ca^2+(aq) + CO3^2-(aq) -> CaCO3(s)",
+        "latex": "\\mathrm{Ca}^{2+}\\,\\text{(aq)} + \\mathrm{CO_{3}}^{2-}\\,\\text{(aq)} \\rightarrow \\mathrm{CaCO_{3}}\\,\\text{(s)}"
+      },
+      "spectators": [
+        "Cl^-",
+        "Na^+"
+      ],
+      "subscript_tokens": [
+        "CaCO3",
+        "CaCl2",
+        "Cl^-",
+        "Na2CO3",
+        "Na^+"
+      ]
+    },
+    {
+      "equation": {
+        "text": "MgCl2(aq) + 2 NaOH(aq) -> Mg(OH)2(s) + 2 NaCl(aq)",
+        "latex": "\\mathrm{MgCl_{2}}\\,\\text{(aq)} + 2\\,\\mathrm{NaOH}\\,\\text{(aq)} \\rightarrow \\mathrm{Mg(OH)_{2}}\\,\\text{(s)} + 2\\,\\mathrm{NaCl}\\,\\text{(aq)}"
+      },
+      "species": [
+        {
+          "formula": "MgCl2(aq)",
+          "role": "reactant",
+          "counts": {
+            "Mg": 1,
+            "Cl": 2
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{MgCl_{2}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "NaOH(aq)",
+          "role": "reactant",
+          "counts": {
+            "Na": 1,
+            "O": 1,
+            "H": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{NaOH}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "Mg(OH)2(s)",
+          "role": "product",
+          "counts": {
+            "Mg": 1,
+            "O": 2,
+            "H": 2
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{Mg(OH)_{2}}\\,\\text{(s)}"
+        },
+        {
+          "formula": "NaCl(aq)",
+          "role": "product",
+          "counts": {
+            "Na": 1,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{NaCl}\\,\\text{(aq)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        2,
+        1,
+        2
+      ],
+      "family": "precipitation",
+      "family_label": "precipitation (double replacement)",
+      "redox": false,
+      "evidence": "Mg(OH)2 is insoluble (insol-hydroxide) and drops out as a solid.",
+      "net_ionic": {
+        "text": "Mg^2+(aq) + 2 OH^-(aq) -> Mg(OH)2(s)",
+        "latex": "\\mathrm{Mg}^{2+}\\,\\text{(aq)} + 2\\,\\mathrm{OH}^{-}\\,\\text{(aq)} \\rightarrow \\mathrm{Mg(OH)_{2}}\\,\\text{(s)}"
+      },
+      "spectators": [
+        "Cl^-",
+        "Na^+"
+      ],
+      "subscript_tokens": [
+        "Cl^-",
+        "Mg(OH)2",
+        "MgCl2",
+        "Na^+"
+      ]
+    },
+    {
+      "equation": {
+        "text": "CuSO4(aq) + Na2CO3(aq) -> CuCO3(s) + Na2SO4(aq)",
+        "latex": "\\mathrm{CuSO_{4}}\\,\\text{(aq)} + \\mathrm{Na_{2}CO_{3}}\\,\\text{(aq)} \\rightarrow \\mathrm{CuCO_{3}}\\,\\text{(s)} + \\mathrm{Na_{2}SO_{4}}\\,\\text{(aq)}"
+      },
+      "species": [
+        {
+          "formula": "CuSO4(aq)",
+          "role": "reactant",
+          "counts": {
+            "Cu": 1,
+            "S": 1,
+            "O": 4
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{CuSO_{4}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "Na2CO3(aq)",
+          "role": "reactant",
+          "counts": {
+            "Na": 2,
+            "C": 1,
+            "O": 3
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{Na_{2}CO_{3}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "CuCO3(s)",
+          "role": "product",
+          "counts": {
+            "Cu": 1,
+            "C": 1,
+            "O": 3
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{CuCO_{3}}\\,\\text{(s)}"
+        },
+        {
+          "formula": "Na2SO4(aq)",
+          "role": "product",
+          "counts": {
+            "Na": 2,
+            "S": 1,
+            "O": 4
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{Na_{2}SO_{4}}\\,\\text{(aq)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "family": "precipitation",
+      "family_label": "precipitation (double replacement)",
+      "redox": false,
+      "evidence": "CuCO3 is insoluble (insol-carbonate) and drops out as a solid.",
+      "net_ionic": {
+        "text": "Cu^2+(aq) + CO3^2-(aq) -> CuCO3(s)",
+        "latex": "\\mathrm{Cu}^{2+}\\,\\text{(aq)} + \\mathrm{CO_{3}}^{2-}\\,\\text{(aq)} \\rightarrow \\mathrm{CuCO_{3}}\\,\\text{(s)}"
+      },
+      "spectators": [
+        "Na^+",
+        "SO4^2-"
+      ],
+      "subscript_tokens": [
+        "CuCO3",
+        "CuSO4",
+        "Na2CO3",
+        "Na2SO4",
+        "Na^+",
+        "SO4^2-"
+      ]
+    }
+  ],
+  "related": [],
+  "lessons": [],
+  "general_form_latex": "\\mathrm{AB}\\,\\text{(aq)} + \\mathrm{CD}\\,\\text{(aq)} \\rightarrow \\mathrm{AD}\\,\\text{(s)} + \\mathrm{CB}\\,\\text{(aq)}",
+  "prose_tokens": [
+    "CaCO3",
+    "CaCl2",
+    "Cl^-",
+    "CuCO3",
+    "CuSO4",
+    "Mg(OH)2",
+    "MgCl2",
+    "Na2CO3",
+    "Na2SO4",
+    "Na^+",
+    "SO4^2-"
+  ],
+  "redox": false
+}

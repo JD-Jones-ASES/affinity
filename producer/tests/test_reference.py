@@ -7,13 +7,31 @@ import pytest
 
 from chemkernel import BuildError
 from chemkernel.data import ChemData
-from chemkernel.reference import assemble_formula, build_reference_entry, build_valence_table
+from chemkernel.reactivity import AcidBase, Decomposition
+from chemkernel.reference import (assemble_formula, build_reaction_family, build_reference_entry,
+                                  build_valence_table)
+from chemkernel.solubility import Solubility
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def _data():
     return ChemData.load(ROOT)
+
+
+def _reactivity():
+    d = _data()
+    solub = Solubility.load(ROOT)
+    ab = AcidBase.load(ROOT)
+    ab.validate(d)
+    dec = Decomposition.load(ROOT)
+    dec.validate(d)
+    return d, solub, ab, dec
+
+
+def _family(spec):
+    d, solub, ab, dec = _reactivity()
+    return build_reaction_family(spec, d, solubility=solub, acidbase=ab, decomposition=dec, ctx=spec["id"])
 
 
 def test_valence_table_shape():
@@ -170,3 +188,83 @@ def test_authored_concepts_all_build():
         entry = build_reference_entry(spec, spec.get("id", path.stem))
         # every related edge points at an id that is either another concept file or the valence table
         assert entry["kind"] == "concept"
+
+
+# --- reaction-family entries (ADR-0035) ---
+
+_ACID_BASE_SPEC = {
+    "id": "reaction-acid-base", "kind": "reaction-family", "title": "Acid-base neutralization",
+    "family": "acid-base", "general_form": "acid + base -> salt + water",
+    "summary": "H+ meets OH-.", "source": "openstax-chemistry-2e",
+    "conditions": ["needs an acid and a base"],
+    "misconceptions": [{"claim": "always pH 7", "refute": "only strong+strong"}],
+    "examples": [
+        {"reactants": ["HCl(aq)", "NaOH(aq)"], "products": ["NaCl(aq)", "H2O(l)"]},
+        {"reactants": ["H2SO4(aq)", "NaOH(aq)"], "products": ["Na2SO4(aq)", "H2O(l)"]},
+        {"reactants": ["HNO3(aq)", "KOH(aq)"], "products": ["KNO3(aq)", "H2O(l)"]},
+    ],
+    "related": [], "lessons": [],
+}
+
+
+def test_reaction_family_acid_base_shape():
+    fam = _family(_ACID_BASE_SPEC)
+    assert fam["kind"] == "reaction-family" and fam["family"] == "acid-base"
+    assert fam["redox"] is False                          # no free element in any example
+    assert len(fam["examples"]) == 3
+    ex = fam["examples"][0]
+    assert ex["family"] == "acid-base"
+    assert ex["equation"]["text"] == "HCl(aq) + NaOH(aq) -> NaCl(aq) + H2O(l)"
+    assert ex["coefficients"] == [1, 1, 1, 1]
+    # the net-ionic particle view strips the spectators to the essential change
+    assert ex["net_ionic"]["text"] == "H^+(aq) + OH^-(aq) -> H2O(l)"
+    assert ex["spectators"] == ["Cl^-", "Na^+"]
+    # H2SO4 + 2 NaOH reduces to the SAME net ionic
+    assert fam["examples"][1]["net_ionic"]["text"] == "H^+(aq) + OH^-(aq) -> H2O(l)"
+
+
+def test_reaction_family_refuses_misfiled_example():
+    bad = dict(_ACID_BASE_SPEC)
+    bad["examples"] = _ACID_BASE_SPEC["examples"] + [
+        {"reactants": ["CaCl2(aq)", "Na2CO3(aq)"], "products": ["CaCO3(s)", "NaCl(aq)"]},  # precipitation
+    ]
+    with pytest.raises(BuildError, match="classifies as 'precipitation'"):
+        _family(bad)
+
+
+def test_reaction_family_combustion_is_redox_no_netionic():
+    spec = {
+        "id": "reaction-combustion", "kind": "reaction-family", "title": "Combustion",
+        "family": "combustion", "general_form": "fuel + O2 -> CO2 + H2O", "summary": "burns",
+        "source": "openstax-chemistry-2e", "conditions": [],
+        "misconceptions": [{"claim": "x", "refute": "y"}],
+        "examples": [
+            {"reactants": ["CH4(g)", "O2(g)"], "products": ["CO2(g)", "H2O(g)"]},
+            {"reactants": ["C3H8(g)", "O2(g)"], "products": ["CO2(g)", "H2O(g)"]},
+            {"reactants": ["C2H6(g)", "O2(g)"], "products": ["CO2(g)", "H2O(g)"]},
+        ], "related": [], "lessons": [],
+    }
+    fam = _family(spec)
+    assert fam["redox"] is True
+    for ex in fam["examples"]:
+        assert ex["redox"] is True and "redox_reason" in ex
+        assert "net_ionic" not in ex                      # nothing dissolves to cancel — no faked net ionic
+    # the propane balance is the hard one (C3H8 + 5 O2 -> 3 CO2 + 4 H2O)
+    assert fam["examples"][1]["coefficients"] == [1, 5, 3, 4]
+
+
+def test_reaction_family_decomposition_mixed_redox_omits_family_flag():
+    spec = {
+        "id": "reaction-decomposition", "kind": "reaction-family", "title": "Decomposition",
+        "family": "decomposition", "general_form": "AB -> A + B", "summary": "splits",
+        "source": "openstax-chemistry-2e", "conditions": [],
+        "misconceptions": [{"claim": "x", "refute": "y"}],
+        "examples": [
+            {"reactants": ["KClO3(s)"], "products": ["KCl(s)", "O2(g)"]},   # redox
+            {"reactants": ["CaCO3(s)"], "products": ["CaO(s)", "CO2(g)"]},  # not redox
+            {"reactants": ["H2O(l)"], "products": ["H2(g)", "O2(g)"]},      # redox
+        ], "related": [], "lessons": [],
+    }
+    fam = _family(spec)
+    assert "redox" not in fam                             # examples disagree → no family-level flag
+    assert [ex["redox"] for ex in fam["examples"]] == [True, False, True]

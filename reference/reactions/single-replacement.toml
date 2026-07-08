@@ -1,0 +1,36 @@
+id = "reaction-single-replacement"
+kind = "reaction-family"
+title = "Single replacement"
+family = "single-replacement"
+general_form = "A + BC -> B + AC"
+general_form_latex = "\\mathrm{A} + \\mathrm{BC} \\rightarrow \\mathrm{B} + \\mathrm{AC}"
+summary = "A free element trades places with an element inside a compound: the newcomer combines, the displaced element goes free. One element is oxidized and the other reduced, so single replacement is always a redox reaction — its net-ionic view shows exactly which atoms swap electrons."
+regime = "rule-sourced"
+source = "openstax-chemistry-2e"
+conditions = [
+  "One free element and one compound on each side (A + BC -> B + AC).",
+  "Whether the swap actually happens depends on an activity ordering of the elements — a more reactive metal displaces a less reactive one. That ordering is its own sourced table.",
+]
+
+[[misconceptions]]
+claim = "A single-replacement reaction is a plain double replacement."
+refute = "Look for a free element. A single replacement always has an uncombined element on each side; a double replacement has none — both partners stay combined and only swap."
+
+[[examples]]
+reactants = ["Zn(s)", "HCl(aq)"]
+products = ["ZnCl2(aq)", "H2(g)"]
+
+[[examples]]
+reactants = ["Fe(s)", "CuSO4(aq)"]
+products = ["FeSO4(aq)", "Cu(s)"]
+
+[[examples]]
+reactants = ["Mg(s)", "HCl(aq)"]
+products = ["MgCl2(aq)", "H2(g)"]
+
+related = [
+  { to = "balancing-equations", type = "uses" },
+  { to = "net-ionic-equation", type = "see-also" },
+  { to = "spectator-ion", type = "see-also" },
+]
+lessons = []

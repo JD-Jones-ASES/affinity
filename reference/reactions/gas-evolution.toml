@@ -1,0 +1,43 @@
+id = "reaction-gas-evolution"
+kind = "reaction-family"
+title = "Gas evolution"
+family = "gas-evolution"
+general_form = "acid + carbonate (or ammonium salt + base) -> salt + water + gas"
+general_form_latex = "\\mathrm{acid} + \\mathrm{carbonate} \\rightarrow \\mathrm{salt} + \\mathrm{H_{2}O} + \\mathrm{CO_{2}}\\,\\text{(g)}"
+summary = "A double replacement would form an unstable product that immediately breaks down and releases a gas — that gas escaping is the driving force. A carbonate plus an acid makes carbonic acid, which falls apart into water and carbon dioxide; an ammonium salt plus a base makes aqueous ammonia, which releases ammonia gas. No element goes free, so it is not a redox reaction."
+regime = "rule-sourced"
+source = "openstax-chemistry-2e"
+# carbonic acid and aqueous ammonia are the unstable intermediates named in prose but never a species — list
+# them so the view subscripts H2CO3 / NH4OH like any other formula (ADR-0025)
+prose_tokens = ["H2CO3", "NH4OH"]
+conditions = [
+  "The trigger is a would-be product that is unstable: carbonic acid (from a carbonate) or aqueous ammonia (from an ammonium salt + base).",
+  "The gas leaving the solution is what pulls the reaction forward.",
+]
+
+[[misconceptions]]
+claim = "Carbonic acid (H2CO3) is one of the final products."
+refute = "It forms for an instant, then decomposes — the products you actually collect are water and carbon dioxide gas. The Atlas shows the two-step logic behind the single written equation."
+
+[[misconceptions]]
+claim = "The bubbles are just the solvent boiling."
+refute = "The gas is a real product of the reaction (CO2 or NH3), formed atom-for-atom from the reactants — count them in the balanced equation. It is chemistry, not heat."
+
+[[examples]]
+reactants = ["HCl(aq)", "Na2CO3(aq)"]
+products = ["NaCl(aq)", "H2O(l)", "CO2(g)"]
+
+[[examples]]
+reactants = ["HCl(aq)", "CaCO3(s)"]
+products = ["CaCl2(aq)", "H2O(l)", "CO2(g)"]
+
+[[examples]]
+reactants = ["NH4Cl(aq)", "NaOH(aq)"]
+products = ["NaCl(aq)", "NH3(g)", "H2O(l)"]
+
+related = [
+  { to = "net-ionic-equation", type = "see-also" },
+  { to = "spectator-ion", type = "see-also" },
+  { to = "dissociation", type = "depends-on" },
+]
+lessons = []

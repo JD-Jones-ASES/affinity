@@ -1,0 +1,191 @@
+{
+  "kind": "reaction-family",
+  "id": "reaction-synthesis",
+  "title": "Synthesis (combination)",
+  "family": "synthesis",
+  "general_form": "A + B -> AB",
+  "summary": "Two or more reactants combine into a single product. When the reactants are free elements, their atoms go from oxidation state 0 to combined, so element-combining synthesis is a redox reaction.",
+  "regime": "rule-sourced",
+  "source": "openstax-chemistry-2e",
+  "conditions": [
+    "The signature is one product from two or more reactants.",
+    "Combining two elements is always redox; combining two compounds (e.g. an oxide with water) need not be."
+  ],
+  "misconceptions": [
+    {
+      "claim": "Any reaction with two reactants is a synthesis.",
+      "refute": "Synthesis is defined by the products, not the reactants: it must end in a single product. Two reactants giving two products is a replacement, not a synthesis."
+    }
+  ],
+  "examples": [
+    {
+      "equation": {
+        "text": "N2(g) + 3 H2(g) -> 2 NH3(g)",
+        "latex": "\\mathrm{N_{2}}\\,\\text{(g)} + 3\\,\\mathrm{H_{2}}\\,\\text{(g)} \\rightarrow 2\\,\\mathrm{NH_{3}}\\,\\text{(g)}"
+      },
+      "species": [
+        {
+          "formula": "N2(g)",
+          "role": "reactant",
+          "counts": {
+            "N": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{N_{2}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "H2(g)",
+          "role": "reactant",
+          "counts": {
+            "H": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{H_{2}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "NH3(g)",
+          "role": "product",
+          "counts": {
+            "N": 1,
+            "H": 3
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{NH_{3}}\\,\\text{(g)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        3,
+        2
+      ],
+      "family": "synthesis",
+      "family_label": "synthesis (combination)",
+      "redox": true,
+      "evidence": "N2 + H2 combine into the single product NH3.",
+      "redox_reason": "H, N appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "subscript_tokens": [
+        "H2",
+        "N2",
+        "NH3"
+      ]
+    },
+    {
+      "equation": {
+        "text": "2 Na(s) + Cl2(g) -> 2 NaCl(s)",
+        "latex": "2\\,\\mathrm{Na}\\,\\text{(s)} + \\mathrm{Cl_{2}}\\,\\text{(g)} \\rightarrow 2\\,\\mathrm{NaCl}\\,\\text{(s)}"
+      },
+      "species": [
+        {
+          "formula": "Na(s)",
+          "role": "reactant",
+          "counts": {
+            "Na": 1
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{Na}\\,\\text{(s)}"
+        },
+        {
+          "formula": "Cl2(g)",
+          "role": "reactant",
+          "counts": {
+            "Cl": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{Cl_{2}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "NaCl(s)",
+          "role": "product",
+          "counts": {
+            "Na": 1,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{NaCl}\\,\\text{(s)}"
+        }
+      ],
+      "coefficients": [
+        2,
+        1,
+        2
+      ],
+      "family": "synthesis",
+      "family_label": "synthesis (combination)",
+      "redox": true,
+      "evidence": "Na + Cl2 combine into the single product NaCl.",
+      "redox_reason": "Cl, Na appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "subscript_tokens": [
+        "Cl2"
+      ]
+    },
+    {
+      "equation": {
+        "text": "2 Mg(s) + O2(g) -> 2 MgO(s)",
+        "latex": "2\\,\\mathrm{Mg}\\,\\text{(s)} + \\mathrm{O_{2}}\\,\\text{(g)} \\rightarrow 2\\,\\mathrm{MgO}\\,\\text{(s)}"
+      },
+      "species": [
+        {
+          "formula": "Mg(s)",
+          "role": "reactant",
+          "counts": {
+            "Mg": 1
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{Mg}\\,\\text{(s)}"
+        },
+        {
+          "formula": "O2(g)",
+          "role": "reactant",
+          "counts": {
+            "O": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{O_{2}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "MgO(s)",
+          "role": "product",
+          "counts": {
+            "Mg": 1,
+            "O": 1
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{MgO}\\,\\text{(s)}"
+        }
+      ],
+      "coefficients": [
+        2,
+        1,
+        2
+      ],
+      "family": "synthesis",
+      "family_label": "synthesis (combination)",
+      "redox": true,
+      "evidence": "Mg + O2 combine into the single product MgO.",
+      "redox_reason": "Mg, O appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "subscript_tokens": [
+        "O2"
+      ]
+    }
+  ],
+  "related": [],
+  "lessons": [],
+  "general_form_latex": "\\mathrm{A} + \\mathrm{B} \\rightarrow \\mathrm{AB}",
+  "prose_tokens": [
+    "Cl2",
+    "H2",
+    "N2",
+    "NH3",
+    "O2"
+  ],
+  "redox": true
+}

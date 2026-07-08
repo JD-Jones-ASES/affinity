@@ -1,0 +1,256 @@
+{
+  "kind": "reaction-family",
+  "id": "reaction-single-replacement",
+  "title": "Single replacement",
+  "family": "single-replacement",
+  "general_form": "A + BC -> B + AC",
+  "summary": "A free element trades places with an element inside a compound: the newcomer combines, the displaced element goes free. One element is oxidized and the other reduced, so single replacement is always a redox reaction — its net-ionic view shows exactly which atoms swap electrons.",
+  "regime": "rule-sourced",
+  "source": "openstax-chemistry-2e",
+  "conditions": [
+    "One free element and one compound on each side (A + BC -> B + AC).",
+    "Whether the swap actually happens depends on an activity ordering of the elements — a more reactive metal displaces a less reactive one. That ordering is its own sourced table."
+  ],
+  "misconceptions": [
+    {
+      "claim": "A single-replacement reaction is a plain double replacement.",
+      "refute": "Look for a free element. A single replacement always has an uncombined element on each side; a double replacement has none — both partners stay combined and only swap."
+    }
+  ],
+  "examples": [
+    {
+      "equation": {
+        "text": "Zn(s) + 2 HCl(aq) -> ZnCl2(aq) + H2(g)",
+        "latex": "\\mathrm{Zn}\\,\\text{(s)} + 2\\,\\mathrm{HCl}\\,\\text{(aq)} \\rightarrow \\mathrm{ZnCl_{2}}\\,\\text{(aq)} + \\mathrm{H_{2}}\\,\\text{(g)}"
+      },
+      "species": [
+        {
+          "formula": "Zn(s)",
+          "role": "reactant",
+          "counts": {
+            "Zn": 1
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{Zn}\\,\\text{(s)}"
+        },
+        {
+          "formula": "HCl(aq)",
+          "role": "reactant",
+          "counts": {
+            "H": 1,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{HCl}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "ZnCl2(aq)",
+          "role": "product",
+          "counts": {
+            "Zn": 1,
+            "Cl": 2
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{ZnCl_{2}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "H2(g)",
+          "role": "product",
+          "counts": {
+            "H": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{H_{2}}\\,\\text{(g)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        2,
+        1,
+        1
+      ],
+      "family": "single-replacement",
+      "family_label": "single replacement",
+      "redox": true,
+      "evidence": "The free element Zn displaces an element from a compound, releasing H2.",
+      "redox_reason": "H, Zn appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "net_ionic": {
+        "text": "Zn(s) + 2 H^+(aq) -> Zn^2+(aq) + H2(g)",
+        "latex": "\\mathrm{Zn}\\,\\text{(s)} + 2\\,\\mathrm{H}^{+}\\,\\text{(aq)} \\rightarrow \\mathrm{Zn}^{2+}\\,\\text{(aq)} + \\mathrm{H_{2}}\\,\\text{(g)}"
+      },
+      "spectators": [
+        "Cl^-"
+      ],
+      "subscript_tokens": [
+        "Cl^-",
+        "H2",
+        "ZnCl2"
+      ]
+    },
+    {
+      "equation": {
+        "text": "Fe(s) + CuSO4(aq) -> FeSO4(aq) + Cu(s)",
+        "latex": "\\mathrm{Fe}\\,\\text{(s)} + \\mathrm{CuSO_{4}}\\,\\text{(aq)} \\rightarrow \\mathrm{FeSO_{4}}\\,\\text{(aq)} + \\mathrm{Cu}\\,\\text{(s)}"
+      },
+      "species": [
+        {
+          "formula": "Fe(s)",
+          "role": "reactant",
+          "counts": {
+            "Fe": 1
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{Fe}\\,\\text{(s)}"
+        },
+        {
+          "formula": "CuSO4(aq)",
+          "role": "reactant",
+          "counts": {
+            "Cu": 1,
+            "S": 1,
+            "O": 4
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{CuSO_{4}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "FeSO4(aq)",
+          "role": "product",
+          "counts": {
+            "Fe": 1,
+            "S": 1,
+            "O": 4
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{FeSO_{4}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "Cu(s)",
+          "role": "product",
+          "counts": {
+            "Cu": 1
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{Cu}\\,\\text{(s)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "family": "single-replacement",
+      "family_label": "single replacement",
+      "redox": true,
+      "evidence": "The free element Fe displaces an element from a compound, releasing Cu.",
+      "redox_reason": "Cu, Fe appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "net_ionic": {
+        "text": "Fe(s) + Cu^2+(aq) -> Fe^2+(aq) + Cu(s)",
+        "latex": "\\mathrm{Fe}\\,\\text{(s)} + \\mathrm{Cu}^{2+}\\,\\text{(aq)} \\rightarrow \\mathrm{Fe}^{2+}\\,\\text{(aq)} + \\mathrm{Cu}\\,\\text{(s)}"
+      },
+      "spectators": [
+        "SO4^2-"
+      ],
+      "subscript_tokens": [
+        "CuSO4",
+        "FeSO4",
+        "SO4^2-"
+      ]
+    },
+    {
+      "equation": {
+        "text": "Mg(s) + 2 HCl(aq) -> MgCl2(aq) + H2(g)",
+        "latex": "\\mathrm{Mg}\\,\\text{(s)} + 2\\,\\mathrm{HCl}\\,\\text{(aq)} \\rightarrow \\mathrm{MgCl_{2}}\\,\\text{(aq)} + \\mathrm{H_{2}}\\,\\text{(g)}"
+      },
+      "species": [
+        {
+          "formula": "Mg(s)",
+          "role": "reactant",
+          "counts": {
+            "Mg": 1
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{Mg}\\,\\text{(s)}"
+        },
+        {
+          "formula": "HCl(aq)",
+          "role": "reactant",
+          "counts": {
+            "H": 1,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{HCl}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "MgCl2(aq)",
+          "role": "product",
+          "counts": {
+            "Mg": 1,
+            "Cl": 2
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{MgCl_{2}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "H2(g)",
+          "role": "product",
+          "counts": {
+            "H": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{H_{2}}\\,\\text{(g)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        2,
+        1,
+        1
+      ],
+      "family": "single-replacement",
+      "family_label": "single replacement",
+      "redox": true,
+      "evidence": "The free element Mg displaces an element from a compound, releasing H2.",
+      "redox_reason": "H, Mg appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "net_ionic": {
+        "text": "Mg(s) + 2 H^+(aq) -> Mg^2+(aq) + H2(g)",
+        "latex": "\\mathrm{Mg}\\,\\text{(s)} + 2\\,\\mathrm{H}^{+}\\,\\text{(aq)} \\rightarrow \\mathrm{Mg}^{2+}\\,\\text{(aq)} + \\mathrm{H_{2}}\\,\\text{(g)}"
+      },
+      "spectators": [
+        "Cl^-"
+      ],
+      "subscript_tokens": [
+        "Cl^-",
+        "H2",
+        "MgCl2"
+      ]
+    }
+  ],
+  "related": [],
+  "lessons": [],
+  "general_form_latex": "\\mathrm{A} + \\mathrm{BC} \\rightarrow \\mathrm{B} + \\mathrm{AC}",
+  "prose_tokens": [
+    "Cl^-",
+    "CuSO4",
+    "FeSO4",
+    "H2",
+    "MgCl2",
+    "SO4^2-",
+    "ZnCl2"
+  ],
+  "redox": true
+}

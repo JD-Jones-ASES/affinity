@@ -1,0 +1,35 @@
+id = "reaction-synthesis"
+kind = "reaction-family"
+title = "Synthesis (combination)"
+family = "synthesis"
+general_form = "A + B -> AB"
+general_form_latex = "\\mathrm{A} + \\mathrm{B} \\rightarrow \\mathrm{AB}"
+summary = "Two or more reactants combine into a single product. When the reactants are free elements, their atoms go from oxidation state 0 to combined, so element-combining synthesis is a redox reaction."
+regime = "rule-sourced"
+source = "openstax-chemistry-2e"
+conditions = [
+  "The signature is one product from two or more reactants.",
+  "Combining two elements is always redox; combining two compounds (e.g. an oxide with water) need not be.",
+]
+
+[[misconceptions]]
+claim = "Any reaction with two reactants is a synthesis."
+refute = "Synthesis is defined by the products, not the reactants: it must end in a single product. Two reactants giving two products is a replacement, not a synthesis."
+
+[[examples]]
+reactants = ["N2(g)", "H2(g)"]
+products = ["NH3(g)"]
+
+[[examples]]
+reactants = ["Na(s)", "Cl2(g)"]
+products = ["NaCl(s)"]
+
+[[examples]]
+reactants = ["Mg(s)", "O2(g)"]
+products = ["MgO(s)"]
+
+related = [
+  { to = "balancing-equations", type = "uses" },
+  { to = "conservation-of-mass", type = "depends-on" },
+]
+lessons = []

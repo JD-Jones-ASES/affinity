@@ -1,0 +1,75 @@
+# Curated acids & bases for reaction classification (ADR-0035, Phase-1 item 6). Regime-3 sourced data.
+#
+# Which species act as (Arrhenius) acids and bases, their common names, and strong/weak classification are
+# teaching conventions — source `openstax-chemistry-2e` (CC BY 4.0), see docs/SOURCES.md. The COMPOSITION of
+# each is machine-checked on load: an acid's formula must parse to exactly `protons` × H plus its named
+# `anion` (which must exist in the ion table); a base's formula must parse to its `cation` plus |charge| × OH.
+# So "HCl is H+ + Cl-" and "NaOH is Na+ + OH-" are regime-1 verified even though "HCl is an acid" is a
+# sourced convention. The names partially close the item-2 acid-naming deferral (ADR-0027) — an acid/base
+# now carries its name for the classifier, the reaction-family Atlas, and the neutralization lesson.
+#
+# Table keys are the neutral formula (house ASCII form). Bases here are the metal hydroxides of a first
+# course; a strong base of a group-1 metal is aqueous, while Ca(OH)2/Mg(OH)2 are only sparingly soluble
+# (the solubility ruleset classes non-group-1 hydroxides insoluble — data/solubility.toml) and so appear as
+# reactants in precipitation, not neutralization.
+
+source = "openstax-chemistry-2e"
+
+# --- acids: formula = `protons` H+ donors + the anion left behind ---
+
+[acids."HCl"]
+name = "hydrochloric acid"
+strength = "strong"
+protons = 1
+anion = "Cl^-"
+
+[acids."HNO3"]
+name = "nitric acid"
+strength = "strong"
+protons = 1
+anion = "NO3^-"
+
+[acids."H2SO4"]
+name = "sulfuric acid"
+strength = "strong"
+protons = 2
+anion = "SO4^2-"
+
+[acids."HC2H3O2"]
+name = "acetic acid"
+strength = "weak"
+protons = 1
+anion = "C2H3O2^-"
+
+[acids."H3PO4"]
+name = "phosphoric acid"
+strength = "weak"
+protons = 3
+anion = "PO4^3-"
+
+# --- bases: formula = the cation + (|cation charge|) hydroxide ions ---
+
+[bases."NaOH"]
+name = "sodium hydroxide"
+strength = "strong"
+cation = "Na^+"
+
+[bases."KOH"]
+name = "potassium hydroxide"
+strength = "strong"
+cation = "K^+"
+
+[bases."LiOH"]
+name = "lithium hydroxide"
+strength = "strong"
+cation = "Li^+"
+
+[bases."Ca(OH)2"]
+name = "calcium hydroxide"
+strength = "strong"
+cation = "Ca^2+"
+
+[bases."Mg(OH)2"]
+name = "magnesium hydroxide"
+strength = "weak"
+cation = "Mg^2+"

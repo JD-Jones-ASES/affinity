@@ -1,0 +1,197 @@
+{
+  "kind": "reaction-family",
+  "id": "reaction-decomposition",
+  "title": "Decomposition",
+  "family": "decomposition",
+  "general_form": "AB -> A + B",
+  "summary": "A single compound breaks apart into two or more products — the reverse pattern of synthesis. Whether it is a redox reaction depends on the reaction: releasing a free element (like O2) is redox; splitting into two compounds (a carbonate into an oxide and CO2) is not.",
+  "regime": "rule-sourced",
+  "source": "openstax-chemistry-2e",
+  "conditions": [
+    "The signature is one reactant giving two or more products.",
+    "An energy input (heat, light, or electricity) usually drives it — but this Atlas describes the change, not how to carry it out."
+  ],
+  "misconceptions": [
+    {
+      "claim": "Decomposition always means a redox reaction.",
+      "refute": "Not always. When a carbonate splits into a metal oxide and carbon dioxide, no element goes free — every atom keeps its oxidation state. Releasing a free element (O2, H2) is what makes the other examples redox."
+    }
+  ],
+  "examples": [
+    {
+      "equation": {
+        "text": "2 KClO3(s) -> 2 KCl(s) + 3 O2(g)",
+        "latex": "2\\,\\mathrm{KClO_{3}}\\,\\text{(s)} \\rightarrow 2\\,\\mathrm{KCl}\\,\\text{(s)} + 3\\,\\mathrm{O_{2}}\\,\\text{(g)}"
+      },
+      "species": [
+        {
+          "formula": "KClO3(s)",
+          "role": "reactant",
+          "counts": {
+            "K": 1,
+            "Cl": 1,
+            "O": 3
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{KClO_{3}}\\,\\text{(s)}"
+        },
+        {
+          "formula": "KCl(s)",
+          "role": "product",
+          "counts": {
+            "K": 1,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{KCl}\\,\\text{(s)}"
+        },
+        {
+          "formula": "O2(g)",
+          "role": "product",
+          "counts": {
+            "O": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{O_{2}}\\,\\text{(g)}"
+        }
+      ],
+      "coefficients": [
+        2,
+        2,
+        3
+      ],
+      "family": "decomposition",
+      "family_label": "decomposition",
+      "redox": true,
+      "evidence": "The single compound KClO3 breaks apart into 2 products.",
+      "redox_reason": "O appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "subscript_tokens": [
+        "KClO3",
+        "O2"
+      ]
+    },
+    {
+      "equation": {
+        "text": "CaCO3(s) -> CaO(s) + CO2(g)",
+        "latex": "\\mathrm{CaCO_{3}}\\,\\text{(s)} \\rightarrow \\mathrm{CaO}\\,\\text{(s)} + \\mathrm{CO_{2}}\\,\\text{(g)}"
+      },
+      "species": [
+        {
+          "formula": "CaCO3(s)",
+          "role": "reactant",
+          "counts": {
+            "Ca": 1,
+            "C": 1,
+            "O": 3
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{CaCO_{3}}\\,\\text{(s)}"
+        },
+        {
+          "formula": "CaO(s)",
+          "role": "product",
+          "counts": {
+            "Ca": 1,
+            "O": 1
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{CaO}\\,\\text{(s)}"
+        },
+        {
+          "formula": "CO2(g)",
+          "role": "product",
+          "counts": {
+            "C": 1,
+            "O": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{CO_{2}}\\,\\text{(g)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        1,
+        1
+      ],
+      "family": "decomposition",
+      "family_label": "decomposition",
+      "redox": false,
+      "evidence": "The single compound CaCO3 breaks apart into 2 products.",
+      "subscript_tokens": [
+        "CO2",
+        "CaCO3"
+      ]
+    },
+    {
+      "equation": {
+        "text": "2 H2O(l) -> 2 H2(g) + O2(g)",
+        "latex": "2\\,\\mathrm{H_{2}O}\\,\\text{(l)} \\rightarrow 2\\,\\mathrm{H_{2}}\\,\\text{(g)} + \\mathrm{O_{2}}\\,\\text{(g)}"
+      },
+      "species": [
+        {
+          "formula": "H2O(l)",
+          "role": "reactant",
+          "counts": {
+            "H": 2,
+            "O": 1
+          },
+          "charge": 0,
+          "phase": "l",
+          "latex": "\\mathrm{H_{2}O}\\,\\text{(l)}"
+        },
+        {
+          "formula": "H2(g)",
+          "role": "product",
+          "counts": {
+            "H": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{H_{2}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "O2(g)",
+          "role": "product",
+          "counts": {
+            "O": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{O_{2}}\\,\\text{(g)}"
+        }
+      ],
+      "coefficients": [
+        2,
+        2,
+        1
+      ],
+      "family": "decomposition",
+      "family_label": "decomposition",
+      "redox": true,
+      "evidence": "The single compound H2O breaks apart into 2 products.",
+      "redox_reason": "H, O appears as a free element on one side and combined on the other, so its oxidation state changed — electrons were transferred (a redox reaction). Assigning full oxidation numbers is a later topic; here the free-element signature is enough.",
+      "subscript_tokens": [
+        "H2",
+        "H2O",
+        "O2"
+      ]
+    }
+  ],
+  "related": [],
+  "lessons": [],
+  "general_form_latex": "\\mathrm{AB} \\rightarrow \\mathrm{A} + \\mathrm{B}",
+  "prose_tokens": [
+    "CO2",
+    "CaCO3",
+    "H2",
+    "H2O",
+    "KClO3",
+    "O2"
+  ]
+}

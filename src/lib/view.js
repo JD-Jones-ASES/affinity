@@ -184,6 +184,33 @@ export function renderValenceTable(t) {
   return v;
 }
 
+// Render a reaction-family entry (ADR-0035): each example's balanced equation + net-ionic view render at
+// build time (upright producer LaTeX, ADR-0025); prose (summary, conditions, misconceptions, per-example
+// evidence + redox reason) gets its formula tokens subscripted — the same view discipline as lessons/gyms.
+export function renderReactionFamily(f) {
+  const r = structuredClone(f);
+  // prose tokens: emitted by the producer (every example's species + author-declared intermediates like
+  // H2CO3 that never appear as a species), falling back to the example union for older data.
+  const famTokens = r.prose_tokens?.length ? r.prose_tokens : r.examples.flatMap((ex) => ex.subscript_tokens ?? []);
+  r.summaryPretty = prettyText(r.summary, famTokens);
+  r.general_formPretty = prettyText(r.general_form, famTokens);
+  r.general_formHtml = r.general_form_latex ? tex(r.general_form_latex, false) : null;
+  r.conditions = (r.conditions ?? []).map((c) => prettyText(c, famTokens));
+  r.misconceptions = r.misconceptions.map((m) => ({
+    claim: prettyText(m.claim, famTokens),
+    refute: prettyText(m.refute, famTokens),
+  }));
+  r.examples = r.examples.map((ex) => ({
+    ...ex,
+    equationHtml: tex(ex.equation.latex, false),
+    netHtml: ex.net_ionic ? tex(ex.net_ionic.latex, false) : null,
+    evidencePretty: prettyText(ex.evidence, ex.subscript_tokens ?? []),
+    redoxReasonPretty: ex.redox_reason ? prettyText(ex.redox_reason, ex.subscript_tokens ?? []) : null,
+    spectatorsPretty: (ex.spectators ?? []).map(prettyIon),
+  }));
+  return r;
+}
+
 // Render a concept entry (definition may carry inline $…$; latex is a standalone display formula).
 export function renderConcept(c) {
   return {

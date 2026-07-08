@@ -1,0 +1,35 @@
+id = "reaction-decomposition"
+kind = "reaction-family"
+title = "Decomposition"
+family = "decomposition"
+general_form = "AB -> A + B"
+general_form_latex = "\\mathrm{AB} \\rightarrow \\mathrm{A} + \\mathrm{B}"
+summary = "A single compound breaks apart into two or more products — the reverse pattern of synthesis. Whether it is a redox reaction depends on the reaction: releasing a free element (like O2) is redox; splitting into two compounds (a carbonate into an oxide and CO2) is not."
+regime = "rule-sourced"
+source = "openstax-chemistry-2e"
+conditions = [
+  "The signature is one reactant giving two or more products.",
+  "An energy input (heat, light, or electricity) usually drives it — but this Atlas describes the change, not how to carry it out.",
+]
+
+[[misconceptions]]
+claim = "Decomposition always means a redox reaction."
+refute = "Not always. When a carbonate splits into a metal oxide and carbon dioxide, no element goes free — every atom keeps its oxidation state. Releasing a free element (O2, H2) is what makes the other examples redox."
+
+[[examples]]
+reactants = ["KClO3(s)"]
+products = ["KCl(s)", "O2(g)"]
+
+[[examples]]
+reactants = ["CaCO3(s)"]
+products = ["CaO(s)", "CO2(g)"]
+
+[[examples]]
+reactants = ["H2O(l)"]
+products = ["H2(g)", "O2(g)"]
+
+related = [
+  { to = "balancing-equations", type = "uses" },
+  { to = "conservation-of-mass", type = "depends-on" },
+]
+lessons = []

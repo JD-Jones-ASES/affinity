@@ -11,6 +11,7 @@ import { join } from "node:path";
 import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { parseFormula } from "./formula.mjs";
+import { verifyBalance } from "./balancecheck.mjs";
 
 const ROOT = process.cwd();
 const gymDir = join(ROOT, "derived", "gyms");
@@ -74,40 +75,8 @@ const eqSide = (species, coeffs, role) =>
 const reconstructEquation = (species, coeffs, arrow) =>
   `${eqSide(species, coeffs, "reactant")} ${arrow} ${eqSide(species, coeffs, "product")}`;
 
-// re-parse every species formula and re-prove the coefficient vector zeroes every element row + the charge
-// row (the definition of balanced), all-positive and reduced (gcd 1). Returns the sorted element list. Shared
-// by the balancing gym and the stoichiometry gyms (which re-verify the equation the mole ratio comes from).
-function verifyBalance(rel, id, species, coefficients, fail) {
-  if (!Array.isArray(species) || !Array.isArray(coefficients))
-    fail(rel, `${id}: derivation missing species/coefficients`);
-  const n = species.length;
-  if (coefficients.length !== n) fail(rel, `${id}: ${coefficients.length} coefficients for ${n} species`);
-  const els = new Set();
-  for (const s of species) {
-    let parsed;
-    try { parsed = parseFormula(s.formula); }
-    catch (e) { fail(rel, `${id}: cannot parse species '${s.formula}': ${e.message}`); }
-    if (parsed.charge !== s.charge) fail(rel, `${id}: '${s.formula}' charge ${parsed.charge} != emitted ${s.charge}`);
-    const a = parsed.counts, b = s.counts;
-    for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
-      if ((a[k] || 0) !== (b[k] || 0)) fail(rel, `${id}: '${s.formula}' count ${k}=${a[k] || 0} != emitted ${b[k] || 0}`);
-      els.add(k);
-    }
-  }
-  for (const key of [...els].sort().concat("charge")) {
-    let left = 0, right = 0;
-    species.forEach((s, i) => {
-      const amt = (key === "charge" ? s.charge : (s.counts[key] || 0)) * coefficients[i];
-      if (s.role === "reactant") left += amt; else right += amt;
-    });
-    if (left !== right) fail(rel, `${id}: ${key} not conserved (${left} vs ${right}) — not balanced`);
-  }
-  if (coefficients.some((c) => !Number.isInteger(c) || c < 1))
-    fail(rel, `${id}: coefficients must be positive integers, got [${coefficients}]`);
-  if (coefficients.reduce((a, b) => gcd(a, b)) !== 1)
-    fail(rel, `${id}: coefficients [${coefficients}] are not reduced (common factor)`);
-  return [...els].sort();
-}
+// verifyBalance (the coefficient-vector re-prover) now lives in balancecheck.mjs, shared with the
+// reaction-family gate (ADR-0035); imported above. The balancing and stoichiometry branches call it below.
 
 function verifyBalancing(rel, p, fail) {
   const d = p.derivation;

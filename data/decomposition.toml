@@ -1,0 +1,26 @@
+# Unstable intermediates that evolve a gas (ADR-0035, Phase-1 item 6, gas-evolution family). Regime-3 sourced.
+#
+# Some double-replacement reactions would form a product that is unstable and immediately decomposes,
+# releasing a gas — that is what makes them "gas evolution" reactions rather than plain double replacement.
+# Each key is the unstable species that would form; `products` are what it decomposes into (one a gas), and
+# `gas` is that gas's core formula. Source `openstax-chemistry-2e` (§4.2 gas-forming reactions). Composition
+# is machine-checked on load (each key and product formula parses and is built from known elements), so the
+# mechanism is regime-1 consistent even though "carbonic acid is unstable" is a sourced empirical fact.
+#
+# Restricted to intermediates formable from the registered ion table: carbonic acid (from carbonate or
+# bicarbonate + an acid) and aqueous ammonia (from an ammonium salt + a strong base). Extend — with this
+# source — when the ion table grows (e.g. sulfite -> sulfurous acid -> SO2).
+
+source = "openstax-chemistry-2e"
+
+[decompositions."H2CO3"]
+name = "carbonic acid"
+products = ["H2O", "CO2(g)"]
+gas = "CO2"
+note = "Carbonic acid is unstable and breaks down into water and carbon dioxide gas."
+
+[decompositions."NH4OH"]
+name = "aqueous ammonia"
+products = ["NH3(g)", "H2O"]
+gas = "NH3"
+note = "Aqueous ammonia (ammonium hydroxide) breaks down into ammonia gas and water."

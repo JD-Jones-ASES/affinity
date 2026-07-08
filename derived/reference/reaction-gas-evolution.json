@@ -1,0 +1,313 @@
+{
+  "kind": "reaction-family",
+  "id": "reaction-gas-evolution",
+  "title": "Gas evolution",
+  "family": "gas-evolution",
+  "general_form": "acid + carbonate (or ammonium salt + base) -> salt + water + gas",
+  "summary": "A double replacement would form an unstable product that immediately breaks down and releases a gas — that gas escaping is the driving force. A carbonate plus an acid makes carbonic acid, which falls apart into water and carbon dioxide; an ammonium salt plus a base makes aqueous ammonia, which releases ammonia gas. No element goes free, so it is not a redox reaction.",
+  "regime": "rule-sourced",
+  "source": "openstax-chemistry-2e",
+  "conditions": [
+    "The trigger is a would-be product that is unstable: carbonic acid (from a carbonate) or aqueous ammonia (from an ammonium salt + base).",
+    "The gas leaving the solution is what pulls the reaction forward."
+  ],
+  "misconceptions": [
+    {
+      "claim": "Carbonic acid (H2CO3) is one of the final products.",
+      "refute": "It forms for an instant, then decomposes — the products you actually collect are water and carbon dioxide gas. The Atlas shows the two-step logic behind the single written equation."
+    },
+    {
+      "claim": "The bubbles are just the solvent boiling.",
+      "refute": "The gas is a real product of the reaction (CO2 or NH3), formed atom-for-atom from the reactants — count them in the balanced equation. It is chemistry, not heat."
+    }
+  ],
+  "examples": [
+    {
+      "equation": {
+        "text": "2 HCl(aq) + Na2CO3(aq) -> 2 NaCl(aq) + H2O(l) + CO2(g)",
+        "latex": "2\\,\\mathrm{HCl}\\,\\text{(aq)} + \\mathrm{Na_{2}CO_{3}}\\,\\text{(aq)} \\rightarrow 2\\,\\mathrm{NaCl}\\,\\text{(aq)} + \\mathrm{H_{2}O}\\,\\text{(l)} + \\mathrm{CO_{2}}\\,\\text{(g)}"
+      },
+      "species": [
+        {
+          "formula": "HCl(aq)",
+          "role": "reactant",
+          "counts": {
+            "H": 1,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{HCl}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "Na2CO3(aq)",
+          "role": "reactant",
+          "counts": {
+            "Na": 2,
+            "C": 1,
+            "O": 3
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{Na_{2}CO_{3}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "NaCl(aq)",
+          "role": "product",
+          "counts": {
+            "Na": 1,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{NaCl}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "H2O(l)",
+          "role": "product",
+          "counts": {
+            "H": 2,
+            "O": 1
+          },
+          "charge": 0,
+          "phase": "l",
+          "latex": "\\mathrm{H_{2}O}\\,\\text{(l)}"
+        },
+        {
+          "formula": "CO2(g)",
+          "role": "product",
+          "counts": {
+            "C": 1,
+            "O": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{CO_{2}}\\,\\text{(g)}"
+        }
+      ],
+      "coefficients": [
+        2,
+        1,
+        2,
+        1,
+        1
+      ],
+      "family": "gas-evolution",
+      "family_label": "gas evolution",
+      "redox": false,
+      "evidence": "carbonic acid would form but is unstable — it decomposes to CO2 gas and water. Carbonic acid is unstable and breaks down into water and carbon dioxide gas.",
+      "net_ionic": {
+        "text": "2 H^+(aq) + CO3^2-(aq) -> H2O(l) + CO2(g)",
+        "latex": "2\\,\\mathrm{H}^{+}\\,\\text{(aq)} + \\mathrm{CO_{3}}^{2-}\\,\\text{(aq)} \\rightarrow \\mathrm{H_{2}O}\\,\\text{(l)} + \\mathrm{CO_{2}}\\,\\text{(g)}"
+      },
+      "spectators": [
+        "Cl^-",
+        "Na^+"
+      ],
+      "subscript_tokens": [
+        "CO2",
+        "Cl^-",
+        "H2O",
+        "Na2CO3",
+        "Na^+"
+      ]
+    },
+    {
+      "equation": {
+        "text": "2 HCl(aq) + CaCO3(s) -> CaCl2(aq) + H2O(l) + CO2(g)",
+        "latex": "2\\,\\mathrm{HCl}\\,\\text{(aq)} + \\mathrm{CaCO_{3}}\\,\\text{(s)} \\rightarrow \\mathrm{CaCl_{2}}\\,\\text{(aq)} + \\mathrm{H_{2}O}\\,\\text{(l)} + \\mathrm{CO_{2}}\\,\\text{(g)}"
+      },
+      "species": [
+        {
+          "formula": "HCl(aq)",
+          "role": "reactant",
+          "counts": {
+            "H": 1,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{HCl}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "CaCO3(s)",
+          "role": "reactant",
+          "counts": {
+            "Ca": 1,
+            "C": 1,
+            "O": 3
+          },
+          "charge": 0,
+          "phase": "s",
+          "latex": "\\mathrm{CaCO_{3}}\\,\\text{(s)}"
+        },
+        {
+          "formula": "CaCl2(aq)",
+          "role": "product",
+          "counts": {
+            "Ca": 1,
+            "Cl": 2
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{CaCl_{2}}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "H2O(l)",
+          "role": "product",
+          "counts": {
+            "H": 2,
+            "O": 1
+          },
+          "charge": 0,
+          "phase": "l",
+          "latex": "\\mathrm{H_{2}O}\\,\\text{(l)}"
+        },
+        {
+          "formula": "CO2(g)",
+          "role": "product",
+          "counts": {
+            "C": 1,
+            "O": 2
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{CO_{2}}\\,\\text{(g)}"
+        }
+      ],
+      "coefficients": [
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "family": "gas-evolution",
+      "family_label": "gas evolution",
+      "redox": false,
+      "evidence": "carbonic acid would form but is unstable — it decomposes to CO2 gas and water. Carbonic acid is unstable and breaks down into water and carbon dioxide gas.",
+      "net_ionic": {
+        "text": "2 H^+(aq) + CaCO3(s) -> Ca^2+(aq) + H2O(l) + CO2(g)",
+        "latex": "2\\,\\mathrm{H}^{+}\\,\\text{(aq)} + \\mathrm{CaCO_{3}}\\,\\text{(s)} \\rightarrow \\mathrm{Ca}^{2+}\\,\\text{(aq)} + \\mathrm{H_{2}O}\\,\\text{(l)} + \\mathrm{CO_{2}}\\,\\text{(g)}"
+      },
+      "spectators": [
+        "Cl^-"
+      ],
+      "subscript_tokens": [
+        "CO2",
+        "CaCO3",
+        "CaCl2",
+        "Cl^-",
+        "H2O"
+      ]
+    },
+    {
+      "equation": {
+        "text": "NH4Cl(aq) + NaOH(aq) -> NaCl(aq) + NH3(g) + H2O(l)",
+        "latex": "\\mathrm{NH_{4}Cl}\\,\\text{(aq)} + \\mathrm{NaOH}\\,\\text{(aq)} \\rightarrow \\mathrm{NaCl}\\,\\text{(aq)} + \\mathrm{NH_{3}}\\,\\text{(g)} + \\mathrm{H_{2}O}\\,\\text{(l)}"
+      },
+      "species": [
+        {
+          "formula": "NH4Cl(aq)",
+          "role": "reactant",
+          "counts": {
+            "N": 1,
+            "H": 4,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{NH_{4}Cl}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "NaOH(aq)",
+          "role": "reactant",
+          "counts": {
+            "Na": 1,
+            "O": 1,
+            "H": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{NaOH}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "NaCl(aq)",
+          "role": "product",
+          "counts": {
+            "Na": 1,
+            "Cl": 1
+          },
+          "charge": 0,
+          "phase": "aq",
+          "latex": "\\mathrm{NaCl}\\,\\text{(aq)}"
+        },
+        {
+          "formula": "NH3(g)",
+          "role": "product",
+          "counts": {
+            "N": 1,
+            "H": 3
+          },
+          "charge": 0,
+          "phase": "g",
+          "latex": "\\mathrm{NH_{3}}\\,\\text{(g)}"
+        },
+        {
+          "formula": "H2O(l)",
+          "role": "product",
+          "counts": {
+            "H": 2,
+            "O": 1
+          },
+          "charge": 0,
+          "phase": "l",
+          "latex": "\\mathrm{H_{2}O}\\,\\text{(l)}"
+        }
+      ],
+      "coefficients": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "family": "gas-evolution",
+      "family_label": "gas evolution",
+      "redox": false,
+      "evidence": "aqueous ammonia would form but is unstable — it decomposes to NH3 gas and water. Aqueous ammonia (ammonium hydroxide) breaks down into ammonia gas and water.",
+      "net_ionic": {
+        "text": "NH4^+(aq) + OH^-(aq) -> NH3(g) + H2O(l)",
+        "latex": "\\mathrm{NH_{4}}^{+}\\,\\text{(aq)} + \\mathrm{OH}^{-}\\,\\text{(aq)} \\rightarrow \\mathrm{NH_{3}}\\,\\text{(g)} + \\mathrm{H_{2}O}\\,\\text{(l)}"
+      },
+      "spectators": [
+        "Cl^-",
+        "Na^+"
+      ],
+      "subscript_tokens": [
+        "Cl^-",
+        "H2O",
+        "NH3",
+        "NH4Cl",
+        "Na^+"
+      ]
+    }
+  ],
+  "related": [],
+  "lessons": [],
+  "general_form_latex": "\\mathrm{acid} + \\mathrm{carbonate} \\rightarrow \\mathrm{salt} + \\mathrm{H_{2}O} + \\mathrm{CO_{2}}\\,\\text{(g)}",
+  "prose_tokens": [
+    "CO2",
+    "CaCO3",
+    "CaCl2",
+    "Cl^-",
+    "H2CO3",
+    "H2O",
+    "NH3",
+    "NH4Cl",
+    "NH4OH",
+    "Na2CO3",
+    "Na^+"
+  ],
+  "redox": false
+}
