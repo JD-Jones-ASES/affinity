@@ -54,7 +54,8 @@ class ChemData:
                  constant_units: dict[str, str] | None = None, specific_heats: dict | None = None,
                  formation_enthalpies: dict | None = None, vsepr: dict | None = None,
                  boiling_points: dict | None = None, ionization_constants: dict | None = None,
-                 solubility_products: dict | None = None):
+                 solubility_products: dict | None = None, base_ionization_constants: dict | None = None,
+                 water_kw: Decimal | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
@@ -81,6 +82,14 @@ class ChemData:
         # machine-checked on load (regime-1); the Ksp value is sourced (regime-3). The engine dissolves the solid
         # and solves the mass-action root for the molar solubility.
         self.solubility_products = solubility_products or {}
+        # base ionization constants Kb (ADR-0048, 3rd increment), keyed by neutral base formula ->
+        # {name, kb (Decimal), conjugate_acid}. The Kb value is sourced (regime-3); the base composition
+        # (base + H+ = conjugate_acid, the conjugate acid a +1 cation) is machine-checked on load (regime-1). The
+        # equilibrium engine ionizes the base against water (excluded from Q) and solves for [OH-]; K_w bridges to pH.
+        self.base_ionization_constants = base_ionization_constants or {}
+        # the ion-product constant of water K_w = [H+][OH-] (ADR-0048, 3rd increment), Decimal, sourced (regime-3).
+        # The bridge between [OH-] and pH: [H+] = K_w/[OH-], so pH + pOH = pK_w = 14.00 at 25 °C.
+        self.water_kw = water_kw
 
     @property
     def avogadro(self) -> Decimal:
@@ -119,6 +128,21 @@ class ChemData:
         if formula not in self.solubility_products:
             raise BuildError(f"no solubility product for '{formula}' in data/solubility-products.toml")
         return self.solubility_products[formula]
+
+    def base_ionization_constant(self, formula: str) -> dict:
+        """The base ionization constant Kb (Decimal) of a weak molecular base by neutral formula, with its
+        conjugate acid, from data/ionization-constants.toml (ADR-0048). Raises if absent — the equilibrium engine
+        refuses to guess a missing Kb (ADR-0008)."""
+        if formula not in self.base_ionization_constants:
+            raise BuildError(f"no base ionization constant for '{formula}' in data/ionization-constants.toml")
+        return self.base_ionization_constants[formula]
+
+    def water_ion_product(self) -> Decimal:
+        """The ion-product constant of water K_w = [H+][OH-] (Decimal), from data/ionization-constants.toml
+        (ADR-0048). The acid/base bridge: [H+] = K_w/[OH-]. Raises if absent (ADR-0008 — refuse to guess K_w)."""
+        if self.water_kw is None:
+            raise BuildError("no water ion-product K_w in data/ionization-constants.toml [water]")
+        return self.water_kw
 
     @classmethod
     def load(cls, root: Path | None = None) -> "ChemData":
@@ -267,9 +291,12 @@ class ChemData:
                 except (KeyError, ArithmeticError) as exc:
                     raise BuildError(f"data/boiling-points.toml: bad entry for '{key}': {exc}") from exc
 
-        # acid ionization constants Ka (optional file; ADR-0006/0048). A measured, data-sourced datum (regime-3)
-        # for the equilibrium tier — read as Decimal (ADR-0013), keyed by neutral acid formula.
+        # ionization constants (optional file; ADR-0006/0048). Measured, data-sourced data (regime-3) for the
+        # equilibrium tier — read as Decimal (ADR-0013). Acids keyed by neutral acid formula (Ka); bases by
+        # neutral base formula (Kb + conjugate acid, composition machine-checked below); water carries K_w.
         ionization_constants: dict = {}
+        base_ionization_constants: dict = {}
+        water_kw: Decimal | None = None
         ic_source = ""
         ic_path = d / "ionization-constants.toml"
         if ic_path.exists():
@@ -283,6 +310,40 @@ class ChemData:
                     ionization_constants[key] = {"name": v["name"], "ka": ka}
                 except (KeyError, ArithmeticError) as exc:
                     raise BuildError(f"data/ionization-constants.toml: bad entry for '{key}': {exc}") from exc
+            for key, v in ic_doc.get("bases", {}).items():
+                try:
+                    kb = Decimal(v["kb"])
+                    if kb <= 0:
+                        raise BuildError(f"data/ionization-constants.toml: base '{key}' kb must be positive")
+                    # machine-check the base composition (regime-1): a neutral base + one proton = its named
+                    # conjugate acid, a +1 cation in the ion table (so "NH3 + H+ is NH4+" is verified).
+                    ca = ions.get(v["conjugate_acid"])
+                    if ca is None:
+                        raise BuildError(f"data/ionization-constants.toml: base '{key}' names unknown conjugate "
+                                         f"acid '{v['conjugate_acid']}'")
+                    if ca.charge != 1:
+                        raise BuildError(f"data/ionization-constants.toml: base '{key}' conjugate acid "
+                                         f"'{ca.id}' must be a +1 cation (a monobasic weak base)")
+                    fb = parse_formula(key, ctx=f"data/ionization-constants.toml base '{key}'")
+                    if fb.charge != 0:
+                        raise BuildError(f"data/ionization-constants.toml: base '{key}' is not neutral")
+                    expect = dict(fb.counts)
+                    expect["H"] = expect.get("H", 0) + 1
+                    if dict(parse_formula(ca.formula).counts) != expect:
+                        raise BuildError(f"data/ionization-constants.toml: base '{key}' + H+ is not "
+                                         f"{ca.id} ({expect} vs {dict(parse_formula(ca.formula).counts)})")
+                    base_ionization_constants[key] = {"name": v["name"], "kb": kb,
+                                                      "conjugate_acid": ca.id}
+                except (KeyError, ArithmeticError) as exc:
+                    raise BuildError(f"data/ionization-constants.toml: bad base entry for '{key}': {exc}") from exc
+            water = ic_doc.get("water")
+            if water is not None:
+                try:
+                    water_kw = Decimal(water["kw"])
+                    if water_kw <= 0:
+                        raise BuildError("data/ionization-constants.toml: [water] kw must be positive")
+                except (KeyError, ArithmeticError) as exc:
+                    raise BuildError(f"data/ionization-constants.toml: bad [water] entry: {exc}") from exc
 
         # solubility-product constants Ksp (optional file; ADR-0006/0048). The Ksp value is sourced (regime-3);
         # the ion counts are DERIVED by charge crossover and the salt composition machine-checked here (regime-1),
@@ -336,7 +397,8 @@ class ChemData:
             "solubility_products": sp_source,
         }
         obj = cls(elements, ions, sources, constants, bonding, constant_units, specific_heats,
-                  formation_enthalpies, vsepr, boiling_points, ionization_constants, solubility_products)
+                  formation_enthalpies, vsepr, boiling_points, ionization_constants, solubility_products,
+                  base_ionization_constants, water_kw)
         obj.validate()
         return obj
 

@@ -4,6 +4,7 @@
 // from Q). A fully STATIC Astro component. Every value came from ChemKernel and was re-verified (equilibriumcheck.mjs).
 const { lesson } = Astro.props;
 const isKsp = lesson.subtype === "solubility";
+const isBase = lesson.subtype === "weak-base";
 const ice = lesson.ice;
 const rows = ice.species;
 const xSym = ice.extent_symbol;                          // "x" (acid) or "s" (Ksp)
@@ -29,8 +30,12 @@ const numer = inQ.filter((r) => r.nu > 0).map(term).join("");
 const denom = inQ.filter((r) => r.nu < 0).map(term).join("");
 const substitution = denom ? `${numer} / ${denom}` : numer;
 
-// misconception helper numbers
-const acidRow = !isKsp ? rows.find((r) => r.role === "reactant") : null;
+// the dissolved reactant row (the un-ionized acid or base) — skips the excluded pure solvent (water). null for Ksp.
+const reactantRow = !isKsp ? rows.find((r) => r.role === "reactant" && r.in_quotient !== false) : null;
+// the excluded pure-condensed-phase row (a solid for Ksp, water for a weak base) — "pure liquid"/"pure solid" by phase
+const excludedRow = rows.find((r) => r.in_quotient === false);
+const excludedNoun = excludedRow && excludedRow.phase === "l" ? "liquid" : "solid";
+const excludedFrom = isKsp ? "Ksp" : "Q";
 ---
 
 <section class="player">
@@ -68,7 +73,7 @@ const acidRow = !isKsp ? rows.find((r) => r.role === "reactant") : null;
       <tbody>
         {rows.map((r) => (
           <tr class={r.in_quotient === false ? "solid" : ""}>
-            <td class="sym"><span set:html={r.symbolHtml} /> <span class="phase">({r.phase})</span>{r.in_quotient === false && <span class="excluded">pure solid · excluded from {isKsp ? "Ksp" : "Q"}</span>}</td>
+            <td class="sym"><span set:html={r.symbolHtml} /> <span class="phase">({r.phase})</span>{r.in_quotient === false && <span class="excluded">pure {excludedNoun} · excluded from {excludedFrom}</span>}</td>
             <td class="num">{r.in_quotient === false ? "—" : r.initial_M}</td>
             <td class="num change"><span class="csym">{changeSym(r)}</span></td>
             <td class="num eqm">{r.in_quotient === false ? "—" : r.equilibrium_M_display}</td>
@@ -80,14 +85,16 @@ const acidRow = !isKsp ? rows.find((r) => r.role === "reactant") : null;
   <p class="ledger-note">
     <span class="badge machine tiny"><span class="dot"></span>machine-checked</span>
     The Change row is <strong>ν·{xSym}</strong> — the very same extent ledger <span class="mono">c<sub>i</sub> = c<sub>i,0</sub> + ν<sub>i</sub>·{xSym}</span>
-    as any reaction. {isKsp ? "The pure solid has activity 1, so it never enters the equilibrium expression." : "What differs is only where the extent stops."}
+    as any reaction. {isKsp ? "The pure solid has activity 1, so it never enters the equilibrium expression."
+      : isBase ? "Water is the pure solvent (activity 1), so it never enters the equilibrium expression."
+      : "What differs is only where the extent stops."}
   </p>
 
   <!-- the payoff: the extent that makes the reaction quotient equal K (the reversible-extent solve) -->
   <div class="proof massaction">
     <div class="proof-head">
       <span class="badge machine"><span class="dot"></span>Mass action</span>
-      <strong>{xSym} = {ice.extent_M_display} {isKsp ? "M — the molar solubility, where" : "M — the extent where"} Q = <Fragment set:html={kHtml} />.</strong>
+      <strong>{xSym} = {ice.extent_M_display} {isKsp ? "M — the molar solubility, where" : isBase ? "M = [OH⁻], the extent where" : "M — the extent where"} Q = <Fragment set:html={kHtml} />.</strong>
     </div>
     <p class="subst">
       <span class="expr" set:html={kc.expressionHtml} />
@@ -120,6 +127,24 @@ const acidRow = !isKsp ? rows.find((r) => r.role === "reactant") : null;
         <span class="sub">M at equilibrium</span>
       </div>
     </div>
+  ) : isBase ? (
+    <div class="results">
+      <div class="card">
+        <span class="k">[OH<sup>−</sup>]</span>
+        <span class="v">{res.hydroxide_M_display} M</span>
+        <span class="sub">{res.percent_ionization_display}% of the base ionized</span>
+      </div>
+      <div class="card">
+        <span class="k">pOH</span>
+        <span class="v">{res.pOH_display}</span>
+        <span class="sub">= −log<sub>10</sub>[OH<sup>−</sup>]</span>
+      </div>
+      <div class="card headline">
+        <span class="k">pH</span>
+        <span class="v big">{res.pH_display}</span>
+        <span class="sub">= 14.00 − pOH</span>
+      </div>
+    </div>
   ) : (
     <div class="results">
       <div class="card">
@@ -134,10 +159,21 @@ const acidRow = !isKsp ? rows.find((r) => r.role === "reactant") : null;
       </div>
       <div class="card">
         <span class="k">un-ionized</span>
-        <span class="v">{acidRow.equilibrium_M_display} M</span>
+        <span class="v">{reactantRow.equilibrium_M_display} M</span>
         <span class="sub">stays as intact {lesson.reaction.acidPretty}</span>
       </div>
     </div>
+  )}
+
+  <!-- the K_w bridge, the weak base's new move: [OH⁻] → [H⁺] → pH (SHOWN, machine-checked) -->
+  {isBase && (
+    <p class="kwbridge">
+      <span class="badge machine tiny"><span class="dot"></span>K<sub>w</sub> bridge</span>
+      The extent gives <strong>[OH<sup>−</sup>] = {res.hydroxide_M_display} M</strong>, not [H<sup>+</sup>]. Water ties them together:
+      <span class="mono">[H<sup>+</sup>][OH<sup>−</sup>] = K<sub>w</sub> = {lesson.result.kwSci}</span>, so
+      <span class="mono">[H<sup>+</sup>] = K<sub>w</sub>/[OH<sup>−</sup>] = {res.hydronium_M_display} M</span> and
+      <strong>pH + pOH = {res.pH_display} + {res.pOH_display} = {(Number(res.pH_display) + Number(res.pOH_display)).toFixed(2)}</strong>.
+    </p>
   )}
 
   <!-- the machine-checked facts, SHOWN not asserted -->
@@ -149,8 +185,8 @@ const acidRow = !isKsp ? rows.find((r) => r.role === "reactant") : null;
     <ul class="checks">
       <li><span class="tick">✓</span> Every equilibrium concentration = initial + ν·{xSym} <span class="tier">[ICE identity]</span></li>
       <li><span class="tick">✓</span> The extent {xSym} re-solved independently (bisection) reproduces Q = <Fragment set:html={kHtml} /> <span class="tier">[mass-action root]</span></li>
-      <li><span class="tick">✓</span> {isKsp ? "The pure solid is excluded from Q; s > 0" : `0 < ${xSym} < [${lesson.reaction.acidPretty}]₀`} — no concentration goes negative <span class="tier">[extent physical]</span></li>
-      <li><span class="tick">✓</span> {isKsp ? "solubility (g/L) = s × molar mass" : "pH = −log₁₀[H⁺]"} <span class="tier">[{isKsp ? "solubility consistent" : "log consistent"}]</span></li>
+      <li><span class="tick">✓</span> {isKsp ? "The pure solid is excluded from Q; s > 0" : isBase ? `Water is excluded from Q; 0 < ${xSym} < [${lesson.reaction.basePretty}]₀` : `0 < ${xSym} < [${lesson.reaction.acidPretty}]₀`} — no concentration goes negative <span class="tier">[extent physical]</span></li>
+      <li><span class="tick">✓</span> {isKsp ? "solubility (g/L) = s × molar mass" : isBase ? "[H⁺] = K_w/[OH⁻]; pH = −log₁₀[H⁺]; pH + pOH = pK_w" : "pH = −log₁₀[H⁺]"} <span class="tier">[{isKsp ? "solubility consistent" : isBase ? "K_w bridge" : "log consistent"}]</span></li>
     </ul>
   </div>
 
@@ -168,12 +204,22 @@ const acidRow = !isKsp ? rows.find((r) => r.role === "reactant") : null;
             about 35× larger than √<Fragment set:html={kHtml} /> ≈ {(Math.sqrt(Number(kc.value))).toExponential(1)}. The coefficient
             enters <strong>twice</strong> — as a concentration factor and as an exponent.
           </>
+        ) : isBase ? (
+          <>
+            That would be true for a <strong>strong</strong> base like NaOH, which delivers its {inQ.find((r) => r.id === "OH^-")?.idPretty ?? "OH⁻"}
+            {" "}completely. But ammonia has no {inQ.find((r) => r.id === "OH^-")?.idPretty ?? "OH⁻"} of its own — it must take one from water, and
+            the ledger shows the extent is only <strong>{xSym} = {ice.extent_M_display} M</strong>, just <strong>{res.percent_ionization_display}%</strong>
+            {" "}ionized. So [OH<sup>−</sup>] = {res.hydroxide_M_display} M, pOH = {res.pOH_display}, and through K<sub>w</sub> the
+            pH = <strong>{res.pH_display}</strong> — not 13.00; the other {reactantRow.equilibrium_M_display} M
+            {" "}({(100 - Number(res.percent_ionization_display)).toFixed(2)}%) stays as intact {lesson.reaction.basePretty}. Notice the mirror:
+            this base at 0.100 M lands as far <em>above</em> pH 7 as 0.100 M acetic acid (same K) lands below it.
+          </>
         ) : (
           <>
             That would be true for a <strong>strong</strong> acid, which ionizes completely. But the ledger shows the
             extent is only <strong>{xSym} = {ice.extent_M_display} M</strong> — just <strong>{res.percent_ionization_display}%</strong>
             of the acid ionizes. So [H<sup>+</sup>] = {res.hydronium_M_display} M and pH = <strong>{res.pH_display}</strong>, not
-            1.00; the other {acidRow.equilibrium_M_display} M ({(100 - Number(res.percent_ionization_display)).toFixed(2)}%) stays
+            1.00; the other {reactantRow.equilibrium_M_display} M ({(100 - Number(res.percent_ionization_display)).toFixed(2)}%) stays
             as intact {lesson.reaction.acidPretty} molecules. “Weak” means the equilibrium barely moves off the left.
           </>
         )}
@@ -218,6 +264,9 @@ const acidRow = !isKsp ? rows.find((r) => r.role === "reactant") : null;
   table.ice td.eqm { font-weight: 600; color: var(--ink); }
   .ledger-note { margin: 0; font-size: 0.9rem; color: var(--ink-2); display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; line-height: 1.55; }
   .mono { font-family: var(--font-mono); }
+  .kwbridge { margin: 0; font-size: 0.9rem; color: var(--ink-2); line-height: 1.6; background: var(--paper-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
+  .kwbridge .badge { margin-right: 0.35rem; }
+  .kwbridge .mono { color: var(--ink); }
 
   .proof { border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: var(--radius); padding: 0.6rem 0.9rem 0.9rem; }
   .proof-head { display: flex; align-items: center; gap: 0.7rem; padding: 0.3rem 0; flex-wrap: wrap; }

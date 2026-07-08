@@ -10,12 +10,17 @@
       "type": "depends-on"
     },
     {
+      "to": "water-autoionization",
+      "type": "see-also"
+    },
+    {
       "to": "molarity",
       "type": "uses"
     }
   ],
   "lessons": [
-    "acetic-acid-ph"
+    "acetic-acid-ph",
+    "ammonia-ph"
   ],
   "regime": "model-exact",
   "latex": "\\mathrm{pH} = -\\log_{10}[\\mathrm{H^+}]"

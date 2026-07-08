@@ -13,13 +13,14 @@ import pytest
 from chemkernel import BuildError
 from chemkernel.build import build_equilibrium
 from chemkernel.data import ChemData
-from chemkernel.equilibrium import (build_equilibrium_lesson, build_solubility_lesson, solve_equilibrium,
-                                    _quotient)
+from chemkernel.equilibrium import (build_equilibrium_lesson, build_solubility_lesson, build_weak_base_lesson,
+                                    solve_equilibrium, _quotient)
 from chemkernel.reactivity import AcidBase
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT / "problems" / "equilibrium" / "acetic-acid-ph.equilibrium.toml"
 SPEC_KSP = ROOT / "problems" / "equilibrium" / "calcium-fluoride-solubility.equilibrium.toml"
+SPEC_BASE = ROOT / "problems" / "equilibrium" / "ammonia-ph.equilibrium.toml"
 
 
 def _acid_system(c0, hplus=Decimal(0)):
@@ -264,3 +265,111 @@ def test_build_solubility_round_trip():
     lesson, out_rel = build_equilibrium(SPEC_KSP, ROOT)
     assert out_rel == "equilibrium/calcium-fluoride-solubility.equilibrium.json"
     assert lesson["subtype"] == "solubility"
+
+
+# ── weak base (the 3rd increment — water excluded from Q like the solid; Kb → pOH → pH via Kw) ──
+
+def _base_system(c0):
+    # NH3 + H2O <=> NH4+ + OH- ; water excluded from Q (in_quotient False) -> Q = [NH4+][OH-]/[NH3]
+    return [
+        {"id": "NH3", "nu": -1, "initial_M": Decimal(c0)},
+        {"id": "H2O", "nu": -1, "initial_M": Decimal(0), "in_quotient": False},
+        {"id": "NH4^+", "nu": 1, "initial_M": Decimal(0)},
+        {"id": "OH^-", "nu": 1, "initial_M": Decimal(0)},
+    ]
+
+
+def test_weak_base_root_mirrors_weak_acid():
+    """0.100 M base, Kb = 1.8e-5 — the SAME equation as 0.100 M acetic acid, Ka = 1.8e-5, so the same extent
+    (water is excluded from Q exactly like the Ksp solid). [OH-] ≈ 1.333e-3, residual tiny."""
+    r = solve_equilibrium(_base_system("0.100"), Decimal("1.8e-5"), "ammonia")
+    assert abs(r["extent"] - Decimal("0.00133267")) < Decimal("1e-7")
+    assert r["residual"] < Decimal("1e-40")
+    assert r["fwd_limit"] == Decimal("0.100")           # bounded by the base, not water
+
+
+def test_water_excluded_from_base_quotient():
+    """Q is over the dissolved ions/base only — water (in_quotient False) never enters, whatever its value."""
+    q_ions = _quotient([Decimal("0.0987"), Decimal("0.00133"), Decimal("0.00133")], [-1, 1, 1])
+    q_all = _quotient([Decimal("0.0987"), Decimal("55"), Decimal("0.00133"), Decimal("0.00133")],
+                      [-1, -1, 1, 1], in_q=[True, False, True, True])
+    assert q_all == q_ions
+
+
+def _base_spec(**over):
+    base = {"id": "t", "title": "t", "slug": "t", "topic": "equilibrium", "scenario": "s",
+            "base": "NH3", "initial_molarity_M": "0.100",
+            "misconception": {"claim": "c", "refuted_by": "weak_base_partial_ionization"}}
+    base.update(over)
+    return base
+
+
+def test_builds_ammonia_lesson():
+    data = ChemData.load(ROOT)
+    L = build_weak_base_lesson(_base_spec(), data, "t")
+    assert L["kind"] == "equilibrium" and L["subtype"] == "weak-base"
+    assert L["reaction"]["text"] == "NH3(aq) + H2O(l) <=> NH4^+(aq) + OH^-(aq)"
+    assert L["reaction"]["conjugate_acid"] == "NH4^+"
+    assert L["equilibrium_constant"]["symbol"] == "K_b"
+    assert L["equilibrium_constant"]["value"] == "0.000018"
+    # the mirror of acetic acid: pOH 2.88 (= acetic's pH), pH 11.12
+    assert L["ice"]["extent_M_display"] == "0.00133"
+    assert L["result"]["pOH_display"] == "2.88"
+    assert L["result"]["pH_display"] == "11.12"
+    assert L["result"]["percent_ionization_display"] == "1.33"
+    assert all(L["checks"].values())
+
+
+def test_ammonia_kw_bridge_holds():
+    """The K_w bridge: [H+] = Kw/[OH-], and pH + pOH = pKw = 14.00 (the load-bearing new relation)."""
+    data = ChemData.load(ROOT)
+    L = build_weak_base_lesson(_base_spec(), data, "t")
+    oh = Decimal(L["result"]["hydroxide_M"])
+    hplus = Decimal(L["result"]["hydronium_M"])
+    kw = Decimal(L["result"]["kw"])
+    assert abs(hplus - kw / oh) / (kw / oh) < Decimal("1e-6")
+    assert abs(Decimal(L["result"]["pH"]) + Decimal(L["result"]["pOH"]) - Decimal(14)) < Decimal("1e-4")
+
+
+def test_base_ice_identity_water_excluded():
+    """Every dissolved row = initial + ν·x; the water row is the '—' excluded (in_quotient False) row."""
+    data = ChemData.load(ROOT)
+    L = build_weak_base_lesson(_base_spec(), data, "t")
+    water = next(r for r in L["ice"]["species"] if r["id"] == "H2O")
+    assert water["in_quotient"] is False and "equilibrium_M" not in water and water["phase"] == "l"
+    x = Decimal(L["ice"]["extent_M"])
+    for row in L["ice"]["species"]:
+        if row.get("in_quotient") is False:
+            continue
+        assert abs(Decimal(row["equilibrium_M"]) - (Decimal(row["initial_M"]) + row["nu"] * x)) < Decimal("1e-10")
+
+
+def test_base_regimes_layered():
+    data = ChemData.load(ROOT)
+    L = build_weak_base_lesson(_base_spec(), data, "t")
+    assert {"ledger-exact", "rule-sourced", "model-exact"} <= {r["regime"] for r in L["regimes"]}
+
+
+def test_refuses_unknown_base():
+    data = ChemData.load(ROOT)
+    with pytest.raises(BuildError, match="no base ionization constant"):
+        build_weak_base_lesson(_base_spec(base="CH3NH2"), data, "t")
+
+
+def test_refuses_nonpositive_base_concentration():
+    data = ChemData.load(ROOT)
+    with pytest.raises(BuildError, match="molarity must be positive"):
+        build_weak_base_lesson(_base_spec(initial_molarity_M="0"), data, "t")
+
+
+def test_base_ionization_constant_loaded():
+    data = ChemData.load(ROOT)
+    rec = data.base_ionization_constant("NH3")
+    assert rec["kb"] == Decimal("1.8e-5") and rec["conjugate_acid"] == "NH4^+"
+    assert data.water_ion_product() == Decimal("1.0e-14")
+
+
+def test_build_weak_base_round_trip():
+    lesson, out_rel = build_equilibrium(SPEC_BASE, ROOT)
+    assert out_rel == "equilibrium/ammonia-ph.equilibrium.json"
+    assert lesson["id"] == "ammonia-ph" and lesson["subtype"] == "weak-base"

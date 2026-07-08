@@ -25,8 +25,8 @@ lesson shapes have their own spec + schema: a single-**molecule** lesson (`*.str
 polarity — [Structure lessons](#structure-lessons--a-single-molecule-structuretoml-adr-0045) below), a
 **multi-molecule comparison** (`*.comparison.toml`, several molecules vs. a property — [Comparison
 lessons](#comparison-lessons--several-molecules-vs-a-property-comparisontoml-adr-0047) below), and an **equilibrium**
-lesson (`*.equilibrium.toml`, a weak acid's pH — the ICE table solved by mass action — [Equilibrium
-lessons](#equilibrium-lessons--a-weak-acids-ph-equilibriumtoml-adr-0048) below).
+lesson (`*.equilibrium.toml`, the ICE table solved by mass action — a weak acid's pH, a weak base's pH, or a Ksp solubility
+— [Equilibrium lessons](#equilibrium-lessons--a-weak-acids-ph-equilibriumtoml-adr-0048) below).
 
 ## The one TOML gotcha
 
@@ -336,6 +336,30 @@ refuted_by = "stoichiometry_in_ksp"               # the player renders the cubic
 ```
 
 See [`problems/equilibrium/calcium-fluoride-solubility.equilibrium.toml`](../problems/equilibrium/calcium-fluoride-solubility.equilibrium.toml).
+
+The **weak-base subtype** is the same file shape but names a `base` instead of an `acid` — a weak molecular base curated
+in [`data/ionization-constants.toml`](../data/ionization-constants.toml) `[bases]` (currently NH₃), with its $K_b$ and its
+conjugate acid. The base ionizes against water, B + H₂O ⇌ BH⁺ + OH⁻; **water is the pure solvent** (excluded from the
+quotient, exactly like the Ksp solid), the extent solved is $[\mathrm{OH^-}]$, and the pH comes through the water
+ion-product $K_w$ (also in `[water]`): $[\mathrm{H^+}] = K_w/[\mathrm{OH^-}]$, $\mathrm{pH} + \mathrm{pOH} = 14.00$. The
+producer refuses an unknown base. Everything else (the ICE table with the pure-liquid water row, [OH⁻]/pOH/pH, the $K_w$
+bridge) is machine-set:
+
+```toml
+id = "ammonia-ph"
+title = "…"
+slug = "ammonia-ph"
+topic = "equilibrium"
+base = "NH3"                                       # a base in data/ionization-constants.toml [bases] (not `acid`/`salt`)
+initial_molarity_M = "0.100"
+scenario = "…"
+
+[misconception]
+claim = "…"
+refuted_by = "weak_base_partial_ionization"       # the player renders the strong-base / mirror refutation for this key
+```
+
+See [`problems/equilibrium/ammonia-ph.equilibrium.toml`](../problems/equilibrium/ammonia-ph.equilibrium.toml).
 
 ### Other optional keys
 

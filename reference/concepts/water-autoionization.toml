@@ -1,0 +1,17 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0048 3rd increment). The acid/base bridge: water ionizes itself a
+# little, and its ion-product K_w ties [H⁺] and [OH⁻] together — so a base's [OH⁻] fixes its pH. Model-exact (the
+# operational K_w rests on activity ≈ concentration; the value is the 25 °C datum). No [[array-of-tables]] / TOML
+# trap #4 N/A.
+id = "water-autoionization"
+kind = "concept"
+title = "The autoionization of water and Kᵥᵥ"
+term = "autoionization of water"
+regime = "model-exact"
+definition = "Water is both a weak acid and a weak base to itself: two molecules trade a proton, $2\\,\\mathrm{H_2O} \\rightleftharpoons \\mathrm{H_3O^+} + \\mathrm{OH^-}$, so even pure water carries a trace of ions. Their product is the **ion-product constant of water**, $K_w = [\\mathrm{H^+}][\\mathrm{OH^-}] = 1.0\\times10^{-14}$ at 25 °C. This is the **bridge between acids and bases**: whatever raises $[\\mathrm{H^+}]$ must lower $[\\mathrm{OH^-}]$ to keep the product at $K_w$, and vice versa. Taking $-\\log_{10}$ of both sides turns the product into a sum, $\\mathrm{pH} + \\mathrm{pOH} = \\mathrm{p}K_w = 14.00$ — so measuring a weak **base**'s $[\\mathrm{OH^-}]$ (from its $K_b$ equilibrium) immediately gives its pH: $\\mathrm{pH} = 14.00 - \\mathrm{pOH}$. In pure water $[\\mathrm{H^+}] = [\\mathrm{OH^-}] = 10^{-7}\\,\\text{M}$, i.e. pH 7 — the definition of neutral."
+latex = "K_w = [\\mathrm{H^+}][\\mathrm{OH^-}] = 1.0\\times10^{-14}\\quad\\Longrightarrow\\quad \\mathrm{pH} + \\mathrm{pOH} = 14.00"
+related = [
+  { to = "ph", type = "depends-on" },
+  { to = "chemical-equilibrium", type = "extends" },
+  { to = "molarity", type = "uses" },
+]
+lessons = ["ammonia-ph"]

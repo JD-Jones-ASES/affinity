@@ -1,22 +1,36 @@
-# Acid ionization constants Kₐ (ADR-0006, ADR-0048). Regime-3 sourced data — the equilibrium tier's dataset,
-# the counterpart of formation-enthalpies.toml for thermochemistry.
+# Ionization constants (ADR-0006, ADR-0048). Regime-3 sourced data — the equilibrium tier's dataset, the
+# counterpart of formation-enthalpies.toml for thermochemistry. Three kinds of ionization equilibrium constant
+# live here (all pure numbers — activities referenced to the 1 M standard state):
 #
-# Kₐ is the equilibrium constant of a weak monoprotic acid's ionization  HA(aq) <=> H+(aq) + A-(aq):
-#   Kₐ = [H+][A-] / [HA]   (activities — dimensionless, referenced to the 1 M standard state — which is why
-#   Kₐ is a pure number). A SMALL Kₐ means the equilibrium lies far to the left: only a little of the acid
-#   ionizes. Values are the standard 25 °C data, source `openstax-chemistry-2e` Appendix H (Ionization
-#   Constants of Weak Acids, CC BY 4.0) — see docs/SOURCES.md.
+#   • Kₐ — a weak monoprotic ACID's ionization  HA(aq) <=> H+(aq) + A-(aq),  Kₐ = [H+][A-] / [HA].
+#   • K_b — a weak molecular BASE's ionization  B(aq) + H2O(l) <=> BH+(aq) + OH-(aq),  K_b = [BH+][OH-] / [B]
+#     (water is the pure solvent, activity 1 — it does NOT appear in K_b; the load-bearing exclusion, like the
+#     pure solid in a Ksp, ADR-0048).
+#   • K_w — water's own autoionization  2 H2O(l) <=> H3O+(aq) + OH-(aq),  K_w = [H+][OH-] = 1.0×10⁻¹⁴ at 25 °C.
+#     The bridge between acids and bases: pH + pOH = pK_w = 14.00, so a base's [OH-] fixes its pH.
 #
-# Read as Decimal (never float — ADR-0013). Table keys are the neutral acid formula in the house ASCII form,
-# matching data/acids-bases.toml (the acid's proton count + conjugate anion are curated there; this file adds
-# the QUANTITATIVE equilibrium constant). Whether "HA is a weak acid" is a sourced convention (acids-bases);
-# the ICE accounting the equilibrium engine builds on top of Kₐ is machine-checked (ADR-0048).
+# A SMALL Kₐ/K_b means the equilibrium lies far to the left: only a little ionizes. Values are the standard
+# 25 °C data, source `openstax-chemistry-2e` — Appendix H (weak acids), Appendix I (weak bases), §14.1 (K_w),
+# CC BY 4.0 — see docs/SOURCES.md.
 #
-# Only monoprotic weak acids here. Polyprotic acids (H3PO4: Kₐ1/Kₐ2/Kₐ3) ionize in stages — a multi-step
-# equilibrium deferred with the buffer/titration work.
+# Read as Decimal (never float — ADR-0013). Acid keys are the neutral acid formula (house ASCII), matching
+# data/acids-bases.toml (the acid's proton count + conjugate anion are curated there; this file adds the
+# QUANTITATIVE constant). Base keys are the neutral base formula; its `conjugate_acid` (the cation formed when
+# it gains a proton) must be in the ion table, and data.py machine-checks base + H⁺ = conjugate_acid on load
+# (regime-1 — so "NH3 + H⁺ is NH4⁺" is verified even though "NH3 is a weak base" is a sourced convention). The
+# ICE accounting the equilibrium engine builds on top of these constants is machine-checked (ADR-0048).
+#
+# Only MONOPROTIC weak acids / MONOBASIC weak bases here. Polyprotic acids (H3PO4: Kₐ1/Kₐ2/Kₐ3) ionize in
+# stages — a multi-step equilibrium deferred with the buffer/titration work.
 
 source = "openstax-chemistry-2e"
 
+# --- water autoionization: the acid/base bridge (K_w = [H+][OH-]) ---
+[water]
+name = "ion-product constant of water"
+kw = "1.0e-14"
+
+# --- weak acids (Kₐ): HA <=> H+ + A- ---
 [acids."HC2H3O2"]      # acetic acid — the canonical first weak acid; conjugate base acetate is in the ion table
 name = "acetic acid"
 ka = "1.8e-5"
@@ -32,3 +46,9 @@ ka = "2.9e-8"
 [acids."HCN"]          # hydrocyanic acid — a very weak acid (Kₐ ~ 10⁻¹⁰); conjugate base cyanide
 name = "hydrocyanic acid"
 ka = "4.9e-10"
+
+# --- weak bases (K_b): B + H2O <=> BH+ + OH- ; conjugate_acid is the cation formed, machine-checked on load ---
+[bases."NH3"]          # ammonia — the canonical first weak base; conjugate acid ammonium (NH4+) is in the ion table
+name = "ammonia"
+kb = "1.8e-5"
+conjugate_acid = "NH4^+"

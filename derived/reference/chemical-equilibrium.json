@@ -27,7 +27,8 @@
     }
   ],
   "lessons": [
-    "acetic-acid-ph"
+    "acetic-acid-ph",
+    "ammonia-ph"
   ],
   "regime": "model-exact",
   "latex": "K = \\frac{[\\mathrm{C}]^{c}\\,[\\mathrm{D}]^{d}}{[\\mathrm{A}]^{a}\\,[\\mathrm{B}]^{b}} \\quad\\text{for}\\quad a\\,\\mathrm{A} + b\\,\\mathrm{B} \\rightleftharpoons c\\,\\mathrm{C} + d\\,\\mathrm{D}"

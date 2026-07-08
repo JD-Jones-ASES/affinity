@@ -1561,3 +1561,24 @@ its composition machine-checked on load (regime-1, like acids-bases). It closes 
 equilibrium**; check-katex 555; **32 pages**; the acetic lesson gained `subtype` (byte-change, re-verified). **4-way
 tamper-tested** (coherent wrong solubility → the independent re-solve; corrupted fluoride coefficient → ICE identity;
 bad g/L → solubility-consistent; the solid forced into Q → ICE identity).
+
+**Update (3rd increment, same day) — the `weak-base` subtype ($K_b$ → pOH → pH via $K_w$) landed, and it reuses the
+solver UNCHANGED.** A weak base ionizes against water: $\mathrm{B} + \mathrm{H_2O} \rightleftharpoons \mathrm{BH^+} +
+\mathrm{OH^-}$, $K_b = [\mathrm{BH^+}][\mathrm{OH^-}]/[\mathrm{B}]$. Water is the **pure solvent** (activity 1) — so it is
+excluded from $Q$ exactly as the Ksp solid is: it rides the *same* `in_quotient=False` mechanism, and `solve_equilibrium`
+needed **no change**. The extent is $[\mathrm{OH^-}]$; the pH comes through the **water ion-product** $K_w = [\mathrm{H^+}]
+[\mathrm{OH^-}] = 1.0\times10^{-14}$ (the acid/base **bridge**: $[\mathrm{H^+}]=K_w/[\mathrm{OH^-}]$, $\mathrm{pH}+\mathrm{pOH}
+=\mathrm{p}K_w=14.00$) — the one genuinely new relation, and the subtype's 4th machine-checked fact (`kw_consistent`).
+$K_b$ + $K_w$ are curated in **`data/ionization-constants.toml`** (extended: `[bases.*]` with a `conjugate_acid` +
+`[water]`; OpenStax Appendix I + §14.1), and the base's proton accounting (base + H⁺ = the conjugate-acid cation) is
+**machine-checked on load** (regime-1) — so the weak base is modeled entirely there, leaving `data/acids-bases.toml` (and
+the reaction classifier that reads it) untouched. `build_weak_base_lesson` + a `base` dispatch in `build_equilibrium`; the
+`weak-base` subtype added to the schema/gate/player. The opener: **`equilibrium/ammonia-ph`** — 0.100 M NH₃,
+$K_b=1.8\times10^{-5}$ → $[\mathrm{OH^-}]=1.33\times10^{-3}$ M, **pOH 2.88, pH 11.12**, 1.33% ionized — the exact **mirror**
+of the acetic-acid lesson (same $K$, same extent, reflected about neutral: $2.88+11.12=14.00$), which the misconception
+(treating the weak base as strong, "pH 13.00") turns into the teaching moment. A new **`water-autoionization` concept** (the
+$K_w$ bridge). **350 tests** (+10); validate-solutions = 6 + 2 structure + 1 comparison + **3 equilibrium**;
+validate-reference = 65 (+1 concept); check-katex 588; **33 pages**; `derived/` byte-stable (2 new files + the ph/
+chemical-equilibrium cross-links). **7-way tamper-tested** (ICE identity; a coherent wrong extent → the independent
+re-solve; pOH; the $K_w$-bridge hydronium; pH / pH+pOH=p$K_w$; a corrupted $K_w$; water forced into $Q$ — each a distinct
+branch). The `equilibrium` lesson kind now has **three subtypes** (weak-acid / weak-base / solubility).

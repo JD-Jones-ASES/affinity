@@ -288,6 +288,11 @@ for (const file of equilibriumFiles) {
     need(les.result, ["hydronium_M", "hydronium_M_display", "pH", "pH_display", "percent_ionization", "percent_ionization_display"], "result");
     need(les.checks, ["ph_consistent"], "checks");
     need(les.provenance.sources, ["ionization_constants", "ion_charge"], "provenance.sources");
+  } else if (les.subtype === "weak-base") {
+    need(les.reaction, ["base", "base_name", "base_latex", "conjugate_acid"], "reaction");
+    need(les.result, ["hydroxide_M", "hydroxide_M_display", "pOH", "pOH_display", "hydronium_M", "hydronium_M_display", "pH", "pH_display", "kw", "percent_ionization", "percent_ionization_display"], "result");
+    need(les.checks, ["kw_consistent"], "checks");
+    need(les.provenance.sources, ["ionization_constants", "ion_charge"], "provenance.sources");
   } else if (les.subtype === "solubility") {
     need(les.reaction, ["salt", "salt_name", "salt_latex", "cation", "anion"], "reaction");
     need(les.result, ["molar_solubility_M", "molar_solubility_M_display", "solubility_g_per_L", "solubility_g_per_L_display", "molar_mass_g_per_mol"], "result");

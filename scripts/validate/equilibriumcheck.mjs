@@ -114,6 +114,34 @@ export function verifyEquilibrium(rel, les, fail) {
     const percent = (x / acid.initial) * 100;
     if (!rc(percent, Number(les.result.percent_ionization), 1e-3))
       fail(rel, `result.percent_ionization ${les.result.percent_ionization} != x/[HA]0·100 = ${percent.toFixed(6)}`);
+  } else if (les.subtype === "weak-base") {
+    // [OH⁻] is the hydroxide row's equilibrium concentration (= x); pOH = −log₁₀[OH⁻]. The K_w BRIDGE: [H⁺] =
+    // K_w/[OH⁻] → pH = −log₁₀[H⁺], and pH + pOH must equal pK_w. Water is the excluded (in_quotient false) row.
+    const oh = species.find((s) => s.id === "OH^-");
+    if (!oh) fail(rel, "no OH^- row — a weak-base equilibrium must produce hydroxide");
+    if (!rc(Number(les.result.hydroxide_M), oh.equilibrium))
+      fail(rel, `result.hydroxide_M ${les.result.hydroxide_M} != OH^- equilibrium ${oh.equilibrium}`);
+    const solvent = species.filter((s) => !s.in_quotient);
+    if (solvent.length !== 1 || solvent[0].nu >= 0)
+      fail(rel, "a weak-base equilibrium needs exactly one pure-solvent reactant row (water, in_quotient false, ν<0)");
+    const Kw = Number(les.result.kw);
+    if (!(Kw > 0)) fail(rel, `result.kw ${les.result.kw} is not positive`);
+    const pOH = -Math.log10(oh.equilibrium);
+    if (Math.abs(pOH - Number(les.result.pOH)) > 1e-3)
+      fail(rel, `result.pOH ${les.result.pOH} != -log10[OH-] = ${pOH.toFixed(6)}`);
+    const hplus = Kw / oh.equilibrium;               // the K_w bridge, re-derived
+    if (!rc(Number(les.result.hydronium_M), hplus, 1e-4))
+      fail(rel, `result.hydronium_M ${les.result.hydronium_M} != Kw/[OH-] = ${hplus}`);
+    const pH = -Math.log10(hplus);
+    if (Math.abs(pH - Number(les.result.pH)) > 1e-3)
+      fail(rel, `result.pH ${les.result.pH} != -log10(Kw/[OH-]) = ${pH.toFixed(6)}`);
+    const pKw = -Math.log10(Kw);
+    if (Math.abs(pH + pOH - pKw) > 1e-3)
+      fail(rel, `pH + pOH = ${(pH + pOH).toFixed(4)} != pKw = ${pKw.toFixed(4)} (the K_w bridge)`);
+    const base = species.find((s) => s.nu < 0 && s.in_quotient);
+    const percent = (x / base.initial) * 100;
+    if (!rc(percent, Number(les.result.percent_ionization), 1e-3))
+      fail(rel, `result.percent_ionization ${les.result.percent_ionization} != x/[B]0·100 = ${percent.toFixed(6)}`);
   } else if (les.subtype === "solubility") {
     // the molar solubility IS the extent; solubility(g/L) = s × molar mass. Exactly one solid row, excluded from Q.
     const solids = species.filter((s) => !s.in_quotient);

@@ -302,6 +302,147 @@ def build_equilibrium_lesson(spec: dict, data, acidbase, ctx: str = "") -> dict:
     return lesson
 
 
+def build_weak_base_lesson(spec: dict, data, ctx: str = "") -> dict:
+    """An authored weak-base equilibrium lesson → the verified `*.equilibrium.json` object, subtype `weak-base`
+    (ADR-0048, 3rd increment). The SAME reversible-extent solver as the weak acid, but the base ionizes against
+    water:  B(aq) + H2O(l) ⇌ BH⁺(aq) + OH⁻(aq),  K_b = [BH⁺][OH⁻]/[B]. Water is the **pure solvent** (activity 1)
+    — excluded from Q exactly like the Ksp solid (`in_quotient=False`), so the solver is UNCHANGED. The extent x
+    is [OH⁻]; the pH comes through the **water ion-product** K_w = [H⁺][OH⁻]: [H⁺] = K_w/[OH⁻], pH = −log₁₀[H⁺],
+    and pH + pOH = pK_w. The base + its conjugate acid + K_b come from data/ionization-constants.toml (the
+    composition machine-checked on load); the producer REFUSES an unknown base or one with no curated K_b."""
+    for key in ("id", "title", "slug", "topic", "scenario", "base", "initial_molarity_M", "misconception"):
+        if key not in spec:
+            raise BuildError(f"{ctx}: weak-base lesson missing required key '{key}'")
+
+    base_formula = spec["base"]
+    rec = data.base_ionization_constant(base_formula)                  # raises if absent (sourced Kb)
+    kb = rec["kb"]
+    kw = data.water_ion_product()                                      # the acid/base bridge (sourced)
+    ca_id = rec["conjugate_acid"]                                      # the cation formed (e.g. NH4^+)
+    if data.ions.get(ca_id) is None:
+        raise BuildError(f"{ctx}: base '{base_formula}' names conjugate acid '{ca_id}' absent from the ion table")
+
+    c0 = Decimal(str(spec["initial_molarity_M"]))
+    if c0 <= 0:
+        raise BuildError(f"{ctx}: initial molarity must be positive (got {c0})")
+
+    fb = parse_formula(base_formula, ctx)
+    fw = parse_formula("H2O", ctx)
+    fca = parse_formula(ca_id, ctx)
+    foh = parse_formula("OH^-", ctx)
+
+    # the ICE species: the base + WATER (a pure liquid, activity 1 — excluded from Q, ν=−1) + the two products.
+    # Water is the load-bearing exclusion, exactly the Ksp solid's role (in_quotient=False). ν = −1 base/water,
+    # +1 each product. Water's autoionization is neglected: [OH⁻]₀ = 0 (disclosed model assumption).
+    ice_species = [
+        {"id": base_formula, "latex": fb.latex, "phase": "aq", "role": "reactant", "nu": -1, "initial_M": c0},
+        {"id": "H2O", "latex": fw.latex, "phase": "l", "role": "reactant", "nu": -1, "in_quotient": False,
+         "initial_M": Decimal(0)},
+        {"id": ca_id, "latex": fca.latex, "phase": "aq", "role": "product", "nu": 1, "initial_M": Decimal(0)},
+        {"id": "OH^-", "latex": foh.latex, "phase": "aq", "role": "product", "nu": 1, "initial_M": Decimal(0)},
+    ]
+
+    sol = solve_equilibrium(ice_species, kb, ctx)
+    x = _round_sig(sol["extent"], 12)                                  # the committed extent = [OH⁻] (rounded)
+    if not (0 < x < sol["fwd_limit"]):
+        raise BuildError(f"{ctx}: solved extent {x} is not strictly between 0 and the base's concentration")
+
+    # per-species ICE rows from the single committed x (so c = c₀ + ν·x is exact in what ships); water is the
+    # '—' pure-liquid row (no concentration), like the Ksp solid.
+    ice_rows = []
+    for s in ice_species:
+        if not s.get("in_quotient", True):
+            ice_rows.append({"id": s["id"], "latex": s["latex"], "phase": s["phase"], "role": s["role"],
+                             "nu": s["nu"], "in_quotient": False})
+            continue
+        change = s["nu"] * x
+        eqm = s["initial_M"] + change
+        ice_rows.append({
+            "id": s["id"], "latex": s["latex"], "phase": s["phase"], "role": s["role"], "nu": s["nu"],
+            "in_quotient": True, "initial_M": format(s["initial_M"], "f"),
+            "change_M": ("+" if change >= 0 else "") + _sig_str(change, 12),
+            "equilibrium_M": _sig_str(eqm, 12),
+            "equilibrium_M_display": _sig_str(eqm, 3),
+        })
+
+    # mass action, re-checked on the COMMITTED concentrations (water excluded): Q = [BH⁺][OH⁻]/[B] = K_b
+    committed = [Decimal(r["equilibrium_M"]) for r in ice_rows if r.get("in_quotient")]
+    q_nus = [r["nu"] for r in ice_rows if r.get("in_quotient")]
+    Q = _quotient(committed, q_nus)
+    residual = abs(Q - kb) / kb
+
+    # the K_w bridge: [OH⁻] = x → pOH = −log₁₀[OH⁻]; [H⁺] = K_w/[OH⁻] → pH = −log₁₀[H⁺]. percent ionized = x/c₀·100.
+    with localcontext() as lc:
+        lc.prec = 40
+        oh = x
+        pOH = -(oh.log10())
+        hplus = kw / oh
+        pH = -(hplus.log10())
+        percent = x / c0 * 100
+
+    # the mass-action expression, symbolic (KaTeX-gated): K_b = [BH⁺][OH⁻] / [B]
+    def _num(latex, power):
+        return f"[{latex}]" + (f"^{{{power}}}" if power != 1 else "")
+    expression = (r"K_b = \dfrac{" + _num(fca.latex, 1) + _num(foh.latex, 1) + "}{" + _num(fb.latex, 1) + "}")
+    reaction_latex = (f"{fb.latex}\\,\\text{{(aq)}} + {fw.latex}\\,\\text{{(l)}} \\rightleftharpoons "
+                      f"{fca.latex}\\,\\text{{(aq)}} + {foh.latex}\\,\\text{{(aq)}}")
+    reaction_text = f"{base_formula}(aq) + H2O(l) <=> {ca_id}(aq) + OH^-(aq)"
+
+    return {
+        "kind": "equilibrium",
+        "subtype": "weak-base",
+        "id": spec["id"],
+        "title": spec["title"],
+        "slug": spec["slug"],
+        "topic": spec["topic"],
+        "tags": spec.get("tags", []),
+        "scenario": spec["scenario"],
+        "regimes": _regimes("equilibrium position (pH via K_b and K_w)"),
+        "assumptions": spec.get("assumptions", []),
+        "reaction": {
+            "base": base_formula, "base_name": rec["name"], "base_latex": fb.latex,
+            "text": reaction_text, "latex": reaction_latex, "conjugate_acid": ca_id,
+        },
+        "equilibrium_constant": {
+            "symbol": "K_b", "value": format(kb, "f"), "expression_latex": expression,
+            "source": data.sources.get("ionization_constants", ""),
+        },
+        "ice": {"extent_symbol": "x", "extent_M": _sig_str(x, 12), "extent_M_display": _sig_str(x, 3),
+                "species": ice_rows},
+        "mass_action": {"quotient_symbol": "Q", "quotient_at_equilibrium": _sig_str(Q, 6),
+                        "residual_relative": _sig_str(residual, 2)},
+        "result": {
+            "hydroxide_M": _sig_str(oh, 12), "hydroxide_M_display": _sig_str(oh, 3),
+            "pOH": _sig_str(pOH, 8), "pOH_display": format(pOH.quantize(Decimal("0.01"), ROUND_HALF_UP), "f"),
+            # [H⁺] is tiny for a base — the checked value keeps 12 sig figs, the display 3 (ADR-0025).
+            "hydronium_M": _sig_str(hplus, 12), "hydronium_M_display": _sig_str(hplus, 3),
+            # pH to 2 decimals (on a log scale the decimals ARE the sig figs — house-conventions §sig-figs).
+            "pH": _sig_str(pH, 8), "pH_display": format(pH.quantize(Decimal("0.01"), ROUND_HALF_UP), "f"),
+            "percent_ionization": _sig_str(percent, 8), "percent_ionization_display": _sig_str(percent, 3),
+            "kw": format(kw, "f"),
+        },
+        "misconception": spec["misconception"],
+        "reference_links": spec.get("reference_links", []),
+        "checks": {
+            "ice_identity": True,          # c_i = c_{i,0} + ν_i·x for every dissolved row (water excluded)
+            "mass_action_satisfied": True,  # Q(committed) = K_b (water excluded from Q)
+            "extent_physical": True,       # 0 < x < [B]₀ (no concentration goes negative)
+            "kw_consistent": True,         # [H⁺] = K_w/[OH⁻]; pH = −log₁₀[H⁺]; pH + pOH = pK_w
+        },
+        "provenance": {
+            "producer": "chemkernel",
+            "version": __version__,
+            "python": platform.python_version(),
+            "author": spec.get("author", "Affinity"),
+            "created": spec.get("created", ""),
+            "sources": {
+                "ionization_constants": data.sources.get("ionization_constants", ""),
+                "ion_charge": data.sources.get("ion_charge", ""),
+            },
+        },
+    }
+
+
 def _coeff_latex(n: int) -> str:
     return "" if n == 1 else f"{n}\\,"
 

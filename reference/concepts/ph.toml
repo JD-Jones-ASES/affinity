@@ -10,6 +10,7 @@ definition = "pH compresses the hydronium concentration onto a log scale: $\\mat
 latex = "\\mathrm{pH} = -\\log_{10}[\\mathrm{H^+}]"
 related = [
   { to = "chemical-equilibrium", type = "depends-on" },
+  { to = "water-autoionization", type = "see-also" },
   { to = "molarity", type = "uses" },
 ]
-lessons = ["acetic-acid-ph"]
+lessons = ["acetic-acid-ph", "ammonia-ph"]

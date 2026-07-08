@@ -16,4 +16,4 @@ related = [
   { to = "reaction-acid-base", type = "see-also" },
   { to = "molarity", type = "uses" },
 ]
-lessons = ["acetic-acid-ph"]
+lessons = ["acetic-acid-ph", "ammonia-ph"]

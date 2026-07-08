@@ -3,6 +3,39 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — equilibrium: the weak base (Kb → pOH → pH via Kw) — the solver reused unchanged (ADR-0048, 3rd increment)
+
+The equilibrium tier's third subtype, and the cleanest reuse yet: a **weak base** ionizes against water, $\mathrm{B} +
+\mathrm{H_2O} \rightleftharpoons \mathrm{BH^+} + \mathrm{OH^-}$, and **water is the pure solvent** (activity 1) — excluded
+from the mass-action quotient by the *very same* `in_quotient=False` flag the Ksp solid uses, so `solve_equilibrium` needed
+**no change at all**. The one new idea is the **Kw bridge** from $[\mathrm{OH^-}]$ to pH.
+
+- **Lesson `equilibrium/ammonia-ph`** — 0.100 M NH₃, $K_b = 1.8\times10^{-5}$ → $[\mathrm{OH^-}] = 1.33\times10^{-3}$ M,
+  **pOH 2.88, pH 11.12**, 1.33% ionized. Chosen to be the exact **mirror** of the acetic-acid lesson: same $K$, same
+  extent, reflected about neutral ($2.88 + 11.12 = 14.00$). The misconception — treating the weak base as strong (like
+  NaOH), so "[OH⁻] = 0.100, pH 13.00" — is refuted from the ledger and turned into that mirror observation.
+- **Kw bridge:** $[\mathrm{H^+}][\mathrm{OH^-}] = K_w = 1.0\times10^{-14}$ ties $[\mathrm{OH^-}]$ (the solved extent) to
+  the pH: $[\mathrm{H^+}] = K_w/[\mathrm{OH^-}]$, $\mathrm{pH} + \mathrm{pOH} = \mathrm{p}K_w = 14.00$. It is the subtype's
+  4th machine-checked fact (`kw_consistent`), re-derived independently in Node.
+- **Data:** `data/ionization-constants.toml` extended — a `[bases.*]` table (Kb + `conjugate_acid`) and a `[water]` table
+  (Kw); `data.py` gains `base_ionization_constant` + `water_ion_product`, and machine-checks each base's proton accounting
+  on load (base + H⁺ = the conjugate-acid cation, regime-1). `data/acids-bases.toml` (and the reaction classifier that
+  reads it) is left untouched — the weak base is modeled entirely in the equilibrium dataset. Source: OpenStax Appendix I
+  (weak bases) + §14.1 (Kw).
+- **Engine:** `build_weak_base_lesson` (water passed as an `in_quotient=False`, ν=−1 reactant, exactly like the solid); a
+  `base` dispatch in `build_equilibrium`. The `equilibrium` lesson kind now has **three subtypes** (weak-acid / weak-base /
+  solubility) under one schema.
+- **Contracts/gate/player:** the `weak-base` subtype added to `equilibrium-lesson.schema.json` (reaction `base`/
+  `conjugate_acid`, result `hydroxide_M`/`pOH`/`kw`, the `kw_consistent` check); `equilibriumcheck.mjs` re-derives pOH,
+  the Kw bridge, and pH + pOH = pKw; `validate-solutions` enforces the subtype fields; `EquilibriumLesson.astro` +
+  `view.renderEquilibriumLesson` render all three subtypes (the excluded row is now phase-aware: "pure liquid" for water,
+  "pure solid" for a Ksp salt). A new **`water-autoionization` concept**.
+- **Verification:** **350 producer tests** (+10); 7 Node gates green (validate-solutions = 6 + 2 structure + 1 comparison
+  + **3 equilibrium**; validate-reference = 65, +1 concept; check-katex = 588); **astro build = 33 pages** (+1); `derived/`
+  byte-stable (2 new files + the ph/chemical-equilibrium cross-link edits). **7-way tamper-tested**, each a distinct branch.
+  In-browser: the ammonia page renders the ICE table (water the "—" excluded pure-liquid row), pH 11.12 / pOH 2.88, the Kw
+  bridge, the 4 SHOWN checks, and the mirror misconception; no regression on the acetic-acid/CaF₂ lessons; 0 KaTeX errors.
+
 ## Phase 2 — 2026-07-08 — equilibrium: Ksp solubility — the reversible-extent solver proven on the cubic (ADR-0048, 2nd increment)
 
 The reversible-extent solver **generalizes** — same machine, a structurally different equilibrium. A **Ksp

@@ -1,0 +1,45 @@
+# Equilibrium lesson, subtype `weak-base` (ADR-0048, 3rd increment) — the pH of a weak base, the mirror image of
+# the weak-acid lesson. The SAME reversible-extent solver, but the base ionizes against WATER, which is the pure
+# solvent (activity 1) and so is excluded from Q — exactly the Ksp solid's role. The extent is [OH⁻]; the pH comes
+# through the water ion-product K_w = [H⁺][OH⁻]: pH + pOH = pK_w = 14.00. Base + conjugate acid + K_b come from
+# data/ionization-constants.toml; the author writes only the base, its concentration, the prose, the misconception.
+# TOML trap #4: every bare key precedes the [[assumptions]] / [misconception] headers.
+
+id = "ammonia-ph"
+title = "The pH of a weak base: ammonia"
+slug = "ammonia-ph"
+topic = "equilibrium"
+tags = ["equilibrium", "acid-base", "pH", "pOH", "weak base", "Kw", "ICE table"]
+
+# the curated weak base + its formal (analytical) concentration; everything else is derived. 0.100 M is chosen to
+# mirror the acetic-acid lesson exactly — ammonia's K_b (1.8×10⁻⁵) equals acetic acid's Kₐ, so the two are perfect
+# reflections across neutral: acetic acid settles at pH 2.88, ammonia at pH 11.12, and 2.88 + 11.12 = 14.00.
+base = "NH3"
+initial_molarity_M = "0.100"
+
+scenario = "Dissolve enough ammonia to make the solution $0.100\\,\\text{M}$. Ammonia is a **weak base**: it has no $\\mathrm{OH^-}$ of its own — instead it pulls a proton off a water molecule, $\\mathrm{NH_3} + \\mathrm{H_2O} \\rightleftharpoons \\mathrm{NH_4^+} + \\mathrm{OH^-}$, and only a small fraction reacts, so the equilibrium sits far to the left. What is the pH? It is the ICE table once more — the same species ledger, initial → change → equilibrium — but with two new twists. First, **water is the pure solvent**: its activity is 1, so it never enters the equilibrium expression $K_b = [\\mathrm{NH_4^+}][\\mathrm{OH^-}]/[\\mathrm{NH_3}]$ — exactly as a pure solid drops out of a $K_{sp}$. Second, the extent gives $[\\mathrm{OH^-}]$, not $[\\mathrm{H^+}]$; the bridge to pH is the **ion-product of water**, $[\\mathrm{H^+}][\\mathrm{OH^-}] = K_w = 1.0\\times10^{-14}$, which is why $\\mathrm{pH} + \\mathrm{pOH} = 14.00$."
+
+reference_links = ["water-autoionization", "chemical-equilibrium", "ph", "extent-of-reaction", "molarity"]
+
+author = "Affinity"
+created = "2026-07-08"
+
+# modeling assumptions — disclosed, not discharged (ADR-0003, the model-assumed badge). The ICE accounting is
+# exact; the equilibrium POSITION and the K_w bridge ride on these idealizations.
+[[assumptions]]
+claim = "The solution has reached equilibrium, and this single ionization is the only reaction that matters (one dominant equilibrium)."
+kind = "model"
+
+[[assumptions]]
+claim = "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which is why $K_b$ and $K_w$ are written with concentrations."
+kind = "model"
+
+[[assumptions]]
+claim = "The $\\mathrm{OH^-}$ from water's own autoionization ($10^{-7}\\,\\text{M}$) is negligible beside the base's, so $[\\mathrm{OH^-}]_0 = 0$ in the table; $K_w = 1.0\\times10^{-14}$ is the 25 °C value."
+kind = "model"
+
+# the canonical wrong move, made to fail in the ledger (ADR-0003): treat the weak base as if it ionized
+# completely (like a strong base such as NaOH), so [OH⁻] = the formal concentration.
+[misconception]
+claim = "The base is 0.100 M, so [OH-] = 0.100 M, pOH = -log(0.100) = 1.00, and pH = 14.00 - 1.00 = 13.00."
+refuted_by = "weak_base_partial_ionization"

@@ -1,0 +1,157 @@
+{
+  "kind": "equilibrium",
+  "subtype": "weak-base",
+  "id": "ammonia-ph",
+  "title": "The pH of a weak base: ammonia",
+  "slug": "ammonia-ph",
+  "topic": "equilibrium",
+  "tags": [
+    "equilibrium",
+    "acid-base",
+    "pH",
+    "pOH",
+    "weak base",
+    "Kw",
+    "ICE table"
+  ],
+  "scenario": "Dissolve enough ammonia to make the solution $0.100\\,\\text{M}$. Ammonia is a **weak base**: it has no $\\mathrm{OH^-}$ of its own — instead it pulls a proton off a water molecule, $\\mathrm{NH_3} + \\mathrm{H_2O} \\rightleftharpoons \\mathrm{NH_4^+} + \\mathrm{OH^-}$, and only a small fraction reacts, so the equilibrium sits far to the left. What is the pH? It is the ICE table once more — the same species ledger, initial → change → equilibrium — but with two new twists. First, **water is the pure solvent**: its activity is 1, so it never enters the equilibrium expression $K_b = [\\mathrm{NH_4^+}][\\mathrm{OH^-}]/[\\mathrm{NH_3}]$ — exactly as a pure solid drops out of a $K_{sp}$. Second, the extent gives $[\\mathrm{OH^-}]$, not $[\\mathrm{H^+}]$; the bridge to pH is the **ion-product of water**, $[\\mathrm{H^+}][\\mathrm{OH^-}] = K_w = 1.0\\times10^{-14}$, which is why $\\mathrm{pH} + \\mathrm{pOH} = 14.00$.",
+  "regimes": [
+    {
+      "facet": "ICE ledger (species accounting)",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "equilibrium constant",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "equilibrium position (pH via K_b and K_w)",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The solution has reached equilibrium, and this single ionization is the only reaction that matters (one dominant equilibrium).",
+      "kind": "model"
+    },
+    {
+      "claim": "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which is why $K_b$ and $K_w$ are written with concentrations.",
+      "kind": "model"
+    },
+    {
+      "claim": "The $\\mathrm{OH^-}$ from water's own autoionization ($10^{-7}\\,\\text{M}$) is negligible beside the base's, so $[\\mathrm{OH^-}]_0 = 0$ in the table; $K_w = 1.0\\times10^{-14}$ is the 25 °C value.",
+      "kind": "model"
+    }
+  ],
+  "reaction": {
+    "base": "NH3",
+    "base_name": "ammonia",
+    "base_latex": "\\mathrm{NH_{3}}",
+    "text": "NH3(aq) + H2O(l) <=> NH4^+(aq) + OH^-(aq)",
+    "latex": "\\mathrm{NH_{3}}\\,\\text{(aq)} + \\mathrm{H_{2}O}\\,\\text{(l)} \\rightleftharpoons \\mathrm{NH_{4}}^{+}\\,\\text{(aq)} + \\mathrm{OH}^{-}\\,\\text{(aq)}",
+    "conjugate_acid": "NH4^+"
+  },
+  "equilibrium_constant": {
+    "symbol": "K_b",
+    "value": "0.000018",
+    "expression_latex": "K_b = \\dfrac{[\\mathrm{NH_{4}}^{+}][\\mathrm{OH}^{-}]}{[\\mathrm{NH_{3}}]}",
+    "source": "openstax-chemistry-2e"
+  },
+  "ice": {
+    "extent_symbol": "x",
+    "extent_M": "0.00133267097308",
+    "extent_M_display": "0.00133",
+    "species": [
+      {
+        "id": "NH3",
+        "latex": "\\mathrm{NH_{3}}",
+        "phase": "aq",
+        "role": "reactant",
+        "nu": -1,
+        "in_quotient": true,
+        "initial_M": "0.100",
+        "change_M": "-0.00133267097308",
+        "equilibrium_M": "0.0986673290269",
+        "equilibrium_M_display": "0.0987"
+      },
+      {
+        "id": "H2O",
+        "latex": "\\mathrm{H_{2}O}",
+        "phase": "l",
+        "role": "reactant",
+        "nu": -1,
+        "in_quotient": false
+      },
+      {
+        "id": "NH4^+",
+        "latex": "\\mathrm{NH_{4}}^{+}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 1,
+        "in_quotient": true,
+        "initial_M": "0",
+        "change_M": "+0.00133267097308",
+        "equilibrium_M": "0.00133267097308",
+        "equilibrium_M_display": "0.00133"
+      },
+      {
+        "id": "OH^-",
+        "latex": "\\mathrm{OH}^{-}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 1,
+        "in_quotient": true,
+        "initial_M": "0",
+        "change_M": "+0.00133267097308",
+        "equilibrium_M": "0.00133267097308",
+        "equilibrium_M_display": "0.00133"
+      }
+    ]
+  },
+  "mass_action": {
+    "quotient_symbol": "Q",
+    "quotient_at_equilibrium": "0.000018",
+    "residual_relative": "0.0000000000033"
+  },
+  "result": {
+    "hydroxide_M": "0.00133267097308",
+    "hydroxide_M_display": "0.00133",
+    "pOH": "2.8752771",
+    "pOH_display": "2.88",
+    "hydronium_M": "0.0000000000075037276282",
+    "hydronium_M_display": "0.0000000000075",
+    "pH": "11.124723",
+    "pH_display": "11.12",
+    "percent_ionization": "1.332671",
+    "percent_ionization_display": "1.33",
+    "kw": "0.000000000000010"
+  },
+  "misconception": {
+    "claim": "The base is 0.100 M, so [OH-] = 0.100 M, pOH = -log(0.100) = 1.00, and pH = 14.00 - 1.00 = 13.00.",
+    "refuted_by": "weak_base_partial_ionization"
+  },
+  "reference_links": [
+    "water-autoionization",
+    "chemical-equilibrium",
+    "ph",
+    "extent-of-reaction",
+    "molarity"
+  ],
+  "checks": {
+    "ice_identity": true,
+    "mass_action_satisfied": true,
+    "extent_physical": true,
+    "kw_consistent": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "ionization_constants": "openstax-chemistry-2e",
+      "ion_charge": "openstax-chemistry-2e"
+    }
+  }
+}

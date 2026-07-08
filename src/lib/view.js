@@ -356,19 +356,24 @@ function toSci(str) {
 // was re-verified by the gates (equilibriumcheck.mjs).
 export function renderEquilibriumLesson(lesson) {
   const s = structuredClone(lesson);
-  // subtype-aware formula tokens: a weak acid subscripts the acid + conjugate base + H⁺; a Ksp lesson the salt +
-  // its two ions.
+  // subtype-aware formula tokens: a weak acid subscripts the acid + conjugate base + H⁺; a weak base the base +
+  // conjugate acid + OH⁻ + water; a Ksp lesson the salt + its two ions.
   const isKsp = s.subtype === "solubility";
+  const isBase = s.subtype === "weak-base";
   const toks = isKsp
     ? [s.reaction.salt, s.reaction.cation, s.reaction.anion]
+    : isBase
+    ? [s.reaction.base, s.reaction.conjugate_acid, "OH^-", "H2O"]
     : [s.reaction.acid, s.reaction.conjugate_base, "H^+"];
   s.scenarioHtml = inline(prettyText(s.scenario, toks));
   delete s.scenario;
   s.reaction.latexHtml = tex(s.reaction.latex, false);
   s.reaction.acidPretty = prettyIon(s.reaction.acid);
+  s.reaction.basePretty = prettyIon(s.reaction.base);
   s.reaction.saltPretty = prettyIon(s.reaction.salt);
   s.equilibrium_constant.expressionHtml = tex(s.equilibrium_constant.expression_latex, false);
   s.equilibrium_constant.valueSci = toSci(s.equilibrium_constant.value);
+  if (s.result.kw) s.result.kwSci = toSci(s.result.kw);
   s.ice.species = s.ice.species.map((r) => ({ ...r, symbolHtml: tex(r.latex, false), idPretty: prettyIon(r.id) }));
   s.mass_action.quotientSci = toSci(s.mass_action.quotient_at_equilibrium);
   s.mass_action.residualSci = toSci(s.mass_action.residual_relative);

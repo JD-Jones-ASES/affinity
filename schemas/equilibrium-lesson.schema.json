@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://affinity/schemas/equilibrium-lesson.schema.json",
   "title": "Affinity equilibrium lesson",
-  "description": "One verified reversible-equilibrium lesson (ADR-0048): the species ledger with the extent solved from MASS ACTION rather than the limiting reagent. Where a solution.json (ADR-0020) runs a reaction to completion (ξ = the limiting-reagent minimum), an equilibrium lesson is the ICE table — every concentration c_i = c_{i,0} + ν_i·x, with x the root of Q(x)=K (chemkernel.equilibrium.solve_equilibrium). Two subtypes share this schema: `weak-acid` (HA ⇌ H⁺ + A⁻, the pH) and `solubility` (a Ksp dissolution, the molar solubility — the pure solid is excluded from Q). A distinct, tight schema keeps solution.schema.json pristine. additionalProperties:false everywhere.",
+  "description": "One verified reversible-equilibrium lesson (ADR-0048): the species ledger with the extent solved from MASS ACTION rather than the limiting reagent. Where a solution.json (ADR-0020) runs a reaction to completion (ξ = the limiting-reagent minimum), an equilibrium lesson is the ICE table — every concentration c_i = c_{i,0} + ν_i·x, with x the root of Q(x)=K (chemkernel.equilibrium.solve_equilibrium). Three subtypes share this schema: `weak-acid` (HA ⇌ H⁺ + A⁻, the pH), `weak-base` (B + H₂O ⇌ BH⁺ + OH⁻, → pOH → pH via K_w — water excluded from Q) and `solubility` (a Ksp dissolution, the molar solubility — the pure solid excluded from Q). A distinct, tight schema keeps solution.schema.json pristine. additionalProperties:false everywhere.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,7 +14,7 @@
   },
   "properties": {
     "kind": { "const": "equilibrium" },
-    "subtype": { "enum": ["weak-acid", "solubility"], "$comment": "discriminates the two equilibrium shapes; the allOf below requires the subtype-specific reaction/result/checks fields" },
+    "subtype": { "enum": ["weak-acid", "weak-base", "solubility"], "$comment": "discriminates the equilibrium shapes; the gate requires the subtype-specific reaction/result/checks fields" },
     "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
     "title": { "type": "string", "minLength": 1 },
     "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
@@ -50,7 +50,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["text", "latex"],
-      "$comment": "the subtype-specific ids (acid/conjugate_base vs salt/cation/anion) are optional here and required by the allOf branch below",
+      "$comment": "the subtype-specific ids (acid/conjugate_base | base/conjugate_acid | salt/cation/anion) are optional here and required per-subtype by the gate",
       "properties": {
         "text": { "type": "string", "minLength": 1, "$comment": "house ASCII with the <=> equilibrium arrow" },
         "latex": { "type": "string", "minLength": 1, "$comment": "\\rightleftharpoons for the equilibrium" },
@@ -58,6 +58,10 @@
         "acid_name": { "type": "string", "minLength": 1 },
         "acid_latex": { "type": "string", "minLength": 1 },
         "conjugate_base": { "type": "string", "minLength": 1 },
+        "base": { "type": "string", "minLength": 1 },
+        "base_name": { "type": "string", "minLength": 1 },
+        "base_latex": { "type": "string", "minLength": 1 },
+        "conjugate_acid": { "type": "string", "minLength": 1 },
         "salt": { "type": "string", "minLength": 1 },
         "salt_name": { "type": "string", "minLength": 1 },
         "salt_latex": { "type": "string", "minLength": 1 },
@@ -122,12 +126,17 @@
     "result": {
       "type": "object",
       "additionalProperties": false,
-      "$comment": "subtype-specific: the weak acid reports hydronium/pH/percent ionization; solubility reports molar solubility + g/L. The allOf branch requires the right set.",
+      "$comment": "subtype-specific: the weak acid reports hydronium/pH/percent ionization; the weak base adds hydroxide/pOH + the K_w it bridges through; solubility reports molar solubility + g/L. The gate requires the right set per subtype.",
       "properties": {
         "hydronium_M": { "$ref": "#/$defs/decimalString" },
         "hydronium_M_display": { "$ref": "#/$defs/decimalString" },
+        "hydroxide_M": { "$ref": "#/$defs/decimalString" },
+        "hydroxide_M_display": { "$ref": "#/$defs/decimalString" },
         "pH": { "$ref": "#/$defs/decimalString" },
         "pH_display": { "$ref": "#/$defs/decimalString" },
+        "pOH": { "$ref": "#/$defs/decimalString" },
+        "pOH_display": { "$ref": "#/$defs/decimalString" },
+        "kw": { "$ref": "#/$defs/decimalString", "$comment": "the water ion-product K_w the weak-base pH bridges through ([H⁺]=K_w/[OH⁻])" },
         "percent_ionization": { "$ref": "#/$defs/decimalString" },
         "percent_ionization_display": { "$ref": "#/$defs/decimalString" },
         "molar_solubility_M": { "$ref": "#/$defs/decimalString" },
@@ -150,13 +159,14 @@
     "checks": {
       "type": "object",
       "additionalProperties": false,
-      "$comment": "the machine-checked facts, SHOWN not asserted. All const true — the solver refuses to emit otherwise (ADR-0008). The 4th (ph_consistent / solubility_consistent) is subtype-specific.",
+      "$comment": "the machine-checked facts, SHOWN not asserted. All const true — the solver refuses to emit otherwise (ADR-0008). The 4th (ph_consistent | kw_consistent | solubility_consistent) is subtype-specific.",
       "required": ["ice_identity", "mass_action_satisfied", "extent_physical"],
       "properties": {
         "ice_identity": { "const": true },
         "mass_action_satisfied": { "const": true },
         "extent_physical": { "const": true },
         "ph_consistent": { "const": true },
+        "kw_consistent": { "const": true },
         "solubility_consistent": { "const": true }
       }
     },
