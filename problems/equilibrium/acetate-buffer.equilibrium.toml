@@ -1,0 +1,45 @@
+# Equilibrium lesson, subtype `buffer` (ADR-0048, 4th increment) — a buffer is the SAME weak-acid equilibrium
+# (HA ⇌ H⁺ + A⁻) and the SAME reversible-extent solver, but the conjugate base A⁻ is ALREADY present (from a
+# dissolved salt), so [A⁻]₀ > 0. That extra A⁻ is a **common ion**: Le Chatelier pushes the ionization left, so
+# far less acid ionizes and the pH sits near pKₐ instead of the pure acid's low value. The signature is
+# Henderson–Hasselbalch, pH = pKₐ + log([A⁻]/[HA]) — which is just the mass-action law in log form, machine-checked
+# on the equilibrium concentrations. The lesson also re-solves the acid ALONE to quantify the suppression.
+# TOML trap #4: every bare key precedes the [[assumptions]] / [misconception] headers.
+
+id = "acetate-buffer"
+title = "A buffer resists change: acetic acid + acetate"
+slug = "acetate-buffer"
+topic = "equilibrium"
+tags = ["equilibrium", "acid-base", "buffer", "common-ion effect", "Henderson-Hasselbalch", "pH", "ICE table"]
+
+# the weak acid + its molarity, PLUS the conjugate base already present (from sodium acetate, fully dissociated —
+# the Na⁺ is a spectator, omitted). Equal concentrations here, so pH = pKₐ exactly — the memorable buffer fact.
+acid = "HC2H3O2"
+acid_molarity_M = "0.100"
+conjugate_base_molarity_M = "0.100"
+
+scenario = "Dissolve $0.100\\,\\text{M}$ acetic acid **and** $0.100\\,\\text{M}$ sodium acetate in the same beaker. The acetate ion $\\mathrm{C_2H_3O_2^-}$ from the salt is the acid's own **conjugate base** — so the solution now holds both halves of the equilibrium $\\mathrm{HC_2H_3O_2} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{C_2H_3O_2^-}$ from the start. This is a **buffer**. It is still the ICE table — the same species ledger, the same solver — but the change column starts from $[\\mathrm{C_2H_3O_2^-}]_0 = 0.100\\,\\text{M}$, not zero. That pre-loaded product is a **common ion**: by Le Chatelier it pushes the ionization left, so hardly any acid ionizes and the pH lands near $\\mathrm{p}K_a$. What is it?"
+
+reference_links = ["buffer", "chemical-equilibrium", "ph", "reaction-acid-base", "molarity"]
+
+author = "Affinity"
+created = "2026-07-08"
+
+# modeling assumptions — disclosed (ADR-0003, the model-assumed badge).
+[[assumptions]]
+claim = "The sodium acetate dissociates completely, so $[\\mathrm{C_2H_3O_2^-}]_0 = 0.100\\,\\text{M}$ before the acid equilibrium adjusts; the $\\mathrm{Na^+}$ is a spectator."
+kind = "model"
+
+[[assumptions]]
+claim = "This single ionization is the only reaction that matters, and activities are approximated by molar concentrations (so $K_a$ and Henderson–Hasselbalch use concentrations)."
+kind = "model"
+
+[[assumptions]]
+claim = "The $\\mathrm{H^+}$ from water's own autoionization is negligible, so $[\\mathrm{H^+}]_0 = 0$ in the table."
+kind = "model"
+
+# the canonical wrong move: forgetting the acetate is a common ion — treating the added salt as an inert
+# spectator and computing the pH of 0.100 M acetic acid alone (pH 2.88).
+[misconception]
+claim = "The added acetate is just a spectator salt, so the pH is the same as 0.100 M acetic acid on its own: pH = 2.88."
+refuted_by = "common_ion_ignored"

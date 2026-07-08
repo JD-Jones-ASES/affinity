@@ -288,6 +288,11 @@ for (const file of equilibriumFiles) {
     need(les.result, ["hydronium_M", "hydronium_M_display", "pH", "pH_display", "percent_ionization", "percent_ionization_display"], "result");
     need(les.checks, ["ph_consistent"], "checks");
     need(les.provenance.sources, ["ionization_constants", "ion_charge"], "provenance.sources");
+  } else if (les.subtype === "buffer") {
+    need(les.reaction, ["acid", "acid_name", "acid_latex", "conjugate_base"], "reaction");
+    need(les.result, ["hydronium_M", "hydronium_M_display", "pH", "pH_display", "pKa", "pKa_display", "buffer_ratio", "buffer_ratio_display", "hh_pH", "hh_pH_display", "hydronium_no_buffer_M", "hydronium_no_buffer_M_display", "pH_no_buffer", "pH_no_buffer_display", "suppression_factor_display", "percent_ionization", "percent_ionization_display"], "result");
+    need(les.checks, ["hh_consistent"], "checks");
+    need(les.provenance.sources, ["ionization_constants", "ion_charge"], "provenance.sources");
   } else if (les.subtype === "weak-base") {
     need(les.reaction, ["base", "base_name", "base_latex", "conjugate_acid"], "reaction");
     need(les.result, ["hydroxide_M", "hydroxide_M_display", "pOH", "pOH_display", "hydronium_M", "hydronium_M_display", "pH", "pH_display", "kw", "percent_ionization", "percent_ionization_display"], "result");

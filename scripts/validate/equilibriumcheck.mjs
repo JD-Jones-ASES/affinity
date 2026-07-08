@@ -114,6 +114,43 @@ export function verifyEquilibrium(rel, les, fail) {
     const percent = (x / acid.initial) * 100;
     if (!rc(percent, Number(les.result.percent_ionization), 1e-3))
       fail(rel, `result.percent_ionization ${les.result.percent_ionization} != x/[HA]0·100 = ${percent.toFixed(6)}`);
+  } else if (les.subtype === "buffer") {
+    // a buffer is the weak-acid equilibrium with the conjugate base A⁻ ALREADY present ([A⁻]₀ > 0). [H⁺] = the
+    // H^+ row's equilibrium; pH = −log₁₀[H⁺]. The signature is Henderson–Hasselbalch, pH = pKₐ + log₁₀([A⁻]/[HA])
+    // on the EQUILIBRIUM concentrations — which is just the mass-action law logged, so it must reproduce −log₁₀[H⁺].
+    const hplus = species.find((s) => s.id === "H^+");
+    const acid = species.find((s) => s.nu < 0);
+    const conj = species.find((s) => s.nu > 0 && s.id !== "H^+");
+    if (!hplus || !acid || !conj) fail(rel, "a buffer needs H^+, a weak-acid reactant, and its conjugate base");
+    if (!(conj.initial > 0)) fail(rel, `buffer conjugate base [A⁻]₀ ${conj.initial} is not > 0 (that is a plain weak acid, not a buffer)`);
+    if (!rc(Number(les.result.hydronium_M), hplus.equilibrium))
+      fail(rel, `result.hydronium_M ${les.result.hydronium_M} != H^+ equilibrium ${hplus.equilibrium}`);
+    const pH = -Math.log10(hplus.equilibrium);
+    if (Math.abs(pH - Number(les.result.pH)) > 1e-3) fail(rel, `result.pH ${les.result.pH} != -log10[H+] = ${pH.toFixed(6)}`);
+    const pKa = -Math.log10(K);
+    if (Math.abs(pKa - Number(les.result.pKa)) > 1e-3) fail(rel, `result.pKa ${les.result.pKa} != -log10(Ka) = ${pKa.toFixed(6)}`);
+    const ratio = conj.equilibrium / acid.equilibrium;      // equilibrium [A⁻]/[HA]
+    if (!rc(ratio, Number(les.result.buffer_ratio), 1e-4))
+      fail(rel, `result.buffer_ratio ${les.result.buffer_ratio} != [A⁻]/[HA] = ${ratio}`);
+    const hhpH = pKa + Math.log10(ratio);                   // Henderson–Hasselbalch on equilibrium concentrations
+    if (Math.abs(hhpH - pH) > 1e-3) fail(rel, `Henderson–Hasselbalch pH ${hhpH.toFixed(6)} != -log10[H+] ${pH.toFixed(6)} (hh_consistent)`);
+    if (Math.abs(hhpH - Number(les.result.hh_pH)) > 1e-3) fail(rel, `result.hh_pH ${les.result.hh_pH} != pKa+log10([A⁻]/[HA]) = ${hhpH.toFixed(6)}`);
+    // the common-ion contrast: re-solve the ACID ALONE ([A⁻]₀ = 0) — the pure weak-acid pH the misconception assumes
+    const alone = [{ nu: acid.nu, initial: acid.initial, in_quotient: true },
+                   { nu: 1, initial: 0, in_quotient: true }, { nu: 1, initial: 0, in_quotient: true }];
+    const solo = solveEquilibrium(alone, K);
+    if (Number.isNaN(solo.extent)) fail(rel, "no-buffer (acid-alone) re-solve not bracketed");
+    if (!rc(Number(les.result.hydronium_no_buffer_M), solo.extent, 1e-4))
+      fail(rel, `result.hydronium_no_buffer_M ${les.result.hydronium_no_buffer_M} != acid-alone [H+] ${solo.extent}`);
+    const pH0 = -Math.log10(solo.extent);
+    if (Math.abs(pH0 - Number(les.result.pH_no_buffer)) > 1e-3)
+      fail(rel, `result.pH_no_buffer ${les.result.pH_no_buffer} != -log10[H+]_alone = ${pH0.toFixed(6)}`);
+    const suppression = solo.extent / hplus.equilibrium;
+    if (!rc(suppression, Number(les.result.suppression_factor_display), 5e-3))
+      fail(rel, `result.suppression_factor_display ${les.result.suppression_factor_display} != x_alone/x = ${suppression}`);
+    const percent = (x / acid.initial) * 100;
+    if (!rc(percent, Number(les.result.percent_ionization), 1e-3))
+      fail(rel, `result.percent_ionization ${les.result.percent_ionization} != x/[HA]0·100 = ${percent.toFixed(6)}`);
   } else if (les.subtype === "weak-base") {
     // [OH⁻] is the hydroxide row's equilibrium concentration (= x); pOH = −log₁₀[OH⁻]. The K_w BRIDGE: [H⁺] =
     // K_w/[OH⁻] → pH = −log₁₀[H⁺], and pH + pOH must equal pK_w. Water is the excluded (in_quotient false) row.

@@ -14,12 +14,12 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043), the **bonding tier** (ADR-0044), the **`structure`
   lesson kind** (ADR-0045), **intermolecular forces** (ADR-0046), the **IMF comparison lesson** (ADR-0047 — a third lesson
   shape), and the **equilibrium tier** (ADR-0048 — the reversible-extent solver + the `equilibrium` lesson kind, a
-  fourth shape, with **three subtypes**: weak-acid pH · weak-base pH via Kw · Ksp solubility). **Next inside Phase 2:** the
-  rest of equilibrium & acid-base (buffers, titration, polyprotic, a gym), then kinetics and electrochemistry, each opening
-  with its stress scenario. Counters live in `AGENTS.md ## Current state`;
+  fourth shape, with **four subtypes**: weak-acid pH · buffer (common-ion + Henderson–Hasselbalch) · weak-base pH via Kw ·
+  Ksp solubility). **Next inside Phase 2:** the rest of equilibrium & acid-base (titration, polyprotic, a gym), then kinetics
+  and electrochemistry, each opening with its stress scenario. Counters live in `AGENTS.md ## Current state`;
   per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are
   the plan of record.
-- **Equilibrium & acid-base — OPENED, three subtypes** (2026-07-08, ADR-0048): the thesis made literal — *the ICE
+- **Equilibrium & acid-base — OPENED, four subtypes** (2026-07-08, ADR-0048): the thesis made literal — *the ICE
   table is the species ledger with the extent solved from mass action* ($Q=K$), not driven to a limiting reagent. The
   **reversible-extent solver** (`chemkernel.equilibrium.solve_equilibrium`) finds the extent by **bisection to high
   precision** (exact Decimal, general beyond the quadratic); the root is model-exact-then-rounded, the machine-check the
@@ -30,14 +30,18 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   (0.100 M NH₃, $K_b=1.8\times10^{-5}$ → **pOH 2.88, pH 11.12** — the exact mirror of acetic acid; water is the **pure
   solvent excluded from Q**, so the solver is reused unchanged; the **$K_w$ bridge** $[\mathrm{H^+}][\mathrm{OH^-}]=10^{-14}$
   gives pH from pOH; $K_b$/$K_w$ from `data/ionization-constants.toml` App I/§14.1, the base's proton accounting
-  machine-checked on load); and **solubility** → `equilibrium/calcium-fluoride-solubility` (Ksp — a **pure solid excluded
-  from Q**, so $K_{sp}=4s^3$, a **cubic**; molar solubility $s=2.05\times10^{-4}$ M; the coefficient-forgetting
-  misconception refuted; $K_{sp}$ from `data/solubility-products.toml` App J, the ion composition machine-checked by charge
-  crossover; quantifies the Phase-0 precipitation rules). Triple-badged; gate `equilibriumcheck.mjs` re-derives the spine
-  (weak-acid quadratic + weak-base + Ksp cubic) in Node; concepts `chemical-equilibrium`/`ph`/`solubility-product`/
-  `water-autoionization`; 16-way tamper-tested across the three subtypes. **Deferred (the rest of the tier):** buffers (both
-  HA+A⁻ present — the reverse bracket already works), titration curves, polyprotic staging, a weak-acid gym, the $K$/pH/$K_w$
-  formula-sheet entries (need the activity treatment); common-ion Ksp + $Q$-vs-$K_{sp}$ precipitation prediction.
+  machine-checked on load); **buffer** → `equilibrium/acetate-buffer` (0.100 M acetic acid + 0.100 M acetate — the same
+  reaction with A⁻ **already present**, the solver's nonzero-initial-product case; the common ion suppresses ionization
+  **74×** → **pH 4.74 = p$K_a$**; **Henderson–Hasselbalch** pH = p$K_a$+log([A⁻]/[HA]) machine-checked as mass-action-logged;
+  the common-ion-oversight misconception refuted from a re-solve of the acid alone); and **solubility** →
+  `equilibrium/calcium-fluoride-solubility` (Ksp — a **pure solid excluded from Q**, so $K_{sp}=4s^3$, a **cubic**; molar
+  solubility $s=2.05\times10^{-4}$ M; the coefficient-forgetting misconception refuted; $K_{sp}$ from
+  `data/solubility-products.toml` App J, the ion composition machine-checked by charge crossover; quantifies the Phase-0
+  precipitation rules). Triple-badged; gate `equilibriumcheck.mjs` re-derives the spine (weak-acid quadratic + buffer +
+  weak-base + Ksp cubic) in Node; concepts `chemical-equilibrium`/`ph`/`solubility-product`/`water-autoionization`/`buffer`;
+  24-way tamper-tested across the four subtypes. **Deferred (the rest of the tier):** titration curves, polyprotic staging, a
+  weak-acid/base gym, the $K$/pH/$K_w$ formula-sheet entries (need the activity treatment); common-ion Ksp + $Q$-vs-$K_{sp}$
+  precipitation prediction.
 - **IMF comparison lesson — LANDED** (2026-07-08, ADR-0047): the bonding capstone + a **third lesson shape** (`comparison`).
   `bonding/boiling-points-and-imfs` lines up CH₄ ≪ NH₃ ≪ H₂O (equal-mass hydrides, so size is controlled) and the
   machine-checked payoff is the trend itself: sorted by boiling point, the dominant-IMF rank is **non-decreasing** (the
@@ -425,10 +429,15 @@ The **`weak-base` subtype landed too** (3rd increment): `equilibrium/ammonia-ph`
 solid uses, so `solve_equilibrium` is **reused unchanged**; the extent is [OH⁻] and the **$K_w$ bridge** ($[\mathrm{H^+}]
 [\mathrm{OH^-}]=10^{-14}$, pH + pOH = 14.00) gives the pH — 0.100 M NH₃, $K_b=1.8\times10^{-5}$ → **pOH 2.88, pH 11.12**,
 the exact mirror of the acetic-acid lesson. $K_b$/$K_w$ from `data/ionization-constants.toml` (App I/§14.1; `acids-bases.toml`
-untouched), the base's proton accounting machine-checked on load; the `water-autoionization` concept. Three subtypes now
-(dispatched `salt`/`base`/`acid`). **Next in-tier:** **buffers** (both HA + A⁻ present — the reverse-direction bracket the
-solver already supports; Henderson–Hasselbalch); **titration curves**; **polyprotic** staged equilibria (H₃PO₄); a weak-acid
-**gym**; common-ion Ksp + $Q$-vs-$K_{sp}$ precipitation prediction; the $K$/pH/$K_w$ formula-sheet entries (they need the
+untouched), the base's proton accounting machine-checked on load; the `water-autoionization` concept. The **`buffer` subtype
+landed too** (4th increment): `equilibrium/acetate-buffer` — the same weak-acid reaction with the conjugate base A⁻ **already
+present** ([A⁻]₀ > 0, the solver's nonzero-initial-product case), so the **common ion** suppresses ionization (Le Chatelier)
+— 0.100 M acetic acid + 0.100 M acetate → **pH 4.74 = p$K_a$**, 74× less ionized than the acid alone; **Henderson–Hasselbalch**
+(pH = p$K_a$ + log([A⁻]/[HA])) is machine-checked as the mass-action law logged, and the lesson re-solves the acid alone for
+the common-ion contrast; the `buffer` concept. Four subtypes now (dispatched by `salt`/`base`/`acid` + the
+`conjugate_base_molarity_M` key). **Next in-tier:** **titration curves** (a march of extent as titrant is added — the ledger
+updated); **polyprotic** staged equilibria (H₃PO₄); a weak-acid/base **gym**; common-ion Ksp + $Q$-vs-$K_{sp}$ precipitation
+prediction; the $K$/pH/$K_w$ formula-sheet entries (they need the
 *activity* — dimensionless — treatment so the dimension engine stays homogeneous).
 
 **Then (each its own increment, sketch):** the rest of bonding (above) + the rest of equilibrium & acid-base (above);

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://affinity/schemas/equilibrium-lesson.schema.json",
   "title": "Affinity equilibrium lesson",
-  "description": "One verified reversible-equilibrium lesson (ADR-0048): the species ledger with the extent solved from MASS ACTION rather than the limiting reagent. Where a solution.json (ADR-0020) runs a reaction to completion (ξ = the limiting-reagent minimum), an equilibrium lesson is the ICE table — every concentration c_i = c_{i,0} + ν_i·x, with x the root of Q(x)=K (chemkernel.equilibrium.solve_equilibrium). Three subtypes share this schema: `weak-acid` (HA ⇌ H⁺ + A⁻, the pH), `weak-base` (B + H₂O ⇌ BH⁺ + OH⁻, → pOH → pH via K_w — water excluded from Q) and `solubility` (a Ksp dissolution, the molar solubility — the pure solid excluded from Q). A distinct, tight schema keeps solution.schema.json pristine. additionalProperties:false everywhere.",
+  "description": "One verified reversible-equilibrium lesson (ADR-0048): the species ledger with the extent solved from MASS ACTION rather than the limiting reagent. Where a solution.json (ADR-0020) runs a reaction to completion (ξ = the limiting-reagent minimum), an equilibrium lesson is the ICE table — every concentration c_i = c_{i,0} + ν_i·x, with x the root of Q(x)=K (chemkernel.equilibrium.solve_equilibrium). Four subtypes share this schema: `weak-acid` (HA ⇌ H⁺ + A⁻, the pH), `buffer` (the same reaction with A⁻ already present — the common-ion effect + Henderson–Hasselbalch), `weak-base` (B + H₂O ⇌ BH⁺ + OH⁻, → pOH → pH via K_w — water excluded from Q) and `solubility` (a Ksp dissolution, the molar solubility — the pure solid excluded from Q). A distinct, tight schema keeps solution.schema.json pristine. additionalProperties:false everywhere.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,7 +14,7 @@
   },
   "properties": {
     "kind": { "const": "equilibrium" },
-    "subtype": { "enum": ["weak-acid", "weak-base", "solubility"], "$comment": "discriminates the equilibrium shapes; the gate requires the subtype-specific reaction/result/checks fields" },
+    "subtype": { "enum": ["weak-acid", "buffer", "weak-base", "solubility"], "$comment": "discriminates the equilibrium shapes; the gate requires the subtype-specific reaction/result/checks fields" },
     "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
     "title": { "type": "string", "minLength": 1 },
     "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
@@ -126,7 +126,7 @@
     "result": {
       "type": "object",
       "additionalProperties": false,
-      "$comment": "subtype-specific: the weak acid reports hydronium/pH/percent ionization; the weak base adds hydroxide/pOH + the K_w it bridges through; solubility reports molar solubility + g/L. The gate requires the right set per subtype.",
+      "$comment": "subtype-specific: the weak acid reports hydronium/pH/percent ionization; the buffer adds pKa/buffer ratio/Henderson–Hasselbalch pH + the common-ion 'no buffer' contrast; the weak base adds hydroxide/pOH + the K_w it bridges through; solubility reports molar solubility + g/L. The gate requires the right set per subtype.",
       "properties": {
         "hydronium_M": { "$ref": "#/$defs/decimalString" },
         "hydronium_M_display": { "$ref": "#/$defs/decimalString" },
@@ -136,6 +136,17 @@
         "pH_display": { "$ref": "#/$defs/decimalString" },
         "pOH": { "$ref": "#/$defs/decimalString" },
         "pOH_display": { "$ref": "#/$defs/decimalString" },
+        "pKa": { "$ref": "#/$defs/decimalString" },
+        "pKa_display": { "$ref": "#/$defs/decimalString" },
+        "buffer_ratio": { "$ref": "#/$defs/decimalString", "$comment": "equilibrium [A⁻]/[HA]" },
+        "buffer_ratio_display": { "$ref": "#/$defs/decimalString" },
+        "hh_pH": { "$ref": "#/$defs/decimalString", "$comment": "pH via Henderson–Hasselbalch on the equilibrium concentrations (= −log₁₀[H⁺], the machine-checked identity)" },
+        "hh_pH_display": { "$ref": "#/$defs/decimalString" },
+        "hydronium_no_buffer_M": { "$ref": "#/$defs/decimalString", "$comment": "[H⁺] of the acid ALONE (no conjugate base) — the common-ion contrast" },
+        "hydronium_no_buffer_M_display": { "$ref": "#/$defs/decimalString" },
+        "pH_no_buffer": { "$ref": "#/$defs/decimalString" },
+        "pH_no_buffer_display": { "$ref": "#/$defs/decimalString" },
+        "suppression_factor_display": { "$ref": "#/$defs/decimalString", "$comment": "how many-fold the common ion suppressed ionization (x_no_buffer / x)" },
         "kw": { "$ref": "#/$defs/decimalString", "$comment": "the water ion-product K_w the weak-base pH bridges through ([H⁺]=K_w/[OH⁻])" },
         "percent_ionization": { "$ref": "#/$defs/decimalString" },
         "percent_ionization_display": { "$ref": "#/$defs/decimalString" },
@@ -159,13 +170,14 @@
     "checks": {
       "type": "object",
       "additionalProperties": false,
-      "$comment": "the machine-checked facts, SHOWN not asserted. All const true — the solver refuses to emit otherwise (ADR-0008). The 4th (ph_consistent | kw_consistent | solubility_consistent) is subtype-specific.",
+      "$comment": "the machine-checked facts, SHOWN not asserted. All const true — the solver refuses to emit otherwise (ADR-0008). The 4th (ph_consistent | hh_consistent | kw_consistent | solubility_consistent) is subtype-specific.",
       "required": ["ice_identity", "mass_action_satisfied", "extent_physical"],
       "properties": {
         "ice_identity": { "const": true },
         "mass_action_satisfied": { "const": true },
         "extent_physical": { "const": true },
         "ph_consistent": { "const": true },
+        "hh_consistent": { "const": true },
         "kw_consistent": { "const": true },
         "solubility_consistent": { "const": true }
       }

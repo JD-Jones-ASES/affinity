@@ -370,6 +370,7 @@ export function renderEquilibriumLesson(lesson) {
   s.reaction.latexHtml = tex(s.reaction.latex, false);
   s.reaction.acidPretty = prettyIon(s.reaction.acid);
   s.reaction.basePretty = prettyIon(s.reaction.base);
+  s.reaction.conjugateBasePretty = prettyIon(s.reaction.conjugate_base);
   s.reaction.saltPretty = prettyIon(s.reaction.salt);
   s.equilibrium_constant.expressionHtml = tex(s.equilibrium_constant.expression_latex, false);
   s.equilibrium_constant.valueSci = toSci(s.equilibrium_constant.value);

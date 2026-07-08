@@ -1,0 +1,26 @@
+{
+  "kind": "concept",
+  "id": "buffer",
+  "title": "Buffers, the common-ion effect, and Henderson–Hasselbalch",
+  "term": "buffer",
+  "definition": "A **buffer** holds both halves of a weak-acid equilibrium at once — a weak acid $\\mathrm{HA}$ **and** a supply of its conjugate base $\\mathrm{A^-}$ (from a salt). The extra $\\mathrm{A^-}$ is a **common ion**: by Le Chatelier it drives $\\mathrm{HA} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{A^-}$ back to the left, so the acid barely ionizes and the pH settles near $\\mathrm{p}K_a$ instead of the low value the acid alone would give. Solving the mass-action law $K_a = [\\mathrm{H^+}][\\mathrm{A^-}]/[\\mathrm{HA}]$ for $[\\mathrm{H^+}]$ and taking $-\\log_{10}$ gives **Henderson–Hasselbalch**, $\\mathrm{pH} = \\mathrm{p}K_a + \\log_{10}\\dfrac{[\\mathrm{A^-}]}{[\\mathrm{HA}]}$ — not a new law, just $K_a$ in logarithmic form. When the acid and base concentrations are equal the ratio is 1 and $\\mathrm{pH} = \\mathrm{p}K_a$. A buffer resists change because adding a little $\\mathrm{H^+}$ or $\\mathrm{OH^-}$ only shifts the large $[\\mathrm{A^-}]/[\\mathrm{HA}]$ ratio slightly.",
+  "related": [
+    {
+      "to": "chemical-equilibrium",
+      "type": "extends"
+    },
+    {
+      "to": "ph",
+      "type": "depends-on"
+    },
+    {
+      "to": "reaction-acid-base",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [
+    "acetate-buffer"
+  ],
+  "regime": "model-exact",
+  "latex": "\\mathrm{pH} = \\mathrm{p}K_a + \\log_{10}\\frac{[\\mathrm{A^-}]}{[\\mathrm{HA}]}"
+}

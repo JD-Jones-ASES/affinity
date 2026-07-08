@@ -1582,3 +1582,24 @@ validate-reference = 65 (+1 concept); check-katex 588; **33 pages**; `derived/` 
 chemical-equilibrium cross-links). **7-way tamper-tested** (ICE identity; a coherent wrong extent → the independent
 re-solve; pOH; the $K_w$-bridge hydronium; pH / pH+pOH=p$K_w$; a corrupted $K_w$; water forced into $Q$ — each a distinct
 branch). The `equilibrium` lesson kind now has **three subtypes** (weak-acid / weak-base / solubility).
+
+**Update (4th increment, same day) — the `buffer` subtype landed, exercising the solver's nonzero-initial-product case +
+the common-ion effect + Henderson–Hasselbalch.** A buffer is the *same* weak-acid reaction (HA ⇌ H⁺ + A⁻) and the *same*
+solver, but the conjugate base A⁻ is **already present** ([A⁻]₀ > 0, from a dissolved salt). The pre-loaded product is a
+**common ion**: by Le Chatelier it drives the ionization left, so far less acid ionizes and the pH sits near p$K_a$ instead
+of the pure acid's low value. The signature is **Henderson–Hasselbalch**, pH = p$K_a$ + log₁₀([A⁻]/[HA]) — nothing but the
+mass-action law $K_a=[\mathrm{H^+}][\mathrm{A^-}]/[\mathrm{HA}]$ in logarithmic form, so it is **machine-checked on the
+equilibrium concentrations** (it must reproduce −log₁₀[H⁺]) rather than asserted. The lesson also **re-solves the acid alone**
+([A⁻]₀ = 0) to quantify the suppression the common ion causes — both extents are real solver outputs, the gate re-derives
+the acid-alone one too. `build_buffer_lesson` + a `build_equilibrium` dispatch (`acid` **with** `conjugate_base_molarity_M`
+→ buffer; `acid` alone → weak-acid). The opener: **`equilibrium/acetate-buffer`** — 0.100 M acetic acid + 0.100 M acetate,
+$K_a=1.8\times10^{-5}$ → **pH 4.74 = p$K_a$** (equal amounts, so the ratio is 1), 0.018% ionized; the acetate suppresses
+ionization **74×** vs the acid alone (pH 4.74 not 2.88). The misconception is treating the added salt as an inert spectator
+(the common-ion oversight), refuted from that contrast. A new **`buffer` concept** (common-ion + Henderson–Hasselbalch). No
+new reaction fields (the buffer reuses the weak-acid `acid`/`conjugate_base`); new result fields (p$K_a$, buffer ratio, the
+H–H pH, the no-buffer contrast) + the `hh_consistent` check. **356 tests** (+6); validate-solutions = 6 + 2 structure + 1
+comparison + **4 equilibrium**; validate-reference = 66 (+1 concept); check-katex 619; **34 pages**; `derived/` byte-stable
+(2 new files + the ph/chemical-equilibrium cross-links). **8-way tamper-tested** (ICE identity; coherent wrong extent → the
+independent re-solve; pH; p$K_a$; buffer ratio; the H–H identity; the no-buffer pH → the acid-alone re-solve; the suppression
+factor — each a distinct branch). The `equilibrium` lesson kind now has **four subtypes** (weak-acid / buffer / weak-base /
+solubility).

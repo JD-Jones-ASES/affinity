@@ -1,0 +1,17 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0048 4th increment). A buffer: a weak acid + its conjugate base
+# together, resisting pH change. The common-ion effect + Henderson–Hasselbalch, both just the mass-action law
+# read a particular way. Model-exact (rests on the equilibrium model + activity ≈ concentration). No
+# [[array-of-tables]] / TOML trap #4 N/A.
+id = "buffer"
+kind = "concept"
+title = "Buffers, the common-ion effect, and Henderson–Hasselbalch"
+term = "buffer"
+regime = "model-exact"
+definition = "A **buffer** holds both halves of a weak-acid equilibrium at once — a weak acid $\\mathrm{HA}$ **and** a supply of its conjugate base $\\mathrm{A^-}$ (from a salt). The extra $\\mathrm{A^-}$ is a **common ion**: by Le Chatelier it drives $\\mathrm{HA} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{A^-}$ back to the left, so the acid barely ionizes and the pH settles near $\\mathrm{p}K_a$ instead of the low value the acid alone would give. Solving the mass-action law $K_a = [\\mathrm{H^+}][\\mathrm{A^-}]/[\\mathrm{HA}]$ for $[\\mathrm{H^+}]$ and taking $-\\log_{10}$ gives **Henderson–Hasselbalch**, $\\mathrm{pH} = \\mathrm{p}K_a + \\log_{10}\\dfrac{[\\mathrm{A^-}]}{[\\mathrm{HA}]}$ — not a new law, just $K_a$ in logarithmic form. When the acid and base concentrations are equal the ratio is 1 and $\\mathrm{pH} = \\mathrm{p}K_a$. A buffer resists change because adding a little $\\mathrm{H^+}$ or $\\mathrm{OH^-}$ only shifts the large $[\\mathrm{A^-}]/[\\mathrm{HA}]$ ratio slightly."
+latex = "\\mathrm{pH} = \\mathrm{p}K_a + \\log_{10}\\frac{[\\mathrm{A^-}]}{[\\mathrm{HA}]}"
+related = [
+  { to = "chemical-equilibrium", type = "extends" },
+  { to = "ph", type = "depends-on" },
+  { to = "reaction-acid-base", type = "see-also" },
+]
+lessons = ["acetate-buffer"]

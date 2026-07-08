@@ -24,7 +24,8 @@ from pathlib import Path
 from . import BuildError, __version__
 from .balance import balance
 from .data import ChemData
-from .equilibrium import build_equilibrium_lesson, build_solubility_lesson, build_weak_base_lesson
+from .equilibrium import (build_buffer_lesson, build_equilibrium_lesson, build_solubility_lesson,
+                          build_weak_base_lesson)
 from .extent import solve_extent, species_mass_g, to_decimal
 from .formula import Formula, parse_formula
 from .gym import generate_gym
@@ -584,11 +585,12 @@ def build_comparison(path: Path, root: Path) -> tuple[dict, str]:
 
 def build_equilibrium(path: Path, root: Path) -> tuple[dict, str]:
     """An authored equilibrium lesson (ADR-0048): the ICE table = the species ledger with the extent solved from
-    mass action. Three subtypes, dispatched by the spec's key: a **weak-acid** lesson (`acid` — the dissociation
-    HA ⇌ H⁺ + A⁻ from acids-bases.toml + Kₐ from ionization-constants.toml → the pH), a **weak-base** lesson
-    (`base` — B + H₂O ⇌ BH⁺ + OH⁻, K_b + the conjugate acid from ionization-constants.toml, water excluded from Q,
-    → pOH → pH via K_w), or a **solubility** lesson (`salt` — the dissolution from solubility-products.toml → the
-    molar solubility; the solid excluded from Q)."""
+    mass action. Four subtypes, dispatched by the spec's keys: a **weak-acid** lesson (`acid` — the dissociation
+    HA ⇌ H⁺ + A⁻ from acids-bases.toml + Kₐ from ionization-constants.toml → the pH), a **buffer** lesson (`acid`
+    with `conjugate_base_molarity_M` — the same reaction but with A⁻ already present → the common-ion effect +
+    Henderson–Hasselbalch), a **weak-base** lesson (`base` — B + H₂O ⇌ BH⁺ + OH⁻, K_b + the conjugate acid from
+    ionization-constants.toml, water excluded from Q, → pOH → pH via K_w), or a **solubility** lesson (`salt` —
+    the dissolution from solubility-products.toml → the molar solubility; the solid excluded from Q)."""
     spec = tomllib.loads(path.read_text(encoding="utf-8"))
     ctx = spec.get("id", path.stem)
     data = ChemData.load(root)
@@ -599,10 +601,13 @@ def build_equilibrium(path: Path, root: Path) -> tuple[dict, str]:
     elif "acid" in spec:
         acidbase = AcidBase.load(root)
         acidbase.validate(data)  # regime-1 composition self-check of the sourced acid/base table
-        lesson = build_equilibrium_lesson(spec, data, acidbase, ctx)
+        if "conjugate_base_molarity_M" in spec:   # a buffer: HA + its conjugate base A⁻ both present
+            lesson = build_buffer_lesson(spec, data, acidbase, ctx)
+        else:
+            lesson = build_equilibrium_lesson(spec, data, acidbase, ctx)
     else:
-        raise BuildError(f"{ctx}: equilibrium lesson needs an `acid` (weak-acid pH), a `base` (weak-base pH), "
-                         f"or a `salt` (Ksp solubility)")
+        raise BuildError(f"{ctx}: equilibrium lesson needs an `acid` (weak-acid pH / buffer), a `base` "
+                         f"(weak-base pH), or a `salt` (Ksp solubility)")
     return lesson, f"{spec['topic']}/{spec['slug']}.equilibrium.json"
 
 

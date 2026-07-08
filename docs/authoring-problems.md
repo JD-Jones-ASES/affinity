@@ -25,8 +25,8 @@ lesson shapes have their own spec + schema: a single-**molecule** lesson (`*.str
 polarity — [Structure lessons](#structure-lessons--a-single-molecule-structuretoml-adr-0045) below), a
 **multi-molecule comparison** (`*.comparison.toml`, several molecules vs. a property — [Comparison
 lessons](#comparison-lessons--several-molecules-vs-a-property-comparisontoml-adr-0047) below), and an **equilibrium**
-lesson (`*.equilibrium.toml`, the ICE table solved by mass action — a weak acid's pH, a weak base's pH, or a Ksp solubility
-— [Equilibrium lessons](#equilibrium-lessons--a-weak-acids-ph-equilibriumtoml-adr-0048) below).
+lesson (`*.equilibrium.toml`, the ICE table solved by mass action — a weak acid's pH, a buffer, a weak base's pH, or a Ksp
+solubility — [Equilibrium lessons](#equilibrium-lessons--a-weak-acids-ph-equilibriumtoml-adr-0048) below).
 
 ## The one TOML gotcha
 
@@ -360,6 +360,29 @@ refuted_by = "weak_base_partial_ionization"       # the player renders the stron
 ```
 
 See [`problems/equilibrium/ammonia-ph.equilibrium.toml`](../problems/equilibrium/ammonia-ph.equilibrium.toml).
+
+The **buffer subtype** is the same file shape as a weak acid but adds a `conjugate_base_molarity_M` — the concentration of
+the acid's conjugate base already present (from a dissolved salt like sodium acetate). Its presence (with `acid`) is what
+switches the builder from the plain weak-acid subtype to the buffer subtype. The pre-loaded A⁻ is a **common ion**, so the
+acid barely ionizes and the pH sits near pKₐ; the builder emits pKₐ, the buffer ratio, the Henderson–Hasselbalch pH, and a
+re-solve of the acid *alone* for the common-ion contrast — all machine-set:
+
+```toml
+id = "acetate-buffer"
+title = "…"
+slug = "acetate-buffer"
+topic = "equilibrium"
+acid = "HC2H3O2"                                  # a weak acid in data/acids-bases.toml
+acid_molarity_M = "0.100"
+conjugate_base_molarity_M = "0.100"               # the conjugate base already present (→ the buffer subtype)
+scenario = "…"
+
+[misconception]
+claim = "…"
+refuted_by = "common_ion_ignored"                 # the player renders the common-ion refutation for this key
+```
+
+See [`problems/equilibrium/acetate-buffer.equilibrium.toml`](../problems/equilibrium/acetate-buffer.equilibrium.toml).
 
 ### Other optional keys
 

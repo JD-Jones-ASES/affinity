@@ -3,6 +3,34 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — equilibrium: buffers — the common-ion effect + Henderson–Hasselbalch (ADR-0048, 4th increment)
+
+The equilibrium tier's fourth subtype, exercising the solver's **nonzero-initial-product** case. A **buffer** is the same
+weak-acid equilibrium (HA ⇌ H⁺ + A⁻) with the conjugate base A⁻ **already present** (from a dissolved salt) — so [A⁻]₀ > 0.
+That pre-loaded product is a **common ion**: Le Chatelier drives the ionization left, so hardly any acid ionizes and the pH
+sits near pKₐ. The signature is **Henderson–Hasselbalch**, pH = pKₐ + log₁₀([A⁻]/[HA]) — machine-checked as the mass-action
+law in log form.
+
+- **Lesson `equilibrium/acetate-buffer`** — 0.100 M acetic acid + 0.100 M sodium acetate, $K_a = 1.8\times10^{-5}$ →
+  **pH 4.74 = pKₐ** (equal amounts → ratio 1), only 0.018% ionized. The acetate suppresses ionization **74×** vs the acid
+  alone (which the lesson re-solves to contrast: pH 4.74 not 2.88). The misconception — treating the added salt as an inert
+  spectator (the common-ion oversight) — is refuted from that machine-checked contrast.
+- **Henderson–Hasselbalch = mass action, logged:** pH = pKₐ + log₁₀([A⁻]/[HA]) is $K_a=[\mathrm{H^+}][\mathrm{A^-}]/
+  [\mathrm{HA}]$ rearranged and $-\log$'d — so it is verified on the *equilibrium* concentrations (it must reproduce
+  −log₁₀[H⁺]), the subtype's 4th machine-checked fact (`hh_consistent`).
+- **Engine:** `build_buffer_lesson` — the same reaction + solver as the weak acid, but [A⁻]₀ > 0 (the nonzero-initial-product
+  case the solver already handled); it also re-solves the acid alone to quantify the common-ion suppression. `build_equilibrium`
+  dispatches `acid` **with** `conjugate_base_molarity_M` → buffer, `acid` alone → weak-acid. Four subtypes now.
+- **Contracts/gate/player:** the `buffer` subtype added to the schema (reuses the weak-acid reaction fields; new result fields
+  pKₐ / buffer ratio / H–H pH / the no-buffer contrast; the `hh_consistent` check); `equilibriumcheck.mjs` re-derives pKₐ, the
+  buffer ratio, Henderson–Hasselbalch, and the common-ion contrast (by re-solving the acid alone); `EquilibriumLesson.astro`
+  renders the buffer (result cards + an H–H note + the common-ion misconception). A new **`buffer` concept**.
+- **Verification:** **356 producer tests** (+6); 7 Node gates green (validate-solutions = 6 + 2 structure + 1 comparison +
+  **4 equilibrium**; validate-reference = 66, +1 concept; check-katex = 619); **astro build = 34 pages** (+1); `derived/`
+  byte-stable (2 new files + the ph/chemical-equilibrium cross-link edits). **8-way tamper-tested**, each a distinct branch.
+  In-browser: the buffer page renders the ICE table (A⁻ starting at 0.100 — the buffer signature), pH 4.74 = pKₐ, the H–H
+  note, and the common-ion misconception; no regression on the other three equilibrium lessons; 0 KaTeX errors.
+
 ## Phase 2 — 2026-07-08 — equilibrium: the weak base (Kb → pOH → pH via Kw) — the solver reused unchanged (ADR-0048, 3rd increment)
 
 The equilibrium tier's third subtype, and the cleanest reuse yet: a **weak base** ionizes against water, $\mathrm{B} +

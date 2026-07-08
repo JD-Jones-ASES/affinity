@@ -13,14 +13,15 @@ import pytest
 from chemkernel import BuildError
 from chemkernel.build import build_equilibrium
 from chemkernel.data import ChemData
-from chemkernel.equilibrium import (build_equilibrium_lesson, build_solubility_lesson, build_weak_base_lesson,
-                                    solve_equilibrium, _quotient)
+from chemkernel.equilibrium import (build_buffer_lesson, build_equilibrium_lesson, build_solubility_lesson,
+                                    build_weak_base_lesson, solve_equilibrium, _quotient)
 from chemkernel.reactivity import AcidBase
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT / "problems" / "equilibrium" / "acetic-acid-ph.equilibrium.toml"
 SPEC_KSP = ROOT / "problems" / "equilibrium" / "calcium-fluoride-solubility.equilibrium.toml"
 SPEC_BASE = ROOT / "problems" / "equilibrium" / "ammonia-ph.equilibrium.toml"
+SPEC_BUFFER = ROOT / "problems" / "equilibrium" / "acetate-buffer.equilibrium.toml"
 
 
 def _acid_system(c0, hplus=Decimal(0)):
@@ -373,3 +374,73 @@ def test_build_weak_base_round_trip():
     lesson, out_rel = build_equilibrium(SPEC_BASE, ROOT)
     assert out_rel == "equilibrium/ammonia-ph.equilibrium.json"
     assert lesson["id"] == "ammonia-ph" and lesson["subtype"] == "weak-base"
+
+
+# ── buffer (the 4th increment — the same reaction with A⁻ already present: common-ion + Henderson–Hasselbalch) ──
+
+def _buffer_spec(**over):
+    base = {"id": "t", "title": "t", "slug": "t", "topic": "equilibrium", "scenario": "s",
+            "acid": "HC2H3O2", "acid_molarity_M": "0.100", "conjugate_base_molarity_M": "0.100",
+            "misconception": {"claim": "c", "refuted_by": "common_ion_ignored"}}
+    base.update(over)
+    return base
+
+
+def test_buffer_solver_nonzero_initial_product():
+    """The buffer case: A⁻ starts at 0.100 M. The solver handles the nonzero initial product — the extent is tiny
+    (~1.8e-5, the common ion suppresses ionization) and Q = Ka."""
+    r = solve_equilibrium([
+        {"id": "HA", "nu": -1, "initial_M": Decimal("0.100")},
+        {"id": "H^+", "nu": 1, "initial_M": Decimal(0)},
+        {"id": "A^-", "nu": 1, "initial_M": Decimal("0.100")},
+    ], Decimal("1.8e-5"), "buffer")
+    assert Decimal("1.7e-5") < r["extent"] < Decimal("1.9e-5")
+    assert r["residual"] < Decimal("1e-40")
+
+
+def test_builds_acetate_buffer_lesson():
+    data, ab = _data_ab()
+    L = build_buffer_lesson(_buffer_spec(), data, ab, "t")
+    assert L["kind"] == "equilibrium" and L["subtype"] == "buffer"
+    assert L["reaction"]["text"] == "HC2H3O2 <=> H^+ + C2H3O2^-"
+    # equal concentrations → pH = pKa = 4.74
+    assert L["result"]["pH_display"] == "4.74"
+    assert L["result"]["pKa_display"] == "4.74"
+    assert L["result"]["buffer_ratio_display"] == "1"
+    assert all(L["checks"].values())
+
+
+def test_buffer_henderson_hasselbalch_identity():
+    """pH = pKa + log10([A⁻]/[HA]) on the EQUILIBRIUM concentrations reproduces −log10[H⁺] (H-H = mass action, logged)."""
+    import math
+    data, ab = _data_ab()
+    L = build_buffer_lesson(_buffer_spec(), data, ab, "t")
+    hplus = Decimal(L["ice"]["species"][1]["equilibrium_M"])   # the H^+ row
+    pH = -math.log10(float(hplus))
+    hh = float(Decimal(L["result"]["pKa"])) + math.log10(float(Decimal(L["result"]["buffer_ratio"])))
+    assert abs(pH - hh) < 1e-6
+    assert abs(float(Decimal(L["result"]["hh_pH"])) - pH) < 1e-6
+
+
+def test_buffer_common_ion_suppression():
+    """The common-ion contrast: the acid alone would give pH 2.88 and ionize ~74× more — the ledger shows it."""
+    data, ab = _data_ab()
+    L = build_buffer_lesson(_buffer_spec(), data, ab, "t")
+    assert L["result"]["pH_no_buffer_display"] == "2.88"        # 0.100 M acetic acid alone
+    assert Decimal("70") < Decimal(L["result"]["suppression_factor_display"]) < Decimal("78")
+
+
+def test_buffer_dispatches_by_conjugate_base_key():
+    """`acid` alone → weak-acid; `acid` + `conjugate_base_molarity_M` → buffer (build_equilibrium dispatch)."""
+    lesson, out_rel = build_equilibrium(SPEC_BUFFER, ROOT)
+    assert out_rel == "equilibrium/acetate-buffer.equilibrium.json"
+    assert lesson["subtype"] == "buffer"
+    # the plain weak-acid spec (no conjugate base) still builds the weak-acid subtype
+    acid_only, _ = build_equilibrium(SPEC, ROOT)
+    assert acid_only["subtype"] == "weak-acid"
+
+
+def test_buffer_refuses_nonpositive_conjugate_base():
+    data, ab = _data_ab()
+    with pytest.raises(BuildError, match="positive acid and conjugate-base"):
+        build_buffer_lesson(_buffer_spec(conjugate_base_molarity_M="0"), data, ab, "t")

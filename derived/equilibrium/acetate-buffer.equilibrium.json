@@ -1,0 +1,155 @@
+{
+  "kind": "equilibrium",
+  "subtype": "buffer",
+  "id": "acetate-buffer",
+  "title": "A buffer resists change: acetic acid + acetate",
+  "slug": "acetate-buffer",
+  "topic": "equilibrium",
+  "tags": [
+    "equilibrium",
+    "acid-base",
+    "buffer",
+    "common-ion effect",
+    "Henderson-Hasselbalch",
+    "pH",
+    "ICE table"
+  ],
+  "scenario": "Dissolve $0.100\\,\\text{M}$ acetic acid **and** $0.100\\,\\text{M}$ sodium acetate in the same beaker. The acetate ion $\\mathrm{C_2H_3O_2^-}$ from the salt is the acid's own **conjugate base** — so the solution now holds both halves of the equilibrium $\\mathrm{HC_2H_3O_2} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{C_2H_3O_2^-}$ from the start. This is a **buffer**. It is still the ICE table — the same species ledger, the same solver — but the change column starts from $[\\mathrm{C_2H_3O_2^-}]_0 = 0.100\\,\\text{M}$, not zero. That pre-loaded product is a **common ion**: by Le Chatelier it pushes the ionization left, so hardly any acid ionizes and the pH lands near $\\mathrm{p}K_a$. What is it?",
+  "regimes": [
+    {
+      "facet": "ICE ledger (species accounting)",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "equilibrium constant",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "equilibrium position (buffer pH)",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The sodium acetate dissociates completely, so $[\\mathrm{C_2H_3O_2^-}]_0 = 0.100\\,\\text{M}$ before the acid equilibrium adjusts; the $\\mathrm{Na^+}$ is a spectator.",
+      "kind": "model"
+    },
+    {
+      "claim": "This single ionization is the only reaction that matters, and activities are approximated by molar concentrations (so $K_a$ and Henderson–Hasselbalch use concentrations).",
+      "kind": "model"
+    },
+    {
+      "claim": "The $\\mathrm{H^+}$ from water's own autoionization is negligible, so $[\\mathrm{H^+}]_0 = 0$ in the table.",
+      "kind": "model"
+    }
+  ],
+  "reaction": {
+    "acid": "HC2H3O2",
+    "acid_name": "acetic acid",
+    "acid_latex": "\\mathrm{HC_{2}H_{3}O_{2}}",
+    "text": "HC2H3O2 <=> H^+ + C2H3O2^-",
+    "latex": "\\mathrm{HC_{2}H_{3}O_{2}} \\rightleftharpoons \\mathrm{H}^{+} + \\mathrm{C_{2}H_{3}O_{2}}^{-}",
+    "conjugate_base": "C2H3O2^-"
+  },
+  "equilibrium_constant": {
+    "symbol": "K_a",
+    "value": "0.000018",
+    "expression_latex": "K_a = \\dfrac{[\\mathrm{H}^{+}][\\mathrm{C_{2}H_{3}O_{2}}^{-}]}{[\\mathrm{HC_{2}H_{3}O_{2}}]}",
+    "source": "openstax-chemistry-2e"
+  },
+  "ice": {
+    "extent_symbol": "x",
+    "extent_M": "0.0000179935234969",
+    "extent_M_display": "0.000018",
+    "species": [
+      {
+        "id": "HC2H3O2",
+        "latex": "\\mathrm{HC_{2}H_{3}O_{2}}",
+        "phase": "aq",
+        "role": "reactant",
+        "nu": -1,
+        "in_quotient": true,
+        "initial_M": "0.100",
+        "change_M": "-0.0000179935234969",
+        "equilibrium_M": "0.0999820064765",
+        "equilibrium_M_display": "0.1"
+      },
+      {
+        "id": "H^+",
+        "latex": "\\mathrm{H}^{+}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 1,
+        "in_quotient": true,
+        "initial_M": "0",
+        "change_M": "+0.0000179935234969",
+        "equilibrium_M": "0.0000179935234969",
+        "equilibrium_M_display": "0.000018"
+      },
+      {
+        "id": "C2H3O2^-",
+        "latex": "\\mathrm{C_{2}H_{3}O_{2}}^{-}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 1,
+        "in_quotient": true,
+        "initial_M": "0.100",
+        "change_M": "+0.0000179935234969",
+        "equilibrium_M": "0.100017993523",
+        "equilibrium_M_display": "0.1"
+      }
+    ]
+  },
+  "mass_action": {
+    "quotient_symbol": "Q",
+    "quotient_at_equilibrium": "0.000018",
+    "residual_relative": "0.0000000000045"
+  },
+  "result": {
+    "hydronium_M": "0.0000179935234969",
+    "hydronium_M_display": "0.000018",
+    "pH": "4.7448838",
+    "pH_display": "4.74",
+    "pKa": "4.7447275",
+    "pKa_display": "4.74",
+    "buffer_ratio": "1.0003599",
+    "buffer_ratio_display": "1",
+    "hh_pH": "4.7448838",
+    "hh_pH_display": "4.74",
+    "percent_ionization": "0.017993523",
+    "percent_ionization_display": "0.018",
+    "hydronium_no_buffer_M": "0.00133267097308",
+    "hydronium_no_buffer_M_display": "0.00133",
+    "pH_no_buffer": "2.8752771",
+    "pH_no_buffer_display": "2.88",
+    "suppression_factor_display": "74.1"
+  },
+  "misconception": {
+    "claim": "The added acetate is just a spectator salt, so the pH is the same as 0.100 M acetic acid on its own: pH = 2.88.",
+    "refuted_by": "common_ion_ignored"
+  },
+  "reference_links": [
+    "buffer",
+    "chemical-equilibrium",
+    "ph",
+    "reaction-acid-base",
+    "molarity"
+  ],
+  "checks": {
+    "ice_identity": true,
+    "mass_action_satisfied": true,
+    "extent_physical": true,
+    "hh_consistent": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "ionization_constants": "openstax-chemistry-2e",
+      "ion_charge": "openstax-chemistry-2e"
+    }
+  }
+}

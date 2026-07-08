@@ -302,6 +302,157 @@ def build_equilibrium_lesson(spec: dict, data, acidbase, ctx: str = "") -> dict:
     return lesson
 
 
+def build_buffer_lesson(spec: dict, data, acidbase, ctx: str = "") -> dict:
+    """An authored buffer equilibrium lesson → the verified `*.equilibrium.json` object, subtype `buffer`
+    (ADR-0048, 4th increment). The SAME reversible-extent solver + the SAME reaction as the weak acid
+    (HA ⇌ H⁺ + A⁻), but the conjugate base A⁻ is **already present** (from a dissolved salt) — so [A⁻]₀ > 0.
+    This is the solver's nonzero-initial-product / reverse-direction case working for real: the extra A⁻ pushes
+    the equilibrium LEFT (Le Chatelier — the **common-ion effect**), so far less acid ionizes and the pH sits
+    near pK_a rather than the pure acid's low value. The signature is **Henderson–Hasselbalch**,
+    pH = pK_a + log₁₀([A⁻]/[HA]), which is nothing but the mass-action law $K_a=[\\mathrm{H^+}][\\mathrm{A^-}]/
+    [\\mathrm{HA}]$ in logarithmic form — machine-checked here on the EQUILIBRIUM concentrations (exact). The
+    lesson also re-solves the acid ALONE ([A⁻]₀ = 0) to quantify the suppression the common ion causes."""
+    for key in ("id", "title", "slug", "topic", "scenario", "acid", "acid_molarity_M",
+                "conjugate_base_molarity_M", "misconception"):
+        if key not in spec:
+            raise BuildError(f"{ctx}: buffer lesson missing required key '{key}'")
+
+    acid_formula = spec["acid"]
+    acid = acidbase.acids.get(acid_formula)
+    if acid is None:
+        raise BuildError(f"{ctx}: acid '{acid_formula}' is not in data/acids-bases.toml")
+    if acid.get("strength") != "weak":
+        raise BuildError(f"{ctx}: '{acid_formula}' is not a weak acid — a buffer needs a weak conjugate pair")
+    if int(acid.get("protons", 0)) != 1:
+        raise BuildError(f"{ctx}: '{acid_formula}' is polyprotic — this buffer lesson is monoprotic")
+    anion_id = acid["anion"]
+    if data.ions.get(anion_id) is None:
+        raise BuildError(f"{ctx}: acid '{acid_formula}' names anion '{anion_id}' absent from the ion table")
+
+    ka = data.ionization_constant(acid_formula)["ka"]
+    c_ha = Decimal(str(spec["acid_molarity_M"]))
+    c_a = Decimal(str(spec["conjugate_base_molarity_M"]))
+    if c_ha <= 0 or c_a <= 0:
+        raise BuildError(f"{ctx}: a buffer needs positive acid and conjugate-base molarities (got {c_ha}, {c_a})")
+
+    fa = parse_formula(acid_formula, ctx)
+    fh = parse_formula("H^+", ctx)
+    fan = parse_formula(anion_id, ctx)
+    # HA ⇌ H⁺ + A⁻, with A⁻ already present ([A⁻]₀ = c_a from the fully-dissociated salt; its cation is a
+    # spectator, omitted from the equilibrium). [H⁺]₀ = 0 (water's ionization neglected).
+    ice_species = [
+        {"id": acid_formula, "latex": fa.latex, "nu": -1, "initial_M": c_ha, "role": "reactant"},
+        {"id": "H^+", "latex": fh.latex, "nu": 1, "initial_M": Decimal(0), "role": "product"},
+        {"id": anion_id, "latex": fan.latex, "nu": 1, "initial_M": c_a, "role": "product"},
+    ]
+
+    sol = solve_equilibrium(ice_species, ka, ctx)
+    x = _round_sig(sol["extent"], 12)
+    if not (0 < x < c_ha):
+        raise BuildError(f"{ctx}: solved extent {x} is not strictly between 0 and [HA]₀ ({c_ha})")
+
+    ice_rows = []
+    for s in ice_species:
+        change = s["nu"] * x
+        eqm = s["initial_M"] + change
+        ice_rows.append({
+            "id": s["id"], "latex": s["latex"], "phase": "aq", "role": s["role"], "nu": s["nu"],
+            "in_quotient": True, "initial_M": format(s["initial_M"], "f"),
+            "change_M": ("+" if change >= 0 else "") + _sig_str(change, 12),
+            "equilibrium_M": _sig_str(eqm, 12),
+            "equilibrium_M_display": _sig_str(eqm, 3),
+        })
+
+    committed = [Decimal(r["equilibrium_M"]) for r in ice_rows]
+    Q = _quotient(committed, [s["nu"] for s in ice_species])
+    residual = abs(Q - ka) / ka
+
+    ha_eq = c_ha - x                                    # equilibrium [HA]
+    a_eq = c_a + x                                      # equilibrium [A⁻]
+    with localcontext() as lc:
+        lc.prec = 40
+        pH = -(x.log10())                               # [H⁺] = x
+        pKa = -(ka.log10())
+        ratio = a_eq / ha_eq                            # equilibrium [A⁻]/[HA]
+        hh_pH = pKa + ratio.log10()                     # Henderson–Hasselbalch on the equilibrium concentrations
+        percent = x / c_ha * 100
+
+    # the common-ion contrast: re-solve the acid ALONE (no added conjugate base) — the pure weak-acid pH the
+    # misconception assumes. Both extents are real solver outputs (the gate re-derives the no-buffer one too).
+    pure = [dict(ice_species[0], initial_M=c_ha), dict(ice_species[1]),
+            dict(ice_species[2], initial_M=Decimal(0))]
+    sol0 = solve_equilibrium(pure, ka, ctx)
+    x0 = _round_sig(sol0["extent"], 12)
+    with localcontext() as lc:
+        lc.prec = 40
+        pH0 = -(x0.log10())
+        suppression = x0 / x                            # how many-fold the common ion suppressed ionization
+
+    def _num(latex, power):
+        return f"[{latex}]" + (f"^{{{power}}}" if power != 1 else "")
+    expression = (r"K_a = \dfrac{" + _num(fh.latex, 1) + _num(fan.latex, 1) + "}{" + _num(fa.latex, 1) + "}")
+    reaction_latex = f"{fa.latex} \\rightleftharpoons {fh.latex} + {fan.latex}"
+    reaction_text = f"{acid_formula} <=> H^+ + {anion_id}"
+
+    return {
+        "kind": "equilibrium",
+        "subtype": "buffer",
+        "id": spec["id"],
+        "title": spec["title"],
+        "slug": spec["slug"],
+        "topic": spec["topic"],
+        "tags": spec.get("tags", []),
+        "scenario": spec["scenario"],
+        "regimes": _regimes("equilibrium position (buffer pH)"),
+        "assumptions": spec.get("assumptions", []),
+        "reaction": {
+            "acid": acid_formula, "acid_name": acid.get("name", acid_formula), "acid_latex": fa.latex,
+            "text": reaction_text, "latex": reaction_latex, "conjugate_base": anion_id,
+        },
+        "equilibrium_constant": {
+            "symbol": "K_a", "value": format(ka, "f"), "expression_latex": expression,
+            "source": data.sources.get("ionization_constants", ""),
+        },
+        "ice": {"extent_symbol": "x", "extent_M": _sig_str(x, 12), "extent_M_display": _sig_str(x, 3),
+                "species": ice_rows},
+        "mass_action": {"quotient_symbol": "Q", "quotient_at_equilibrium": _sig_str(Q, 6),
+                        "residual_relative": _sig_str(residual, 2)},
+        "result": {
+            "hydronium_M": _sig_str(x, 12), "hydronium_M_display": _sig_str(x, 3),
+            "pH": _sig_str(pH, 8), "pH_display": format(pH.quantize(Decimal("0.01"), ROUND_HALF_UP), "f"),
+            "pKa": _sig_str(pKa, 8), "pKa_display": format(pKa.quantize(Decimal("0.01"), ROUND_HALF_UP), "f"),
+            "buffer_ratio": _sig_str(ratio, 8), "buffer_ratio_display": _sig_str(ratio, 3),
+            "hh_pH": _sig_str(hh_pH, 8),
+            "hh_pH_display": format(hh_pH.quantize(Decimal("0.01"), ROUND_HALF_UP), "f"),
+            "percent_ionization": _sig_str(percent, 8), "percent_ionization_display": _sig_str(percent, 3),
+            # the common-ion contrast: the acid alone would give this (much lower) pH
+            "hydronium_no_buffer_M": _sig_str(x0, 12), "hydronium_no_buffer_M_display": _sig_str(x0, 3),
+            "pH_no_buffer": _sig_str(pH0, 8),
+            "pH_no_buffer_display": format(pH0.quantize(Decimal("0.01"), ROUND_HALF_UP), "f"),
+            "suppression_factor_display": _sig_str(suppression, 3),
+        },
+        "misconception": spec["misconception"],
+        "reference_links": spec.get("reference_links", []),
+        "checks": {
+            "ice_identity": True,            # c_i = c_{i,0} + ν_i·x for every row (A⁻ starts nonzero)
+            "mass_action_satisfied": True,   # Q(committed) = K_a
+            "extent_physical": True,         # 0 < x < [HA]₀
+            "hh_consistent": True,           # pH = pK_a + log₁₀([A⁻]/[HA]) — Henderson–Hasselbalch = mass action, logged
+        },
+        "provenance": {
+            "producer": "chemkernel",
+            "version": __version__,
+            "python": platform.python_version(),
+            "author": spec.get("author", "Affinity"),
+            "created": spec.get("created", ""),
+            "sources": {
+                "ionization_constants": data.sources.get("ionization_constants", ""),
+                "ion_charge": data.sources.get("ion_charge", ""),
+            },
+        },
+    }
+
+
 def build_weak_base_lesson(spec: dict, data, ctx: str = "") -> dict:
     """An authored weak-base equilibrium lesson → the verified `*.equilibrium.json` object, subtype `weak-base`
     (ADR-0048, 3rd increment). The SAME reversible-extent solver as the weak acid, but the base ionizes against
