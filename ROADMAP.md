@@ -7,11 +7,16 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 
 ## Status
 
-- **Now (2026-07-08): Phase 1 OPEN — items 1–5 landed and deployed; item 6 (reaction families) is next**,
-  then the Atlas breadth audit (session-map #8) and the Phase-1 definition-of-done check → owner review
-  before Phase 2. Counters live in `AGENTS.md ## Current state`; per-increment detail in
-  [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan
-  of record.
+- **Now (2026-07-08): Phase 1 OPEN — items 1–6 all landed and deployed.** Remaining before the Phase-2 gate:
+  the Atlas breadth audit (session-map #8 — species-atlas + formula-sheet entry kinds, fill every phase-0/1
+  regime-map row) and the **Phase-1 definition-of-done check → owner review**. Counters live in
+  `AGENTS.md ## Current state`; per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) +
+  [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+- **Item 6 — reaction families — LANDED** (2026-07-08, ADR-0035/0036/0037): the reaction classifier
+  (families + free-element redox) over two sourced datasets; the reaction-family Atlas kind (7 families / 21
+  engine-classified example reactions with net-ionic views); the `reaction_families_v1` gym (classify /
+  name-spectators); and the acid-base neutralization lesson — the first non-precipitation lesson, generalising
+  the interactive/practice emitters to a water product.
 - **Bootstrap — COMPLETE** (2026-07-05): docs-first founding — routing + close-out protocol, ADR-0001…0011,
   architecture contract, regime map, SOURCES, licenses, private repo.
 - **Phase 0 — the vertical slice — COMPLETE** (2026-07-05, owner-reviewed): the whole emit → verify →
@@ -98,7 +103,7 @@ boundary. Each item opens with its stress scenario and gets its own scope block 
 3. **Balancing engine** — inspection mode, conservation-matrix view, misconception modes; redox preview. **← LANDED**
 4. **Stoichiometry suite** — mass/volume/solution/particle stoich, limiting reagent, percent yield. **← LANDED (3 gym families + the percent-yield lesson + Avogadro datum; particle-count *drills* deferred to Phase 2)**
 5. **Valence Table flagship** — lenses, trend mode, formula mode, bonding mode, practice mode (brief §8). **← LANDED (5a data + 5b modes)**
-6. **Reaction families** — precipitation, acid-base, gas evolution, combustion, redox (Atlas-backed).
+6. **Reaction families** — precipitation, acid-base, gas evolution, combustion, redox (Atlas-backed). **← LANDED (classifier + Atlas kind + gym + neutralization lesson; ADR-0035/0036/0037)**
 
 **Item 1 — Dimensional analysis gym — LANDED (2026-07-05).** Opened Phase 1 by building the reusable
 **gym instrument** (ADR-0024), stress-scenario = solution/mass conversions (volume·molarity·moles·mass):
@@ -185,17 +190,22 @@ coordination-dependent — belongs on the ion table); oxidation-state / electron
 data-curation pass); a metal/nonmetal field (would make the bonding caution data-driven and enable "which
 compound is most likely ionic" drills); acid naming in the formula builder (with the item-2 follow-up).
 
-**Item 6 — reaction families (brief §10.4).** Stress scenario: *classify + predict products for the six
-core families* — precipitation, acid-base neutralization, gas evolution, combustion, redox
-(oxidation-state level), single/double replacement. Scope: the **reaction-atlas entry kind**
-(`schemas/reference.schema.json` grows `kind: "reaction-family"`: general form, required conditions,
-misconceptions, 3–5 machine-verified example reactions, particle+ledger views); a `reaction-classifier`
-module (`chemkernel.reaction` grows family detection: acid-base needs H⁺ transfer bookkeeping, gas
-evolution needs the decomposition table — both curated datasets, cited); a `reaction_families_v1` gym
-family (given reactants → predict products / classify family / name the spectators). The
-`interactive`/`practice` emitters generalize past single-precipitate double-displacement here (acid-base
-neutralization is the first new shape). A second flagship lesson (acid-base titration-free neutralization)
-anchors the family.
+**Item 6 — reaction families (brief §10.4) — LANDED (2026-07-08, ADR-0035/0036/0037).** Stress scenario met:
+*classify + predict products for the core families* — combustion, synthesis, decomposition, single/double
+replacement, precipitation, acid-base neutralization, gas evolution, plus a machine-checkable redox flag.
+Shipped: the **reaction classifier** (`chemkernel.reaction.classify_reaction`, most-specific-first over the
+sourced solubility/acid-base/decomposition datasets; redox by the free-element signature) + the two curated
+datasets (`data/acids-bases.toml`, `data/decomposition.toml`, `chemkernel.reactivity`); the **reaction-family
+Atlas kind** (`schemas/reaction-family.schema.json` — 7 families / 21 engine-classified example reactions with
+net-ionic views; a shared `balancecheck.mjs` re-proves balance + redox in Node); the **`reaction_families_v1`
+gym** (classify-the-family + name-the-spectators, both categorical); and the **acid-base neutralization
+lesson** (first non-precipitation lesson — the `result.product`/`salt` generalisation + the phase-general
+interactive gives it the limiting-reagent slider + generated practice, precipitation lessons byte-identical).
+**Deferred within item 6:** full oxidation-number assignment (Phase-2 redox); predict-products gym drills
+(needs a careful product-distractor generator); a generic double-replacement Atlas entry (no driving force =
+not a real reaction); a gas-evolution *lesson* (a gas product leaves solution — the ledger closes the same,
+but the product mass isn't the headline); the diprotic coefficient-story neutralization (machinery handles it
+— a second lesson, not new code); further gas-forming intermediates (sulfurous acid needs the sulfite ion).
 
 ### Proposed session map (one reviewable increment each)
 
@@ -206,7 +216,7 @@ anchors the family.
 5. ~~Item 5a — element-property data curation (SOURCES + data/ + oracle cross-check)~~ (landed; ADR-0031 — 23 elements + electronegativity/covalent-radius/first-ionization-energy, primary-sourced + mendeleev-checked).
 6. ~~Item 5b — Valence Table lenses + trend/bonding/practice modes~~ (landed; ADR-0033/0034 — four modes +
    the `periodic_trends_v1` gym + Q4 resolved).
-7. Item 6 — reaction families (atlas kind + classifier + gym + the neutralization lesson).
+7. ~~Item 6 — reaction families (atlas kind + classifier + gym + the neutralization lesson)~~ (landed; ADR-0035/0036/0037 — classifier + 7-family Atlas + `reaction_families_v1` gym + the neutralization lesson).
 8. Atlas breadth audit: species-atlas + formula-sheet entry kinds; fill every Phase-0/1 regime-map row;
    **Phase-1 definition-of-done check → stop for owner review** (Phase 2 is the owner's to open).
 
@@ -239,8 +249,9 @@ $\Delta G = -nFE$). Sequenced after Phase 1 review; not scoped yet — opening P
 
 As in the sibling: lessons go deep, the reference goes broad. Species atlas, formula/equation sheet,
 reaction atlas, concept graph (typed edges, brief §10.5) fill breadth-first alongside whatever phase is
-open. Status: **19 concept entries + the Valence Table**; reaction-family and species entry kinds arrive
-with Phase-1 items 6 and 8; coverage dashboard in [`docs/regime-map.md`](./docs/regime-map.md).
+open. Status: **19 concept entries + the Valence Table + 7 reaction families** (the reaction-atlas kind
+landed with item 6, ADR-0035); the **species entry kind** arrives with session-map #8; coverage dashboard
+in [`docs/regime-map.md`](./docs/regime-map.md).
 
 ## Out of scope (v1)
 

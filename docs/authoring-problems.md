@@ -136,11 +136,23 @@ ChemKernel emits a `result.percent_yield` block (theoretical, actual, and `perce
 confirms the yield is physical. The full precipitation machinery — equations, ledger, interactives, practice —
 comes for free; the yield card is the only addition.
 
+### Non-precipitation lessons (acid-base neutralization, ADR-0037)
+
+You author these **exactly like a precipitation lesson** — same reactants/products/given/practice — but with
+no solid product. ChemKernel reports the **net-ionic product** (water, for a neutralization) as `result.product`
+instead of `result.precipitate`, names the dissolved `result.salt`, and still emits the limiting-reagent
+interactive + generated practice (the switch is H⁺ vs OH⁻). Two authoring notes: set `regimes = ["ledger",
+"solution_behavior"]` (a neutralization has **no** solubility claim, so omit `solubility` or the build will
+demand a `solubility_basis` it can't produce), and give both solutions as `[[given]]` volumetric inputs. See
+[`problems/neutralization/hydrochloric-sodium-hydroxide.problem.toml`](../problems/neutralization/hydrochloric-sodium-hydroxide.problem.toml).
+Percent yield stays precipitation-only (it needs a solid).
+
 ### Other optional keys
 
 `tags` (array), `reference_links` (array of Atlas ids — they become links as the Atlas is built),
 `author` (defaults `"Affinity"`), `created` (date string), and `regimes` (array of facet keys —
-`ledger`, `solubility`, `solution_behavior`; defaults to all three, ADR-0003).
+`ledger`, `solubility`, `solution_behavior`; defaults to all three, ADR-0003 — omit `solubility` for a
+non-precipitation lesson).
 
 ## What ChemKernel derives (do not author these)
 

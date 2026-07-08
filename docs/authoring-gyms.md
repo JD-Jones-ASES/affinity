@@ -84,9 +84,18 @@ A `family` selects the generator in `chemkernel.gym.generate_gym`. Today:
   embedded value, ion, and symbol against the committed `derived/reference/valence-table.json`**. H and the
   d-block are excluded from trend series; variable-charge metals from `predict_ion`.
 
-Adding a new procedural skill (reaction families, …) means adding a new `family` to
-`generate_gym` and, if it introduces a new answer shape, a per-kind branch to `validate-gyms.mjs` so the gate
-can re-derive it. It does **not** mean new plumbing.
+- **`reaction_families_v1`** (ADR-0036) — reaction classification, over a curated corpus of phased reactions
+  **balanced and classified by the engine** (`classify_reaction`) at generation, in two kinds:
+  `classify_family` (a balanced equation → its family — combustion / synthesis / decomposition / single or
+  double replacement / precipitation / acid-base / gas-evolution) and `name_spectators` (a reaction with a
+  net-ionic form → its spectator ions). Both categorical menus. Family distractors are **definitional** (what
+  the wrong family would require — never a false claim about this reaction); spectator distractors are
+  over-inclusion (a reacting ion) and the reacting ions themselves. The `derivation` carries `species` +
+  `coefficients` (+ `family`, or `net_species`/`net_coefficients`/`spectators`); `validate-gyms.mjs` re-proves
+  the molecular (and net-ionic) balance and that no spectator appears in the net equation.
+
+Adding a new procedural skill means adding a new `family` to `generate_gym` and, if it introduces a new answer
+shape, a per-kind branch to `validate-gyms.mjs` so the gate can re-derive it. It does **not** mean new plumbing.
 
 ## Response mode (ADR-0032)
 

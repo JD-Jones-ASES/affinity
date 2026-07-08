@@ -3,6 +3,48 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 1 — 2026-07-08 — item 6: reaction families (ADR-0035/0036/0037) — Phase 1 items 1–6 complete
+
+The last Phase-1 item, in four increments — a reaction classifier and its three surfaces (Atlas, gym, lesson).
+
+- **The reaction classifier** (`chemkernel.reaction.classify_reaction`, ADR-0035). A pure function of the
+  balanced, phased formulas + the injected sourced datasets: combustion, synthesis, decomposition, single/
+  double replacement, and the double-replacement sub-types precipitation / acid-base / gas-evolution —
+  most-specific-first, each citing data (the solubility ruleset, the acid/base table, the decomposition
+  table), never hard-coded. **Redox by the free-element signature**: an element free on one side and combined
+  on the other changed oxidation state — the exact first-course redox families, with no oxidation-number
+  assignment (a Phase-2 topic). Two new sourced datasets (`data/acids-bases.toml`, `data/decomposition.toml`,
+  openstax-chemistry-2e), composition machine-checked on load by `chemkernel.reactivity`.
+- **The reaction-family Atlas kind** (`schemas/reaction-family.schema.json`, ADR-0035): **7 families / 21
+  example reactions**, each **balanced and classified by the engine** — the producer refuses to file an
+  example under a family it does not classify as. Each example emits the balanced equation, the classifier's
+  evidence + redox flag, and the **net-ionic particle view** where spectators cancel (combustion/synthesis/
+  decomposition omit it rather than fake one). Player: `reference/reactions.astro` (jump-nav, net-ionic views,
+  redox badges) + an Atlas-index card. `verifyBalance` extracted to a shared `balancecheck.mjs`;
+  `validate-reference` re-proves every example's balance + redox in pure Node and enforces family-label
+  consistency (tamper-tested); `check-katex` extended to reaction-family LaTeX.
+- **The `reaction_families_v1` gym** (gym family #8, ADR-0036): classify-the-family (a balanced equation → its
+  family) and name-the-spectators (a reaction with a net-ionic form → its spectator ions), both categorical
+  (ADR-0032). Reactions engine-balanced + engine-classified at generation; family distractors are definitional
+  (what the wrong family requires, never a false claim about this reaction), spectator distractors are
+  over-inclusion + the reacting ions themselves. `validate-gyms` re-proves the molecular (and, for spectators,
+  the net) balance and that every spectator is absent from the net equation — tamper-tested.
+- **The acid-base neutralization lesson** (`neutralization/hydrochloric-sodium-hydroxide`, ADR-0037) — the
+  **first non-precipitation lesson**. HCl + NaOH → NaCl + water: the net-ionic product is water, the salt is
+  all spectators. The emitters generalized past single-precipitate double-displacement — the reported product
+  is the net-ionic product of *any* phase (`result.product`/`result.salt` beside the precipitation-only
+  `result.precipitate`; precipitation lessons stay **byte-identical**); `interactive.py` dropped its
+  must-be-solid guard so the limiting-reagent slider (H⁺ vs OH⁻) works unchanged; `practice.py` parametrized.
+  No solubility claim (ledger-exact + model-exact). Player: a water/salt result card, the Beaker tab gated to
+  solid products, the ExtentBar generalized; the three solution gates read `precipitate ?? product`.
+- **236 producer tests** (+69) + **7 gates green** (validate-solutions = 4, validate-reference = 27 objects /
+  1 table + 19 concepts + 7 families, validate-gyms = 8 gyms / 80 problems, check-katex = 381, check-parity =
+  320 closed-form points + 24 practice answers) + **astro build (19 pages)**, `derived/` byte-stable (39
+  files). `chempy` independently balances the whole reaction corpus (ADR-0026). In-browser: all 7 families
+  render with correct redox badges + net-ionic views; the gym scores a classify (Zn + 2 HCl → single
+  replacement) with the redox reason; the neutralization slider flips OH⁻ → H⁺ as NaOH rises (0.027 → 0.036 g
+  water), no Beaker tab, only machine-checked + model-assumed badges. No console errors.
+
 ## Phase 1 — 2026-07-08 — item 5b: the Valence-Table flagship modes (ADR-0033/0034)
 
 - **Four modes on one committed table** (ADR-0033). **Explore** — five lenses (common ion charge, valence

@@ -2,12 +2,14 @@
 
 **A beginning-chemistry portal where the verification system is the product.**
 
-**Status:** Phase 0 complete and Phase 1 well underway — three machine-verified lessons, seven procedural
-gyms (dimensional analysis, nomenclature, balancing, the full stoichiometry suite, periodic trends), the
-Chemical Atlas (concept graph + the **Valence Table flagship**: five lenses with pattern panels, trend
-graphs, a 156-salt formula builder with verified names, and a ΔEN bonding mode over 23 sourced elements),
-and generated practice are live. Phase-1 items 1–5 are done; item 6 (reaction families) remains (see
-[`ROADMAP.md`](./ROADMAP.md)). See [`AGENTS.md`](./AGENTS.md) to work the repo.
+**Status:** Phase 0 complete and Phase 1 items 1–6 all landed — four machine-verified lessons (precipitation,
+percent yield, and acid-base neutralization), eight procedural gyms (dimensional analysis, nomenclature,
+balancing, the full stoichiometry suite, periodic trends, reaction families), the Chemical Atlas (concept
+graph + **7 reaction families** with engine-classified example reactions + the **Valence Table flagship**:
+five lenses with pattern panels, trend graphs, a 156-salt formula builder with verified names, and a ΔEN
+bonding mode over 23 sourced elements), and generated practice are live. Remaining before the Phase-2 review:
+the Atlas breadth audit + the Phase-1 definition-of-done check (see [`ROADMAP.md`](./ROADMAP.md)). See
+[`AGENTS.md`](./AGENTS.md) to work the repo.
 
 ## The idea in three lines
 

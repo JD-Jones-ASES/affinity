@@ -15,7 +15,7 @@ dashboard; phases are defined in [`ROADMAP.md`](../ROADMAP.md).
 | nomenclature (ionic, covalent, acids) | 1, 3 | **1** | **gym** (ionic, both directions — Stock system) + atlas (nomenclature concept) |
 | periodic table & periodic trends | 3, 4 | **1** | **gym + atlas** (Valence Table flagship: five lenses with interpretive pattern panels, trend graphs, the 156-salt formula builder, ΔEN bonding mode — ADR-0031/0033; `periodic-trends` gym drilled from the same data, exceptions named — ADR-0034; periodic-trends/electronegativity/ionization-energy concepts) |
 | balancing equations | 1 | **1** | **gym** (balancing, conservation-matrix + charge tally) + atlas (balancing-equations concept) |
-| reaction classes | 3, 4 | 1 | atlas (precipitation, net-ionic, solubility-rules, dissociation, spectator-ion concepts) |
+| reaction classes | 3, 4 | **1** | **lesson + gym + atlas** (acid-base neutralization lesson — ADR-0037; `reaction_families_v1` gym: classify-the-family + name-the-spectators — ADR-0036; **7 reaction-family Atlas entries** / 21 engine-classified example reactions with net-ionic views + free-element redox — ADR-0035; precipitation/net-ionic/solubility-rules/dissociation/spectator-ion concepts) |
 | stoichiometry (mass/volume/solution/particle) | 1 | **1** | **2 gyms** (mass → mass; limiting reagent from masses) + atlas (stoichiometry, conservation-of-mass concepts) — particle stoich (Avogadro) → Phase 2 |
 | limiting reagents | 1, 2 | **0** | **2 lessons, practice, gym, atlas** (Phase 0 slice + non-1:1 phosphate; limiting-from-mass gym) |
 | percent yield | 1, 2 | **1** | **lesson + gym + atlas** (zinc-carbonate gravimetric lesson; percent-yield gym; percent-yield concept) |
