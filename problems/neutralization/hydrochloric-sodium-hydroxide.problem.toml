@@ -1,0 +1,59 @@
+# The first non-precipitation flagship lesson (Phase-1 item 6, ADR-0037): acid-base neutralization. The same
+# machinery as a precipitation lesson — three equations, the species ledger, the limiting-reagent switch, both
+# interactives, generated practice — but the net-ionic product is water, not a solid, and the salt stays
+# dissolved. Authored human layer only; ChemKernel derives + verifies the rest. Numbers are strings (exact,
+# ADR-0013). Root keys precede any [table] header (TOML trap #4).
+
+id = "neutralization-hydrochloric-sodium-hydroxide"
+title = "When acid meets base: which one runs out?"
+slug = "hydrochloric-sodium-hydroxide"
+topic = "neutralization"
+tags = ["acid-base", "neutralization", "limiting-reagent", "stoichiometry", "solutions"]
+author = "Affinity"
+created = "2026-07-08"
+scenario = "20.0 mL of 0.100 M HCl(aq) is mixed with 30.0 mL of 0.0500 M NaOH(aq). The acid's H+ and the base's OH- combine into water, leaving dissolved sodium chloride. How much water forms, which reactant runs out first, and what stays in solution?"
+
+# no solubility claim here — the products are all soluble/liquid, so this lesson is ledger-exact + model-exact
+# (complete dissociation), never rule-sourced (ADR-0037)
+regimes = ["ledger", "solution_behavior"]
+
+reactants = ["HCl(aq)", "NaOH(aq)"]
+products = ["NaCl(aq)", "H2O(l)"]
+
+reference_links = ["reaction-acid-base", "net-ionic-equation", "spectator-ion", "dissociation", "stoichiometry", "limiting-reagent", "extent-of-reaction", "molarity", "molar-mass", "conservation-of-mass", "balancing-equations", "sodium", "chloride"]
+
+# Generated practice (ADR-0011/0037). Deterministic: this seed always yields byte-identical variants.
+[practice]
+seed = 20260708
+count = 6
+
+[[given]]
+species = "HCl(aq)"
+volume_mL = "20.0"
+molarity_M = "0.100"
+
+[[given]]
+species = "NaOH(aq)"
+volume_mL = "30.0"
+molarity_M = "0.0500"
+
+[[assumptions]]
+claim = "HCl and NaOH are strong and dissociate completely in water."
+kind = "model"
+
+[[assumptions]]
+claim = "The neutralization goes essentially to completion (H+ + OH- -> water)."
+kind = "model"
+
+[[assumptions]]
+claim = "Solution volumes are additive."
+kind = "model"
+
+[misconception]
+claim = "Neutralization uses up both the acid and the base completely."
+refuted_by = "moles_and_extent_limits"
+
+[[visualizations]]
+kind = "extent_bar"
+mode = "interactive"
+annotate = ["xi_limited_by_OH", "excess_H_remains", "water_mass_tracks_xi"]

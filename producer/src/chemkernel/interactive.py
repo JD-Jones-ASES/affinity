@@ -94,12 +94,15 @@ def build_interactive(reactants, products, coeffs, given, data, net_left, net_ri
     a_cat, a_an = net_left[cation_key], net_left[anion_key]
     cation_id, anion_id = cation_key[0], anion_key[0]
 
-    # the single solid product and its net-ionic coefficient
-    solids = [(k, v) for k, v in net_right.items() if k[1] == "s"]
-    if len(solids) != 1:
+    # the single net-ionic product and its coefficient — a solid precipitate (precipitation) or water for an
+    # acid-base neutralization (ADR-0037). The limiting-reagent switch is the same instrument either way; the
+    # only difference is the product's phase and identity, both derived from the net ionic, not assumed.
+    net_products = list(net_right.items())
+    if len(net_products) != 1:
         return None
-    precip_key, p = solids[0]
+    precip_key, p = net_products[0]
     precip_id = precip_key[0]
+    product_phase = precip_key[1] or "s"
 
     # dissociate each reactant; find which supplies the cation, which the anion, plus each one's spectator.
     # (Formula is unhashable — it carries a counts dict — so keep a list of (Formula, ions), not a dict.)
@@ -194,7 +197,7 @@ def build_interactive(reactants, products, coeffs, given, data, net_left, net_ri
         "closed_form": closed_form,
         "cation": {"id": cation_id, "source": _core(react_cat.raw), "per": k_cat, "net_coeff": a_cat},
         "anion": {"id": anion_id, "source": _core(react_an.raw), "per": k_an, "net_coeff": a_an},
-        "product": {"id": precip_id, "molar_mass": molar_mass, "phase": "s", "net_coeff": p},
+        "product": {"id": precip_id, "molar_mass": molar_mass, "phase": product_phase, "net_coeff": p},
         "spectators": [
             {"id": spec_cat_id, "source": _core(react_cat.raw), "per": s_cat, "key": "n_spec_cation"},
             {"id": spec_an_id, "source": _core(react_an.raw), "per": s_an, "key": "n_spec_anion"},

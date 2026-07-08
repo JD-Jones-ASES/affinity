@@ -6,7 +6,7 @@
   // computed here that the engine hasn't proven.
   import { prettyIon } from "../lib/view.js";
 
-  let { interactive, precipitateSymbol } = $props();
+  let { interactive, productSymbol } = $props();
   const ix = interactive;
 
   const compile = (expr) => new Function(...ix.closed_form_params, `"use strict"; return (${expr});`);
@@ -74,7 +74,7 @@
 
   <div class="readout">
     <div class="r"><span class="rl">Extent ξ</span><span class="rv">{mmol(xi)}<span class="ru">mmol</span></span></div>
-    <div class="r"><span class="rl">{precipitateSymbol} formed</span><span class="rv">{gDisp(mass)}<span class="ru">g</span></span></div>
+    <div class="r"><span class="rl">{productSymbol} formed</span><span class="rv">{gDisp(mass)}<span class="ru">g</span></span></div>
     <div class="r"><span class="rl">Left over</span><span class="rv">
       {#if leftCat > 1e-12}{catId} {mmol(leftCat)}<span class="ru">mmol</span>
       {:else if leftAn > 1e-12}{anId} {mmol(leftAn)}<span class="ru">mmol</span>
@@ -87,7 +87,7 @@
     {:else}
       <strong>{limiting === "cat" ? catId : anId}</strong> runs out first — it <strong>limits</strong> the reaction
       at ξ = <strong>{mmol(xi)} mmol</strong>, leaving {limiting === "cat" ? anId : catId} in excess. The
-      precipitate mass tracks ξ. Raise the limiting ion’s volume or concentration and watch the taller bar —
+      product mass tracks ξ. Raise the limiting ion’s volume or concentration and watch the taller bar —
       and the limiting reagent — switch.
     {/if}
   </p>

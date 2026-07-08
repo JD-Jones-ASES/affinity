@@ -51,12 +51,17 @@ export function prettyText(text, tokens) {
 export function renderSolution(sol) {
   const s = structuredClone(sol);
 
-  // the lesson's known formula tokens (given species with and without phase, precipitate, leftovers) — used
+  // the reported product: a solid precipitate, or the general product (water for neutralization, ADR-0037);
+  // a neutralization also names the dissolved salt.
+  const reported = s.result.precipitate ?? s.result.product;
+
+  // the lesson's known formula tokens (given species with and without phase, product, salt, leftovers) — used
   // to subscript authored/generated prose without ever touching measurement numbers
   const stripPhase = (id) => String(id).replace(/\((?:s|l|g|aq)\)$/, "");
   const lessonTokens = [
     ...(s.given ?? []).flatMap((g) => [g.species, stripPhase(g.species)]),
-    s.result?.precipitate?.species,
+    reported?.species,
+    s.result?.salt?.species,
     ...(s.result?.leftover ?? []).map((l) => l.species),
   ];
 
@@ -78,11 +83,17 @@ export function renderSolution(sol) {
   }));
   s.ledger.limitingPretty = (s.ledger.limiting ?? []).map(prettyIon);
 
-  // reuse the producer's (upright, ADR-0025) LaTeX from the matching ledger row rather than rebuilding it
-  const precipRow = s.ledger.species.find((r) => r.id === s.result.precipitate.species);
-  s.result.precipitate.symbolHtml = precipRow ? precipRow.symbolHtml
-    : tex(s.result.precipitate.species.replace(/(\d+)/g, "_{$1}"), false);
-  s.result.precipitate.idPretty = prettyIon(s.result.precipitate.species);
+  // reuse the producer's (upright, ADR-0025) LaTeX from the matching ledger row rather than rebuilding it —
+  // for the reported product (precipitate or water) and, for a neutralization, the dissolved salt
+  const decorateProduct = (block) => {
+    if (!block) return;
+    const row = s.ledger.species.find((r) => r.id === block.species);
+    block.symbolHtml = row ? row.symbolHtml : tex(block.species.replace(/(\d+)/g, "_{$1}"), false);
+    block.idPretty = prettyIon(block.species);
+  };
+  decorateProduct(s.result.precipitate);
+  decorateProduct(s.result.product);
+  decorateProduct(s.result.salt);
   s.result.limiting_speciesPretty = (s.result.limiting_species ?? []).map(prettyIon);
   s.result.leftover = (s.result.leftover ?? []).map((l) => ({ ...l, idPretty: prettyIon(l.species) }));
 

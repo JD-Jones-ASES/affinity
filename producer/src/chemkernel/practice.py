@@ -66,8 +66,13 @@ def _practice_diagnostics(answer_disp: str, unit: str, wrongs: list[tuple[str, s
     return diags
 
 
-def generate_practice(interactive: dict, seed: int, count: int, ctx: str = "") -> dict | None:
-    """Build the practice block from an emitted `interactive` block (its multiplicities are engine-derived)."""
+def generate_practice(interactive: dict, seed: int, count: int, ctx: str = "",
+                      family: str = "precipitation_limiting_reagent_v1",
+                      product_noun: str = "precipitate") -> dict | None:
+    """Build the practice block from an emitted `interactive` block (its multiplicities are engine-derived).
+    `family` labels the set — precipitation, or acid-base neutralization (ADR-0037); the machinery is identical
+    (the limiting-reagent switch off the reaction's own multiplicities). `product_noun` names the product in the
+    mass prompt ("precipitate" for a solid, "" for water)."""
     cat, an, prod = interactive["cation"], interactive["anion"], interactive["product"]
     k_cat, a_cat, src_cat = cat["per"], cat["net_coeff"], cat["source"]
     k_an, a_an, src_an = an["per"], an["net_coeff"], an["source"]
@@ -137,7 +142,7 @@ def generate_practice(interactive: dict, seed: int, count: int, ctx: str = "") -
             m_sum = p * (cap_cat + cap_an) * molar_mass        # ignored the limiting reagent — added both
             q = {
                 "id": f"q{len(questions) + 1}", "kind": "mass", "mode": "numeric",  # free entry (ADR-0032)
-                "prompt": f"{stem} What mass of {prod['id']} precipitate forms?",
+                "prompt": f"{stem} What mass of {prod['id']}{' ' + product_noun if product_noun else ''} forms?",
                 "given": given, "args": args,
                 "answer": {"display": f"{_grams(m_correct)} g", "value": format(to_decimal(m_correct, 3), 'f'), "unit": "g"},
                 "diagnostics": _practice_diagnostics(_grams(m_correct), "g", [
@@ -167,7 +172,7 @@ def generate_practice(interactive: dict, seed: int, count: int, ctx: str = "") -
 
     if len(questions) < count:
         return None
-    return {"family": "precipitation_limiting_reagent_v1", "seed": seed, "questions": questions}
+    return {"family": family, "seed": seed, "questions": questions}
 
 
 def _vol_misconception(this_vol: Decimal, other_vol: Decimal, this_src: str) -> str:

@@ -92,9 +92,12 @@ for (const file of files) {
   const xiDefault = fns.xi(...defArgs);
   if (!close(xiDefault, Number(sol.ledger.extent_mol)))
     fail(rel, `default xi ${xiDefault} != committed extent_mol ${sol.ledger.extent_mol}`);
+  // the interactive's default-setting mass must reproduce the committed reported-product mass — the
+  // precipitate, or the general product (water for neutralization, ADR-0037).
+  const reported = sol.result.precipitate ?? sol.result.product;
   const massDefault = fns.mass(...defArgs);
-  if (!close(massDefault, Number(sol.result.precipitate.mass_g)))
-    fail(rel, `default mass ${massDefault} != committed precipitate mass_g ${sol.result.precipitate.mass_g}`);
+  if (!close(massDefault, Number(reported.mass_g)))
+    fail(rel, `default mass ${massDefault} != committed product mass_g ${reported.mass_g}`);
 
   // practice: re-derive every generated answer in Node from the parity-verified closed forms (ADR-0011).
   // The stated display values are rounded, so numeric answers are checked at display tolerance.

@@ -17,8 +17,13 @@
   const hasPractice = !!s.practice?.questions?.length;
   let tab = $state("equations");
 
-  // The concrete answers, pulled from the verified result (never recomputed here).
-  const precip = s.result.precipitate;
+  // The concrete answers, pulled from the verified result (never recomputed here). The reported product is a
+  // solid precipitate, or the general product (water for an acid-base neutralization, ADR-0037), in which case
+  // the dissolved salt is named too. The beaker view — watching a solid settle out — only fits a precipitate.
+  const reported = s.result.precipitate ?? s.result.product;
+  const salt = s.result.salt;
+  const isPrecip = !!s.result.precipitate;
+  const showBeaker = hasInteractive && s.interactive?.product?.phase === "s";
   const leftover = s.result.leftover ?? [];
 
   // Data-driven refutation of the misconception, read straight off the verified ledger — never re-derived here.
@@ -66,9 +71,15 @@
   <!-- the verified answers -->
   <div class="results">
     <div class="result">
-      <div class="label">Mass of {@html precip.symbolHtml} precipitate</div>
-      <div class="value">{precip.mass_g_display} <span class="unit">g</span></div>
+      <div class="label">Mass of {@html reported.symbolHtml} {isPrecip ? "precipitate" : "formed"}</div>
+      <div class="value">{reported.mass_g_display} <span class="unit">g</span></div>
     </div>
+    {#if salt}
+      <div class="result">
+        <div class="label">Salt formed ({@html salt.symbolHtml})</div>
+        <div class="value">{salt.mass_g_display} <span class="unit">g</span></div>
+      </div>
+    {/if}
     <div class="result">
       <div class="label">Limiting reagent</div>
       <div class="value">{s.result.limiting_speciesPretty.join(", ")}</div>
@@ -103,8 +114,10 @@
     <button role="tab" aria-selected={tab === "equations"} onclick={() => (tab = "equations")}>Equations</button>
     <button role="tab" aria-selected={tab === "chain"} onclick={() => (tab = "chain")}>Dimensional analysis</button>
     <button role="tab" aria-selected={tab === "ledger"} onclick={() => (tab = "ledger")}>Species ledger</button>
-    {#if hasInteractive}
+    {#if showBeaker}
       <button role="tab" aria-selected={tab === "beaker"} onclick={() => (tab = "beaker")}>Beaker</button>
+    {/if}
+    {#if hasInteractive}
       <button role="tab" aria-selected={tab === "extent"} onclick={() => (tab = "extent")}>Extent</button>
     {/if}
     {#if hasPractice}
@@ -174,13 +187,13 @@
       <p class="hint faint">The <span class="rolechip limiting">limiting</span> row reaches exactly 0 — it runs
         out first and caps ξ. Products grow from 0 by <code>+ν·ξ</code>; the excess reactant keeps a leftover.</p>
     </div>
-  {:else if tab === "beaker" && hasInteractive}
+  {:else if tab === "beaker" && showBeaker}
     <div class="panel" role="tabpanel" aria-label="Beaker / species view">
       <BeakerSpecies interactive={s.interactive} {leftover} />
     </div>
   {:else if tab === "extent" && hasInteractive}
     <div class="panel" role="tabpanel" aria-label="Extent bar">
-      <ExtentBar interactive={s.interactive} precipitateSymbol={precip.idPretty} />
+      <ExtentBar interactive={s.interactive} productSymbol={reported.idPretty} />
     </div>
   {:else if tab === "practice" && hasPractice}
     <div class="panel practicepanel" role="tabpanel" aria-label="Practice">

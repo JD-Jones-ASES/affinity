@@ -66,12 +66,18 @@ for (const file of files) {
   if (JSON.stringify(tagged) !== JSON.stringify([...L.limiting].sort()))
     fail(rel, `ledger.limiting ${JSON.stringify(L.limiting)} disagrees with rows tagged limiting ${JSON.stringify(tagged)}`);
 
-  // the reported result must agree with the ledger rows it summarizes
-  const precip = sol.result.precipitate;
-  const prow = byId[precip.species];
-  if (!prow) fail(rel, `result precipitate ${precip.species} has no ledger row`);
-  if (!near(Number(precip.moles), Number(prow.final_mol)))
-    fail(rel, `precipitate moles ${precip.moles} != ledger final ${prow.final_mol}`);
+  // the reported result must agree with the ledger rows it summarizes. The reported product is the
+  // precipitate (a solid) or the general `product` (water, for neutralization — ADR-0037); a neutralization
+  // also names the dissolved `salt`. Each must match its ledger final mole count, and its mass = moles × M.
+  const precip = sol.result.precipitate ?? sol.result.product;
+  for (const rep of [precip, sol.result.salt].filter(Boolean)) {
+    const prow = byId[rep.species];
+    if (!prow) fail(rel, `result product ${rep.species} has no ledger row`);
+    if (!near(Number(rep.moles), Number(prow.final_mol)))
+      fail(rel, `product ${rep.species} moles ${rep.moles} != ledger final ${prow.final_mol}`);
+    if (!near(Number(rep.mass_g), Number(rep.moles) * Number(rep.molar_mass_g_per_mol)))
+      fail(rel, `product ${rep.species} mass ${rep.mass_g} != moles × molar mass`);
+  }
   for (const lo of sol.result.leftover ?? []) {
     const lrow = byId[lo.species];
     if (!lrow) fail(rel, `leftover ${lo.species} has no ledger row`);

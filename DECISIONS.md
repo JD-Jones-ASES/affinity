@@ -917,3 +917,41 @@ derivation shape + the `reaction_classes` provenance key. A subscript-token fix 
 the classifier's evidence prose typographically consistent with the phased prompt. **Deferred:**
 predict-products drills (honest product-distractor generation needs a careful crossover-mistake generator —
 a follow-up), and a redox yes/no kind (thin as a 2-choice menu; the classify explanations already teach it).
+
+## ADR-0037 — Acid-base neutralization lesson: generalize the emitters past a solid precipitate (2026-07-08)
+
+**Context.** Item 6's flagship is the first non-precipitation lesson (brief §10.4): acid-base neutralization
+(acid + base → salt + water). The Phase-0 lesson pipeline (`build.py`, `interactive.py`, `practice.py`) was
+built for single-precipitate double-displacement — it hard-required a *solid* product to report a mass, drive
+the beaker/extent sliders, and generate practice. A neutralization has no solid: the net-ionic product is
+**water** (H⁺ + OH⁻ → H₂O), and the salt is entirely spectator ions. The owner chose the full lesson (sliders
++ practice), not a static one.
+
+**Decision.** The reaction shape is structurally the same as precipitation — two solutions, two reacting ions,
+one net-ionic product, two spectators — so the generalization is small and surgical, not a rewrite:
+1. **The reported product is the net-ionic product** (the single species on the right of the net ionic), of
+   *any* phase — a solid precipitate, or water. `build.py` emits `result.precipitate` for a solid (precipitation
+   lessons stay **byte-identical**) and the general `result.product` otherwise, plus `result.salt` naming the
+   dissolved ionic product. `interactive.py` drops its "must be solid" guard (one line) and emits the product's
+   real phase — the ADR-0022 closed forms, engine-sampled parity, and limiting-reagent switch all work
+   unchanged because they were always net-ionic-level (the switch here is H⁺ vs OH⁻). `practice.py` takes a
+   `family` + `product_noun` so precipitation prose is preserved verbatim.
+2. **No solubility claim.** A neutralization is ledger-exact + model-exact (complete dissociation), never
+   rule-sourced — so its `regimes` omit solubility, its provenance omits the solubility source, and it carries
+   no `solubility_basis`. The schema made `result.precipitate` and `provenance.sources.solubility` optional
+   (a `reportedProduct` `$def` shared by precipitate/product/salt). Percent yield stays a gravimetric-
+   precipitation concept — refused for a non-solid product.
+3. **The player renders the general product.** `SolutionPlayer` shows "Mass of H₂O formed" + a salt card, and
+   **gates the Beaker tab on a solid product** (watching a solid settle out is meaningless for water) — the
+   ExtentBar (the limiting-reagent switch) carries the interactivity. `ExtentBar`'s label generalized
+   ("product mass tracks ξ"). The three gates read `result.precipitate ?? result.product`; `check-ledger`
+   additionally re-derives every reported product's mass = moles × M.
+
+**Consequences.** Four lessons now (2 precipitation + 1 percent-yield + 1 neutralization) — the first
+non-precipitation shape, with the honest limiting-reagent slider and generated practice, in-browser verified
+(the switch flips OH⁻→H⁺ as NaOH concentration rises). The `result.product`/`salt` blocks + the phase-general
+interactive are the template for any future two-solution reaction. The regime-map "reaction classes" and the
+Phase-1 "acid-base" coverage are now lesson-backed. **Deferred:** a gas-evolution *lesson* (a (g) product
+leaves the solution — the ledger closes the same way, but the "product" is a gas whose mass isn't the
+headline); the diprotic coefficient-story neutralization (H₂SO₄ + 2 NaOH — the machinery handles it; it is a
+second lesson, not new code).

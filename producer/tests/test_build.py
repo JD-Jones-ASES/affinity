@@ -10,6 +10,7 @@ from chemkernel.build import build_problem
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT / "problems" / "precipitation" / "calcium-carbonate-limiting.problem.toml"
 SPEC_YIELD = ROOT / "problems" / "percent-yield" / "zinc-carbonate-percent-yield.problem.toml"
+SPEC_NEUTRAL = ROOT / "problems" / "neutralization" / "hydrochloric-sodium-hydroxide.problem.toml"
 
 
 def test_builds_phase0_solution():
@@ -52,6 +53,42 @@ def test_percent_yield_lesson():
     assert abs(float(actual / theoretical * 100) - float(py["percent_display"])) <= 0.05  # display rounds to 0.1%
     # the lesson reuses the full precipitation pipeline (interactive + practice come for free)
     assert sol.get("interactive") and sol.get("practice")
+
+
+def test_neutralization_lesson():
+    """The first non-precipitation flagship (ADR-0037): acid + base → salt + water. The reported product is
+    water (a general `product`, not a `precipitate`); the salt is named; there is no solubility claim."""
+    sol, out_rel = build_problem(SPEC_NEUTRAL, ROOT)
+    assert out_rel == "neutralization/hydrochloric-sodium-hydroxide.solution.json"
+    # the net-ionic product is water; no solid precipitate
+    assert "precipitate" not in sol["result"]
+    assert sol["result"]["product"]["species"] == "H2O" and sol["result"]["product"]["phase"] == "l"
+    assert sol["result"]["salt"]["species"] == "NaCl"
+    assert sol["equations"]["net_ionic"]["text"] == "H^+ + OH^- -> H2O"
+    assert sol["equations"]["spectators"] == ["Cl^-", "Na^+"]
+    # the base runs out first (it is more dilute) — the smaller-VOLUME acid is actually in excess (the trap)
+    assert sol["result"]["limiting_species"] == ["NaOH"]
+    assert sol["result"]["leftover"] == [{"species": "HCl", "moles": "0.0005"}]
+    # no rule-sourced regime, so no solubility source or basis (ADR-0037)
+    assert [r["regime"] for r in sol["regimes"]] == ["ledger-exact", "model-exact"]
+    assert "solubility" not in sol["provenance"]["sources"]
+    assert "solubility_basis" not in sol
+    # it still earns the full instrument: the limiting-reagent slider + generated practice
+    assert sol["interactive"]["product"]["phase"] == "l"        # the interactive product is water
+    assert sol["practice"]["family"] == "acid_base_limiting_reagent_v1"
+
+
+def test_neutralization_has_no_percent_yield_support(tmp_path):
+    """Percent yield is a gravimetric-precipitation concept — a neutralization (no solid) refuses it (ADR-0037)."""
+    import pytest
+    from chemkernel import BuildError
+
+    text = SPEC_NEUTRAL.read_text(encoding="utf-8")
+    text += '\n[yield]\nactual_mass_g = "0.02"\n'
+    tmp = tmp_path / "neutral-yield.problem.toml"
+    tmp.write_text(text, encoding="utf-8")
+    with pytest.raises(BuildError, match="solid precipitate"):
+        build_problem(tmp, ROOT)
 
 
 def test_percent_yield_refuses_superphysical_actual(tmp_path):

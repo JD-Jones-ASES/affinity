@@ -78,10 +78,15 @@ for (const file of files) {
     if (s.role !== "product" && s.nu >= 0) fail(rel, `${s.id} is a reactant but nu >= 0`);
   }
 
-  // 7. the precipitate reported in result must be a solid product row in the ledger
-  const precip = sol.result.precipitate.species;
-  const row = sol.ledger.species.find((s) => s.id === precip);
-  if (!row || row.phase !== "s") fail(rel, `result precipitate ${precip} is not a solid ledger row`);
+  // 7. the reported product (ADR-0037): exactly one of `precipitate` (a solid) or the general `product`
+  // (e.g. water for neutralization) is present, and it is a product row in the ledger of the right phase.
+  const rep = sol.result.precipitate ?? sol.result.product;
+  if (!rep || (sol.result.precipitate && sol.result.product))
+    fail(rel, `result must carry exactly one of precipitate/product`);
+  const row = sol.ledger.species.find((s) => s.id === rep.species && s.role === "product");
+  if (!row) fail(rel, `result product ${rep.species} is not a product ledger row`);
+  if (sol.result.precipitate && row.phase !== "s") fail(rel, `result precipitate ${rep.species} is not a solid ledger row`);
+  if (row.phase !== rep.phase) fail(rel, `result product ${rep.species} phase ${rep.phase} != ledger ${row.phase}`);
 
   // 8. provenance sources must be non-empty (every empirical value is traceable)
   for (const [k, v] of Object.entries(sol.provenance.sources))

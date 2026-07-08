@@ -17,13 +17,14 @@ from chemkernel.reaction import complete_ionic, net_ionic
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT / "problems" / "precipitation" / "calcium-carbonate-limiting.problem.toml"
+SPEC_NEUTRAL = ROOT / "problems" / "neutralization" / "hydrochloric-sodium-hydroxide.problem.toml"
 
 CF_KEYS = {"n_cation", "n_anion", "xi", "mass", "leftover_cation", "leftover_anion",
            "n_spec_cation", "n_spec_anion"}
 
 
-def _interactive():
-    spec = tomllib.loads(SPEC.read_text(encoding="utf-8"))
+def _interactive(spec_path=SPEC):
+    spec = tomllib.loads(spec_path.read_text(encoding="utf-8"))
     data = ChemData.load(ROOT)
     reactants = [parse_formula(s) for s in spec["reactants"]]
     products = [parse_formula(s) for s in spec["products"]]
@@ -79,3 +80,19 @@ def test_interactive_included_in_full_build():
     sol, _ = build_problem(SPEC, ROOT)
     assert "interactive" in sol
     assert sol["interactive"]["closed_form"]["xi"] == "Math.min(v1/1000*c1, v2/1000*c2)"
+
+
+def test_neutralization_interactive_is_water_product():
+    """The generalized interactive (ADR-0037): for a neutralization the net-ionic product is WATER (phase l),
+    the reacting ions are H+ / OH-, and the salt ions are the spectators — all engine-derived, not assumed."""
+    ix = _interactive(SPEC_NEUTRAL)
+    assert ix is not None
+    assert ix["product"]["id"] == "H2O" and ix["product"]["phase"] == "l"
+    assert ix["cation"]["id"] == "H^+" and ix["cation"]["source"] == "HCl"
+    assert ix["anion"]["id"] == "OH^-" and ix["anion"]["source"] == "NaOH"
+    assert {s["id"] for s in ix["spectators"]} == {"Cl^-", "Na^+"}   # the salt, sitting out
+    # the closed forms still reproduce the engine at every sample (parity holds for a water product too)
+    for s in ix["samples"]:
+        for name, expr in ix["closed_form"].items():
+            got = _eval(expr, s["args"])
+            assert abs(got - float(s["expect"][name])) <= 1e-9 + 1e-9 * abs(float(s["expect"][name]))

@@ -1,0 +1,783 @@
+{
+  "id": "neutralization-hydrochloric-sodium-hydroxide",
+  "title": "When acid meets base: which one runs out?",
+  "slug": "hydrochloric-sodium-hydroxide",
+  "topic": "neutralization",
+  "tags": [
+    "acid-base",
+    "neutralization",
+    "limiting-reagent",
+    "stoichiometry",
+    "solutions"
+  ],
+  "scenario": "20.0 mL of 0.100 M HCl(aq) is mixed with 30.0 mL of 0.0500 M NaOH(aq). The acid's H+ and the base's OH- combine into water, leaving dissolved sodium chloride. How much water forms, which reactant runs out first, and what stays in solution?",
+  "regimes": [
+    {
+      "facet": "ledger",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "solution_behavior",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "HCl and NaOH are strong and dissociate completely in water.",
+      "kind": "model"
+    },
+    {
+      "claim": "The neutralization goes essentially to completion (H+ + OH- -> water).",
+      "kind": "model"
+    },
+    {
+      "claim": "Solution volumes are additive.",
+      "kind": "model"
+    }
+  ],
+  "given": [
+    {
+      "species": "HCl(aq)",
+      "volume_mL": "20.0",
+      "molarity_M": "0.100",
+      "moles": "0.002"
+    },
+    {
+      "species": "NaOH(aq)",
+      "volume_mL": "30.0",
+      "molarity_M": "0.0500",
+      "moles": "0.0015"
+    }
+  ],
+  "equations": {
+    "molecular": {
+      "text": "HCl(aq) + NaOH(aq) -> NaCl(aq) + H2O(l)",
+      "latex": "\\mathrm{HCl}\\,\\text{(aq)} + \\mathrm{NaOH}\\,\\text{(aq)} \\rightarrow \\mathrm{NaCl}\\,\\text{(aq)} + \\mathrm{H_{2}O}\\,\\text{(l)}"
+    },
+    "complete_ionic": {
+      "text": "H^+ + Cl^- + Na^+ + OH^- -> Na^+ + Cl^- + H2O",
+      "latex": "\\mathrm{H}^{+} + \\mathrm{Cl}^{-} + \\mathrm{Na}^{+} + \\mathrm{OH}^{-} \\rightarrow \\mathrm{Na}^{+} + \\mathrm{Cl}^{-} + \\mathrm{H_{2}O}"
+    },
+    "net_ionic": {
+      "text": "H^+ + OH^- -> H2O",
+      "latex": "\\mathrm{H}^{+} + \\mathrm{OH}^{-} \\rightarrow \\mathrm{H_{2}O}"
+    },
+    "spectators": [
+      "Cl^-",
+      "Na^+"
+    ]
+  },
+  "ledger": {
+    "extent_symbol": "xi",
+    "extent_mol": "0.0015",
+    "limiting": [
+      "NaOH"
+    ],
+    "species": [
+      {
+        "id": "HCl",
+        "latex": "\\mathrm{HCl}",
+        "phase": "aq",
+        "charge": 0,
+        "nu": -1,
+        "initial_mol": "0.002",
+        "final_mol": "0.0005",
+        "role": "excess"
+      },
+      {
+        "id": "NaOH",
+        "latex": "\\mathrm{NaOH}",
+        "phase": "aq",
+        "charge": 0,
+        "nu": -1,
+        "initial_mol": "0.0015",
+        "final_mol": "0",
+        "role": "limiting"
+      },
+      {
+        "id": "NaCl",
+        "latex": "\\mathrm{NaCl}",
+        "phase": "aq",
+        "charge": 0,
+        "nu": 1,
+        "initial_mol": "0",
+        "final_mol": "0.0015",
+        "role": "product"
+      },
+      {
+        "id": "H2O",
+        "latex": "\\mathrm{H_{2}O}",
+        "phase": "l",
+        "charge": 0,
+        "nu": 1,
+        "initial_mol": "0",
+        "final_mol": "0.0015",
+        "role": "product"
+      }
+    ]
+  },
+  "dimensional_analysis": [
+    {
+      "target": "moles of HCl(aq)",
+      "steps": [
+        {
+          "value": "20.0",
+          "unit": "mL",
+          "note": "given volume"
+        },
+        {
+          "value": "0.0200",
+          "unit": "L",
+          "note": "convert mL to L (÷ 1000)"
+        },
+        {
+          "value": "0.002",
+          "unit": "mol",
+          "note": "× 0.100 mol/L"
+        }
+      ]
+    },
+    {
+      "target": "moles of NaOH(aq)",
+      "steps": [
+        {
+          "value": "30.0",
+          "unit": "mL",
+          "note": "given volume"
+        },
+        {
+          "value": "0.0300",
+          "unit": "L",
+          "note": "convert mL to L (÷ 1000)"
+        },
+        {
+          "value": "0.0015",
+          "unit": "mol",
+          "note": "× 0.0500 mol/L"
+        }
+      ]
+    }
+  ],
+  "result": {
+    "product": {
+      "species": "H2O",
+      "phase": "l",
+      "molar_mass_g_per_mol": "18.0150",
+      "moles": "0.0015",
+      "mass_g": "0.0270225",
+      "mass_g_display": "0.027"
+    },
+    "salt": {
+      "species": "NaCl",
+      "phase": "aq",
+      "molar_mass_g_per_mol": "58.440",
+      "moles": "0.0015",
+      "mass_g": "0.08766",
+      "mass_g_display": "0.088"
+    },
+    "limiting_species": [
+      "NaOH"
+    ],
+    "leftover": [
+      {
+        "species": "HCl",
+        "moles": "0.0005"
+      }
+    ]
+  },
+  "misconception": {
+    "claim": "Neutralization uses up both the acid and the base completely.",
+    "refuted_by": "moles_and_extent_limits"
+  },
+  "visualizations": [
+    {
+      "kind": "extent_bar",
+      "mode": "interactive",
+      "annotate": [
+        "xi_limited_by_OH",
+        "excess_H_remains",
+        "water_mass_tracks_xi"
+      ]
+    }
+  ],
+  "reference_links": [
+    "reaction-acid-base",
+    "net-ionic-equation",
+    "spectator-ion",
+    "dissociation",
+    "stoichiometry",
+    "limiting-reagent",
+    "extent-of-reaction",
+    "molarity",
+    "molar-mass",
+    "conservation-of-mass",
+    "balancing-equations",
+    "sodium",
+    "chloride"
+  ],
+  "checks": {
+    "atom_balance": true,
+    "charge_balance": true,
+    "unit_check": true,
+    "extent_nonnegative": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights",
+      "ion_charge": "openstax-chemistry-2e"
+    }
+  },
+  "interactive": {
+    "params": [
+      {
+        "name": "v1",
+        "label": "V(HCl)",
+        "species": "HCl",
+        "kind": "volume",
+        "unit": "mL",
+        "min": "5",
+        "max": "50",
+        "default": "20.0",
+        "step": "0.5"
+      },
+      {
+        "name": "c1",
+        "label": "[HCl]",
+        "species": "HCl",
+        "kind": "concentration",
+        "unit": "M",
+        "min": "0.02",
+        "max": "0.30",
+        "default": "0.100",
+        "step": "0.005"
+      },
+      {
+        "name": "v2",
+        "label": "V(NaOH)",
+        "species": "NaOH",
+        "kind": "volume",
+        "unit": "mL",
+        "min": "5",
+        "max": "50",
+        "default": "30.0",
+        "step": "0.5"
+      },
+      {
+        "name": "c2",
+        "label": "[NaOH]",
+        "species": "NaOH",
+        "kind": "concentration",
+        "unit": "M",
+        "min": "0.02",
+        "max": "0.30",
+        "default": "0.0500",
+        "step": "0.005"
+      }
+    ],
+    "closed_form_params": [
+      "v1",
+      "c1",
+      "v2",
+      "c2"
+    ],
+    "closed_form": {
+      "n_cation": "v1/1000*c1",
+      "n_anion": "v2/1000*c2",
+      "xi": "Math.min(v1/1000*c1, v2/1000*c2)",
+      "mass": "(Math.min(v1/1000*c1, v2/1000*c2))*18.0150",
+      "leftover_cation": "(v1/1000*c1) - (Math.min(v1/1000*c1, v2/1000*c2))",
+      "leftover_anion": "(v2/1000*c2) - (Math.min(v1/1000*c1, v2/1000*c2))",
+      "n_spec_cation": "v1/1000*c1",
+      "n_spec_anion": "v2/1000*c2"
+    },
+    "cation": {
+      "id": "H^+",
+      "source": "HCl",
+      "per": 1,
+      "net_coeff": 1
+    },
+    "anion": {
+      "id": "OH^-",
+      "source": "NaOH",
+      "per": 1,
+      "net_coeff": 1
+    },
+    "product": {
+      "id": "H2O",
+      "molar_mass": "18.0150",
+      "phase": "l",
+      "net_coeff": 1
+    },
+    "spectators": [
+      {
+        "id": "Cl^-",
+        "source": "HCl",
+        "per": 1,
+        "key": "n_spec_cation"
+      },
+      {
+        "id": "Na^+",
+        "source": "NaOH",
+        "per": 1,
+        "key": "n_spec_anion"
+      }
+    ],
+    "leftover_keys": {
+      "cation": "leftover_cation",
+      "anion": "leftover_anion"
+    },
+    "samples": [
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.100",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.0025",
+          "n_anion": "0.003",
+          "xi": "0.0025",
+          "mass": "0.0450375",
+          "leftover_cation": "0",
+          "leftover_anion": "0.0005",
+          "n_spec_cation": "0.0025",
+          "n_spec_anion": "0.003"
+        }
+      },
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.150",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.00375",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.054045",
+          "leftover_cation": "0.00075",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.00375",
+          "n_spec_anion": "0.003"
+        }
+      },
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.120",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.003",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.054045",
+          "leftover_cation": "0",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.003",
+          "n_spec_anion": "0.003"
+        }
+      },
+      {
+        "args": {
+          "v1": "50.0",
+          "c1": "0.100",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.005",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.054045",
+          "leftover_cation": "0.002",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.005",
+          "n_spec_anion": "0.003"
+        }
+      },
+      {
+        "args": {
+          "v1": "10.0",
+          "c1": "0.100",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.001",
+          "n_anion": "0.003",
+          "xi": "0.001",
+          "mass": "0.018015",
+          "leftover_cation": "0",
+          "leftover_anion": "0.002",
+          "n_spec_cation": "0.001",
+          "n_spec_anion": "0.003"
+        }
+      },
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.100",
+          "v2": "40.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.0025",
+          "n_anion": "0.006",
+          "xi": "0.0025",
+          "mass": "0.0450375",
+          "leftover_cation": "0",
+          "leftover_anion": "0.0035",
+          "n_spec_cation": "0.0025",
+          "n_spec_anion": "0.006"
+        }
+      },
+      {
+        "args": {
+          "v1": "25.0",
+          "c1": "0.100",
+          "v2": "10.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.0025",
+          "n_anion": "0.0015",
+          "xi": "0.0015",
+          "mass": "0.0270225",
+          "leftover_cation": "0.001",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.0025",
+          "n_spec_anion": "0.0015"
+        }
+      },
+      {
+        "args": {
+          "v1": "30.0",
+          "c1": "0.200",
+          "v2": "30.0",
+          "c2": "0.100"
+        },
+        "expect": {
+          "n_cation": "0.006",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.054045",
+          "leftover_cation": "0.003",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.006",
+          "n_spec_anion": "0.003"
+        }
+      },
+      {
+        "args": {
+          "v1": "20.0",
+          "c1": "0.050",
+          "v2": "20.0",
+          "c2": "0.150"
+        },
+        "expect": {
+          "n_cation": "0.001",
+          "n_anion": "0.003",
+          "xi": "0.001",
+          "mass": "0.018015",
+          "leftover_cation": "0",
+          "leftover_anion": "0.002",
+          "n_spec_cation": "0.001",
+          "n_spec_anion": "0.003"
+        }
+      },
+      {
+        "args": {
+          "v1": "40.0",
+          "c1": "0.075",
+          "v2": "15.0",
+          "c2": "0.200"
+        },
+        "expect": {
+          "n_cation": "0.003",
+          "n_anion": "0.003",
+          "xi": "0.003",
+          "mass": "0.054045",
+          "leftover_cation": "0",
+          "leftover_anion": "0",
+          "n_spec_cation": "0.003",
+          "n_spec_anion": "0.003"
+        }
+      }
+    ]
+  },
+  "practice": {
+    "family": "acid_base_limiting_reagent_v1",
+    "seed": 20260708,
+    "questions": [
+      {
+        "id": "q1",
+        "kind": "limiting",
+        "mode": "choice",
+        "prompt": "10.0 mL of 0.250 M HCl is mixed with 10.0 mL of 0.200 M NaOH. Which reactant is the limiting reagent?",
+        "given": [
+          {
+            "species": "HCl",
+            "volume_mL": "10.0",
+            "molarity_M": "0.250"
+          },
+          {
+            "species": "NaOH",
+            "volume_mL": "10.0",
+            "molarity_M": "0.200"
+          }
+        ],
+        "args": {
+          "v1": "10.0",
+          "c1": "0.250",
+          "v2": "10.0",
+          "c2": "0.200"
+        },
+        "answer": {
+          "display": "NaOH",
+          "value": "NaOH"
+        },
+        "choices": [
+          {
+            "display": "HCl",
+            "correct": false,
+            "misconception": "Picking HCl by inspection — compare the moles of the reacting ion, not the volumes or concentrations alone."
+          },
+          {
+            "display": "NaOH",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "Neither — both are fully consumed",
+            "correct": false,
+            "misconception": "A limiting reagent runs out first; here one reactant is left over, so they are not both fully consumed."
+          }
+        ],
+        "explain": "Each reactant's capacity is its reacting-ion moles ÷ its net-ionic coefficient: HCl = 2.5 ÷ 1 = 2.5 mmol, NaOH = 2 ÷ 1 = 2 mmol. NaOH is smaller, so it limits."
+      },
+      {
+        "id": "q2",
+        "kind": "mass",
+        "mode": "numeric",
+        "prompt": "25.0 mL of 0.100 M HCl is mixed with 50.0 mL of 0.250 M NaOH. What mass of H2O forms?",
+        "given": [
+          {
+            "species": "HCl",
+            "volume_mL": "25.0",
+            "molarity_M": "0.100"
+          },
+          {
+            "species": "NaOH",
+            "volume_mL": "50.0",
+            "molarity_M": "0.250"
+          }
+        ],
+        "args": {
+          "v1": "25.0",
+          "c1": "0.100",
+          "v2": "50.0",
+          "c2": "0.250"
+        },
+        "answer": {
+          "display": "0.045 g",
+          "value": "0.045",
+          "unit": "g"
+        },
+        "diagnostics": [
+          {
+            "value": "0.225",
+            "unit": "g",
+            "misconception": "Used NaOH, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
+          },
+          {
+            "value": "0.270",
+            "unit": "g",
+            "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
+          }
+        ],
+        "explain": "ξ = 2.5 mmol (set by HCl); mass = 1 × 2.5 mmol × 18.0150 g/mol = 0.045 g."
+      },
+      {
+        "id": "q3",
+        "kind": "leftover",
+        "mode": "numeric",
+        "prompt": "40.0 mL of 0.100 M HCl is mixed with 45.0 mL of 0.250 M NaOH. After the reaction, how many mmol of the excess reactant remain?",
+        "given": [
+          {
+            "species": "HCl",
+            "volume_mL": "40.0",
+            "molarity_M": "0.100"
+          },
+          {
+            "species": "NaOH",
+            "volume_mL": "45.0",
+            "molarity_M": "0.250"
+          }
+        ],
+        "args": {
+          "v1": "40.0",
+          "c1": "0.100",
+          "v2": "45.0",
+          "c2": "0.250"
+        },
+        "answer": {
+          "display": "7.25 mmol",
+          "value": "7.25",
+          "unit": "mmol"
+        },
+        "diagnostics": [
+          {
+            "value": "11.25",
+            "unit": "mmol",
+            "misconception": "That is all the NaOH you started with — some of it reacts; only the surplus over the limiting reagent remains."
+          },
+          {
+            "value": "0",
+            "unit": "mmol",
+            "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
+          }
+        ],
+        "explain": "NaOH started at 11.25 mmol and 4 mmol reacted, leaving 7.25 mmol."
+      },
+      {
+        "id": "q4",
+        "kind": "limiting",
+        "mode": "choice",
+        "prompt": "45.0 mL of 0.100 M HCl is mixed with 35.0 mL of 0.050 M NaOH. Which reactant is the limiting reagent?",
+        "given": [
+          {
+            "species": "HCl",
+            "volume_mL": "45.0",
+            "molarity_M": "0.100"
+          },
+          {
+            "species": "NaOH",
+            "volume_mL": "35.0",
+            "molarity_M": "0.050"
+          }
+        ],
+        "args": {
+          "v1": "45.0",
+          "c1": "0.100",
+          "v2": "35.0",
+          "c2": "0.050"
+        },
+        "answer": {
+          "display": "NaOH",
+          "value": "NaOH"
+        },
+        "choices": [
+          {
+            "display": "HCl",
+            "correct": false,
+            "misconception": "Picking HCl by inspection — compare the moles of the reacting ion, not the volumes or concentrations alone."
+          },
+          {
+            "display": "NaOH",
+            "correct": true,
+            "misconception": null
+          },
+          {
+            "display": "Neither — both are fully consumed",
+            "correct": false,
+            "misconception": "A limiting reagent runs out first; here one reactant is left over, so they are not both fully consumed."
+          }
+        ],
+        "explain": "Each reactant's capacity is its reacting-ion moles ÷ its net-ionic coefficient: HCl = 4.5 ÷ 1 = 4.5 mmol, NaOH = 1.75 ÷ 1 = 1.75 mmol. NaOH is smaller, so it limits."
+      },
+      {
+        "id": "q5",
+        "kind": "mass",
+        "mode": "numeric",
+        "prompt": "15.0 mL of 0.100 M HCl is mixed with 40.0 mL of 0.200 M NaOH. What mass of H2O forms?",
+        "given": [
+          {
+            "species": "HCl",
+            "volume_mL": "15.0",
+            "molarity_M": "0.100"
+          },
+          {
+            "species": "NaOH",
+            "volume_mL": "40.0",
+            "molarity_M": "0.200"
+          }
+        ],
+        "args": {
+          "v1": "15.0",
+          "c1": "0.100",
+          "v2": "40.0",
+          "c2": "0.200"
+        },
+        "answer": {
+          "display": "0.027 g",
+          "value": "0.027",
+          "unit": "g"
+        },
+        "diagnostics": [
+          {
+            "value": "0.144",
+            "unit": "g",
+            "misconception": "Used NaOH, the reactant in excess, as if it were limiting — the product is capped by the limiting reagent."
+          },
+          {
+            "value": "0.171",
+            "unit": "g",
+            "misconception": "Added the product each reactant could make separately — but they make the same product, capped by whichever runs out first."
+          }
+        ],
+        "explain": "ξ = 1.5 mmol (set by HCl); mass = 1 × 1.5 mmol × 18.0150 g/mol = 0.027 g."
+      },
+      {
+        "id": "q6",
+        "kind": "leftover",
+        "mode": "numeric",
+        "prompt": "45.0 mL of 0.050 M HCl is mixed with 50.0 mL of 0.150 M NaOH. After the reaction, how many mmol of the excess reactant remain?",
+        "given": [
+          {
+            "species": "HCl",
+            "volume_mL": "45.0",
+            "molarity_M": "0.050"
+          },
+          {
+            "species": "NaOH",
+            "volume_mL": "50.0",
+            "molarity_M": "0.150"
+          }
+        ],
+        "args": {
+          "v1": "45.0",
+          "c1": "0.050",
+          "v2": "50.0",
+          "c2": "0.150"
+        },
+        "answer": {
+          "display": "5.25 mmol",
+          "value": "5.25",
+          "unit": "mmol"
+        },
+        "diagnostics": [
+          {
+            "value": "7.5",
+            "unit": "mmol",
+            "misconception": "That is all the NaOH you started with — some of it reacts; only the surplus over the limiting reagent remains."
+          },
+          {
+            "value": "0",
+            "unit": "mmol",
+            "misconception": "Only the limiting reagent reaches 0; the reactant in excess leaves a leftover."
+          }
+        ],
+        "explain": "NaOH started at 7.5 mmol and 2.25 mmol reacted, leaving 5.25 mmol."
+      }
+    ]
+  }
+}

@@ -156,13 +156,45 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
     left, right = complete_ionic(reactants, products, coeffs, data, ctx)
     net_left, net_right, spectators = net_ionic(left, right, ctx)
 
-    # result: precipitate + leftovers
-    precipitate_row = next((r for r in ledger.rows if r.phase == "s" and r.role == "product"), None)
-    if precipitate_row is None:
-        raise BuildError(f"{ctx}: no solid product to report as a precipitate")
-    mass = species_mass_g(precipitate_row, data)
+    # result: the reported product + leftovers. The reported product is the net-ionic product — a solid
+    # precipitate (precipitation) or, when no solid forms, the general product (water for an acid-base
+    # neutralization, ADR-0037). A solid cites the solubility basis (ADR-0017); a neutralization additionally
+    # names the dissolved salt. Both report species/phase/molar mass/moles/mass identically.
     leftovers = [{"species": _core(r.species), "moles": _exact_decimal_str(r.final_mol)}
                  for r in ledger.rows if r.nu < 0 and r.final_mol > 0]
+
+    def _product_block(row) -> tuple[dict, object]:
+        m = species_mass_g(row, data)
+        block = {
+            "species": _core(row.species), "phase": row.phase,
+            "molar_mass_g_per_mol": str(data.molar_mass(row.species)),
+            "moles": _exact_decimal_str(row.final_mol),
+            "mass_g": _exact_decimal_str(m),
+            "mass_g_display": str(to_decimal(m, 3)),
+        }
+        return block, m
+
+    # the reported-product block goes FIRST (precipitation lessons keep their field order byte-for-byte), then
+    # limiting_species + leftover.
+    result = {}
+    solid_row = next((r for r in ledger.rows if r.phase == "s" and r.role == "product"), None)
+    if solid_row is not None:
+        result["precipitate"], reported_mass = _product_block(solid_row)
+    else:
+        # the net-ionic product (the single species on the right of the net ionic — e.g. H2O)
+        net_product_id = next(iter(net_right))[0]
+        prod_row = next((r for r in ledger.rows
+                         if _core(r.species) == net_product_id and r.role == "product"), None)
+        if prod_row is None:
+            raise BuildError(f"{ctx}: net-ionic product {net_product_id} has no product ledger row")
+        result["product"], reported_mass = _product_block(prod_row)
+        # name the dissolved salt: the other product (not the net-ionic product)
+        salt_row = next((r for r in ledger.rows
+                         if r.role == "product" and _core(r.species) != net_product_id), None)
+        if salt_row is not None:
+            result["salt"], _ = _product_block(salt_row)
+    result["limiting_species"] = [_core(x) for x in ledger.limiting]
+    result["leftover"] = leftovers
 
     solution = {
         "id": spec["id"],
@@ -192,18 +224,7 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
             "species": ledger_species,
         },
         "dimensional_analysis": dimensional,
-        "result": {
-            "precipitate": {
-                "species": _core(precipitate_row.species),
-                "phase": precipitate_row.phase,
-                "molar_mass_g_per_mol": str(data.molar_mass(precipitate_row.species)),
-                "moles": _exact_decimal_str(precipitate_row.final_mol),
-                "mass_g": _exact_decimal_str(mass),
-                "mass_g_display": str(to_decimal(mass, 3)),
-            },
-            "limiting_species": [_core(x) for x in ledger.limiting],
-            "leftover": leftovers,
-        },
+        "result": result,
         "misconception": spec["misconception"],
         "visualizations": spec.get("visualizations", []),
         "reference_links": spec.get("reference_links", []),
@@ -214,10 +235,12 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
             "python": platform.python_version(),
             "author": spec.get("author", "Affinity"),
             "created": spec.get("created", ""),
+            # solubility source travels only with a precipitation lesson (a solid product); a neutralization
+            # has no solubility claim (ADR-0037), so its provenance omits it.
             "sources": {
                 "atomic_weight": data.sources.get("atomic_weight", ""),
                 "ion_charge": data.sources.get("ion_charge", ""),
-                "solubility": solub.source,
+                **({"solubility": solub.source} if solid_row is not None else {}),
             },
         },
     }
@@ -228,9 +251,12 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
     # The authored actual (measured) yield gives percent = actual ÷ theoretical × 100. Refuse a nonphysical
     # yield: actual must be positive and no greater than theoretical (you cannot collect more than forms —
     # that would break conservation of mass). Percent is a measured ratio, reported at 3 sig figs (ADR-0025).
+    # Percent yield is a gravimetric-precipitation concept — only for a solid product.
     yield_spec = spec.get("yield")
     if yield_spec is not None:
-        theoretical = mass
+        if solid_row is None:
+            raise BuildError(f"{ctx}: percent yield needs a solid precipitate product")
+        theoretical = reported_mass
         actual = Fraction(Decimal(str(yield_spec["actual_mass_g"])))
         if not (0 < actual <= theoretical):
             raise BuildError(f"{ctx}: actual yield {actual} g must be > 0 and ≤ theoretical {theoretical} g")
@@ -254,8 +280,10 @@ def build_problem(path: Path, root: Path) -> tuple[dict, str]:
     # than the requested count (a build failure beats silently short-changing practice).
     practice_spec = spec.get("practice")
     if practice_spec and interactive is not None:
+        family = "precipitation_limiting_reagent_v1" if solid_row is not None else "acid_base_limiting_reagent_v1"
+        noun = "precipitate" if solid_row is not None else ""
         practice = generate_practice(interactive, int(practice_spec["seed"]),
-                                     int(practice_spec.get("count", 4)), ctx)
+                                     int(practice_spec.get("count", 4)), ctx, family=family, product_noun=noun)
         if practice is None:
             raise BuildError(f"{ctx}: practice generator could not produce {practice_spec.get('count', 4)} "
                              f"non-rejected variants at seed {practice_spec['seed']}")

@@ -125,21 +125,12 @@
     "result": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["precipitate", "limiting_species", "leftover"],
+      "$comment": "The reported product is the net-ionic product: `precipitate` (a solid, precipitation lessons) or the general `product` (e.g. water for acid-base neutralization, ADR-0037) — exactly one is present. `salt` names the dissolved ionic product of a neutralization. The gates read precipitate ?? product.",
+      "required": ["limiting_species", "leftover"],
       "properties": {
-        "precipitate": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["species", "phase", "molar_mass_g_per_mol", "moles", "mass_g", "mass_g_display"],
-          "properties": {
-            "species": { "type": "string" },
-            "phase": { "enum": ["s", "l", "g", "aq"] },
-            "molar_mass_g_per_mol": { "type": "string" },
-            "moles": { "type": "string" },
-            "mass_g": { "type": "string" },
-            "mass_g_display": { "type": "string" }
-          }
-        },
+        "precipitate": { "$ref": "#/$defs/reportedProduct" },
+        "product": { "$ref": "#/$defs/reportedProduct" },
+        "salt": { "$ref": "#/$defs/reportedProduct" },
         "limiting_species": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
         "leftover": {
           "type": "array",
@@ -386,7 +377,8 @@
         "sources": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["atomic_weight", "ion_charge", "solubility"],
+          "$comment": "solubility is present for precipitation lessons; a non-precipitating lesson (acid-base neutralization) omits it (ADR-0037).",
+          "required": ["atomic_weight", "ion_charge"],
           "properties": {
             "atomic_weight": { "type": "string", "minLength": 1 },
             "ion_charge": { "type": "string", "minLength": 1 },
@@ -397,6 +389,19 @@
     }
   },
   "$defs": {
+    "reportedProduct": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["species", "phase", "molar_mass_g_per_mol", "moles", "mass_g", "mass_g_display"],
+      "properties": {
+        "species": { "type": "string" },
+        "phase": { "enum": ["s", "l", "g", "aq"] },
+        "molar_mass_g_per_mol": { "type": "string" },
+        "moles": { "type": "string" },
+        "mass_g": { "type": "string" },
+        "mass_g_display": { "type": "string" }
+      }
+    },
     "equation": {
       "type": "object",
       "additionalProperties": false,
