@@ -1275,5 +1275,16 @@ free-entry `PracticeQuestion` island (no new frontend); the gas/energy practice 
 interactive block. Schema: a `practice.energetics` block + the `heat` kind. **6-way tamper-tested** (corrupt a heat / a
 leftover / flip a limiting / corrupt ΔH_rxn / a gameable menu / a too-close diagnostic — each caught). 277 producer
 tests (+2); check-parity = 320 + **36** practice answers (+6); `derived/` byte-stable (only the energy lesson's JSON
-changed, the practice block added). **Deferred** (unchanged): the Hess formula-sheet entry; endothermic / multi-step
-lessons; the gas lesson's slider interactive.
+changed, the practice block added).
+
+**Third increment (same session) — the Hess/enthalpy formula-sheet entry.** The reference backbone the energy lesson
+links to: `reference/formulas/enthalpy-of-reaction.toml` (the 9th formula entry, ADR-0039 machinery) — ΔH_rxn =
+Σν·ΔH_f°(products) − Σν·ΔH_f°(reactants), **model-exact** (enthalpy is a state function — Hess's law, disclosed), its
+**dimensional homogeneity machine-checked**: both sides reduce to **molar energy** (kJ/mol). `dimension.py` already
+carried `kJ/mol` → energy·amount⁻¹ (ADR-0039); only the display name "molar energy" was added (to `DIM_NAMES`; the Node
+gate re-checks the vector, not the name). The entry discloses the state-function + standard-conditions assumptions,
+carries the reverse-reaction sign-flip corollary as a rearrangement, and links to the lesson + the `reaction-enthalpy`
+concept + `formula-calorimetry`. `validate-reference` = **52 objects** (was 51); check-katex = **487** (+6); 278 producer
+tests (+1); the entry is 4-way tamper-tested (corrupt a term dimension / force non-homogeneity / empty the model
+assumption / dangling lesson — each caught). **Deferred** (unchanged): endothermic / multi-step (Hess-cycle) lessons;
+the gas lesson's slider interactive; further sheet entries (pH, K, ΔG, Nernst) land with their topics.

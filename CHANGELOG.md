@@ -3,6 +3,19 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — Hess's-law formula-sheet entry (ADR-0043, 3rd increment)
+
+The reference backbone the energy-ledger lesson links to — the 9th formula/equation-sheet entry.
+
+- **`formula-enthalpy-of-reaction`** (Hess's law): ΔH_rxn = Σν·ΔH_f°(products) − Σν·ΔH_f°(reactants), **model-exact**
+  (enthalpy is a state function — disclosed), with **dimensional homogeneity machine-checked**: both sides reduce to
+  **molar energy** (kJ/mol). `dimension.py` already carried `kJ/mol`; only the "molar energy" display name was added.
+  The reverse-reaction sign flip ships as a rearrangement; links to the lesson + the `reaction-enthalpy` concept.
+- **Verification:** 278 producer tests (+1); **validate-reference = 52** (+1); **check-katex = 487** (+6); 7 gates green;
+  25 pages; `derived/` byte-stable (only the new formula file + the lesson's new reference link). 4-way tamper-tested
+  (corrupt a term dimension / force non-homogeneity / empty the model assumption / dangling lesson — each caught). The
+  static build renders the entry (title, the "both reduce to molar energy" check line, the state-function assumption).
+
 ## Phase 2 — 2026-07-08 — energy-ledger lesson: reaction enthalpy attached to extent (ADR-0043)
 
 The thermochemistry vertical slice — **the extent ledger drives an energy**: q = ΔH_rxn·ξ, with ΔH_rxn assembled by

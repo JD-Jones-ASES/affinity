@@ -54,8 +54,8 @@ stoichiometry + percent yield + limiting reagent + periodic trends + reaction fa
 Trends / Formula builder / Bonding — over sourced properties + the 156-pair named crossover product + the
 `data/bonding.toml` ΔEN rule, ADR-0031/0033) + 21 concept entries + 7 reaction families (21 engine-classified
 example reactions, ADR-0035) + 14 species entries (composition/charge/molar mass derived from the formula +
-re-summed in Node, ADR-0038) + 8 formula-sheet entries (dimensional homogeneity machine-checked, ADR-0039), 277
-producer tests + 7 Node gates + `astro build` (25 pages) + live CI/Pages green. Lesson practice mass/leftover/volume/heat questions are
+re-summed in Node, ADR-0038) + 9 formula-sheet entries (dimensional homogeneity machine-checked, ADR-0039 — incl. Hess's
+law ΔH_rxn=Σν·ΔH_f°, ADR-0043), 278 producer tests + 7 Node gates + `astro build` (25 pages) + live CI/Pages green. Lesson practice mass/leftover/volume/heat questions are
 free-entry too (ADR-0032); gas-stoichiometry (ADR-0041) + energy-ledger (ADR-0043) practice re-derive from reaction constants with no interactive block.**
 
 ## ChemKernel module map (brief §6)
@@ -79,7 +79,7 @@ free-entry too (ADR-0032); gas-stoichiometry (ADR-0041) + energy-ledger (ADR-004
 | `gym.py` drill generator | authored `gyms/**/*.gym.toml` → deterministic generated problem sets; exact Fractions (non-terminating rejected) for ledger-exact families, model-exact-then-rounded for gas laws + calorimetry (ADR-0040/0042); dimensions re-proven through `units.py`; equations balanced by `balance.py`; named-mistake distractors; regime-2 families disclose a model assumption (calorimetry adds a data-sourced badge too, ADR-0042); `build-gyms` entry point | **built** (ADR-0024/0027/0028/0029/0034/0036/0040/0042, **ten** families: conversions · ionic nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas laws · calorimetry) |
 | `reference.py` reaction families | authored `reference/reactions/*.toml` → engine-balanced + engine-classified example reactions with net-ionic views; the reaction-atlas entry kind (ADR-0035) | **built** (ADR-0035) |
 | `reference.py` species entries | authored `reference/species/*.toml` → the species-atlas entry kind (ADR-0038): composition (per-element count + sourced weight + subtotal), signed charge, and molar mass all **derived from the formula** by the parser + `data/` weights (never asserted); names/phase/prose authored + labeled; refuses off-dataset elements or class↔charge mismatches | **built** (ADR-0038) |
-| `reference.py` formula entries | authored `reference/formulas/*.toml` → the formula/equation-sheet Atlas kind (ADR-0039): each term's SI dimension computed from the variables' units, **refuses to emit a non-homogeneous relation**; model-exact relations must disclose an assumption; sourced constants (R, N_A) threaded from `data/constants.toml`, never hard-coded | **built** (ADR-0039) |
+| `reference.py` formula entries | authored `reference/formulas/*.toml` → the formula/equation-sheet Atlas kind (ADR-0039): each term's SI dimension computed from the variables' units, **refuses to emit a non-homogeneous relation**; model-exact relations must disclose an assumption; sourced constants (R, N_A) threaded from `data/constants.toml`, never hard-coded. 9 entries incl. **Hess's law** ΔH_rxn=Σν·ΔH_f° (both sides molar energy — kJ/mol; ADR-0043) | **built** (ADR-0039/0043) |
 | equilibrium / kinetics / thermo / electrochem | ICE-as-ledger, rate laws, energy ledger, electron ledger; gases done (gym + lesson, ADR-0040/0041); thermo's **calorimetry gym** (ADR-0042) + the **energy-ledger lesson** (q=ΔH_rxn·ξ via Hess's law, ADR-0043) landed; equilibrium/kinetics/electrochem follow | Phase 2 (open) |
 
 ## The solution object (pinned by `schemas/solution.schema.json`, ADR-0020)

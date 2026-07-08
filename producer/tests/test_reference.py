@@ -391,6 +391,18 @@ def test_formula_ideal_gas_threads_sourced_constant():
     assert f["sources"] == ["bipm-si-2019"]
 
 
+def test_formula_hess_enthalpy_of_reaction_is_molar_energy():
+    """The Hess's-law entry (ADR-0043): ΔH_rxn = Σν·ΔH_f°(products) − Σν·ΔH_f°(reactants). Both sides carry the
+    dimension of MOLAR ENERGY (kJ/mol); it is model-exact (state function) so it must disclose an assumption."""
+    spec = tomllib.loads((ROOT / "reference" / "formulas" / "enthalpy-of-reaction.toml").read_text(encoding="utf-8"))
+    f = _formula(spec)
+    assert f["id"] == "formula-enthalpy-of-reaction" and f["regime"] == "model-exact"
+    assert f["dimension"] == [1, 2, -2, -1, 0, 0] and f["dimension_name"] == "molar energy"
+    assert [t["dimension"] for t in f["terms"]] == [[1, 2, -2, -1, 0, 0], [1, 2, -2, -1, 0, 0]]
+    assert len(f["assumptions"]) >= 1 and all(a["kind"] == "model" for a in f["assumptions"])
+    assert "methane-combustion-enthalpy" in f["lessons"]
+
+
 def test_formula_refuses_non_homogeneous():
     bad = {**_MOLE_MASS, "id": "bad", "statement": "PV = nT",
            "variables": [
@@ -420,7 +432,7 @@ def test_formula_model_exact_must_disclose_an_assumption():
 def test_authored_formulas_all_build():
     root = ROOT / "reference" / "formulas"
     specs = sorted(root.glob("*.toml"))
-    assert len(specs) == 8
+    assert len(specs) == 9   # + enthalpy-of-reaction (Hess's law, ADR-0043)
     for path in specs:
         spec = tomllib.loads(path.read_text(encoding="utf-8"))
         f = _formula(spec)

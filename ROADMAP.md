@@ -11,9 +11,9 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   model-bearing tier) is filling depth-first on **gases + thermochemistry**. Landed so far: the **formula/equation
   sheet** (ADR-0039), the **`gas_laws_v1` gym** (ADR-0040), the **gas-stoichiometry lesson** (ADR-0041), the
   **calorimetry gym** (ADR-0042 — q=mcΔT), and the **energy-ledger lesson** (ADR-0043 — the ledger drives an energy
-  q=ΔH_rxn·ξ via Hess's law, now with generated practice). **Next inside Phase 2:** a Hess/enthalpy formula-sheet entry
-  (thermochemistry breadth), then the rest of the model-bearing topics (bonding, equilibrium/acid-base, kinetics,
-  electrochemistry). Counters live in `AGENTS.md ## Current state`; per-increment detail in
+  q=ΔH_rxn·ξ via Hess's law, with generated practice + a **Hess/enthalpy formula-sheet entry**). **Next inside Phase 2:**
+  the rest of the model-bearing topics (bonding, equilibrium/acid-base, kinetics, electrochemistry), each opening with
+  its stress scenario. Counters live in `AGENTS.md ## Current state`; per-increment detail in
   [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
 - **Energy-ledger lesson — LANDED** (2026-07-08, ADR-0043): `thermochemistry/methane-combustion-enthalpy` — the ledger
   drives an **energy** (q=ΔH_rxn·ξ; CH₄ + 2 O₂ → CO₂ + 2 H₂O). ΔH_rxn is **Hess's law** over sourced ΔH_f°
@@ -321,7 +321,8 @@ rest sequences after, each with its own scope block when its increment opens.
   OpenStax Appendix G) — the `methane-combustion-enthalpy` lesson. `build.py`'s fourth reported-product shape (a
   `result.energy` headline); the first fully **molecular** lesson (no ionic equation); `units.py` gains `kJ/mol`;
   triple-badged; the `reaction-enthalpy` concept; **generated practice** (heat/leftover/limiting, a `practice.energetics`
-  constants block re-derived by check-parity — ADR-0043 2nd increment). **Deferred within:** a Hess formula-sheet entry;
+  constants block re-derived by check-parity — ADR-0043 2nd increment); and the **`formula-enthalpy-of-reaction`** Hess
+  sheet entry (ΔH_rxn=Σν·ΔH_f°, both sides molar energy — machine-checked; ADR-0043 3rd increment). **Deferred within:**
   endothermic / multi-step Hess-cycle lessons; and within calorimetry, initial/final-temperature framing
   ($\Delta T = T_f - T_i$) + cooling (negative $q$) drills.
 

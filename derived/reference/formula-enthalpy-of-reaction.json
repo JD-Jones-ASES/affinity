@@ -1,0 +1,116 @@
+{
+  "kind": "formula",
+  "id": "formula-enthalpy-of-reaction",
+  "title": "Enthalpy of reaction (Hess's law)",
+  "name": "Reaction enthalpy from formation enthalpies",
+  "statement": "\\Delta H_{\\text{rxn}} = \\sum \\nu\\,\\Delta H_f^\\circ(\\text{products}) - \\sum \\nu\\,\\Delta H_f^\\circ(\\text{reactants})",
+  "regime": "model-exact",
+  "dimension": [
+    1,
+    2,
+    -2,
+    -1,
+    0,
+    0
+  ],
+  "dimension_name": "molar energy",
+  "variables": [
+    {
+      "symbol": "ΔH_rxn",
+      "meaning": "enthalpy of reaction (per mole of reaction)",
+      "unit": "kJ/mol",
+      "dimension": [
+        1,
+        2,
+        -2,
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "ΔH_f°",
+      "meaning": "standard enthalpy of formation of a species (× its coefficient ν)",
+      "unit": "kJ/mol",
+      "dimension": [
+        1,
+        2,
+        -2,
+        -1,
+        0,
+        0
+      ]
+    }
+  ],
+  "terms": [
+    {
+      "side": "lhs",
+      "display": "ΔH_rxn",
+      "factors": [
+        {
+          "var": "ΔH_rxn",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        1,
+        2,
+        -2,
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "side": "rhs",
+      "display": "Σ ν ΔH_f° (products − reactants)",
+      "factors": [
+        {
+          "var": "ΔH_f°",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        1,
+        2,
+        -2,
+        -1,
+        0,
+        0
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "Enthalpy is a state function: ΔH depends only on the initial and final states, not the path taken (Hess's law). This is what lets ΔH_rxn be assembled from tabulated formation enthalpies.",
+      "kind": "model"
+    },
+    {
+      "claim": "The standard enthalpies of formation apply at standard conditions (298.15 K, 1 bar) and ΔH is treated as temperature-independent over modest ranges.",
+      "kind": "model"
+    }
+  ],
+  "summary": "The enthalpy of a reaction is the sum of its products' standard formation enthalpies minus its reactants', each weighted by its coefficient $\\nu$ — because enthalpy is a **state function**, the path does not matter (Hess's law). Both sides carry the dimension of **molar energy** (kJ/mol), and the machine checks they match. A **negative** $\\Delta H_{\\text{rxn}}$ is exothermic. The heat an actual run delivers is $q = \\Delta H_{\\text{rxn}}\\cdot\\xi$, scaled by the extent the limiting reagent allows.",
+  "related": [
+    {
+      "to": "formula-calorimetry",
+      "type": "see-also"
+    },
+    {
+      "to": "reaction-enthalpy",
+      "type": "defined-by"
+    },
+    {
+      "to": "conservation-of-mass",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [
+    "methane-combustion-enthalpy"
+  ],
+  "domain": "Assembling a reaction's enthalpy from tabulated standard enthalpies of formation. Each ΔH_f° is weighted by its stoichiometric coefficient ν; an element in its standard state has ΔH_f° = 0. The result is per mole of reaction, as the equation is balanced.",
+  "rearrangements": [
+    "\\Delta H_f^\\circ(\\text{unknown}) = \\Delta H_{\\text{rxn}} - \\sum \\nu\\,\\Delta H_f^\\circ(\\text{known species})",
+    "\\Delta H_{\\text{reverse}} = -\\,\\Delta H_{\\text{rxn}}"
+  ]
+}

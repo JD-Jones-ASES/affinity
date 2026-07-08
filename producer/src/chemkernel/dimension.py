@@ -54,6 +54,7 @@ DIM_NAMES: dict[Dimension, str] = {
     _ENERGY: "energy",
     _CONCENTRATION: "concentration",
     _MOLAR_MASS: "molar mass",
+    _mk(mass=1, length=2, time=-2, amount=-1): "molar energy",   # kJ/mol — a reaction/formation enthalpy
     _mk(mass=1, length=2, time=-2, temperature=-1): "energy per temperature",
     _mk(mass=1, length=2, time=-2, amount=-1, temperature=-1): "energy per amount per temperature",
 }

@@ -24,7 +24,7 @@ regimes = ["ledger", "thermochemistry"]
 reactants = ["CH4(g)", "O2(g)"]
 products = ["CO2(g)", "H2O(l)"]
 
-reference_links = ["reaction-combustion", "reaction-enthalpy", "formula-mole-mass", "formula-calorimetry", "stoichiometry", "limiting-reagent", "extent-of-reaction", "molar-mass", "balancing-equations", "conservation-of-mass", "dimensional-analysis", "carbon-dioxide", "water", "dioxygen"]
+reference_links = ["reaction-combustion", "reaction-enthalpy", "formula-enthalpy-of-reaction", "formula-mole-mass", "formula-calorimetry", "stoichiometry", "limiting-reagent", "extent-of-reaction", "molar-mass", "balancing-equations", "conservation-of-mass", "dimensional-analysis", "carbon-dioxide", "water", "dioxygen"]
 
 # Generated practice (ADR-0011/0043). Deterministic: the molecular energy shape has no cation/anion interactive,
 # so check-parity re-derives every answer from the reaction constants (each reactant's molar mass + coefficient +
