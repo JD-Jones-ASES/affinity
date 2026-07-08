@@ -191,38 +191,39 @@ at its URL even though the repo is private (private/access-controlled Pages need
 
 ## Current state
 
-**Phase 0 COMPLETE (2026-07-05). Phase 1 OPEN — items 1–6 all landed and deployed (2026-07-08).** Remaining
-before the Phase-2 gate: the Atlas breadth audit (session-map #8) + the Phase-1 definition-of-done check →
-owner review. How it got here lives elsewhere: per-increment history in [`CHANGELOG.md`](./CHANGELOG.md) +
-[`docs/sessions/`](./docs/sessions/), the plan + per-item scope blocks in [`ROADMAP.md`](./ROADMAP.md),
-module-by-module status in [`docs/architecture.md`](./docs/architecture.md) (§as-built). This section states
-only *what is*.
+**Phase 0 COMPLETE (2026-07-05). Phase 1 COMPLETE pending owner review (2026-07-08)** — items 1–6 + the Atlas
+breadth audit (session-map #8) all landed and deployed; the Phase-1 definition-of-done is met (all four
+brief-§10 Atlas kinds present bar the Phase-2 formula sheet; every Phase-0/1 regime-map row covered; 4
+lessons; gates green). **Next: owner review — the gate before Phase 2.** History lives in
+[`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); plan + scope blocks in
+[`ROADMAP.md`](./ROADMAP.md); module status in [`docs/architecture.md`](./docs/architecture.md) (§as-built).
+States only *what is*.
 
 **Counters:** 4 lessons (2 precipitation + 1 percent-yield + 1 acid-base neutralization) · 8 gyms / 80
 verified problems (dimensional analysis · ionic nomenclature · balancing · mass stoichiometry · percent yield
 · limiting reagent · periodic trends · reaction families) · 1 Valence Table (23 elements; four modes; 156
-named + machine-verified salts) · 19 concept entries (5 rule-sourced, 1 interpretive) + 7 reaction families
-(21 engine-classified example reactions) · 7 Node gates + CI + live Pages · 236 producer tests · astro build
-= 19 pages.
+named + machine-verified salts) · 20 concept entries (6 rule-sourced, 1 interpretive) + 7 reaction families
+(21 engine-classified example reactions) + 14 species entries (derived composition + molar mass) · 7 Node
+gates + CI + live Pages · 243 producer tests · astro build = 20 pages.
 
-**Standing facts a session should know:** all seven architecture open questions are resolved — the honesty
-model is settled at three badges, with regime-4 content under the model-assumed badge + an "interpretive"
-marker (Q4, ADR-0033). Numeric generated practice is free-entry with a diagnostics catalogue, never a menu;
-categorical stays a plausible menu (ADR-0032). The lesson emitters handle any two-solution reaction whose
-net-ionic product is a single species — precipitation (a solid) and neutralization (water), via
-`result.precipitate` / `result.product` (ADR-0037); gas-evolution/redox *lessons* aren't built (the
-classifier + Atlas + gym cover those families). Redox is the free-element signature, not oxidation numbers (a
-Phase-2 topic). The producer never runs in CI — the seven Node gates re-verify committed `derived/` from scratch.
+**Standing facts a session should know:** the seven architecture open questions are all resolved; the honesty
+model is three badges, regime-4 content under the model-assumed badge + an "interpretive" marker (Q4,
+ADR-0033); numeric practice is free-entry (diagnostics, not a menu), categorical a menu (ADR-0032). The lesson
+emitters handle any two-solution reaction whose net-ionic product is one species — precipitation (solid) +
+neutralization (water), via `result.precipitate`/`result.product` (ADR-0037); redox = the free-element
+signature, not oxidation numbers (Phase 2). The Atlas carries all four brief-§10 kinds bar the Phase-2 formula
+sheet — periodic lens, concepts, reactions, **species** (molar mass derived from the formula, ADR-0038); the
+producer never runs in CI — the seven Node gates re-verify committed `derived/` from scratch.
 
 ## Where this might go next (paths for a future session)
 
-With items 1–6 landed, the open Phase-1 work is **session-map #8**: the Atlas breadth audit — add the
-species-atlas + formula-sheet entry kinds, fill every phase-0/1 [`docs/regime-map.md`](./docs/regime-map.md)
-row with coverage — then the **Phase-1 definition-of-done check → owner review** (the last gate before Phase
-2). Always in season inside settled contracts: Atlas breadth-fill (species/reactions/concept edges), further
-lessons (e.g. a gas-evolution or diprotic-neutralization lesson — item-6 deferrals in the ROADMAP), and
-docs-only sessions. **Opening Phase 2** (gases, thermochemistry, equilibrium, kinetics, electrochemistry) is
-a phase boundary only the owner opens.
+Phase 1 is **complete and its definition-of-done is met** (items 1–6 + the session-map-#8 Atlas breadth
+audit); the one open item is the **owner review** that gates Phase 2 — surface the completion and wait. Always
+in season inside settled contracts (no phase boundary crossed): Atlas breadth-fill (more species, reactions,
+concept edges), further lessons (a gas-evolution or diprotic-neutralization lesson — item-6 deferrals in the
+ROADMAP), an average-atomic-mass gym (needs isotope-abundance data curated — ADR-0038 deferral), and docs-only
+sessions. **Opening Phase 2** (gases, thermochemistry, equilibrium, kinetics, electrochemistry) — and the
+formula/equation-sheet Atlas kind that comes with it — is a phase boundary only the owner opens.
 
 **Known traps (1 and 2 bit the sibling; 3–5 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested

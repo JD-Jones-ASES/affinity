@@ -1,0 +1,21 @@
+id = "hydroxide-ion"
+kind = "species"
+title = "Hydroxide ion"
+formula = "OH^-"
+species_class = "polyatomic-ion"
+names = ["hydroxide", "hydroxide ion"]
+phase = "aq"
+regime = "ledger-exact"
+source = "ciaaw-2021-atomic-weights"
+summary = "One oxygen and one hydrogen carrying a 1- charge — the ion a base supplies to solution. In a neutralization it combines with the acid's $\\mathrm{H^+}$ to make water: $\\mathrm{H^+ + OH^- \\rightarrow H_2O}$. Its molar mass sums the oxygen and hydrogen weights."
+notes = [
+  "The 1- charge is the sourced ionic charge; the composition and molar mass are the machine-checked part.",
+]
+related = [
+  { to = "polyatomic-ion", type = "instance-of" },
+  { to = "sodium-hydroxide", type = "component-of" },
+  { to = "water", type = "combines-to" },
+  { to = "net-ionic-equation", type = "see-also" },
+]
+reactions = ["reaction-acid-base"]
+lessons = ["hydrochloric-sodium-hydroxide"]

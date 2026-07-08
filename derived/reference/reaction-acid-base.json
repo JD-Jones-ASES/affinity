@@ -259,8 +259,23 @@
       ]
     }
   ],
-  "related": [],
-  "lessons": [],
+  "related": [
+    {
+      "to": "net-ionic-equation",
+      "type": "see-also"
+    },
+    {
+      "to": "spectator-ion",
+      "type": "see-also"
+    },
+    {
+      "to": "dissociation",
+      "type": "depends-on"
+    }
+  ],
+  "lessons": [
+    "hydrochloric-sodium-hydroxide"
+  ],
   "general_form_latex": "\\mathrm{acid} + \\mathrm{base} \\rightarrow \\mathrm{salt} + \\mathrm{H_{2}O}",
   "prose_tokens": [
     "Cl^-",

@@ -1,0 +1,20 @@
+id = "calcium-phosphate"
+kind = "species"
+title = "Calcium phosphate"
+formula = "Ca3(PO4)2"
+species_class = "compound"
+names = ["calcium phosphate"]
+phase = "s"
+regime = "ledger-exact"
+source = "ciaaw-2021-atomic-weights"
+summary = "An insoluble salt with a non-1:1 formula — the precipitate in the calcium-phosphate lesson. Three $\\mathrm{Ca^{2+}}$ (total +6) balance two $\\mathrm{PO_4^{3-}}$ (total -6). The parentheses mean the whole phosphate group is taken twice, so the molar mass counts two phosphorus and eight oxygen atoms."
+notes = [
+  "The 3:2 subscripts are charge crossover: cross +2 and -3 to get 3 and 2, then confirm +6 and -6 cancel.",
+]
+related = [
+  { to = "limiting-reagent", type = "see-also" },
+  { to = "polyatomic-ion", type = "see-also" },
+  { to = "molar-mass", type = "uses" },
+]
+reactions = ["reaction-precipitation"]
+lessons = ["calcium-phosphate-limiting"]

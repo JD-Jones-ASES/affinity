@@ -1,0 +1,54 @@
+{
+  "kind": "species",
+  "id": "calcium-chloride",
+  "title": "Calcium chloride",
+  "formula": "CaCl2",
+  "latex": "\\mathrm{CaCl_{2}}",
+  "species_class": "compound",
+  "names": [
+    "calcium chloride"
+  ],
+  "charge": 0,
+  "composition": [
+    {
+      "symbol": "Ca",
+      "count": 1,
+      "atomic_weight": "40.078",
+      "subtotal": "40.078"
+    },
+    {
+      "symbol": "Cl",
+      "count": 2,
+      "atomic_weight": "35.45",
+      "subtotal": "70.90"
+    }
+  ],
+  "molar_mass_g_per_mol": "110.978",
+  "summary": "A soluble calcium salt — the calcium source in the precipitation lesson. The 1:2 subscript is charge balance: one $\\mathrm{Ca^{2+}}$ needs two $\\mathrm{Cl^-}$ to cancel. The molar mass counts the two chlorines, so it is not just calcium plus chlorine.",
+  "regime": "ledger-exact",
+  "source": "ciaaw-2021-atomic-weights",
+  "related": [
+    {
+      "to": "nomenclature",
+      "type": "named-by"
+    },
+    {
+      "to": "molar-mass",
+      "type": "uses"
+    },
+    {
+      "to": "molarity",
+      "type": "used-with"
+    }
+  ],
+  "lessons": [
+    "calcium-carbonate-limiting"
+  ],
+  "phase": "aq",
+  "notes": [
+    "The subscript 2 comes from crossing the charges (+2 and -1), a machine-verified step in the Valence Table formula builder."
+  ],
+  "reactions": [
+    "reaction-precipitation"
+  ]
+}

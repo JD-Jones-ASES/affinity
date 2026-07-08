@@ -1,0 +1,43 @@
+{
+  "kind": "species",
+  "id": "dihydrogen",
+  "title": "Hydrogen gas (H2)",
+  "formula": "H2",
+  "latex": "\\mathrm{H_{2}}",
+  "species_class": "element",
+  "names": [
+    "hydrogen gas",
+    "dihydrogen",
+    "molecular hydrogen"
+  ],
+  "charge": 0,
+  "composition": [
+    {
+      "symbol": "H",
+      "count": 2,
+      "atomic_weight": "1.0080",
+      "subtotal": "2.0160"
+    }
+  ],
+  "molar_mass_g_per_mol": "2.0160",
+  "summary": "Elemental hydrogen is a two-atom molecule, $\\mathrm{H_2}$ — the gas that bubbles off when an active metal displaces the hydrogen from an acid. As a free element it starts at oxidation state 0, which is why single replacement is a redox reaction. Its molar mass is twice the atomic weight.",
+  "regime": "ledger-exact",
+  "source": "ciaaw-2021-atomic-weights",
+  "related": [
+    {
+      "to": "spectator-ion",
+      "type": "see-also"
+    },
+    {
+      "to": "balancing-equations",
+      "type": "used-with"
+    }
+  ],
+  "lessons": [],
+  "phase": "g",
+  "reactions": [
+    "reaction-single-replacement",
+    "reaction-synthesis",
+    "reaction-decomposition"
+  ]
+}

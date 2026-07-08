@@ -1,0 +1,56 @@
+{
+  "kind": "species",
+  "id": "water",
+  "title": "Water",
+  "formula": "H2O",
+  "latex": "\\mathrm{H_{2}O}",
+  "species_class": "compound",
+  "names": [
+    "water",
+    "dihydrogen monoxide (systematic)"
+  ],
+  "charge": 0,
+  "composition": [
+    {
+      "symbol": "H",
+      "count": 2,
+      "atomic_weight": "1.0080",
+      "subtotal": "2.0160"
+    },
+    {
+      "symbol": "O",
+      "count": 1,
+      "atomic_weight": "15.999",
+      "subtotal": "15.999"
+    }
+  ],
+  "molar_mass_g_per_mol": "18.0150",
+  "summary": "The product of every acid-base neutralization and the solvent of the whole solution course. Its molar mass is the sum of two hydrogen weights and one oxygen — the machine re-parses $\\mathrm{H_2O}$ and adds the sourced atomic weights, so the 18.015 g/mol below is derived, not looked up.",
+  "regime": "ledger-exact",
+  "source": "ciaaw-2021-atomic-weights",
+  "related": [
+    {
+      "to": "hydroxide-ion",
+      "type": "dissociates-to"
+    },
+    {
+      "to": "molar-mass",
+      "type": "uses"
+    },
+    {
+      "to": "net-ionic-equation",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [
+    "hydrochloric-sodium-hydroxide"
+  ],
+  "phase": "l",
+  "notes": [
+    "Bent, not linear — but shape is a Phase-2 (VSEPR) topic; here water is a mass on the balance and the net-ionic product $\\mathrm{H^+ + OH^- \\rightarrow H_2O}$."
+  ],
+  "reactions": [
+    "reaction-acid-base",
+    "reaction-gas-evolution"
+  ]
+}

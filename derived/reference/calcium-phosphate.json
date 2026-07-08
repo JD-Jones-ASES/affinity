@@ -1,0 +1,60 @@
+{
+  "kind": "species",
+  "id": "calcium-phosphate",
+  "title": "Calcium phosphate",
+  "formula": "Ca3(PO4)2",
+  "latex": "\\mathrm{Ca_{3}(PO_{4})_{2}}",
+  "species_class": "compound",
+  "names": [
+    "calcium phosphate"
+  ],
+  "charge": 0,
+  "composition": [
+    {
+      "symbol": "Ca",
+      "count": 3,
+      "atomic_weight": "40.078",
+      "subtotal": "120.234"
+    },
+    {
+      "symbol": "P",
+      "count": 2,
+      "atomic_weight": "30.974",
+      "subtotal": "61.948"
+    },
+    {
+      "symbol": "O",
+      "count": 8,
+      "atomic_weight": "15.999",
+      "subtotal": "127.992"
+    }
+  ],
+  "molar_mass_g_per_mol": "310.174",
+  "summary": "An insoluble salt with a non-1:1 formula — the precipitate in the calcium-phosphate lesson. Three $\\mathrm{Ca^{2+}}$ (total +6) balance two $\\mathrm{PO_4^{3-}}$ (total -6). The parentheses mean the whole phosphate group is taken twice, so the molar mass counts two phosphorus and eight oxygen atoms.",
+  "regime": "ledger-exact",
+  "source": "ciaaw-2021-atomic-weights",
+  "related": [
+    {
+      "to": "limiting-reagent",
+      "type": "see-also"
+    },
+    {
+      "to": "polyatomic-ion",
+      "type": "see-also"
+    },
+    {
+      "to": "molar-mass",
+      "type": "uses"
+    }
+  ],
+  "lessons": [
+    "calcium-phosphate-limiting"
+  ],
+  "phase": "s",
+  "notes": [
+    "The 3:2 subscripts are charge crossover: cross +2 and -3 to get 3 and 2, then confirm +6 and -6 cancel."
+  ],
+  "reactions": [
+    "reaction-precipitation"
+  ]
+}

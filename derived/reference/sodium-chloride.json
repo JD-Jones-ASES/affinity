@@ -1,0 +1,54 @@
+{
+  "kind": "species",
+  "id": "sodium-chloride",
+  "title": "Sodium chloride",
+  "formula": "NaCl",
+  "latex": "\\mathrm{NaCl}",
+  "species_class": "compound",
+  "names": [
+    "sodium chloride",
+    "table salt / halite"
+  ],
+  "charge": 0,
+  "composition": [
+    {
+      "symbol": "Na",
+      "count": 1,
+      "atomic_weight": "22.990",
+      "subtotal": "22.990"
+    },
+    {
+      "symbol": "Cl",
+      "count": 1,
+      "atomic_weight": "35.45",
+      "subtotal": "35.45"
+    }
+  ],
+  "molar_mass_g_per_mol": "58.440",
+  "summary": "The textbook soluble salt: sodium and chloride in a 1:1 ratio. It stays fully dissolved as spectator ions through a precipitation or neutralization — the sodium and chloride never appear in the net-ionic equation. The molar mass sums the two sourced weights.",
+  "regime": "ledger-exact",
+  "source": "ciaaw-2021-atomic-weights",
+  "related": [
+    {
+      "to": "spectator-ion",
+      "type": "see-also"
+    },
+    {
+      "to": "nomenclature",
+      "type": "named-by"
+    },
+    {
+      "to": "molar-mass",
+      "type": "uses"
+    }
+  ],
+  "lessons": [
+    "calcium-carbonate-limiting",
+    "hydrochloric-sodium-hydroxide"
+  ],
+  "phase": "s",
+  "reactions": [
+    "reaction-precipitation",
+    "reaction-acid-base"
+  ]
+}

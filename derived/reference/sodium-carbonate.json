@@ -1,0 +1,59 @@
+{
+  "kind": "species",
+  "id": "sodium-carbonate",
+  "title": "Sodium carbonate",
+  "formula": "Na2CO3",
+  "latex": "\\mathrm{Na_{2}CO_{3}}",
+  "species_class": "compound",
+  "names": [
+    "sodium carbonate",
+    "soda ash / washing soda"
+  ],
+  "charge": 0,
+  "composition": [
+    {
+      "symbol": "Na",
+      "count": 2,
+      "atomic_weight": "22.990",
+      "subtotal": "45.980"
+    },
+    {
+      "symbol": "C",
+      "count": 1,
+      "atomic_weight": "12.011",
+      "subtotal": "12.011"
+    },
+    {
+      "symbol": "O",
+      "count": 3,
+      "atomic_weight": "15.999",
+      "subtotal": "47.997"
+    }
+  ],
+  "molar_mass_g_per_mol": "105.988",
+  "summary": "A soluble carbonate — the carbonate source in the precipitation lesson. Two $\\mathrm{Na^+}$ balance one $\\mathrm{CO_3^{2-}}$, so the formula carries two sodiums and one carbonate group. The molar mass sums both sodiums with the carbonate's carbon and three oxygens.",
+  "regime": "ledger-exact",
+  "source": "ciaaw-2021-atomic-weights",
+  "related": [
+    {
+      "to": "carbonate-ion",
+      "type": "component-of"
+    },
+    {
+      "to": "polyatomic-ion",
+      "type": "see-also"
+    },
+    {
+      "to": "molar-mass",
+      "type": "uses"
+    }
+  ],
+  "lessons": [
+    "calcium-carbonate-limiting"
+  ],
+  "phase": "aq",
+  "reactions": [
+    "reaction-precipitation",
+    "reaction-gas-evolution"
+  ]
+}

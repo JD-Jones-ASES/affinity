@@ -9,9 +9,9 @@ dashboard; phases are defined in [`ROADMAP.md`](../ROADMAP.md).
 | Topic | Regimes | Phase | Status |
 |---|---|---|---|
 | measurement, units, dimensional analysis | 1 | **1** | **gym** (solution conversions) + atlas (dimensional-analysis concept) |
-| atoms, isotopes, average atomic mass | 1, 3 | 1 | — |
-| mole concept & molar mass | 1, 3 | 1 | atlas (molar-mass concept) |
-| ions & formula writing | 1, 3 | 1 | **gym** (nomenclature, both directions) + atlas (Valence Table; polyatomic-ion) |
+| atoms, isotopes, average atomic mass | 1, 3 | **1** | **atlas** (average-atomic-mass concept — the abundance-weighted mean of isotope masses, exact arithmetic over sourced CIAAW data; the species atlas shows those atomic weights summed into every molar mass — ADR-0038) |
+| mole concept & molar mass | 1, 3 | 1 | **atlas** (molar-mass concept + the **species atlas** — every entry's molar mass derived by re-summing the sourced atomic weights, ADR-0038) |
+| ions & formula writing | 1, 3 | 1 | **gym** (nomenclature, both directions) + **atlas** (Valence Table; polyatomic-ion concept; species entries for the carbonate/hydroxide ions with derived composition + molar mass) |
 | nomenclature (ionic, covalent, acids) | 1, 3 | **1** | **gym** (ionic, both directions — Stock system) + atlas (nomenclature concept) |
 | periodic table & periodic trends | 3, 4 | **1** | **gym + atlas** (Valence Table flagship: five lenses with interpretive pattern panels, trend graphs, the 156-salt formula builder, ΔEN bonding mode — ADR-0031/0033; `periodic-trends` gym drilled from the same data, exceptions named — ADR-0034; periodic-trends/electronegativity/ionization-energy concepts) |
 | balancing equations | 1 | **1** | **gym** (balancing, conservation-matrix + charge tally) + atlas (balancing-equations concept) |

@@ -1,0 +1,19 @@
+id = "carbon-dioxide"
+kind = "species"
+title = "Carbon dioxide"
+formula = "CO2"
+species_class = "compound"
+names = ["carbon dioxide"]
+phase = "g"
+regime = "ledger-exact"
+source = "ciaaw-2021-atomic-weights"
+summary = "The gas released when a carbonate meets an acid, and a product of every complete combustion. One carbon, two oxygens. Its molar mass sums the sourced weights; the two oxygens make it heavier than it looks at a glance."
+notes = [
+  "A covalent molecular compound, not ionic — named with the count prefix 'di-' rather than by charge crossover (a Phase-2 covalent-naming topic).",
+]
+related = [
+  { to = "conservation-of-mass", type = "depends-on" },
+  { to = "molar-mass", type = "uses" },
+]
+reactions = ["reaction-combustion", "reaction-gas-evolution", "reaction-decomposition"]
+lessons = []

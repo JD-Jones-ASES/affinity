@@ -12,6 +12,7 @@ import { join } from "node:path";
 import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { verifyBalance, redoxFreeElements } from "./balancecheck.mjs";
+import { parseFormula } from "./formula.mjs";
 
 const ROOT = process.cwd();
 const refDir = join(ROOT, "derived", "reference");
@@ -26,6 +27,7 @@ const schemas = {
   "valence-table": ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas", "valence-table.schema.json"), "utf8"))),
   concept: ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas", "reference.schema.json"), "utf8"))),
   "reaction-family": ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas", "reaction-family.schema.json"), "utf8"))),
+  species: ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas", "species.schema.json"), "utf8"))),
 };
 
 const fail = (file, msg) => { console.error(`REFERENCE GATE FAILED — ${file}: ${msg}`); process.exit(1); };
@@ -63,6 +65,11 @@ for (const name of files) {
   ids.add(obj.id);
   entries.push({ rel, obj });
 }
+
+// the Valence Table's sourced atomic weights (symbol → exact string), for re-deriving species molar masses —
+// a species may only use elements the table already sources (ADR-0038), the same discipline the trends gym uses.
+const vt = entries.find((e) => e.obj.kind === "valence-table")?.obj;
+const atomicWeight = new Map((vt?.elements ?? []).map((e) => [e.symbol, e.atomic_weight]));
 
 // cross-checks
 for (const { rel, obj } of entries) {
@@ -104,6 +111,51 @@ for (const { rel, obj } of entries) {
     const uniform = exRedox.every((r) => r) ? true : exRedox.every((r) => !r) ? false : undefined;
     if (obj.redox !== uniform)
       fail(rel, `family redox '${obj.redox}' != re-derived '${uniform}' (examples: [${exRedox}])`);
+  } else if (obj.kind === "species") {
+    // ADR-0038: a species entry's DERIVED block is re-proven in pure Node. The composition + charge come from
+    // re-parsing the exact `formula` string (formula.mjs), and the molar mass re-sums the Valence Table's
+    // sourced atomic weights — so "the molar mass of CaCO3 is 100.086 g/mol" is re-derived, never trusted.
+    if (!registeredSources.has(obj.source)) fail(rel, `source '${obj.source}' is not registered in docs/SOURCES.md`);
+    for (const e of obj.related) if (!ids.has(e.to)) fail(rel, `related edge → '${e.to}' resolves to no reference`);
+    for (const s of obj.lessons) if (!slugs.has(s)) fail(rel, `lesson '${s}' is not a real lesson slug`);
+    for (const rid of obj.reactions ?? []) if (!ids.has(rid)) fail(rel, `reaction '${rid}' resolves to no reference`);
+
+    // re-parse the formula: charge and composition must reproduce exactly
+    let parsed;
+    try { parsed = parseFormula(obj.formula); }
+    catch (e) { fail(rel, `formula '${obj.formula}' does not parse: ${e.message}`); }
+    if (parsed.charge !== obj.charge) fail(rel, `charge ${obj.charge} != re-parsed ${parsed.charge}`);
+
+    const emitted = {};
+    for (const c of obj.composition) {
+      if (emitted[c.symbol] !== undefined) fail(rel, `duplicate element '${c.symbol}' in composition`);
+      emitted[c.symbol] = c.count;
+    }
+    for (const el of new Set([...Object.keys(parsed.counts), ...Object.keys(emitted)])) {
+      if (parsed.counts[el] !== emitted[el])
+        fail(rel, `composition count for '${el}' is ${emitted[el] ?? "absent"} but the formula parses to ${parsed.counts[el] ?? "absent"}`);
+    }
+
+    // class ↔ charge agreement (element/compound neutral; either ion class charged)
+    const isIon = obj.species_class === "monatomic-ion" || obj.species_class === "polyatomic-ion";
+    if (isIon && obj.charge === 0) fail(rel, `species_class '${obj.species_class}' but charge is 0`);
+    if (!isIon && obj.charge !== 0) fail(rel, `species_class '${obj.species_class}' but charge is ${obj.charge}`);
+    if (obj.species_class === "monatomic-ion" && obj.composition.length !== 1)
+      fail(rel, `monatomic-ion has ${obj.composition.length} elements`);
+
+    // molar mass re-sums the sourced weights: each weight must match the table (exact string), each subtotal
+    // = count × weight, and the total = Σ subtotals (float re-derivation within tolerance, as check-ledger does)
+    let total = 0;
+    for (const c of obj.composition) {
+      const aw = atomicWeight.get(c.symbol);
+      if (aw === undefined) fail(rel, `element '${c.symbol}' has no sourced weight in the Valence Table`);
+      if (aw !== c.atomic_weight) fail(rel, `${c.symbol}: atomic_weight '${c.atomic_weight}' != table '${aw}'`);
+      const sub = c.count * Number(aw);
+      if (Math.abs(sub - Number(c.subtotal)) > 1e-6) fail(rel, `${c.symbol}: subtotal '${c.subtotal}' != count × weight = ${sub}`);
+      total += Number(c.subtotal);
+    }
+    if (Math.abs(total - Number(obj.molar_mass_g_per_mol)) > 1e-6)
+      fail(rel, `molar_mass '${obj.molar_mass_g_per_mol}' != Σ subtotals = ${total}`);
   } else if (obj.kind === "valence-table") {
     // every source id the table cites (atomic weight, position, ion charge, and the ADR-0031 properties)
     // must resolve to a SOURCES.md register row

@@ -1,0 +1,50 @@
+{
+  "kind": "species",
+  "id": "carbon-dioxide",
+  "title": "Carbon dioxide",
+  "formula": "CO2",
+  "latex": "\\mathrm{CO_{2}}",
+  "species_class": "compound",
+  "names": [
+    "carbon dioxide"
+  ],
+  "charge": 0,
+  "composition": [
+    {
+      "symbol": "C",
+      "count": 1,
+      "atomic_weight": "12.011",
+      "subtotal": "12.011"
+    },
+    {
+      "symbol": "O",
+      "count": 2,
+      "atomic_weight": "15.999",
+      "subtotal": "31.998"
+    }
+  ],
+  "molar_mass_g_per_mol": "44.009",
+  "summary": "The gas released when a carbonate meets an acid, and a product of every complete combustion. One carbon, two oxygens. Its molar mass sums the sourced weights; the two oxygens make it heavier than it looks at a glance.",
+  "regime": "ledger-exact",
+  "source": "ciaaw-2021-atomic-weights",
+  "related": [
+    {
+      "to": "conservation-of-mass",
+      "type": "depends-on"
+    },
+    {
+      "to": "molar-mass",
+      "type": "uses"
+    }
+  ],
+  "lessons": [],
+  "phase": "g",
+  "notes": [
+    "A covalent molecular compound, not ionic — named with the count prefix 'di-' rather than by charge crossover (a Phase-2 covalent-naming topic)."
+  ],
+  "reactions": [
+    "reaction-combustion",
+    "reaction-gas-evolution",
+    "reaction-decomposition"
+  ]
+}

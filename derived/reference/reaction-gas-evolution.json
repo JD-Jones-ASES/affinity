@@ -293,7 +293,20 @@
       ]
     }
   ],
-  "related": [],
+  "related": [
+    {
+      "to": "net-ionic-equation",
+      "type": "see-also"
+    },
+    {
+      "to": "spectator-ion",
+      "type": "see-also"
+    },
+    {
+      "to": "dissociation",
+      "type": "depends-on"
+    }
+  ],
   "lessons": [],
   "general_form_latex": "\\mathrm{acid} + \\mathrm{carbonate} \\rightarrow \\mathrm{salt} + \\mathrm{H_{2}O} + \\mathrm{CO_{2}}\\,\\text{(g)}",
   "prose_tokens": [

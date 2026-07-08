@@ -9,7 +9,7 @@ from chemkernel import BuildError
 from chemkernel.data import ChemData
 from chemkernel.reactivity import AcidBase, Decomposition
 from chemkernel.reference import (assemble_formula, build_reaction_family, build_reference_entry,
-                                  build_valence_table)
+                                  build_species_entry, build_valence_table)
 from chemkernel.solubility import Solubility
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -268,3 +268,86 @@ def test_reaction_family_decomposition_mixed_redox_omits_family_flag():
     fam = _family(spec)
     assert "redox" not in fam                             # examples disagree → no family-level flag
     assert [ex["redox"] for ex in fam["examples"]] == [True, False, True]
+
+
+def test_reaction_family_guard_rejects_absorbed_key():
+    """The TOML trap #4 guard: a top-level bare key absorbed into the last [[examples]] table (an example
+    carrying an unexpected key) must fail loud, not ship a family with empty related/lessons (ADR-0038)."""
+    spec = {
+        "id": "reaction-x", "kind": "reaction-family", "title": "X", "family": "combustion",
+        "general_form": "f + O2 -> CO2 + H2O", "summary": "s", "source": "openstax-chemistry-2e",
+        "conditions": [], "misconceptions": [{"claim": "a", "refute": "b"}],
+        "examples": [
+            {"reactants": ["CH4(g)", "O2(g)"], "products": ["CO2(g)", "H2O(g)"]},
+            {"reactants": ["C3H8(g)", "O2(g)"], "products": ["CO2(g)", "H2O(g)"],
+             "lessons": ["oops-absorbed"]},   # a bare `lessons` swallowed into this table
+        ],
+    }
+    with pytest.raises(BuildError, match="unexpected key"):
+        _family(spec)
+
+
+# --- species atlas (ADR-0038) -------------------------------------------------------------------------
+
+def _species(spec):
+    return build_species_entry(spec, _data(), ctx=spec["id"])
+
+
+def test_species_derives_composition_and_molar_mass():
+    sp = _species({
+        "id": "water", "kind": "species", "title": "Water", "formula": "H2O",
+        "species_class": "compound", "names": ["water"], "summary": "s", "source": "ciaaw-2021-atomic-weights",
+    })
+    assert sp["charge"] == 0 and sp["latex"] == r"\mathrm{H_{2}O}"
+    # composition in formula order, each subtotal = count × sourced weight
+    assert [(c["symbol"], c["count"], c["atomic_weight"], c["subtotal"]) for c in sp["composition"]] == [
+        ("H", 2, "1.0080", "2.0160"), ("O", 1, "15.999", "15.999")]
+    assert sp["molar_mass_g_per_mol"] == "18.0150"        # 2×1.0080 + 15.999, exact
+
+
+def test_species_parenthesized_formula_counts_group_twice():
+    sp = _species({
+        "id": "calcium-phosphate", "kind": "species", "title": "Calcium phosphate", "formula": "Ca3(PO4)2",
+        "species_class": "compound", "names": ["calcium phosphate"], "summary": "s",
+        "source": "ciaaw-2021-atomic-weights",
+    })
+    comp = {c["symbol"]: c["count"] for c in sp["composition"]}
+    assert comp == {"Ca": 3, "P": 2, "O": 8}              # the phosphate group taken twice
+    assert sp["molar_mass_g_per_mol"] == "310.174"
+
+
+def test_species_ion_carries_charge_from_the_formula():
+    sp = _species({
+        "id": "carbonate-ion", "kind": "species", "title": "Carbonate ion", "formula": "CO3^2-",
+        "species_class": "polyatomic-ion", "names": ["carbonate"], "summary": "s",
+        "source": "ciaaw-2021-atomic-weights",
+    })
+    assert sp["charge"] == -2 and sp["species_class"] == "polyatomic-ion"
+    assert sp["molar_mass_g_per_mol"] == "60.008"         # electron mass conventionally ignored
+
+
+def test_species_rejects_off_dataset_element():
+    with pytest.raises(BuildError):                       # Au is not in the 23-element dataset
+        _species({"id": "gold", "kind": "species", "title": "Gold", "formula": "Au",
+                  "species_class": "element", "names": ["gold"], "summary": "s",
+                  "source": "ciaaw-2021-atomic-weights"})
+
+
+def test_species_rejects_class_charge_mismatch():
+    # a neutral compound cannot carry a charge...
+    with pytest.raises(BuildError, match="charge"):
+        _species({"id": "bad", "kind": "species", "title": "Bad", "formula": "CO3^2-",
+                  "species_class": "compound", "names": ["bad"], "summary": "s",
+                  "source": "ciaaw-2021-atomic-weights"})
+    # ...and an ion cannot be neutral
+    with pytest.raises(BuildError, match="neutral"):
+        _species({"id": "bad2", "kind": "species", "title": "Bad2", "formula": "H2O",
+                  "species_class": "polyatomic-ion", "names": ["bad"], "summary": "s",
+                  "source": "ciaaw-2021-atomic-weights"})
+
+
+def test_species_rejects_phase_in_formula():
+    with pytest.raises(BuildError, match="phase-less"):
+        _species({"id": "bad3", "kind": "species", "title": "Bad3", "formula": "H2O(l)",
+                  "species_class": "compound", "names": ["water"], "summary": "s",
+                  "source": "ciaaw-2021-atomic-weights"})

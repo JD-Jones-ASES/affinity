@@ -240,7 +240,20 @@
       ]
     }
   ],
-  "related": [],
+  "related": [
+    {
+      "to": "balancing-equations",
+      "type": "uses"
+    },
+    {
+      "to": "net-ionic-equation",
+      "type": "see-also"
+    },
+    {
+      "to": "spectator-ion",
+      "type": "see-also"
+    }
+  ],
   "lessons": [],
   "general_form_latex": "\\mathrm{A} + \\mathrm{BC} \\rightarrow \\mathrm{B} + \\mathrm{AC}",
   "prose_tokens": [

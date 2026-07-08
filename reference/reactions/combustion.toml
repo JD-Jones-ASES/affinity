@@ -7,6 +7,12 @@ general_form_latex = "\\mathrm{fuel} + \\mathrm{O_{2}} \\rightarrow \\mathrm{CO_
 summary = "A fuel made of carbon and hydrogen burns in oxygen. Complete combustion sends every carbon to carbon dioxide and every hydrogen to water. Because a free element (O2) becomes combined, combustion is always a redox reaction."
 regime = "rule-sourced"
 source = "openstax-chemistry-2e"
+# related/lessons must precede the [[misconceptions]]/[[examples]] headers (TOML trap #4; producer fails loud).
+related = [
+  { to = "balancing-equations", type = "uses" },
+  { to = "conservation-of-mass", type = "depends-on" },
+]
+lessons = []
 conditions = [
   "Needs O2 as a reactant and enough of it — incomplete combustion (too little O2) also makes carbon monoxide or soot, which this complete-combustion form does not cover.",
   "The fuel here is a hydrocarbon (only C and H, optionally O); other fuels burn to other oxides.",
@@ -31,9 +37,3 @@ products = ["CO2(g)", "H2O(g)"]
 [[examples]]
 reactants = ["C2H6(g)", "O2(g)"]
 products = ["CO2(g)", "H2O(g)"]
-
-related = [
-  { to = "balancing-equations", type = "uses" },
-  { to = "conservation-of-mass", type = "depends-on" },
-]
-lessons = []

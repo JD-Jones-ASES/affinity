@@ -7,6 +7,13 @@ general_form_latex = "\\mathrm{A} + \\mathrm{BC} \\rightarrow \\mathrm{B} + \\ma
 summary = "A free element trades places with an element inside a compound: the newcomer combines, the displaced element goes free. One element is oxidized and the other reduced, so single replacement is always a redox reaction — its net-ionic view shows exactly which atoms swap electrons."
 regime = "rule-sourced"
 source = "openstax-chemistry-2e"
+# related/lessons must precede the [[misconceptions]]/[[examples]] headers (TOML trap #4; producer fails loud).
+related = [
+  { to = "balancing-equations", type = "uses" },
+  { to = "net-ionic-equation", type = "see-also" },
+  { to = "spectator-ion", type = "see-also" },
+]
+lessons = []
 conditions = [
   "One free element and one compound on each side (A + BC -> B + AC).",
   "Whether the swap actually happens depends on an activity ordering of the elements — a more reactive metal displaces a less reactive one. That ordering is its own sourced table.",
@@ -27,10 +34,3 @@ products = ["FeSO4(aq)", "Cu(s)"]
 [[examples]]
 reactants = ["Mg(s)", "HCl(aq)"]
 products = ["MgCl2(aq)", "H2(g)"]
-
-related = [
-  { to = "balancing-equations", type = "uses" },
-  { to = "net-ionic-equation", type = "see-also" },
-  { to = "spectator-ion", type = "see-also" },
-]
-lessons = []

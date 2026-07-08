@@ -7,6 +7,13 @@ general_form_latex = "\\mathrm{acid} + \\mathrm{base} \\rightarrow \\mathrm{salt
 summary = "An acid supplies H+ and a base supplies OH-; the two combine into water, leaving the acid's anion and the base's cation together as a dissolved salt. Strip the spectators and every strong-acid + strong-base neutralization has the same net-ionic core: H+ + OH- -> water. No element goes free, so neutralization is not a redox reaction."
 regime = "rule-sourced"
 source = "openstax-chemistry-2e"
+# related/lessons must precede the [[misconceptions]]/[[examples]] headers (TOML trap #4; producer fails loud).
+related = [
+  { to = "net-ionic-equation", type = "see-also" },
+  { to = "spectator-ion", type = "see-also" },
+  { to = "dissociation", type = "depends-on" },
+]
+lessons = ["hydrochloric-sodium-hydroxide"]
 conditions = [
   "Needs a species that donates H+ (an acid) and one that donates OH- (a base).",
   "The strong-acid + strong-base examples here go essentially to completion; a weak acid or weak base only partly ionizes and the story is subtler.",
@@ -31,10 +38,3 @@ products = ["Na2SO4(aq)", "H2O(l)"]
 [[examples]]
 reactants = ["HNO3(aq)", "KOH(aq)"]
 products = ["KNO3(aq)", "H2O(l)"]
-
-related = [
-  { to = "net-ionic-equation", type = "see-also" },
-  { to = "spectator-ion", type = "see-also" },
-  { to = "dissociation", type = "depends-on" },
-]
-lessons = []

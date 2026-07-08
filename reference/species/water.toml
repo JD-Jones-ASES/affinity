@@ -1,0 +1,22 @@
+# Chemical Atlas species entry (ADR-0038). Composition, charge, and molar mass are DERIVED from the formula
+# by the producer; names, phase, and prose are authored + labeled.
+id = "water"
+kind = "species"
+title = "Water"
+formula = "H2O"
+species_class = "compound"
+names = ["water", "dihydrogen monoxide (systematic)"]
+phase = "l"
+regime = "ledger-exact"
+source = "ciaaw-2021-atomic-weights"
+summary = "The product of every acid-base neutralization and the solvent of the whole solution course. Its molar mass is the sum of two hydrogen weights and one oxygen — the machine re-parses $\\mathrm{H_2O}$ and adds the sourced atomic weights, so the 18.015 g/mol below is derived, not looked up."
+notes = [
+  "Bent, not linear — but shape is a Phase-2 (VSEPR) topic; here water is a mass on the balance and the net-ionic product $\\mathrm{H^+ + OH^- \\rightarrow H_2O}$.",
+]
+related = [
+  { to = "hydroxide-ion", type = "dissociates-to" },
+  { to = "molar-mass", type = "uses" },
+  { to = "net-ionic-equation", type = "see-also" },
+]
+reactions = ["reaction-acid-base", "reaction-gas-evolution"]
+lessons = ["hydrochloric-sodium-hydroxide"]

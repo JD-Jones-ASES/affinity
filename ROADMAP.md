@@ -7,11 +7,17 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 
 ## Status
 
-- **Now (2026-07-08): Phase 1 OPEN — items 1–6 all landed and deployed.** Remaining before the Phase-2 gate:
-  the Atlas breadth audit (session-map #8 — species-atlas + formula-sheet entry kinds, fill every phase-0/1
-  regime-map row) and the **Phase-1 definition-of-done check → owner review**. Counters live in
-  `AGENTS.md ## Current state`; per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) +
-  [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+- **Now (2026-07-08): Phase 1 COMPLETE pending owner review.** Items 1–6 + the Atlas breadth audit
+  (session-map #8) all landed and deployed; the **Phase-1 definition-of-done is met** (all four brief-§10 Atlas
+  kinds present; every Phase-0/1 regime-map row shows coverage; 4 lessons; all gates green). **Next: owner
+  review — the gate before Phase 2** (the owner's to open). Counters live in `AGENTS.md ## Current state`;
+  per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks
+  below are the plan of record.
+- **Atlas breadth audit (session-map #8) — LANDED** (2026-07-08, ADR-0038): the **species Atlas kind** (14
+  curated species — composition/charge/molar mass derived from the formula + re-summed in Node from the sourced
+  weights; 8-way tamper-tested); an `atomic-mass` concept filling the last empty regime-map row; and a
+  cross-link integrity fix — the 7 reaction families had lost their `related`/`lessons` to TOML trap #4 (now
+  restored + a producer guard). The formula/equation sheet is deferred to Phase 2 (mostly model-bearing).
 - **Item 6 — reaction families — LANDED** (2026-07-08, ADR-0035/0036/0037): the reaction classifier
   (families + free-element redox) over two sourced datasets; the reaction-family Atlas kind (7 families / 21
   engine-classified example reactions with net-ionic views); the `reaction_families_v1` gym (classify /
@@ -217,26 +223,28 @@ but the product mass isn't the headline); the diprotic coefficient-story neutral
 6. ~~Item 5b — Valence Table lenses + trend/bonding/practice modes~~ (landed; ADR-0033/0034 — four modes +
    the `periodic_trends_v1` gym + Q4 resolved).
 7. ~~Item 6 — reaction families (atlas kind + classifier + gym + the neutralization lesson)~~ (landed; ADR-0035/0036/0037 — classifier + 7-family Atlas + `reaction_families_v1` gym + the neutralization lesson).
-8. Atlas breadth audit: species-atlas + formula-sheet entry kinds; fill every Phase-0/1 regime-map row;
-   **Phase-1 definition-of-done check → stop for owner review** (Phase 2 is the owner's to open).
+8. ~~Atlas breadth audit: species-atlas entry kind; fill every Phase-0/1 regime-map row; Phase-1
+   definition-of-done check~~ (landed; ADR-0038 — 14 species + the `atomic-mass` concept + the reaction-family
+   cross-link fix; formula/equation sheet deferred to Phase 2). **DoD met → stop for owner review** (Phase 2 is
+   the owner's to open).
 
 Sequencing rationale: 2→3→4 build the procedural chain in teaching order on the existing instrument;
 5 needs its own data session first; 6 is the largest (new reaction shapes) and benefits from everything
 before it. The Atlas breadth-fill runs inside every session (each item ships its concepts), with session 8
 as the sweep that catches what slipped.
 
-### Phase-1 definition of done ("relatively complete procedural course")
+### Phase-1 definition of done ("relatively complete procedural course") — MET (2026-07-08, pending owner review)
 
-- All six items landed with their gym families, flagship instruments, and lessons as scoped above.
-- **Every Phase-0/1 topic row in [`docs/regime-map.md`](./docs/regime-map.md) shows coverage** (lesson,
-  gym, and/or atlas — no "—" in the phase-0/1 tier): measurement/dimensional analysis, atoms & atomic
-  mass, mole & molar mass, ions & formula writing, nomenclature, periodic table & trends, balancing,
+- ✓ All six items landed with their gym families, flagship instruments, and lessons as scoped above.
+- ✓ **Every Phase-0/1 topic row in [`docs/regime-map.md`](./docs/regime-map.md) shows coverage** (no "—" in
+  the phase-0/1 tier): measurement/dimensional analysis, atoms & atomic mass (← filled this session),
+  mole & molar mass, ions & formula writing, nomenclature, periodic table & trends, balancing,
   reaction classes, stoichiometry, limiting reagents, percent yield, solutions & molarity, precipitation.
-- The Atlas carries all four brief-§10 entry kinds (periodic lens ✓, concepts ✓, reaction families,
-  species entries) — the formula/equation sheet may open with Phase 2 (its formulas are mostly
-  model-bearing).
-- 4+ lessons total; every lesson keeps the misconception register + ledger view; all gates green; deployed.
-- **Then stop for owner review before Phase 2.**
+- ✓ The Atlas carries all four brief-§10 entry kinds: periodic lens, concepts, reaction families, **species
+  entries** (landed this session, ADR-0038). The formula/equation sheet opens with Phase 2 (mostly
+  model-bearing) — the DoD explicitly relaxes it here.
+- ✓ 4 lessons total, each keeping the misconception register + ledger view; 7 gates green; deployed to Pages.
+- **→ Now stopped for owner review before Phase 2** (opening Phase 2 is the owner's call).
 
 ## Phase 2+ — the model-bearing topics (sketch)
 
@@ -249,9 +257,10 @@ $\Delta G = -nFE$). Sequenced after Phase 1 review; not scoped yet — opening P
 
 As in the sibling: lessons go deep, the reference goes broad. Species atlas, formula/equation sheet,
 reaction atlas, concept graph (typed edges, brief §10.5) fill breadth-first alongside whatever phase is
-open. Status: **19 concept entries + the Valence Table + 7 reaction families** (the reaction-atlas kind
-landed with item 6, ADR-0035); the **species entry kind** arrives with session-map #8; coverage dashboard
-in [`docs/regime-map.md`](./docs/regime-map.md).
+open. Status: **20 concept entries + the Valence Table + 7 reaction families + 14 species entries** — the
+reaction-atlas kind landed with item 6 (ADR-0035) and the **species kind with session-map #8** (ADR-0038), so
+three of the four brief-§10 kinds ship (periodic lens, concepts, reactions, species); the **formula/equation
+sheet** opens with Phase 2. Coverage dashboard in [`docs/regime-map.md`](./docs/regime-map.md).
 
 ## Out of scope (v1)
 

@@ -7,6 +7,12 @@ general_form_latex = "\\mathrm{AB} \\rightarrow \\mathrm{A} + \\mathrm{B}"
 summary = "A single compound breaks apart into two or more products — the reverse pattern of synthesis. Whether it is a redox reaction depends on the reaction: releasing a free element (like O2) is redox; splitting into two compounds (a carbonate into an oxide and CO2) is not."
 regime = "rule-sourced"
 source = "openstax-chemistry-2e"
+# related/lessons must precede the [[misconceptions]]/[[examples]] headers (TOML trap #4; producer fails loud).
+related = [
+  { to = "balancing-equations", type = "uses" },
+  { to = "conservation-of-mass", type = "depends-on" },
+]
+lessons = []
 conditions = [
   "The signature is one reactant giving two or more products.",
   "An energy input (heat, light, or electricity) usually drives it — but this Atlas describes the change, not how to carry it out.",
@@ -27,9 +33,3 @@ products = ["CaO(s)", "CO2(g)"]
 [[examples]]
 reactants = ["H2O(l)"]
 products = ["H2(g)", "O2(g)"]
-
-related = [
-  { to = "balancing-equations", type = "uses" },
-  { to = "conservation-of-mass", type = "depends-on" },
-]
-lessons = []

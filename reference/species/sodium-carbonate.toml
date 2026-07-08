@@ -1,0 +1,17 @@
+id = "sodium-carbonate"
+kind = "species"
+title = "Sodium carbonate"
+formula = "Na2CO3"
+species_class = "compound"
+names = ["sodium carbonate", "soda ash / washing soda"]
+phase = "aq"
+regime = "ledger-exact"
+source = "ciaaw-2021-atomic-weights"
+summary = "A soluble carbonate — the carbonate source in the precipitation lesson. Two $\\mathrm{Na^+}$ balance one $\\mathrm{CO_3^{2-}}$, so the formula carries two sodiums and one carbonate group. The molar mass sums both sodiums with the carbonate's carbon and three oxygens."
+related = [
+  { to = "carbonate-ion", type = "component-of" },
+  { to = "polyatomic-ion", type = "see-also" },
+  { to = "molar-mass", type = "uses" },
+]
+reactions = ["reaction-precipitation", "reaction-gas-evolution"]
+lessons = ["calcium-carbonate-limiting"]

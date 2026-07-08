@@ -1,0 +1,21 @@
+id = "calcium-carbonate"
+kind = "species"
+title = "Calcium carbonate"
+formula = "CaCO3"
+species_class = "compound"
+names = ["calcium carbonate", "calcite / limestone (mineral forms)"]
+phase = "s"
+regime = "ledger-exact"
+source = "ciaaw-2021-atomic-weights"
+summary = "An ionic compound of the calcium ion and the carbonate ion. It is insoluble, so it drops out as the precipitate in the flagship precipitation lesson. Its formula follows from charge balance — $\\mathrm{Ca^{2+}}$ with $\\mathrm{CO_3^{2-}}$ in a 1:1 ratio — and the molar mass below sums the three sourced weights."
+notes = [
+  "Which pairing is insoluble is a sourced solubility-rule call, not derived from the atomic weights.",
+]
+related = [
+  { to = "carbonate-ion", type = "component-of" },
+  { to = "precipitation", type = "see-also" },
+  { to = "solubility-rules", type = "depends-on" },
+  { to = "molar-mass", type = "uses" },
+]
+reactions = ["reaction-precipitation"]
+lessons = ["calcium-carbonate-limiting"]

@@ -183,7 +183,16 @@
       ]
     }
   ],
-  "related": [],
+  "related": [
+    {
+      "to": "balancing-equations",
+      "type": "uses"
+    },
+    {
+      "to": "conservation-of-mass",
+      "type": "depends-on"
+    }
+  ],
   "lessons": [],
   "general_form_latex": "\\mathrm{AB} \\rightarrow \\mathrm{A} + \\mathrm{B}",
   "prose_tokens": [

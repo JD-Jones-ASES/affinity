@@ -1,0 +1,15 @@
+# Chemical Atlas concept entry (ADR-0005). Fills the regime-map "atoms, isotopes, average atomic mass" row.
+id = "atomic-mass"
+kind = "concept"
+title = "Average atomic mass"
+term = "average atomic mass"
+regime = "rule-sourced"
+source = "ciaaw-2021-atomic-weights"
+definition = "An element's atoms come in isotopes — same proton count, different neutron counts, so different masses. The standard atomic weight on the periodic table is the **abundance-weighted average** of those isotope masses, $\\bar{A} = \\sum_i f_i A_i$, where each $f_i$ is an isotope's fractional abundance and $A_i$ its mass. The averaging arithmetic is exact; the abundances and isotope masses are sourced measurements (CIAAW). That single averaged number is the atomic weight every molar mass in this Atlas sums."
+latex = "\\bar{A} = \\sum_i f_i A_i"
+related = [
+  { to = "molar-mass", type = "feeds" },
+  { to = "conservation-of-mass", type = "see-also" },
+  { to = "periodic-trends", type = "see-also" },
+]
+lessons = []

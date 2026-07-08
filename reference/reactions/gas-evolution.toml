@@ -10,6 +10,13 @@ source = "openstax-chemistry-2e"
 # carbonic acid and aqueous ammonia are the unstable intermediates named in prose but never a species — list
 # them so the view subscripts H2CO3 / NH4OH like any other formula (ADR-0025)
 prose_tokens = ["H2CO3", "NH4OH"]
+# related/lessons must precede the [[misconceptions]]/[[examples]] headers (TOML trap #4; producer fails loud).
+related = [
+  { to = "net-ionic-equation", type = "see-also" },
+  { to = "spectator-ion", type = "see-also" },
+  { to = "dissociation", type = "depends-on" },
+]
+lessons = []
 conditions = [
   "The trigger is a would-be product that is unstable: carbonic acid (from a carbonate) or aqueous ammonia (from an ammonium salt + base).",
   "The gas leaving the solution is what pulls the reaction forward.",
@@ -34,10 +41,3 @@ products = ["CaCl2(aq)", "H2O(l)", "CO2(g)"]
 [[examples]]
 reactants = ["NH4Cl(aq)", "NaOH(aq)"]
 products = ["NaCl(aq)", "NH3(g)", "H2O(l)"]
-
-related = [
-  { to = "net-ionic-equation", type = "see-also" },
-  { to = "spectator-ion", type = "see-also" },
-  { to = "dissociation", type = "depends-on" },
-]
-lessons = []

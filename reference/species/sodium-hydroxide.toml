@@ -1,0 +1,17 @@
+id = "sodium-hydroxide"
+kind = "species"
+title = "Sodium hydroxide"
+formula = "NaOH"
+species_class = "compound"
+names = ["sodium hydroxide", "lye / caustic soda"]
+phase = "aq"
+regime = "ledger-exact"
+source = "ciaaw-2021-atomic-weights"
+summary = "A strong base: sodium ion with hydroxide ion. In water it supplies $\\mathrm{OH^-}$ completely — the base in the neutralization lesson, where its hydroxide combines with the acid's $\\mathrm{H^+}$ to make water. The molar mass sums sodium, oxygen, and hydrogen."
+related = [
+  { to = "hydroxide-ion", type = "component-of" },
+  { to = "dissociation", type = "dissociates-to" },
+  { to = "molar-mass", type = "uses" },
+]
+reactions = ["reaction-acid-base"]
+lessons = ["hydrochloric-sodium-hydroxide"]

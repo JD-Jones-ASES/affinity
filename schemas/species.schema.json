@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://affinity/schemas/species.schema.json",
+  "title": "Affinity Chemical Atlas species entry",
+  "description": "One chemical species (ADR-0038): the formula → ENGINE-DERIVED composition (per-element count + sourced atomic weight + subtotal), signed charge, and molar mass (Σ subtotals). The derived block is machine-checked — the gate re-parses the formula and re-sums the molar mass from the Valence Table's sourced atomic weights. Names, typical phase, and prose are authored + labeled (never machine-checked). additionalProperties:false everywhere.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "id", "title", "formula", "latex", "species_class", "names", "charge", "composition", "molar_mass_g_per_mol", "summary", "regime", "source", "related", "lessons"],
+  "properties": {
+    "kind": { "const": "species" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "formula": { "type": "string", "minLength": 1, "$comment": "the phase-less formula string (CaCO3, CO3^2-); the parser derives everything below from it" },
+    "latex": { "type": "string", "minLength": 1 },
+    "species_class": {
+      "enum": ["element", "compound", "monatomic-ion", "polyatomic-ion"],
+      "$comment": "element/compound → neutral; either ion class → charged. The gate enforces the charge/class agreement."
+    },
+    "names": {
+      "type": "array", "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "$comment": "authored names, canonical first (systematic ionic names are separately machine-verified in the Valence Table formula builder, ADR-0033)"
+    },
+    "charge": { "type": "integer" },
+    "composition": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["symbol", "count", "atomic_weight", "subtotal"],
+        "properties": {
+          "symbol": { "type": "string", "pattern": "^[A-Z][a-z]?$" },
+          "count": { "type": "integer", "minimum": 1 },
+          "atomic_weight": { "type": "string", "minLength": 1, "$comment": "the sourced element weight (must match the Valence Table)" },
+          "subtotal": { "type": "string", "minLength": 1, "$comment": "count × atomic_weight (exact)" }
+        }
+      }
+    },
+    "molar_mass_g_per_mol": { "type": "string", "minLength": 1 },
+    "phase": {
+      "enum": ["s", "l", "g", "aq"],
+      "$comment": "the phase this species typically takes in first-course contexts — authored, not machine-derived"
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "regime": { "enum": ["ledger-exact", "rule-sourced"] },
+    "source": { "type": "string", "minLength": 1, "$comment": "the atomic-weight source summed into the molar mass; resolves to a docs/SOURCES.md row" },
+    "notes": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "related": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["to", "type"],
+        "properties": {
+          "to": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "type": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "lessons": { "type": "array", "items": { "type": "string" } },
+    "reactions": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+      "$comment": "reaction-family entry ids this species appears in; the gate resolves them"
+    }
+  }
+}

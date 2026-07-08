@@ -222,6 +222,18 @@ export function renderReactionFamily(f) {
   return r;
 }
 
+// Render a species entry (ADR-0038): the symbol renders from the producer's upright LaTeX; the summary and
+// notes may carry inline $…$ math (rendered) plus bare formula tokens (subscripted via prettyText). The
+// composition table and molar mass are already exact strings from the producer — presentation only.
+export function renderSpecies(sp) {
+  const s = structuredClone(sp);
+  s.latexHtml = tex(s.latex, false);
+  s.formulaPretty = prettyIon(s.formula);
+  s.summaryHtml = inline(prettyText(s.summary, [s.formula]));
+  s.notesHtml = (s.notes ?? []).map((n) => inline(prettyText(n, [s.formula])));
+  return s;
+}
+
 // Render a concept entry (definition may carry inline $…$; latex is a standalone display formula).
 export function renderConcept(c) {
   return {

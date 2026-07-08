@@ -1,0 +1,65 @@
+{
+  "kind": "species",
+  "id": "calcium-carbonate",
+  "title": "Calcium carbonate",
+  "formula": "CaCO3",
+  "latex": "\\mathrm{CaCO_{3}}",
+  "species_class": "compound",
+  "names": [
+    "calcium carbonate",
+    "calcite / limestone (mineral forms)"
+  ],
+  "charge": 0,
+  "composition": [
+    {
+      "symbol": "Ca",
+      "count": 1,
+      "atomic_weight": "40.078",
+      "subtotal": "40.078"
+    },
+    {
+      "symbol": "C",
+      "count": 1,
+      "atomic_weight": "12.011",
+      "subtotal": "12.011"
+    },
+    {
+      "symbol": "O",
+      "count": 3,
+      "atomic_weight": "15.999",
+      "subtotal": "47.997"
+    }
+  ],
+  "molar_mass_g_per_mol": "100.086",
+  "summary": "An ionic compound of the calcium ion and the carbonate ion. It is insoluble, so it drops out as the precipitate in the flagship precipitation lesson. Its formula follows from charge balance — $\\mathrm{Ca^{2+}}$ with $\\mathrm{CO_3^{2-}}$ in a 1:1 ratio — and the molar mass below sums the three sourced weights.",
+  "regime": "ledger-exact",
+  "source": "ciaaw-2021-atomic-weights",
+  "related": [
+    {
+      "to": "carbonate-ion",
+      "type": "component-of"
+    },
+    {
+      "to": "precipitation",
+      "type": "see-also"
+    },
+    {
+      "to": "solubility-rules",
+      "type": "depends-on"
+    },
+    {
+      "to": "molar-mass",
+      "type": "uses"
+    }
+  ],
+  "lessons": [
+    "calcium-carbonate-limiting"
+  ],
+  "phase": "s",
+  "notes": [
+    "Which pairing is insoluble is a sourced solubility-rule call, not derived from the atomic weights."
+  ],
+  "reactions": [
+    "reaction-precipitation"
+  ]
+}

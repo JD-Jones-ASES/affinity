@@ -7,6 +7,12 @@ general_form_latex = "\\mathrm{A} + \\mathrm{B} \\rightarrow \\mathrm{AB}"
 summary = "Two or more reactants combine into a single product. When the reactants are free elements, their atoms go from oxidation state 0 to combined, so element-combining synthesis is a redox reaction."
 regime = "rule-sourced"
 source = "openstax-chemistry-2e"
+# related/lessons must precede the [[misconceptions]]/[[examples]] headers (TOML trap #4; producer fails loud).
+related = [
+  { to = "balancing-equations", type = "uses" },
+  { to = "conservation-of-mass", type = "depends-on" },
+]
+lessons = []
 conditions = [
   "The signature is one product from two or more reactants.",
   "Combining two elements is always redox; combining two compounds (e.g. an oxide with water) need not be.",
@@ -27,9 +33,3 @@ products = ["NaCl(s)"]
 [[examples]]
 reactants = ["Mg(s)", "O2(g)"]
 products = ["MgO(s)"]
-
-related = [
-  { to = "balancing-equations", type = "uses" },
-  { to = "conservation-of-mass", type = "depends-on" },
-]
-lessons = []

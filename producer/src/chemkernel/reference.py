@@ -15,6 +15,7 @@ crossover and verified with the parser.
 from __future__ import annotations
 
 import re
+from decimal import Decimal
 from math import gcd
 
 from . import BuildError
@@ -343,6 +344,22 @@ def build_reaction_family(spec: dict, data, *, solubility, acidbase, decompositi
         raise BuildError(f"{ctx}: build_reaction_family got kind '{spec['kind']}'")
     family = spec["family"]
 
+    # TOML trap #4 guard: a top-level bare key authored AFTER an array-of-tables header (`[[examples]]`,
+    # `[[misconceptions]]`) is silently absorbed into that table's last element — which is exactly how the
+    # item-6 families shipped with empty `related`/`lessons`. An example/misconception carrying an unexpected
+    # key is that absorption; fail loud so it can never happen silently again.
+    for ex in spec["examples"]:
+        extra = set(ex) - {"reactants", "products"}
+        if extra:
+            raise BuildError(f"{ctx}: reaction-family example carries unexpected key(s) {sorted(extra)} — a "
+                             f"top-level bare key was absorbed into the last [[examples]] table (TOML trap: "
+                             f"bare keys like related/lessons must precede any array-of-tables header)")
+    for m in spec["misconceptions"]:
+        extra = set(m) - {"claim", "refute"}
+        if extra:
+            raise BuildError(f"{ctx}: reaction-family misconception carries unexpected key(s) {sorted(extra)} "
+                             f"— a top-level bare key was absorbed into a [[misconceptions]] table")
+
     examples = []
     redox_flags = []
     for ex in spec["examples"]:
@@ -427,6 +444,70 @@ def build_reaction_family(spec: dict, data, *, solubility, acidbase, decompositi
     elif not any(redox_flags):
         out["redox"] = False
     return out
+
+
+def build_species_entry(spec: dict, data, ctx: str = "") -> dict:
+    """An authored species entry → the emitted Atlas object (ADR-0038). The composition, signed charge, and
+    molar mass are DERIVED from the authored `formula` by the parser + the sourced atomic weights — never
+    asserted: "the molar mass of CaCO3 is 100.086 g/mol" follows from re-parsing the formula and summing the
+    CIAAW weights (regime-1 arithmetic over regime-3 data). Names, the typical phase, and the prose are
+    authored + labeled. The producer refuses a formula that uses an element absent from the dataset, or a
+    class/charge mismatch (an "element"/"compound" must be neutral; either ion class must be charged)."""
+    for key in ("id", "kind", "title", "formula", "species_class", "names", "summary", "source"):
+        if key not in spec:
+            raise BuildError(f"{ctx}: species entry missing required key '{key}'")
+    if spec["kind"] != "species":
+        raise BuildError(f"{ctx}: build_species_entry got kind '{spec['kind']}'")
+    if not spec["names"]:
+        raise BuildError(f"{ctx}: species entry needs at least one name")
+
+    f = parse_formula(spec["formula"], ctx)
+    if f.phase is not None:
+        raise BuildError(f"{ctx}: species formula '{spec['formula']}' must be phase-less (phase is a field)")
+
+    # composition + molar mass, both derived from the parsed counts and the sourced atomic weights (exact
+    # Decimal, ADR-0013). data.atomic_weight raises for an unknown element, so an off-dataset species fails.
+    composition = []
+    total = Decimal(0)
+    for el, k in f.counts.items():
+        aw = data.atomic_weight(el)
+        subtotal = aw * k
+        total += subtotal
+        composition.append({"symbol": el, "count": k, "atomic_weight": str(aw), "subtotal": str(subtotal)})
+
+    cls = spec["species_class"]
+    is_ion = cls in ("monatomic-ion", "polyatomic-ion")
+    if is_ion and f.charge == 0:
+        raise BuildError(f"{ctx}: species_class '{cls}' but formula '{spec['formula']}' is neutral")
+    if not is_ion and f.charge != 0:
+        raise BuildError(f"{ctx}: species_class '{cls}' but formula '{spec['formula']}' carries charge {f.charge}")
+    if cls == "monatomic-ion" and len(f.counts) != 1:
+        raise BuildError(f"{ctx}: monatomic-ion '{spec['formula']}' has more than one element")
+
+    entry = {
+        "kind": "species",
+        "id": spec["id"],
+        "title": spec["title"],
+        "formula": spec["formula"],
+        "latex": f.latex,
+        "species_class": cls,
+        "names": list(spec["names"]),
+        "charge": f.charge,
+        "composition": composition,
+        "molar_mass_g_per_mol": str(total),
+        "summary": spec["summary"],
+        "regime": spec.get("regime", "ledger-exact"),
+        "source": spec["source"],
+        "related": spec.get("related", []),
+        "lessons": spec.get("lessons", []),
+    }
+    if "phase" in spec:
+        entry["phase"] = spec["phase"]
+    if "notes" in spec:
+        entry["notes"] = spec["notes"]
+    if "reactions" in spec:
+        entry["reactions"] = spec["reactions"]
+    return entry
 
 
 def build_reference_entry(spec: dict, ctx: str = "") -> dict:

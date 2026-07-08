@@ -262,8 +262,28 @@
       ]
     }
   ],
-  "related": [],
-  "lessons": [],
+  "related": [
+    {
+      "to": "precipitation",
+      "type": "defines"
+    },
+    {
+      "to": "solubility-rules",
+      "type": "depends-on"
+    },
+    {
+      "to": "net-ionic-equation",
+      "type": "see-also"
+    },
+    {
+      "to": "spectator-ion",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [
+    "calcium-carbonate-limiting",
+    "calcium-phosphate-limiting"
+  ],
   "general_form_latex": "\\mathrm{AB}\\,\\text{(aq)} + \\mathrm{CD}\\,\\text{(aq)} \\rightarrow \\mathrm{AD}\\,\\text{(s)} + \\mathrm{CB}\\,\\text{(aq)}",
   "prose_tokens": [
     "CaCO3",

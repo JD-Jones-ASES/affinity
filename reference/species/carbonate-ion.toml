@@ -1,0 +1,20 @@
+id = "carbonate-ion"
+kind = "species"
+title = "Carbonate ion"
+formula = "CO3^2-"
+species_class = "polyatomic-ion"
+names = ["carbonate", "carbonate ion"]
+phase = "aq"
+regime = "ledger-exact"
+source = "ciaaw-2021-atomic-weights"
+summary = "A polyatomic ion: one carbon and three oxygens carrying a 2- charge as a single unit. It stays intact through a reaction — you carry $\\mathrm{CO_3^{2-}}$ around whole, never as loose C and O. Its molar mass sums the four atoms; the tiny mass of the two extra electrons is conventionally ignored."
+notes = [
+  "The 2- charge is the sourced ionic charge (see the Valence Table); the composition and molar mass here are the machine-checked part.",
+]
+related = [
+  { to = "polyatomic-ion", type = "instance-of" },
+  { to = "calcium-carbonate", type = "component-of" },
+  { to = "sodium-carbonate", type = "component-of" },
+]
+reactions = ["reaction-precipitation", "reaction-gas-evolution"]
+lessons = ["calcium-carbonate-limiting"]

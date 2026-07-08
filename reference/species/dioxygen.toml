@@ -1,0 +1,19 @@
+id = "dioxygen"
+kind = "species"
+title = "Oxygen gas (O2)"
+formula = "O2"
+species_class = "element"
+names = ["oxygen gas", "dioxygen", "molecular oxygen"]
+phase = "g"
+regime = "ledger-exact"
+source = "ciaaw-2021-atomic-weights"
+summary = "An element, but not a lone atom — oxygen travels as a two-atom molecule. That distinction matters for balancing: the reactant is $\\mathrm{O_2}$, so its molar mass is twice the atomic weight, and combustion counts it as a free element (oxidation state 0) that becomes combined."
+notes = [
+  "The Valence Table lists the oxygen atom (weight 15.999); this entry is the molecule that actually shows up in reactions, at twice that mass.",
+]
+related = [
+  { to = "conservation-of-mass", type = "depends-on" },
+  { to = "balancing-equations", type = "used-with" },
+]
+reactions = ["reaction-combustion", "reaction-synthesis", "reaction-decomposition"]
+lessons = []

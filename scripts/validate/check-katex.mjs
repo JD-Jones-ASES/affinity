@@ -59,6 +59,11 @@ function referenceLatex(ref) {
       if (ex.net_ionic?.latex) out.push([`examples[${i}].net_ionic.latex`, ex.net_ionic.latex]);
       (ex.species ?? []).forEach((s, j) => s.latex && out.push([`examples[${i}].species[${j}].latex`, s.latex]));
     });
+  } else if (ref.kind === "species") {
+    // ADR-0038: the species symbol, plus any inline $…$ in the authored summary/notes
+    if (ref.latex) out.push(["latex", ref.latex]);
+    out.push(...inlineMath("summary", ref.summary));
+    (ref.notes ?? []).forEach((n, i) => out.push(...inlineMath(`notes[${i}]`, n)));
   }
   return out;
 }

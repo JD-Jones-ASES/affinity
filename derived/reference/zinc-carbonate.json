@@ -1,0 +1,58 @@
+{
+  "kind": "species",
+  "id": "zinc-carbonate",
+  "title": "Zinc carbonate",
+  "formula": "ZnCO3",
+  "latex": "\\mathrm{ZnCO_{3}}",
+  "species_class": "compound",
+  "names": [
+    "zinc carbonate",
+    "smithsonite (mineral)"
+  ],
+  "charge": 0,
+  "composition": [
+    {
+      "symbol": "Zn",
+      "count": 1,
+      "atomic_weight": "65.38",
+      "subtotal": "65.38"
+    },
+    {
+      "symbol": "C",
+      "count": 1,
+      "atomic_weight": "12.011",
+      "subtotal": "12.011"
+    },
+    {
+      "symbol": "O",
+      "count": 3,
+      "atomic_weight": "15.999",
+      "subtotal": "47.997"
+    }
+  ],
+  "molar_mass_g_per_mol": "125.388",
+  "summary": "An insoluble zinc salt — the precipitate whose collected mass drives the percent-yield lesson. $\\mathrm{Zn^{2+}}$ pairs 1:1 with $\\mathrm{CO_3^{2-}}$. The theoretical yield is this molar mass times the ledger's moles at maximum extent.",
+  "regime": "ledger-exact",
+  "source": "ciaaw-2021-atomic-weights",
+  "related": [
+    {
+      "to": "carbonate-ion",
+      "type": "component-of"
+    },
+    {
+      "to": "percent-yield",
+      "type": "see-also"
+    },
+    {
+      "to": "molar-mass",
+      "type": "uses"
+    }
+  ],
+  "lessons": [
+    "zinc-carbonate-percent-yield"
+  ],
+  "phase": "s",
+  "reactions": [
+    "reaction-precipitation"
+  ]
+}

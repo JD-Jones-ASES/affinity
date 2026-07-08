@@ -1,0 +1,53 @@
+{
+  "kind": "species",
+  "id": "hydrogen-chloride",
+  "title": "Hydrogen chloride",
+  "formula": "HCl",
+  "latex": "\\mathrm{HCl}",
+  "species_class": "compound",
+  "names": [
+    "hydrogen chloride",
+    "hydrochloric acid (aqueous solution)"
+  ],
+  "charge": 0,
+  "composition": [
+    {
+      "symbol": "H",
+      "count": 1,
+      "atomic_weight": "1.0080",
+      "subtotal": "1.0080"
+    },
+    {
+      "symbol": "Cl",
+      "count": 1,
+      "atomic_weight": "35.45",
+      "subtotal": "35.45"
+    }
+  ],
+  "molar_mass_g_per_mol": "36.4580",
+  "summary": "One hydrogen and one chlorine. As a gas it is hydrogen chloride; dissolved in water it is hydrochloric acid, a strong acid that donates its $\\mathrm{H^+}$ completely — the acid in the neutralization lesson. The name changing with phase is a convention, not a change in the molar mass, which sums the two sourced weights either way.",
+  "regime": "ledger-exact",
+  "source": "ciaaw-2021-atomic-weights",
+  "related": [
+    {
+      "to": "dissociation",
+      "type": "dissociates-to"
+    },
+    {
+      "to": "molar-mass",
+      "type": "uses"
+    }
+  ],
+  "lessons": [
+    "hydrochloric-sodium-hydroxide"
+  ],
+  "phase": "aq",
+  "notes": [
+    "'Hydrogen chloride' (the molecule) and 'hydrochloric acid' (its water solution) are the same formula named two ways — a Phase-2 acid-naming topic."
+  ],
+  "reactions": [
+    "reaction-acid-base",
+    "reaction-single-replacement",
+    "reaction-gas-evolution"
+  ]
+}

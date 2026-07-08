@@ -227,7 +227,16 @@
       ]
     }
   ],
-  "related": [],
+  "related": [
+    {
+      "to": "balancing-equations",
+      "type": "uses"
+    },
+    {
+      "to": "conservation-of-mass",
+      "type": "depends-on"
+    }
+  ],
   "lessons": [],
   "general_form_latex": "\\mathrm{fuel} + \\mathrm{O_{2}} \\rightarrow \\mathrm{CO_{2}} + \\mathrm{H_{2}O}",
   "prose_tokens": [

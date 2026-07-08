@@ -955,3 +955,48 @@ Phase-1 "acid-base" coverage are now lesson-backed. **Deferred:** a gas-evolutio
 leaves the solution — the ledger closes the same way, but the "product" is a gas whose mass isn't the
 headline); the diprotic coefficient-story neutralization (H₂SO₄ + 2 NaOH — the machinery handles it; it is a
 second lesson, not new code).
+
+## ADR-0038 — Species atlas entry kind; reaction-family cross-links restored (2026-07-08)
+
+**Context.** Session-map #8, the Atlas breadth audit — the last Phase-1 work before the definition-of-done
+gate. The brief's §10 Atlas has four entry kinds; three shipped (periodic lens, concepts, reaction families),
+leaving the **species entry**. And the Phase-1 DoD requires every Phase-0/1 regime-map row to show coverage;
+one row was still empty — *atoms, isotopes, average atomic mass*. Two honesty questions for a species entry:
+(1) what part is machine-checked vs authored, and (2) how a gate re-proves it without trusting Python. The
+audit also surfaced a latent defect: the item-6 reaction families shipped with **empty `related`/`lessons`**
+— trap #4 (bare keys authored after an array-of-tables header get absorbed into the last table).
+
+**Decision.**
+1. **The `species` Atlas kind (`schemas/species.schema.json`, `build_species_entry`).** A species entry's
+   **composition (per-element count + sourced atomic weight + subtotal), signed charge, and molar mass are
+   DERIVED** by the producer from the authored phase-less `formula` — re-parsed by the grammar-v0 parser, the
+   weights summed from `data/` (regime-1 arithmetic over regime-3 CIAAW data). Names, typical phase, and prose
+   are **authored + labeled** (the page shows a machine-checked badge on the composition block and a
+   data-sourced badge for the weights). The producer refuses an off-dataset element, a class↔charge mismatch
+   (element/compound must be neutral; either ion class must be charged), a multi-element "monatomic-ion", or a
+   phase baked into the formula. `validate-reference` **re-parses the formula in pure Node** (`formula.mjs` —
+   composition + charge must reproduce), re-derives the molar mass by re-summing the **Valence Table's** sourced
+   weights (an element with no table weight fails — every species weight is sourced), and re-checks the
+   class/charge agreement + edge/lesson/reaction resolution. `check-katex` renders the species symbol +
+   inline prose math. 14 curated species land — 10 compounds, 2 elemental molecules (O₂/H₂ — the atoms-vs-
+   molecule distinction the periodic lens can't show), 2 polyatomic ions — each cross-linked to the lessons,
+   reaction families, and concepts it appears in.
+2. **The atoms row filled.** An `atomic-mass` concept (average atomic mass = the abundance-weighted mean of
+   isotope masses, $\bar{A} = \sum_i f_i A_i$ — exact arithmetic over sourced CIAAW abundances) fills the last
+   empty Phase-0/1 regime-map row with atlas coverage. No new source (the CIAAW standard atomic weight *is*
+   that average). A drillable average-atomic-mass gym is deferred — it needs per-isotope data curated.
+3. **Trap-#4 fix + guard.** All 7 reaction-family TOMLs had `related`/`lessons` authored after their
+   `[[examples]]` headers, so TOML absorbed them and the families shipped with empty cross-links. Fixed by
+   moving those bare keys ahead of the first array-of-tables header (and correcting a topic/slug lesson value
+   to the bare slug the gate expects). `build_reaction_family` now **rejects an example or misconception that
+   carries an unexpected key** — the fingerprint of an absorbed bare key — so this can never ship silently
+   again.
+
+**Consequences.** The Atlas now carries **all four brief-§10 entry kinds** and every Phase-0/1 regime-map row
+shows coverage — the two structural Phase-1 DoD criteria. `validate-reference` re-proves every species' molar
+mass and composition in CI (8-way tamper-tested); the 7 reaction families regained their concept/lesson
+cross-links (rendered). Counters: **20 concepts + 14 species** (species is a new derived shape; +15 derived
+files). **Deferred:** the formula/equation sheet (the fourth-and-a-half kind — brief-§10; mostly model-bearing,
+opens with Phase 2 per the DoD); monatomic-ion species entries (the ion table + Valence Table cover them; the
+schema permits the class); the average-atomic-mass gym (needs isotope-abundance data). Phase 1 is now
+**complete pending owner review** — the review gate before Phase 2 (the owner's to open).

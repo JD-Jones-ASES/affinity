@@ -1,0 +1,162 @@
+---
+import Base from "../../layouts/Base.astro";
+import { withBase } from "../../lib/withBase.js";
+import { renderSpecies } from "../../lib/view.js";
+
+const refs = import.meta.glob("../../../derived/reference/*.json", { eager: true });
+const all = Object.values(refs).map((m) => m.default);
+
+// group species by class in teaching order; sort within a group by title
+const CLASS_ORDER = ["compound", "element", "monatomic-ion", "polyatomic-ion"];
+const CLASS_LABEL = {
+  compound: "Compounds",
+  element: "Elements (as they react)",
+  "monatomic-ion": "Monatomic ions",
+  "polyatomic-ion": "Polyatomic ions",
+};
+const species = all.filter((r) => r.kind === "species").map(renderSpecies);
+const groups = CLASS_ORDER
+  .map((cls) => ({ cls, label: CLASS_LABEL[cls], items: species.filter((s) => s.species_class === cls).sort((a, b) => a.title.localeCompare(b.title)) }))
+  .filter((g) => g.items.length > 0);
+
+// cross-link maps: title + which Atlas page each id lives on (concepts → /reference/, species →
+// /reference/species/, reaction families → /reference/reactions/, the table → its own page)
+const refTitle = Object.fromEntries(all.map((r) => [r.id, r.title]));
+const refKind = Object.fromEntries(all.map((r) => [r.id, r.kind]));
+const hrefFor = (id) =>
+  refKind[id] === "species" ? withBase(`/reference/species/#${id}`)
+  : refKind[id] === "reaction-family" ? withBase(`/reference/reactions/#${id}`)
+  : refKind[id] === "valence-table" ? withBase(`/reference/valence-table/`)
+  : withBase(`/reference/#${id}`);
+const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
+const lessonTitle = Object.fromEntries(Object.values(sols).map((m) => [m.default.slug, m.default.title]));
+---
+
+<Base title="Species — Affinity" description="The species atlas: compounds, elemental molecules, and ions, each with its engine-derived composition, charge, and molar mass — re-parsed and re-summed from the sourced atomic weights, never asserted.">
+  <p class="crumb"><a href={withBase("/reference/")}>← Chemical Atlas</a></p>
+  <h1>Species</h1>
+  <p class="muted lede">The compounds, elemental molecules, and ions that show up across the lessons. For each
+    one, the <strong>composition, charge, and molar mass are derived by the engine</strong> — it re-parses the
+    formula and sums the sourced atomic weights, so every molar mass below is a computed result, not a
+    looked-up number. Names, typical phase, and the notes are authored. Element atoms in their periodic
+    positions live on the <a href={withBase("/reference/valence-table/")}>Valence Table</a>.</p>
+
+  <nav class="jump">
+    {species.map((s) => <a href={`#${s.id}`}>{s.formulaPretty}</a>)}
+  </nav>
+
+  {groups.map((g) => (
+    <section class="group">
+      <h2 class="grp">{g.label}</h2>
+      {g.items.map((s) => (
+        <article class="species" id={s.id}>
+          <div class="s-head">
+            <div class="s-title">
+              <span class="sym" set:html={s.latexHtml} />
+              <h3>{s.title}</h3>
+            </div>
+            <span class="badges">
+              {s.phase && <span class="phase">{`(${s.phase})`}</span>}
+              {s.charge !== 0 && <span class="charge">charge {s.charge > 0 ? `+${s.charge}` : s.charge}</span>}
+            </span>
+          </div>
+
+          {s.names.length > 1 && (
+            <p class="aka">Also: {s.names.slice(1).join(" · ")}</p>
+          )}
+
+          <div class="comp-wrap">
+            <div class="comp-head">
+              <span class="lbl">Composition &amp; molar mass</span>
+              <span class="badges">
+                <span class="badge machine"><span class="dot"></span>machine-checked</span>
+                <span class="badge sourced"><span class="dot"></span>weights: {s.source}</span>
+              </span>
+            </div>
+            <table class="comp">
+              <thead>
+                <tr><th>Element</th><th>Count</th><th>Atomic weight</th><th>Subtotal</th></tr>
+              </thead>
+              <tbody>
+                {s.composition.map((c) => (
+                  <tr>
+                    <td class="el">{c.symbol}</td>
+                    <td class="num">{c.count}</td>
+                    <td class="num">{c.atomic_weight}</td>
+                    <td class="num">{c.subtotal}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr><td colspan="3" class="total-lbl">Molar mass</td><td class="num total">{s.molar_mass_g_per_mol} g/mol</td></tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <p class="summary" set:html={s.summaryHtml} />
+          {s.notesHtml.length > 0 && (
+            <ul class="notes">{s.notesHtml.map((n) => <li set:html={n} />)}</ul>
+          )}
+
+          {(s.related.length > 0 || (s.reactions ?? []).length > 0 || s.lessons.length > 0) && (
+            <div class="links">
+              {s.related.length > 0 && (
+                <span class="ln">Related: {s.related.map((e, i) => (
+                  <>{i > 0 && ", "}<a href={hrefFor(e.to)}>{refTitle[e.to] ?? e.to}</a>
+                    <span class="etype"> ({e.type})</span></>
+                ))}</span>
+              )}
+              {(s.reactions ?? []).length > 0 && (
+                <span class="ln">Reactions: {s.reactions.map((rid, i) => (
+                  <>{i > 0 && ", "}<a href={withBase(`/reference/reactions/#${rid}`)}>{refTitle[rid] ?? rid}</a></>
+                ))}</span>
+              )}
+              {s.lessons.length > 0 && (
+                <span class="ln">Lessons: {s.lessons.map((sl, i) => (
+                  <>{i > 0 && ", "}<a href={withBase(`/lessons/${sl}/`)}>{lessonTitle[sl] ?? sl}</a></>
+                ))}</span>
+              )}
+            </div>
+          )}
+        </article>
+      ))}
+    </section>
+  ))}
+
+  <style>
+    .crumb { font-size: 0.9rem; margin: 0 0 0.4rem; }
+    h1 { font-size: 1.9rem; margin-bottom: 0.3rem; }
+    .lede { max-width: 50rem; }
+    .jump { display: flex; flex-wrap: wrap; gap: 0.4rem 0.7rem; margin: 1rem 0 1.6rem; font-size: 0.9rem; }
+    .jump a { padding: 0.15rem 0.55rem; background: var(--paper-2); border: 1px solid var(--line); border-radius: 999px; font-variant-numeric: normal; }
+    .jump a:hover { border-color: var(--accent); text-decoration: none; }
+    .group { margin: 1.6rem 0; }
+    .grp { font-size: 1.15rem; border-bottom: 1px solid var(--line); padding-bottom: 0.3rem; color: var(--accent); }
+    .species { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.3rem; margin: 1rem 0; scroll-margin-top: 5rem; }
+    .s-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .s-title { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap; }
+    .sym { font-size: 1.25rem; }
+    .s-title h3 { margin: 0; font-size: 1.15rem; }
+    .badges { display: flex; gap: 0.5rem; align-items: baseline; }
+    .phase { font-size: 0.85rem; color: var(--ink-faint); }
+    .charge { font-size: 0.78rem; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 0.05rem 0.4rem; color: var(--ink-2); }
+    .aka { font-size: 0.86rem; color: var(--ink-faint); margin: 0.3rem 0 0; }
+    .comp-wrap { margin: 0.8rem 0; }
+    .comp-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.3rem; }
+    .comp-head .lbl { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
+    .comp { border-collapse: collapse; font-size: 0.9rem; width: auto; min-width: 20rem; }
+    .comp th, .comp td { text-align: left; padding: 0.25rem 0.9rem 0.25rem 0; border-bottom: 1px solid var(--line); }
+    .comp thead th { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); font-weight: 600; }
+    .comp .el { font-weight: 600; }
+    .comp .num { font-variant-numeric: tabular-nums; }
+    .comp tfoot td { border-bottom: none; padding-top: 0.4rem; font-weight: 600; }
+    .comp .total-lbl { text-align: right; color: var(--ink-2); }
+    .comp .total { color: var(--accent); }
+    .comp-head .badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .summary { color: var(--ink-2); margin: 0.6rem 0 0; max-width: 54rem; }
+    .notes { margin: 0.5rem 0 0; padding-left: 1.1rem; color: var(--ink-faint); font-size: 0.88rem; }
+    .notes li { margin: 0.2rem 0; }
+    .links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; font-size: 0.86rem; color: var(--ink-faint); margin-top: 0.8rem; border-top: 1px solid var(--line); padding-top: 0.5rem; }
+    .etype { font-style: italic; }
+  </style>
+</Base>

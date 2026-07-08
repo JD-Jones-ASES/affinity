@@ -3,6 +3,40 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 1 — 2026-07-08 — session-map #8: Atlas breadth audit (ADR-0038) — Phase-1 DoD met
+
+The last Phase-1 work — the species Atlas kind, the final empty regime-map row filled, and a cross-link
+integrity fix — clearing the Phase-1 definition-of-done. Then **stop for owner review** (the gate before
+Phase 2).
+
+- **The species Atlas kind** (`schemas/species.schema.json`, `build_species_entry`, ADR-0038): **14 curated
+  species** — 10 compounds, 2 elemental molecules (O₂/H₂), 2 polyatomic ions — each with its **composition,
+  charge, and molar mass DERIVED by the engine** from the authored phase-less formula (re-parsed, weights
+  summed from `data/`), never asserted; names, phase, and prose authored + labeled. The producer refuses an
+  off-dataset element, a class↔charge mismatch, or a phase in the formula. Every entry cross-links to the
+  lessons, reaction families, and concepts it appears in.
+- **The gate re-derives it in pure Node.** `validate-reference` re-parses each species formula (`formula.mjs`
+  — composition + charge must reproduce), re-sums the molar mass from the **Valence Table's** sourced atomic
+  weights (an unsourced element fails), and re-checks the class/charge agreement + edge resolution;
+  `check-katex` renders the species symbol + inline prose math. 8-way tamper-tested (corrupt molar mass /
+  count / weight, flipped ion charge, class↔charge mismatch, dangling edges — each caught).
+- **The last regime-map row filled.** An `atomic-mass` concept (average atomic mass = the abundance-weighted
+  mean of isotope masses, $\bar{A} = \sum_i f_i A_i$) covers *atoms, isotopes, average atomic mass* — the only
+  Phase-0/1 row still at "—". No new source (the CIAAW standard weight *is* that average).
+- **Cross-link integrity fix (TOML trap #4).** All 7 reaction families had shipped with **empty
+  `related`/`lessons`** — the bare keys were authored after the `[[examples]]` headers and TOML absorbed them
+  into the last example table. Moved ahead of the first array-of-tables header (and a topic/slug lesson value
+  corrected to the bare slug); `build_reaction_family` now **rejects an example/misconception carrying an
+  unexpected key**, so an absorbed key fails loud.
+- **Player.** A `/reference/species/` page (species grouped by class, each with its composition table, molar
+  mass, machine-checked + data-sourced badges, and cross-links) + a Species card on the Atlas index;
+  `renderSpecies` in `view.js`; `.claude/launch.json` gained `autoPort` so a session can preview without
+  colliding with another chat's dev server.
+- **Phase-1 definition of done met:** all four brief-§10 Atlas kinds present (bar the Phase-2 formula sheet),
+  every Phase-0/1 regime-map row covered, 4 lessons, 7 gates green, deployed. **Verification:** 243 producer
+  tests (+7); validate-reference = 42 objects (1 table + 20 concepts + 7 reactions + 14 species); check-katex
+  = 419; all 7 gates green; `derived/` byte-stable (54 files); astro build = 20 pages.
+
 ## Phase 1 — 2026-07-08 — item 6: reaction families (ADR-0035/0036/0037) — Phase 1 items 1–6 complete
 
 The last Phase-1 item, in four increments — a reaction classifier and its three surfaces (Atlas, gym, lesson).
