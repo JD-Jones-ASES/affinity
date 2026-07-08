@@ -3,6 +3,30 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — equilibrium: the weak-acid pH gym — the tier's drill instrument (ADR-0048, 5th increment)
+
+Every model-bearing tier gets a gym; equilibrium's is the **pH of a weak acid**, drilled endlessly over the curated weak
+acids and concentrations. It is **model-exact-then-rounded AND data-sourced** (both badges, like calorimetry): the pH rides
+the ideal-dilute-solution model (disclosed) and rests on the sourced Kₐ. The pH is found the **honest** way — the generator
+and the gate both use the mass-action root (Q = Kₐ by bisection), no small-x approximation — exactly the acetic-acid lesson's
+machine, so gym and lesson can't disagree.
+
+- **Gym `weak_acid_ph_v1`** (`gyms/equilibrium/weak-acid-ph.gym.toml`) — 10 drills: "a 0.100 M solution of a weak acid with
+  Kₐ = … — what is the pH?" Free-entry numeric (ADR-0032, no gameable menu), pH to 3 sig figs. The named diagnostics are the
+  canonical weak-acid errors: treating the acid as strong (pH = −log[HA]₀), confusing Kₐ with [H⁺] (pH = pKₐ), and dropping
+  the square root ([H⁺] = Kₐ·[HA]₀).
+- **One solver, three call sites:** the gate's re-derivation reuses `solveEquilibrium` from `equilibriumcheck.mjs` — the same
+  shared Node solver the equilibrium lessons' gate uses — so the Python builder, the lesson gate, and the gym gate all agree.
+- **Engine:** `gym._generate_weak_acid_ph` + `_sci` (Unicode scientific notation for the prompt's Kₐ) + the `weak_acid_ph_v1`
+  family (model-assumed disclosure + the `ionization_constants` provenance source). Schema: the `weak_acid_ph` derivation kind
+  + `equilibrium` block + the `ionization_constants` source key. Gate: `verifyWeakAcidPh` (re-solve + re-check pH = −log₁₀[H⁺]).
+- **Review catch:** a scientific-notation Decimal (Kₐ) must be emitted with `format(d, "f")`, not `_trim(str(d))` — the latter
+  strips the exponent's trailing zero (4.9E-10 → 4.9E-1), which the gate's `Number()` would then misread.
+- **Verification:** **362 producer tests** (+6); 7 Node gates green (**validate-gyms = 12 gyms / 120 problems**;
+  check-katex unchanged — gym prompts are Unicode prose, not KaTeX); **astro build = 35 pages** (+1); `derived/` byte-stable
+  (1 new file). In-browser: the free entry accepts the correct pH ("✓ Correct — 5") and a wrong "treated as strong" entry
+  (0.7) fires the named diagnostic; Kₐ scientific notation + the acid formula render.
+
 ## Phase 2 — 2026-07-08 — equilibrium: buffers — the common-ion effect + Henderson–Hasselbalch (ADR-0048, 4th increment)
 
 The equilibrium tier's fourth subtype, exercising the solver's **nonzero-initial-product** case. A **buffer** is the same

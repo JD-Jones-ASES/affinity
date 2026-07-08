@@ -13,9 +13,10 @@ acetic acid; the pH of ammonia — a weak base, the exact mirror of the acetic-a
 Q and pH reached through the Kw bridge; a **buffer** — acetic acid + acetate, where the common-ion effect holds the pH at pKₐ
 and Henderson–Hasselbalch falls out as the mass-action law in log form; and the Ksp molar solubility of calcium fluoride —
 the ICE table is the species ledger with the extent solved from **mass action** Q=K, not driven to a limiting reagent; for
-Ksp the pure solid is excluded from Q, so it is a cubic, and the machine-check is the residual), eleven procedural gyms (dimensional analysis, nomenclature,
-balancing, the full stoichiometry suite, periodic trends, reaction families, gas laws, calorimetry, and now **Lewis
-structures** — valence electrons, electron domains, molecular shape, counted exactly), the Chemical Atlas — five reference surfaces: a typed concept graph + **7 reaction
+Ksp the pure solid is excluded from Q, so it is a cubic, and the machine-check is the residual), twelve procedural gyms (dimensional analysis, nomenclature,
+balancing, the full stoichiometry suite, periodic trends, reaction families, gas laws, calorimetry, **Lewis
+structures** — valence electrons, electron domains, molecular shape, counted exactly — and **weak-acid pH** — the ICE table's
+mass-action root, solved not approximated), the Chemical Atlas — five reference surfaces: a typed concept graph + **7 reaction
 families** with engine-classified example reactions + **14 species entries** with engine-derived molar masses +
 the **Valence Table flagship** (five lenses, trend graphs, a 156-salt formula builder, a ΔEN bonding mode over 23
 sourced elements) + the **formula & equation sheet** (the ideal gas law, calorimetry, mole–mass and more, each

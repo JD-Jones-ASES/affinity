@@ -12,6 +12,7 @@ import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { parseFormula } from "./formula.mjs";
 import { verifyBalance } from "./balancecheck.mjs";
+import { solveEquilibrium } from "./equilibriumcheck.mjs";
 
 const ROOT = process.cwd();
 const gymDir = join(ROOT, "derived", "gyms");
@@ -33,7 +34,7 @@ const close = (got, want) => Math.abs(got - want) <= ATOL + RTOL * Math.abs(want
 const NUMERIC_KINDS = new Set([
   "volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass",
   "volume_molarity_to_mass", "mass_stoichiometry", "percent_yield", "limiting_mass",
-  "gas_ideal", "gas_combined", "calorimetry", "lewis_valence", "lewis_domains",
+  "gas_ideal", "gas_combined", "calorimetry", "lewis_valence", "lewis_domains", "weak_acid_ph",
 ]);
 
 // re-derive an answer purely from the raw inputs — the same arithmetic a student does, unit by unit
@@ -303,6 +304,30 @@ function verifyCalorimetry(rel, p, fail) {
     fail(rel, `${p.id}: chain end ${last.value} != answer ${p.answer.value}`);
 }
 
+// --- weak-acid pH (Phase 2 equilibrium, ADR-0048): re-solve the mass-action root in pure Node (the SAME
+// bisection solver the equilibrium lessons' gate uses, shared from equilibriumcheck.mjs) from the emitted Kₐ +
+// formal concentration, then re-check pH = −log₁₀[H⁺]. Model-exact-then-rounded (the equilibrium position rides
+// on the ideal-dilute-solution model), so the tolerance sits above the 4-sig-fig rounding and well below the 3%
+// diagnostic gap. No small-x approximation — the honest root, exactly as the acetic-acid lesson.
+function verifyWeakAcidPh(rel, p, fail) {
+  const d = p.derivation.equilibrium;
+  if (!d || !d.acid || !d.ka || !d.c0) fail(rel, `${p.id}: equilibrium derivation missing acid/ka/c0`);
+  const ka = Number(d.ka), c0 = Number(d.c0);
+  if (!(ka > 0 && c0 > 0)) fail(rel, `${p.id}: ka (${d.ka}) and c0 (${d.c0}) must be positive`);
+  const sol = solveEquilibrium([                       // HA <=> H+ + A-, [HA]0 = c0, products start at 0
+    { nu: -1, initial: c0, in_quotient: true },
+    { nu: 1, initial: 0, in_quotient: true },
+    { nu: 1, initial: 0, in_quotient: true },
+  ], ka);
+  if (Number.isNaN(sol.extent) || !(sol.extent > 0)) fail(rel, `${p.id}: weak-acid mass-action root not bracketed`);
+  const pH = -Math.log10(sol.extent);
+  const want = Number(p.answer.value);
+  if (!Number.isFinite(pH)) fail(rel, `${p.id}: pH re-derivation is not finite`);
+  if (Math.abs(pH - want) > 0.01 * Math.abs(want) + 1e-4)
+    fail(rel, `${p.id}: answer ${p.answer.value} != re-solved pH ${pH.toFixed(6)}`);
+  if (p.answer.unit !== "") fail(rel, `${p.id}: pH answer unit '${p.answer.unit}' should be "" (pH is dimensionless)`);
+}
+
 // --- Lewis structures (Phase 2 bonding, ADR-0044): re-derive the electron ledger's counting answers in pure
 // Node from the emitted structure (atoms + bonds). The valence total re-sums each atom's group valence electrons
 // (from valence-table.json, the same source the molecule Atlas uses) minus the charge; the electron-domain count
@@ -410,6 +435,9 @@ for (const name of files) {
     } else if (p.kind === "lewis_valence" || p.kind === "lewis_domains" || p.kind === "lewis_geometry") {
       // 1w. Lewis structures (ADR-0044): re-derive the valence total + electron-domain count from the structure
       verifyLewis(rel, p, fail);
+    } else if (p.kind === "weak_acid_ph") {
+      // 1e. weak-acid pH (ADR-0048): re-solve the mass-action root (Q=Kₐ) in pure Node + re-check pH=−log₁₀[H⁺]
+      verifyWeakAcidPh(rel, p, fail);
     } else {
       // 1c. conversion: the answer re-derives from the raw inputs; units line up; the chain ends at the answer
       const got = rederive(p.kind, p.derivation.inputs, rel, p.id);

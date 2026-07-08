@@ -15,8 +15,9 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   lesson kind** (ADR-0045), **intermolecular forces** (ADR-0046), the **IMF comparison lesson** (ADR-0047 — a third lesson
   shape), and the **equilibrium tier** (ADR-0048 — the reversible-extent solver + the `equilibrium` lesson kind, a
   fourth shape, with **four subtypes**: weak-acid pH · buffer (common-ion + Henderson–Hasselbalch) · weak-base pH via Kw ·
-  Ksp solubility). **Next inside Phase 2:** the rest of equilibrium & acid-base (titration, polyprotic, a gym), then kinetics
-  and electrochemistry, each opening with its stress scenario. Counters live in `AGENTS.md ## Current state`;
+  Ksp solubility) + the **`weak_acid_ph_v1` gym** (the tier's drill instrument). **Next inside Phase 2:** the rest of
+  equilibrium & acid-base (titration, polyprotic, common-ion Ksp), then kinetics and electrochemistry, each opening with its
+  stress scenario. Counters live in `AGENTS.md ## Current state`;
   per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are
   the plan of record.
 - **Equilibrium & acid-base — OPENED, four subtypes** (2026-07-08, ADR-0048): the thesis made literal — *the ICE
@@ -39,8 +40,10 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   `data/solubility-products.toml` App J, the ion composition machine-checked by charge crossover; quantifies the Phase-0
   precipitation rules). Triple-badged; gate `equilibriumcheck.mjs` re-derives the spine (weak-acid quadratic + buffer +
   weak-base + Ksp cubic) in Node; concepts `chemical-equilibrium`/`ph`/`solubility-product`/`water-autoionization`/`buffer`;
-  24-way tamper-tested across the four subtypes. **Deferred (the rest of the tier):** titration curves, polyprotic staging, a
-  weak-acid/base gym, the $K$/pH/$K_w$ formula-sheet entries (need the activity treatment); common-ion Ksp + $Q$-vs-$K_{sp}$
+  24-way tamper-tested across the four subtypes. The tier's **`weak_acid_ph_v1` gym** landed too — pH-of-a-weak-acid drills
+  (model-exact-then-rounded + data-sourced), the gate re-solving the mass-action root in pure Node (reusing `solveEquilibrium`
+  from `equilibriumcheck.mjs` — one solver, three call sites). **Deferred (the rest of the tier):** titration curves,
+  polyprotic staging, the $K$/pH/$K_w$ formula-sheet entries (need the activity treatment); common-ion Ksp + $Q$-vs-$K_{sp}$
   precipitation prediction.
 - **IMF comparison lesson — LANDED** (2026-07-08, ADR-0047): the bonding capstone + a **third lesson shape** (`comparison`).
   `bonding/boiling-points-and-imfs` lines up CH₄ ≪ NH₃ ≪ H₂O (equal-mass hydrides, so size is controlled) and the
@@ -435,8 +438,10 @@ present** ([A⁻]₀ > 0, the solver's nonzero-initial-product case), so the **c
 — 0.100 M acetic acid + 0.100 M acetate → **pH 4.74 = p$K_a$**, 74× less ionized than the acid alone; **Henderson–Hasselbalch**
 (pH = p$K_a$ + log([A⁻]/[HA])) is machine-checked as the mass-action law logged, and the lesson re-solves the acid alone for
 the common-ion contrast; the `buffer` concept. Four subtypes now (dispatched by `salt`/`base`/`acid` + the
-`conjugate_base_molarity_M` key). **Next in-tier:** **titration curves** (a march of extent as titrant is added — the ledger
-updated); **polyprotic** staged equilibria (H₃PO₄); a weak-acid/base **gym**; common-ion Ksp + $Q$-vs-$K_{sp}$ precipitation
+`conjugate_base_molarity_M` key). The tier's **`weak_acid_ph_v1` gym** landed too (5th increment) — pH-of-a-weak-acid
+free-entry drills, model-exact-then-rounded + data-sourced, the gate re-solving the mass-action root in pure Node (the same
+`solveEquilibrium` the lessons' gate uses — one solver, three call sites). **Next in-tier:** **titration curves** (a march of
+extent as titrant is added — the ledger updated); **polyprotic** staged equilibria (H₃PO₄); common-ion Ksp + $Q$-vs-$K_{sp}$ precipitation
 prediction; the $K$/pH/$K_w$ formula-sheet entries (they need the
 *activity* — dimensionless — treatment so the dimension engine stays homogeneous).
 

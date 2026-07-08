@@ -1,0 +1,560 @@
+{
+  "kind": "gym",
+  "id": "weak-acid-ph",
+  "title": "Weak-acid pH: solve the ICE table for [H⁺]",
+  "slug": "weak-acid-ph",
+  "topic": "equilibrium",
+  "family": "weak_acid_ph_v1",
+  "seed": 1618033,
+  "blurb": "A weak acid only partly ionizes, so its pH is not simply −log of its concentration — you have to solve the equilibrium. Each drill gives a weak acid, its Kₐ, and how concentrated the solution is; you find the pH the real way, from the ICE table's mass-action root (the same solver the acetic-acid lesson uses). Type your answer (rounded to three significant figures). If you slip, the drill names the mistake — treating the weak acid as strong (pH = −log[HA]₀), confusing Kₐ with the hydrogen-ion concentration (that gives the pKₐ), or forgetting the square root in [H⁺] = √(Kₐ·[HA]₀). The arithmetic is machine-checked; the equilibrium model is disclosed, not proved, and Kₐ is a sourced measured value.",
+  "skills": [
+    "set up the ICE table for HA ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for [H⁺]",
+    "convert [H⁺] to pH with pH = −log₁₀[H⁺]",
+    "recognize that a weak acid ionizes only slightly, so pH ≠ −log[HA]₀",
+    "keep Kₐ (the equilibrium constant) distinct from [H⁺] (what you solve for)"
+  ],
+  "reference_links": [
+    "chemical-equilibrium",
+    "ph"
+  ],
+  "problems": [
+    {
+      "kind": "weak_acid_ph",
+      "mode": "numeric",
+      "prompt": "A 0.2 M solution of hydrocyanic acid (HCN) has Kₐ = 4.9×10⁻¹⁰. What is the pH? (Solve HCN ⇌ H⁺ + A⁻ for [H⁺], then pH = −log₁₀[H⁺].)",
+      "subscript_tokens": [
+        "HCN"
+      ],
+      "chain": [
+        {
+          "value": "0.0000099",
+          "unit": "M",
+          "note": "[H⁺] from Kₐ = [H⁺][A⁻]/[HCN] (the extent where Q = Kₐ)"
+        },
+        {
+          "value": "5",
+          "unit": "",
+          "note": "pH = −log₁₀[H⁺]"
+        }
+      ],
+      "answer": {
+        "value": "5.004",
+        "unit": "",
+        "display": "5"
+      },
+      "derivation": {
+        "kind": "weak_acid_ph",
+        "equilibrium": {
+          "acid": "HCN",
+          "ka": "0.00000000049",
+          "c0": "0.200"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0.699",
+          "unit": "",
+          "misconception": "Treated the weak acid as strong (fully ionized), so [H⁺] = the formal concentration 0.2 M and pH = −log[HA]₀. Only a small fraction of a WEAK acid ionizes."
+        },
+        {
+          "value": "9.31",
+          "unit": "",
+          "misconception": "Confused Kₐ with [H⁺]: pH = −log(Kₐ) is the pKₐ, not the pH. Kₐ sets the equilibrium; you still solve for [H⁺]."
+        },
+        {
+          "value": "10.01",
+          "unit": "",
+          "misconception": "Dropped the square root — [H⁺] = √(Kₐ·[HA]₀) for a weak acid (from Kₐ ≈ [H⁺]²/[HA]₀), not Kₐ·[HA]₀."
+        }
+      ],
+      "explain": "Set up the ICE table for HCN ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for the extent [H⁺] = 0.0000099 M. Then pH = −log₁₀[H⁺] = 5. Only 0.0049% of the acid ionizes — it is weak.",
+      "id": "q1"
+    },
+    {
+      "kind": "weak_acid_ph",
+      "mode": "numeric",
+      "prompt": "A 0.5 M solution of hydrocyanic acid (HCN) has Kₐ = 4.9×10⁻¹⁰. What is the pH? (Solve HCN ⇌ H⁺ + A⁻ for [H⁺], then pH = −log₁₀[H⁺].)",
+      "subscript_tokens": [
+        "HCN"
+      ],
+      "chain": [
+        {
+          "value": "0.0000157",
+          "unit": "M",
+          "note": "[H⁺] from Kₐ = [H⁺][A⁻]/[HCN] (the extent where Q = Kₐ)"
+        },
+        {
+          "value": "4.81",
+          "unit": "",
+          "note": "pH = −log₁₀[H⁺]"
+        }
+      ],
+      "answer": {
+        "value": "4.805",
+        "unit": "",
+        "display": "4.81"
+      },
+      "derivation": {
+        "kind": "weak_acid_ph",
+        "equilibrium": {
+          "acid": "HCN",
+          "ka": "0.00000000049",
+          "c0": "0.500"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0.301",
+          "unit": "",
+          "misconception": "Treated the weak acid as strong (fully ionized), so [H⁺] = the formal concentration 0.5 M and pH = −log[HA]₀. Only a small fraction of a WEAK acid ionizes."
+        },
+        {
+          "value": "9.31",
+          "unit": "",
+          "misconception": "Confused Kₐ with [H⁺]: pH = −log(Kₐ) is the pKₐ, not the pH. Kₐ sets the equilibrium; you still solve for [H⁺]."
+        },
+        {
+          "value": "9.611",
+          "unit": "",
+          "misconception": "Dropped the square root — [H⁺] = √(Kₐ·[HA]₀) for a weak acid (from Kₐ ≈ [H⁺]²/[HA]₀), not Kₐ·[HA]₀."
+        }
+      ],
+      "explain": "Set up the ICE table for HCN ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for the extent [H⁺] = 0.0000157 M. Then pH = −log₁₀[H⁺] = 4.81. Only 0.0031% of the acid ionizes — it is weak.",
+      "id": "q2"
+    },
+    {
+      "kind": "weak_acid_ph",
+      "mode": "numeric",
+      "prompt": "A 0.5 M solution of acetic acid (HC2H3O2) has Kₐ = 1.8×10⁻⁵. What is the pH? (Solve HC2H3O2 ⇌ H⁺ + A⁻ for [H⁺], then pH = −log₁₀[H⁺].)",
+      "subscript_tokens": [
+        "HC2H3O2"
+      ],
+      "chain": [
+        {
+          "value": "0.00299",
+          "unit": "M",
+          "note": "[H⁺] from Kₐ = [H⁺][A⁻]/[HC2H3O2] (the extent where Q = Kₐ)"
+        },
+        {
+          "value": "2.52",
+          "unit": "",
+          "note": "pH = −log₁₀[H⁺]"
+        }
+      ],
+      "answer": {
+        "value": "2.524",
+        "unit": "",
+        "display": "2.52"
+      },
+      "derivation": {
+        "kind": "weak_acid_ph",
+        "equilibrium": {
+          "acid": "HC2H3O2",
+          "ka": "0.000018",
+          "c0": "0.500"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0.301",
+          "unit": "",
+          "misconception": "Treated the weak acid as strong (fully ionized), so [H⁺] = the formal concentration 0.5 M and pH = −log[HA]₀. Only a small fraction of a WEAK acid ionizes."
+        },
+        {
+          "value": "4.745",
+          "unit": "",
+          "misconception": "Confused Kₐ with [H⁺]: pH = −log(Kₐ) is the pKₐ, not the pH. Kₐ sets the equilibrium; you still solve for [H⁺]."
+        },
+        {
+          "value": "5.046",
+          "unit": "",
+          "misconception": "Dropped the square root — [H⁺] = √(Kₐ·[HA]₀) for a weak acid (from Kₐ ≈ [H⁺]²/[HA]₀), not Kₐ·[HA]₀."
+        }
+      ],
+      "explain": "Set up the ICE table for HC2H3O2 ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for the extent [H⁺] = 0.00299 M. Then pH = −log₁₀[H⁺] = 2.52. Only 0.6% of the acid ionizes — it is weak.",
+      "id": "q3"
+    },
+    {
+      "kind": "weak_acid_ph",
+      "mode": "numeric",
+      "prompt": "A 0.05 M solution of formic acid (HCHO2) has Kₐ = 1.8×10⁻⁴. What is the pH? (Solve HCHO2 ⇌ H⁺ + A⁻ for [H⁺], then pH = −log₁₀[H⁺].)",
+      "subscript_tokens": [
+        "HCHO2"
+      ],
+      "chain": [
+        {
+          "value": "0.00291",
+          "unit": "M",
+          "note": "[H⁺] from Kₐ = [H⁺][A⁻]/[HCHO2] (the extent where Q = Kₐ)"
+        },
+        {
+          "value": "2.54",
+          "unit": "",
+          "note": "pH = −log₁₀[H⁺]"
+        }
+      ],
+      "answer": {
+        "value": "2.536",
+        "unit": "",
+        "display": "2.54"
+      },
+      "derivation": {
+        "kind": "weak_acid_ph",
+        "equilibrium": {
+          "acid": "HCHO2",
+          "ka": "0.00018",
+          "c0": "0.0500"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "1.301",
+          "unit": "",
+          "misconception": "Treated the weak acid as strong (fully ionized), so [H⁺] = the formal concentration 0.05 M and pH = −log[HA]₀. Only a small fraction of a WEAK acid ionizes."
+        },
+        {
+          "value": "3.745",
+          "unit": "",
+          "misconception": "Confused Kₐ with [H⁺]: pH = −log(Kₐ) is the pKₐ, not the pH. Kₐ sets the equilibrium; you still solve for [H⁺]."
+        },
+        {
+          "value": "5.046",
+          "unit": "",
+          "misconception": "Dropped the square root — [H⁺] = √(Kₐ·[HA]₀) for a weak acid (from Kₐ ≈ [H⁺]²/[HA]₀), not Kₐ·[HA]₀."
+        }
+      ],
+      "explain": "Set up the ICE table for HCHO2 ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for the extent [H⁺] = 0.00291 M. Then pH = −log₁₀[H⁺] = 2.54. Only 5.8% of the acid ionizes — it is weak.",
+      "id": "q4"
+    },
+    {
+      "kind": "weak_acid_ph",
+      "mode": "numeric",
+      "prompt": "A 0.2 M solution of formic acid (HCHO2) has Kₐ = 1.8×10⁻⁴. What is the pH? (Solve HCHO2 ⇌ H⁺ + A⁻ for [H⁺], then pH = −log₁₀[H⁺].)",
+      "subscript_tokens": [
+        "HCHO2"
+      ],
+      "chain": [
+        {
+          "value": "0.00591",
+          "unit": "M",
+          "note": "[H⁺] from Kₐ = [H⁺][A⁻]/[HCHO2] (the extent where Q = Kₐ)"
+        },
+        {
+          "value": "2.23",
+          "unit": "",
+          "note": "pH = −log₁₀[H⁺]"
+        }
+      ],
+      "answer": {
+        "value": "2.228",
+        "unit": "",
+        "display": "2.23"
+      },
+      "derivation": {
+        "kind": "weak_acid_ph",
+        "equilibrium": {
+          "acid": "HCHO2",
+          "ka": "0.00018",
+          "c0": "0.200"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0.699",
+          "unit": "",
+          "misconception": "Treated the weak acid as strong (fully ionized), so [H⁺] = the formal concentration 0.2 M and pH = −log[HA]₀. Only a small fraction of a WEAK acid ionizes."
+        },
+        {
+          "value": "3.745",
+          "unit": "",
+          "misconception": "Confused Kₐ with [H⁺]: pH = −log(Kₐ) is the pKₐ, not the pH. Kₐ sets the equilibrium; you still solve for [H⁺]."
+        },
+        {
+          "value": "4.444",
+          "unit": "",
+          "misconception": "Dropped the square root — [H⁺] = √(Kₐ·[HA]₀) for a weak acid (from Kₐ ≈ [H⁺]²/[HA]₀), not Kₐ·[HA]₀."
+        }
+      ],
+      "explain": "Set up the ICE table for HCHO2 ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for the extent [H⁺] = 0.00591 M. Then pH = −log₁₀[H⁺] = 2.23. Only 3% of the acid ionizes — it is weak.",
+      "id": "q5"
+    },
+    {
+      "kind": "weak_acid_ph",
+      "mode": "numeric",
+      "prompt": "A 0.1 M solution of hydrocyanic acid (HCN) has Kₐ = 4.9×10⁻¹⁰. What is the pH? (Solve HCN ⇌ H⁺ + A⁻ for [H⁺], then pH = −log₁₀[H⁺].)",
+      "subscript_tokens": [
+        "HCN"
+      ],
+      "chain": [
+        {
+          "value": "0.000007",
+          "unit": "M",
+          "note": "[H⁺] from Kₐ = [H⁺][A⁻]/[HCN] (the extent where Q = Kₐ)"
+        },
+        {
+          "value": "5.15",
+          "unit": "",
+          "note": "pH = −log₁₀[H⁺]"
+        }
+      ],
+      "answer": {
+        "value": "5.155",
+        "unit": "",
+        "display": "5.15"
+      },
+      "derivation": {
+        "kind": "weak_acid_ph",
+        "equilibrium": {
+          "acid": "HCN",
+          "ka": "0.00000000049",
+          "c0": "0.100"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "1",
+          "unit": "",
+          "misconception": "Treated the weak acid as strong (fully ionized), so [H⁺] = the formal concentration 0.1 M and pH = −log[HA]₀. Only a small fraction of a WEAK acid ionizes."
+        },
+        {
+          "value": "9.31",
+          "unit": "",
+          "misconception": "Confused Kₐ with [H⁺]: pH = −log(Kₐ) is the pKₐ, not the pH. Kₐ sets the equilibrium; you still solve for [H⁺]."
+        },
+        {
+          "value": "10.31",
+          "unit": "",
+          "misconception": "Dropped the square root — [H⁺] = √(Kₐ·[HA]₀) for a weak acid (from Kₐ ≈ [H⁺]²/[HA]₀), not Kₐ·[HA]₀."
+        }
+      ],
+      "explain": "Set up the ICE table for HCN ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for the extent [H⁺] = 0.000007 M. Then pH = −log₁₀[H⁺] = 5.15. Only 0.007% of the acid ionizes — it is weak.",
+      "id": "q6"
+    },
+    {
+      "kind": "weak_acid_ph",
+      "mode": "numeric",
+      "prompt": "A 0.025 M solution of acetic acid (HC2H3O2) has Kₐ = 1.8×10⁻⁵. What is the pH? (Solve HC2H3O2 ⇌ H⁺ + A⁻ for [H⁺], then pH = −log₁₀[H⁺].)",
+      "subscript_tokens": [
+        "HC2H3O2"
+      ],
+      "chain": [
+        {
+          "value": "0.000662",
+          "unit": "M",
+          "note": "[H⁺] from Kₐ = [H⁺][A⁻]/[HC2H3O2] (the extent where Q = Kₐ)"
+        },
+        {
+          "value": "3.18",
+          "unit": "",
+          "note": "pH = −log₁₀[H⁺]"
+        }
+      ],
+      "answer": {
+        "value": "3.179",
+        "unit": "",
+        "display": "3.18"
+      },
+      "derivation": {
+        "kind": "weak_acid_ph",
+        "equilibrium": {
+          "acid": "HC2H3O2",
+          "ka": "0.000018",
+          "c0": "0.0250"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "1.602",
+          "unit": "",
+          "misconception": "Treated the weak acid as strong (fully ionized), so [H⁺] = the formal concentration 0.025 M and pH = −log[HA]₀. Only a small fraction of a WEAK acid ionizes."
+        },
+        {
+          "value": "4.745",
+          "unit": "",
+          "misconception": "Confused Kₐ with [H⁺]: pH = −log(Kₐ) is the pKₐ, not the pH. Kₐ sets the equilibrium; you still solve for [H⁺]."
+        },
+        {
+          "value": "6.347",
+          "unit": "",
+          "misconception": "Dropped the square root — [H⁺] = √(Kₐ·[HA]₀) for a weak acid (from Kₐ ≈ [H⁺]²/[HA]₀), not Kₐ·[HA]₀."
+        }
+      ],
+      "explain": "Set up the ICE table for HC2H3O2 ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for the extent [H⁺] = 0.000662 M. Then pH = −log₁₀[H⁺] = 3.18. Only 2.6% of the acid ionizes — it is weak.",
+      "id": "q7"
+    },
+    {
+      "kind": "weak_acid_ph",
+      "mode": "numeric",
+      "prompt": "A 0.01 M solution of hypochlorous acid (HClO) has Kₐ = 2.9×10⁻⁸. What is the pH? (Solve HClO ⇌ H⁺ + A⁻ for [H⁺], then pH = −log₁₀[H⁺].)",
+      "subscript_tokens": [
+        "HClO"
+      ],
+      "chain": [
+        {
+          "value": "0.000017",
+          "unit": "M",
+          "note": "[H⁺] from Kₐ = [H⁺][A⁻]/[HClO] (the extent where Q = Kₐ)"
+        },
+        {
+          "value": "4.77",
+          "unit": "",
+          "note": "pH = −log₁₀[H⁺]"
+        }
+      ],
+      "answer": {
+        "value": "4.769",
+        "unit": "",
+        "display": "4.77"
+      },
+      "derivation": {
+        "kind": "weak_acid_ph",
+        "equilibrium": {
+          "acid": "HClO",
+          "ka": "0.000000029",
+          "c0": "0.0100"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "2",
+          "unit": "",
+          "misconception": "Treated the weak acid as strong (fully ionized), so [H⁺] = the formal concentration 0.01 M and pH = −log[HA]₀. Only a small fraction of a WEAK acid ionizes."
+        },
+        {
+          "value": "7.538",
+          "unit": "",
+          "misconception": "Confused Kₐ with [H⁺]: pH = −log(Kₐ) is the pKₐ, not the pH. Kₐ sets the equilibrium; you still solve for [H⁺]."
+        },
+        {
+          "value": "9.538",
+          "unit": "",
+          "misconception": "Dropped the square root — [H⁺] = √(Kₐ·[HA]₀) for a weak acid (from Kₐ ≈ [H⁺]²/[HA]₀), not Kₐ·[HA]₀."
+        }
+      ],
+      "explain": "Set up the ICE table for HClO ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for the extent [H⁺] = 0.000017 M. Then pH = −log₁₀[H⁺] = 4.77. Only 0.17% of the acid ionizes — it is weak.",
+      "id": "q8"
+    },
+    {
+      "kind": "weak_acid_ph",
+      "mode": "numeric",
+      "prompt": "A 0.2 M solution of hypochlorous acid (HClO) has Kₐ = 2.9×10⁻⁸. What is the pH? (Solve HClO ⇌ H⁺ + A⁻ for [H⁺], then pH = −log₁₀[H⁺].)",
+      "subscript_tokens": [
+        "HClO"
+      ],
+      "chain": [
+        {
+          "value": "0.0000761",
+          "unit": "M",
+          "note": "[H⁺] from Kₐ = [H⁺][A⁻]/[HClO] (the extent where Q = Kₐ)"
+        },
+        {
+          "value": "4.12",
+          "unit": "",
+          "note": "pH = −log₁₀[H⁺]"
+        }
+      ],
+      "answer": {
+        "value": "4.118",
+        "unit": "",
+        "display": "4.12"
+      },
+      "derivation": {
+        "kind": "weak_acid_ph",
+        "equilibrium": {
+          "acid": "HClO",
+          "ka": "0.000000029",
+          "c0": "0.200"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0.699",
+          "unit": "",
+          "misconception": "Treated the weak acid as strong (fully ionized), so [H⁺] = the formal concentration 0.2 M and pH = −log[HA]₀. Only a small fraction of a WEAK acid ionizes."
+        },
+        {
+          "value": "7.538",
+          "unit": "",
+          "misconception": "Confused Kₐ with [H⁺]: pH = −log(Kₐ) is the pKₐ, not the pH. Kₐ sets the equilibrium; you still solve for [H⁺]."
+        },
+        {
+          "value": "8.237",
+          "unit": "",
+          "misconception": "Dropped the square root — [H⁺] = √(Kₐ·[HA]₀) for a weak acid (from Kₐ ≈ [H⁺]²/[HA]₀), not Kₐ·[HA]₀."
+        }
+      ],
+      "explain": "Set up the ICE table for HClO ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for the extent [H⁺] = 0.0000761 M. Then pH = −log₁₀[H⁺] = 4.12. Only 0.038% of the acid ionizes — it is weak.",
+      "id": "q9"
+    },
+    {
+      "kind": "weak_acid_ph",
+      "mode": "numeric",
+      "prompt": "A 0.01 M solution of formic acid (HCHO2) has Kₐ = 1.8×10⁻⁴. What is the pH? (Solve HCHO2 ⇌ H⁺ + A⁻ for [H⁺], then pH = −log₁₀[H⁺].)",
+      "subscript_tokens": [
+        "HCHO2"
+      ],
+      "chain": [
+        {
+          "value": "0.00125",
+          "unit": "M",
+          "note": "[H⁺] from Kₐ = [H⁺][A⁻]/[HCHO2] (the extent where Q = Kₐ)"
+        },
+        {
+          "value": "2.9",
+          "unit": "",
+          "note": "pH = −log₁₀[H⁺]"
+        }
+      ],
+      "answer": {
+        "value": "2.901",
+        "unit": "",
+        "display": "2.9"
+      },
+      "derivation": {
+        "kind": "weak_acid_ph",
+        "equilibrium": {
+          "acid": "HCHO2",
+          "ka": "0.00018",
+          "c0": "0.0100"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "2",
+          "unit": "",
+          "misconception": "Treated the weak acid as strong (fully ionized), so [H⁺] = the formal concentration 0.01 M and pH = −log[HA]₀. Only a small fraction of a WEAK acid ionizes."
+        },
+        {
+          "value": "3.745",
+          "unit": "",
+          "misconception": "Confused Kₐ with [H⁺]: pH = −log(Kₐ) is the pKₐ, not the pH. Kₐ sets the equilibrium; you still solve for [H⁺]."
+        },
+        {
+          "value": "5.745",
+          "unit": "",
+          "misconception": "Dropped the square root — [H⁺] = √(Kₐ·[HA]₀) for a weak acid (from Kₐ ≈ [H⁺]²/[HA]₀), not Kₐ·[HA]₀."
+        }
+      ],
+      "explain": "Set up the ICE table for HCHO2 ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for the extent [H⁺] = 0.00125 M. Then pH = −log₁₀[H⁺] = 2.9. Only 13% of the acid ionizes — it is weak.",
+      "id": "q10"
+    }
+  ],
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights",
+      "ionization_constants": "openstax-chemistry-2e"
+    }
+  },
+  "assumptions": [
+    {
+      "claim": "One dominant equilibrium: only the acid's ionization matters, and water's own autoionization is neglected ([H⁺]₀ = 0). Valid when the acid's [H⁺] ≫ 10⁻⁷.",
+      "kind": "model"
+    },
+    {
+      "claim": "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which is why Kₐ is written with concentrations.",
+      "kind": "model"
+    }
+  ]
+}

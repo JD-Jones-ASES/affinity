@@ -663,3 +663,59 @@ def test_lewis_all_electrons_diagnostic_present():
 def test_lewis_deterministic():
     assert _gym_from(SPEC_LEWIS) == _gym_from(SPEC_LEWIS)
     assert _gym_from(SPEC_LEWIS, seed=42)["problems"] != _gym_from(SPEC_LEWIS)["problems"]
+
+
+# --- weak-acid pH gym (ADR-0048) -------------------------------------------------------------------------
+SPEC_WEAK_ACID = ROOT / "gyms" / "equilibrium" / "weak-acid-ph.gym.toml"
+
+import math
+
+
+def _rederive_weak_acid_ph(eq):
+    """Independent weak-acid pH: solve Kₐ = x²/(c0 − x) for x = [H⁺] (the quadratic root), then −log₁₀."""
+    ka, c0 = float(eq["ka"]), float(eq["c0"])
+    x = (-ka + math.sqrt(ka * ka + 4 * ka * c0)) / 2      # positive root of x² + Kₐx − Kₐc0 = 0
+    return -math.log10(x)
+
+
+def test_weak_acid_ph_shape_kinds_and_both_badges():
+    gym = _gym_from(SPEC_WEAK_ACID)
+    assert {p["kind"] for p in gym["problems"]} == {"weak_acid_ph"}
+    # REGIME-2 (model-assumed: the equilibrium/ideal-dilute model) AND data-sourced (Kₐ), like calorimetry
+    assert gym["assumptions"] and all(a["kind"] == "model" for a in gym["assumptions"])
+    assert gym["provenance"]["sources"]["ionization_constants"]
+    for p in gym["problems"]:
+        _assert_numeric_response(p)                       # free entry, never a gameable menu
+        assert p["answer"]["unit"] == "" and "choices" not in p
+        assert p["subscript_tokens"]                      # the acid formula, for prettyText subscripting
+
+
+def test_weak_acid_ph_answers_reproduce_the_root():
+    """Every committed pH re-derives from the mass-action root (the quadratic here matches the bisection)."""
+    for p in _gym_from(SPEC_WEAK_ACID)["problems"]:
+        got = _rederive_weak_acid_ph(p["derivation"]["equilibrium"])
+        want = float(p["answer"]["value"])
+        assert abs(got - want) <= 0.01 * abs(want) + 1e-3, (p["derivation"]["equilibrium"], got, want)
+
+
+def test_weak_acid_ph_ka_round_trips():
+    """The emitted Kₐ is fixed-notation and round-trips through float() (the scientific-string trim bug guard)."""
+    for p in _gym_from(SPEC_WEAK_ACID)["problems"]:
+        ka = float(p["derivation"]["equilibrium"]["ka"])
+        assert 1e-11 < ka < 1e-3                          # the curated weak-acid Kₐ range (not mangled to ~0.5)
+
+
+def test_weak_acid_ph_strong_acid_is_a_diagnostic():
+    """Every problem carries the canonical 'treated the weak acid as strong' mistake as a diagnostic."""
+    for p in _gym_from(SPEC_WEAK_ACID)["problems"]:
+        assert any("strong" in d["misconception"].lower() for d in p["diagnostics"])
+
+
+def test_weak_acid_ph_answers_are_learnable():
+    for p in _gym_from(SPEC_WEAK_ACID)["problems"]:
+        assert 0.5 <= float(p["answer"]["value"]) <= 11
+
+
+def test_weak_acid_ph_deterministic():
+    assert _gym_from(SPEC_WEAK_ACID) == _gym_from(SPEC_WEAK_ACID)
+    assert _gym_from(SPEC_WEAK_ACID, seed=55)["problems"] != _gym_from(SPEC_WEAK_ACID)["problems"]

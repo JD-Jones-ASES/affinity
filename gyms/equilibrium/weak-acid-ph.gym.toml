@@ -1,0 +1,19 @@
+# A procedural gym (Phase 2 / brief §13.5, ADR-0048) — the equilibrium tier's drill instrument, and its second
+# MODEL-EXACT-and-DATA-SOURCED gym (like calorimetry): the pH is exact inside the equilibrium model (a
+# model-assumed badge) and rests on the sourced acid ionization constant Kₐ (a data-sourced badge). Every answer
+# is found the honest way — the SAME `solve_equilibrium` bisection root (Q = Kₐ) as the flagship acetic-acid
+# lesson, no small-x approximation — and the Node gate re-solves it from the emitted Kₐ + concentration. The
+# answer is reported ROUNDED to 3 significant figures (the root is irrational). The named diagnostics are the
+# canonical weak-acid mistakes: treating the acid as strong, confusing Kₐ with [H⁺] (pKₐ), and dropping the
+# square root.
+
+id = "weak-acid-ph"
+title = "Weak-acid pH: solve the ICE table for [H⁺]"
+slug = "weak-acid-ph"
+topic = "equilibrium"
+family = "weak_acid_ph_v1"
+seed = 1618033
+count = 10
+blurb = "A weak acid only partly ionizes, so its pH is not simply −log of its concentration — you have to solve the equilibrium. Each drill gives a weak acid, its Kₐ, and how concentrated the solution is; you find the pH the real way, from the ICE table's mass-action root (the same solver the acetic-acid lesson uses). Type your answer (rounded to three significant figures). If you slip, the drill names the mistake — treating the weak acid as strong (pH = −log[HA]₀), confusing Kₐ with the hydrogen-ion concentration (that gives the pKₐ), or forgetting the square root in [H⁺] = √(Kₐ·[HA]₀). The arithmetic is machine-checked; the equilibrium model is disclosed, not proved, and Kₐ is a sourced measured value."
+skills = ["set up the ICE table for HA ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for [H⁺]", "convert [H⁺] to pH with pH = −log₁₀[H⁺]", "recognize that a weak acid ionizes only slightly, so pH ≠ −log[HA]₀", "keep Kₐ (the equilibrium constant) distinct from [H⁺] (what you solve for)"]
+reference_links = ["chemical-equilibrium", "ph"]

@@ -28,6 +28,7 @@ from fractions import Fraction
 
 from . import BuildError, __version__
 from .balance import balance
+from .equilibrium import solve_equilibrium
 from .formula import parse_formula
 from .nomenclature import (assemble_with, base_cation_name, formula_ionic, greek, is_variable,
                           name_ionic, other_charge_names, roman)
@@ -1312,6 +1313,21 @@ def _gnum(d) -> str:
     return _sigdec(d, 12) if isinstance(d, Decimal) else str(d)
 
 
+_SCI_SUP = {"-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
+            "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"}
+
+
+def _sci(d: Decimal) -> str:
+    """A small Decimal in scientific notation with a Unicode exponent (1.8e-5 → '1.8×10⁻⁵'). PROSE only (a gym
+    prompt); the committed derivation keeps the plain decimal string the gate re-parses. Measurement numbers in
+    prompts are never touched by prettyText, so this Unicode form survives to the page verbatim."""
+    if d == 0:
+        return "0"
+    exp = d.adjusted()
+    mant = _trim(format(d.scaleb(-exp).normalize(), "f"))
+    return f"{mant}×10{''.join(_SCI_SUP[ch] for ch in str(exp))}"
+
+
 def _rounded_response(answer: Decimal, unit: str, wrongs):
     """Free-entry response for a model-exact-then-rounded numeric answer (ADR-0040/0032). Reports the answer at
     3 sig figs (display) and 4 sig figs (the value the player checks against, 1% tolerance); each named-mistake
@@ -1664,6 +1680,96 @@ def _generate_calorimetry(seed, count, data, ctx):
     return problems
 
 
+# ------------------------------ weak-acid pH (Phase 2 equilibrium, ADR-0048) ------------------------------
+#
+# The equilibrium tier's drill instrument: the pH of a weak monoprotic acid, from its sourced Kₐ and formal
+# concentration. Like the gas-laws + calorimetry gyms it is **model-exact-then-rounded** (the equilibrium
+# position rides on the ideal-dilute-solution model, so the answer is reported to 3 sig figs and the gate
+# re-derives within tolerance) AND carries a SECOND honesty layer — Kₐ is an empirical **data-sourced** datum
+# (regime-3, OpenStax App H). The pH is found the honest way: `solve_equilibrium` finds the extent where
+# Q = Kₐ (bisection — no small-x approximation), exactly the flagship acetic-acid lesson's machine. Free-entry
+# numeric (ADR-0032); the diagnostics are the canonical weak-acid mistakes, each a wrong pH VALUE: treating the
+# acid as strong (pH = −log[HA]₀), confusing Kₐ with [H⁺] (pH = pKₐ), and dropping the square root
+# ([H⁺] = Kₐ·[HA]₀ instead of √). The gate re-solves the mass-action root in pure Node (shared with the
+# equilibrium lessons' `equilibriumcheck.mjs`) and re-checks the pH.
+_WA_C0 = [Decimal(c) for c in ("0.0100", "0.0250", "0.0500", "0.100", "0.200", "0.500", "1.00")]
+
+
+def _weak_acid_ph_problem(rng, acids, ctx):
+    """One weak-acid pH problem: pick a curated weak acid (formula, Kₐ, name) + a concentration, solve for the
+    pH via the mass-action root. Returns None if fewer than one diagnostic survives the 3.5% filter."""
+    formula, rec = rng.choice(acids)
+    ka, name = rec["ka"], rec["name"]
+    c0 = rng.choice(_WA_C0)
+    species = [{"id": formula, "nu": -1, "initial_M": c0},
+               {"id": "H^+", "nu": 1, "initial_M": Decimal(0)},
+               {"id": "A^-", "nu": 1, "initial_M": Decimal(0)}]
+    sol = solve_equilibrium(species, ka, ctx)
+    x = sol["extent"]                                              # [H⁺] at equilibrium
+    with localcontext() as c:
+        c.prec = 40
+        pH = -(x.log10())
+        # named-mistake pH values (each a canonical weak-acid error)
+        strong = -(c0.log10())                                    # treated as a strong acid: [H⁺] = [HA]₀
+        pka = -(ka.log10())                                       # confused Kₐ with [H⁺]: pH = pKₐ
+        no_sqrt = -((ka * c0).log10())                            # [H⁺] = Kₐ·[HA]₀ (forgot the square root)
+    if not (Decimal("0.5") <= pH <= Decimal("11")):               # keep the answer in a learnable range
+        return None
+    wrongs = [
+        (strong, f"Treated the weak acid as strong (fully ionized), so [H⁺] = the formal concentration "
+                 f"{_gnum(c0)} M and pH = −log[HA]₀. Only a small fraction of a WEAK acid ionizes."),
+        (pka, f"Confused Kₐ with [H⁺]: pH = −log(Kₐ) is the pKₐ, not the pH. Kₐ sets the equilibrium; you "
+              f"still solve for [H⁺]."),
+        (no_sqrt, "Dropped the square root — [H⁺] = √(Kₐ·[HA]₀) for a weak acid (from Kₐ ≈ [H⁺]²/[HA]₀), "
+                  "not Kₐ·[HA]₀."),
+    ]
+    value, display, diagnostics = _rounded_response(pH, "", wrongs)
+    if len(diagnostics) < 1:
+        return None
+
+    ka_sci = _sci(ka)
+    prompt = (f"A {_gnum(c0)} M solution of {name} ({formula}) has Kₐ = {ka_sci}. "
+              f"What is the pH? (Solve {formula} ⇌ H⁺ + A⁻ for [H⁺], then pH = −log₁₀[H⁺].)")
+    chain = [
+        {"value": _sigdec(x, 3), "unit": "M",
+         "note": f"[H⁺] from Kₐ = [H⁺][A⁻]/[{formula}] (the extent where Q = Kₐ)"},
+        {"value": _sigdec(pH, 3), "unit": "", "note": "pH = −log₁₀[H⁺]"},
+    ]
+    explain = (f"Set up the ICE table for {formula} ⇌ H⁺ + A⁻ and solve Kₐ = [H⁺]²/([HA]₀ − [H⁺]) for the "
+               f"extent [H⁺] = {_sigdec(x, 3)} M. Then pH = −log₁₀[H⁺] = {display}. Only {_sigdec(x / c0 * 100, 2)}% "
+               f"of the acid ionizes — it is weak.")
+    return {
+        "kind": "weak_acid_ph", "mode": "numeric", "prompt": prompt, "subscript_tokens": [formula],
+        "chain": chain, "answer": {"value": value, "unit": "", "display": display},
+        # ka in FIXED notation (format "f", never _trim(str) — that mangles a scientific Decimal like 4.9E-10
+        # into 4.9E-1 by stripping the exponent's trailing zero); c0 likewise round-trips through Number().
+        "derivation": {"kind": "weak_acid_ph",
+                       "equilibrium": {"acid": formula, "ka": format(ka, "f"), "c0": format(c0, "f")}},
+        "diagnostics": diagnostics, "explain": explain,
+    }
+
+
+def _generate_weak_acid_ph(seed, count, data, ctx):
+    if not data.ionization_constants:
+        raise BuildError(f"{ctx}: weak-acid-pH gym needs data/ionization-constants.toml")
+    acids = sorted(data.ionization_constants.items())             # (formula, {name, ka}) — deterministic order
+    rng = random.Random(seed)
+    problems: list[dict] = []
+    seen: set = set()
+    attempts = 0
+    while len(problems) < count and attempts < 8000:
+        attempts += 1
+        p = _weak_acid_ph_problem(rng, acids, ctx)
+        if p is None or p["prompt"] in seen:
+            continue
+        seen.add(p["prompt"])
+        p["id"] = f"q{len(problems) + 1}"
+        problems.append(p)
+    if len(problems) < count:
+        raise BuildError(f"{ctx}: weak-acid-pH gym could not generate {count} problems at seed {seed}")
+    return problems
+
+
 # ------------------------------ Lewis structures (Phase 2 bonding, ADR-0044) ------------------------------
 #
 # Generated electron-counting drills off a curated molecule-skeleton corpus, each answered by the SAME engine
@@ -1891,6 +1997,7 @@ _FAMILIES = {
     "gas_laws_v1": _generate_gas_laws,
     "calorimetry_v1": _generate_calorimetry,
     "lewis_structures_v1": _generate_lewis,
+    "weak_acid_ph_v1": _generate_weak_acid_ph,
 }
 
 
@@ -1924,6 +2031,9 @@ def generate_gym(spec: dict, data, ctx: str = "") -> dict:
         # valence electrons come from the IUPAC group positions; the geometry names from the VSEPR table (ADR-0044)
         sources["position"] = data.sources.get("position", "")
         sources["vsepr"] = data.sources.get("vsepr", "")
+    if family == "weak_acid_ph_v1":
+        # the pH answers rest on the sourced acid ionization constants Kₐ (data/ionization-constants.toml, ADR-0048)
+        sources["ionization_constants"] = data.sources.get("ionization_constants", "")
 
     gym = {
         "kind": "gym",
@@ -1964,5 +2074,11 @@ _FAMILY_ASSUMPTIONS = {
          "kind": "model"},
         {"claim": "The specific heat capacity c is constant over the temperature range and there is no phase "
                   "change (no melting or boiling).", "kind": "model"},
+    ],
+    "weak_acid_ph_v1": [
+        {"claim": "One dominant equilibrium: only the acid's ionization matters, and water's own autoionization "
+                  "is neglected ([H⁺]₀ = 0). Valid when the acid's [H⁺] ≫ 10⁻⁷.", "kind": "model"},
+        {"claim": "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which "
+                  "is why Kₐ is written with concentrations.", "kind": "model"},
     ],
 }

@@ -122,6 +122,14 @@ A `family` selects the generator in `chemkernel.gym.generate_gym`. Today:
   pure Node. Named diagnostics: counting *all* electrons not just valence (the atomic-number sum), forgetting a lone pair
   is a domain, treating a double bond as two domains. Sourced badge: the IUPAC group positions + the VSEPR table. A
   molecule with all single bonds and no central lone pair yields no named numeric trap and is skipped.
+- **`weak_acid_ph_v1`** (ADR-0048) — the equilibrium tier's drill: the **pH of a weak acid** (`weak_acid_ph`), over the
+  curated weak acids + concentrations. Numeric free-entry, **model-exact-then-rounded** *and* **data-sourced** (both badges,
+  like `calorimetry_v1`): the pH rides the ideal-dilute-solution model (an `assumptions` block) and rests on the sourced Kₐ
+  (`data/ionization-constants.toml`, the `ionization_constants` provenance source). The pH is found the honest way — the
+  generator and the gate both use `equilibrium.solve_equilibrium`'s mass-action root (Q=Kₐ by bisection, **no small-x
+  approximation**), the same machine as the acetic-acid lesson; the gate reuses `solveEquilibrium` from the shared
+  `equilibriumcheck.mjs`. The `derivation` carries an `equilibrium` block (acid + Kₐ + [HA]₀). Named diagnostics: treating
+  the weak acid as strong (pH = −log[HA]₀), confusing Kₐ with [H⁺] (that is the pKₐ), and dropping the square root.
 
 Adding a new procedural skill means adding a new `family` to `generate_gym` and, if it introduces a new answer
 shape, a per-kind branch to `validate-gyms.mjs` so the gate can re-derive it. It does **not** mean new plumbing.

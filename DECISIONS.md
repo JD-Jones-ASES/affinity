@@ -1603,3 +1603,22 @@ comparison + **4 equilibrium**; validate-reference = 66 (+1 concept); check-kate
 independent re-solve; pH; p$K_a$; buffer ratio; the H–H identity; the no-buffer pH → the acid-alone re-solve; the suppression
 factor — each a distinct branch). The `equilibrium` lesson kind now has **four subtypes** (weak-acid / buffer / weak-base /
 solubility).
+
+**Update (5th increment, same day) — the `weak_acid_ph_v1` gym: the tier's drill instrument.** Every model-bearing tier
+gets a gym (gases, calorimetry); equilibrium's is the pH of a weak acid, drilled endlessly over the curated weak acids +
+concentrations. It is **model-exact-then-rounded AND data-sourced** (like calorimetry, ADR-0042 — both badges): the pH rides
+the ideal-dilute-solution model (regime-2, disclosed) and rests on the sourced $K_a$ (regime-3). It is found the **honest**
+way — the generator and the gate both use `solve_equilibrium`'s mass-action root (Q=$K_a$ by bisection), **no small-x
+approximation** — exactly the flagship acetic-acid lesson's machine, so the gym and the lesson can't disagree. Free-entry
+numeric (ADR-0032), pH reported to 3 sig figs; the diagnostics are the canonical weak-acid errors, each a wrong pH VALUE:
+treating the acid as strong (pH = −log[HA]₀), confusing $K_a$ with [H⁺] (pH = p$K_a$), and dropping the square root
+([H⁺] = $K_a$·[HA]₀). The gate's re-derivation **reuses `solveEquilibrium` from `equilibriumcheck.mjs`** (the same shared
+Node solver the equilibrium lessons' gate uses) — one instrument, three call sites (the Python builder, the lesson gate, the
+gym gate). New (additive): `gym._generate_weak_acid_ph` + `_sci` (Unicode scientific notation for the prompt's $K_a$) + the
+`weak_acid_ph_v1` family registration + provenance source + model-assumed disclosure; the `weak_acid_ph` derivation kind +
+`equilibrium` block + the `ionization_constants` provenance source in `schemas/gym.schema.json`; `verifyWeakAcidPh` in
+`validate-gyms.mjs`; `gyms/equilibrium/weak-acid-ph.gym.toml`. A subtle bug caught in review: a scientific-notation Decimal
+($K_a$) must be emitted with `format(d, "f")`, not `_trim(str(d))` — the latter strips the exponent's trailing zero
+(4.9E-10 → 4.9E-1). **362 tests** (+6); validate-gyms = **12 gyms / 120 problems**; check-katex unchanged (gym prompts are
+Unicode prose, not KaTeX); **35 pages** (+1: `/gym/weak-acid-ph/`); `derived/` byte-stable (1 new file). In-browser: the free
+entry accepts the correct pH and the wrong "treated as strong" entry fires the named diagnostic.

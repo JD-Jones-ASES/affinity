@@ -63,7 +63,7 @@
             "required": ["kind"],
             "properties": {
               "kind": {
-                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield", "limiting_mass", "trend_compare", "predict_ion", "order_ionization", "classify_family", "name_spectators", "gas_ideal", "gas_combined", "calorimetry", "lewis_valence", "lewis_domains", "lewis_geometry"]
+                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield", "limiting_mass", "trend_compare", "predict_ion", "order_ionization", "classify_family", "name_spectators", "gas_ideal", "gas_combined", "calorimetry", "lewis_valence", "lewis_domains", "lewis_geometry", "weak_acid_ph"]
               },
               "inputs": {
                 "type": "object",
@@ -156,6 +156,17 @@
                   "substance": { "type": "string", "minLength": 1 },
                   "q": { "type": "string" }, "m": { "type": "string" },
                   "c": { "type": "string" }, "dT": { "type": "string" }
+                }
+              },
+              "equilibrium": {
+                "type": "object",
+                "additionalProperties": false,
+                "$comment": "weak_acid_ph kind (ADR-0048): the sourced weak acid + its Kₐ + formal concentration [HA]₀ (decimal strings). validate-gyms re-solves the mass-action root (Q=Kₐ) in pure Node (shared equilibriumcheck.mjs) and re-checks pH = −log₁₀[H⁺].",
+                "required": ["acid", "ka", "c0"],
+                "properties": {
+                  "acid": { "type": "string", "minLength": 1 },
+                  "ka": { "type": "string", "minLength": 1 },
+                  "c0": { "type": "string", "minLength": 1 }
                 }
               },
               "lewis": {
@@ -253,7 +264,8 @@
             "reaction_classes": { "type": "string" },
             "constants": { "type": "string" },
             "specific_heats": { "type": "string" },
-            "vsepr": { "type": "string" }
+            "vsepr": { "type": "string" },
+            "ionization_constants": { "type": "string" }
           }
         }
       }
