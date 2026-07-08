@@ -7,146 +7,31 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 
 ## Status
 
-- **Bootstrap — COMPLETE** (2026-07-05). Repo founded docs-first: AGENTS.md session routing + close-out
-  protocol, eleven founding ADRs (ADR-0001…0011), architecture design contract with open questions,
-  house conventions, regime map seeded across all v1 topics, SOURCES register, licenses, private GitHub
-  repo. No code, no content.
-- **Phase 0 — the vertical slice — COMPLETE** (2026-07-05), pending owner review. All eight scope items
-  landed and verified end to end; the site is built and deployed. ChemKernel compute + chemistry engine:
-  element/ion/solubility datasets (ADR-0012/0017), formula parser + molar mass,
-  balancer (ADR-0014), units/quantity engine (ADR-0015), Extent solver → species ledger (ADR-0016),
-  dissociation + complete/net ionic transforms (ADR-0018), sourced solubility classifier (ADR-0017) —
-  exact arithmetic throughout (ADR-0013). The **whole Phase 0 chemistry** runs end to end: molecular →
-  complete ionic → net ionic (spectators Na⁺/Cl⁻), carbonate rule cited for the precipitate, ledger, Ca²⁺
-  limiting, 0.250 g CaCO₃. The **emit + verify pipeline is live** (`build.py`/ADR-0019 →
-  `schemas/solution.schema.json`/ADR-0020 → Ajv + honesty gate). The **player now exists** (ADR-0021): an
-  Astro static site + Svelte islands renders the committed `derived/…solution.json` — scenario, the three
-  honesty badges, the three equations, dimensional chains, the species-ledger table, the result, the SHOWN
-  checks, and the misconception register. Both **interactives** work (ADR-0022): the extent bar and the
-  beaker/species view drive the **limiting-reagent switch** from parity-verified closed forms (the producer
-  emits an `interactive` block of JS closed forms + engine-computed sample points; `check-parity.mjs`
-  re-proves the browser's JS against the engine). The **gate suite is rounded out** (ADR-0023): five Node
-  gates — validate-solutions, check-ledger, check-parity, check-katex, scan-text — plus `astro build`. The
-  lesson also renders a **Practice** tab — 6 deterministic solver-verified variants with misconception
-  distractors, re-derived in Node from the parity-verified closed forms (ADR-0022, brief §6.8). The spec
-  format is documented (`docs/authoring-problems.md`) and **CI deploys to GitHub Pages** (`deploy.yml`, live
-  at `/affinity`; repo stays private on the owner's Educator plan, ADR-0010). **57 producer tests + 5 Node
-  gates + CI + live Pages green.** The **Chemical Atlas** now exists too (item 7): the Valence Table periodic
-  lens (click an element for its common ion; click a polyatomic to see neutral formulas fall out of charge
-  balance — the four lesson salts assembled by crossover and machine-verified) + **7 cross-linked concept
-  entries** (2 rule-sourced, cited), gated by `validate-reference`. **64 producer tests + 6 Node gates + astro
-  build (6 pages) + live Pages.** Every item of the brief-§16 definition of done is met. **Phase 0 is complete — stop for owner
-  review** before opening Phase 1.
-- **Post-Phase-0 breadth — 2026-07-05** (within settled contracts; Phase 0 stays complete). A **second
-  lesson** `precipitation/calcium-phosphate-limiting` — the first **non-1:1** reaction
-  (`3 Ca²⁺ + 2 PO₄³⁻ → Ca₃(PO₄)₂`, 0.310 g), where the limiting reagent is set by moles ÷ coefficient, not raw
-  moles — with full interactives + 6 practice variants (the emitters generalised to coefficient > 1 with no
-  code changes). The player gained a **coefficient-aware misconception refutation** (fires when coefficients
-  differ; the volume story still serves the 1:1 lesson) and the practice `limiting` explanation now teaches
-  capacity (moles ÷ coefficient) rather than the raw-moles fallacy. The **Atlas grew to 13 concepts**
-  (+`stoichiometry`, `dissociation`, `spectator-ion`, `polyatomic-ion`, `conservation-of-mass`,
-  `balancing-equations`) and the **Valence Table** gained the phosphate salts (Ca₃(PO₄)₂, Na₃PO₄ by crossover).
-  **2 lessons, 1 Valence Table + 13 concepts, 6 gates + CI + live Pages, 65 producer tests + astro build
-  (7 pages).** Phase 1 is still the owner's to open.
-- **Phase 1 — the procedural core — OPEN (2026-07-05).** Owner opened Phase 1 to build problem-generation
-  infrastructure ("the more problems we solve, the easier filling in granular lessons later"). **Item 1 —
-  the dimensional-analysis gym — landed** end to end as the reusable generated-problem instrument (ADR-0024):
-  authored `gyms/*.gym.toml` → `chemkernel.gym`/`build-gyms` → `derived/gyms/*.gym.json`, `gym.schema.json`,
-  the **`validate-gyms`** gate (now **7 gates**), and a `/gym/` drill player. First family
-  `solution_conversions_v1`: 10 deterministic, units-engine-verified conversions (volume·molarity·moles·mass),
-  each answer re-derived in pure Node, each wrong choice a named cancellation mistake. **70 producer tests +
-  7 gates + astro build (9 pages) + live Pages.** Items 2–6 (nomenclature, balancing, stoichiometry, the
-  Valence Table flagship, reaction families) inherit the instrument.
-- **Session 2026-07-05 (cont.) — practice redesign: numeric gyms are free entry, not gameable menus (ADR-0032).**
-  The owner caught the percent-yield gym handing away the answer — `55 %` beside `0.55 %` and a `>100 %` value,
-  so the plausible two-digit percent was always the pick, answerable with no chemistry. Root cause: a **numeric**
-  answer in a multiple-choice menu is eliminable by magnitude. Fixed by principle — **generated practice must not
-  be answerable by recognition**: the four numeric gym families (conversions, mass-stoichiometry, percent-yield,
-  limiting-mass) are now **free numeric entry**; the producer emits the named mistakes as a **`diagnostics`**
-  catalogue (value → misconception) instead of a menu, and the player names the mistake only when the learner
-  *types* it (the `0.55 %` giveaway became precise feedback). The categorical families (nomenclature, balancing)
-  keep a menu — every distractor is a plausible, same-form answer. The gate enforces the split (numeric →
-  diagnostics + no menu, each ≥ 3 % from the answer so a 1 % entry tolerance can't mis-flag). The **lesson
-  Practice tab** was converted the same session — its **mass/leftover** questions are free entry too (the
-  `0 mmol` leftover throwaway became a diagnostic), while the categorical **which reagent limits** stays a menu;
-  `check-parity` enforces the split. **156 producer tests + 7 gates + astro build (15 pages).**
-- **Session 2026-07-08 — Phase-1 item 5b: the Valence-Table flagship modes (item 5 COMPLETE).** Landed the
-  four modes on the committed table (ADR-0033): **Explore** (five lenses — ion charge, valence electrons,
-  electronegativity, covalent radius, first ionization energy — each coloring the sourced values with a
-  brief-§8.1 pattern panel), **Trends** (SVG property graphs across a period / down a group; gaps shown
-  honestly), **Formula builder** (the full 156-pair cation×anion crossover product, machine-verified and
-  **named** via the nomenclature engine — the item-2 hookup — with the own-charge mistake proven wrong per
-  pair), and **Bonding** (exact integer ΔEN classified against the sourced OpenStax Fig 7.8 thresholds in the
-  new `data/bonding.toml`, caution inseparable). **Architecture Q4 resolved**: regime-4 content renders under
-  the model-assumed badge with an explicit "interpretive" marker — the lens panels and the first
-  `mechanistic` concept (`periodic-trends`; + rule-sourced `electronegativity`/`ionization-energy` → **19
-  concepts**) ship that way. **Practice mode** is the seventh gym family `periodic_trends_v1` (ADR-0034):
-  compare/predict-ion/order-by-IE drills generated from the same data, exceptions (B/Be, O/N dips) answered
-  from the data and named; `validate-gyms` re-derives every answer and cross-checks each embedded value/ion
-  against `valence-table.json`; `validate-reference` re-derives valence electrons, salt names, crossover
-  subscripts, and mistake honesty in pure Node (8 tamper tests). **167 producer tests + 7 gates
-  (validate-reference = 20 objects; validate-gyms = 7 gyms / 70 problems; check-katex = 253) + astro build
-  (16 pages)**, `derived/` byte-stable; all four modes verified in-browser, light + dark. *Deferred within
-  item 5:* oxidation-state/electron-affinity/metallic-character/density/abundance lenses (each needs a data
-  session), a metal/nonmetal field for a data-driven bonding caution, acid naming in the formula builder.
-- **Session 2026-07-05 (cont.) — Phase-1 item 5a: element-property data curation.** Landed the Valence-Table
-  flagship's data foundation (ADR-0031): **widened the element set to 23** (the first twenty H…Ca + the
-  transition metals Fe/Cu/Zn) and curated three **primary-sourced periodic properties** — **electronegativity**
-  (Pauling scale, OpenStax), **covalent radius** (Cordero et al. 2008, main-group Z ≤ 20 — TM radii are
-  spin-state-dependent, deferred), **first ionization energy** (NIST) — as optional Decimal fields (never
-  float), each **cross-checked against the independent `mendeleev` oracle** (ADR-0026; `mendeleev` + `pandas`
-  added as dev-only oracles). Registered `nist-ionization-energies` + `cordero-2008-covalent-radii`; folded
-  Pauling EN into `openstax-chemistry-2e`; added the Li⁺/Be²⁺/F⁻ common ions. Properties are **emitted into
-  `valence-table.json`** (schema + surfaced in the lens's element-detail panel with per-source badges, and the
-  noble-gas "EN undefined" case shown honestly) and **gated**; **`validate-reference` now enforces that every
-  emitted source id resolves to a SOURCES.md register row** — a check SOURCES.md promised but no gate ran. The
-  interpretive **trend/bonding/practice lenses are item 5b**. **148 producer tests + 7 gates (validate-reference
-  = 17 objects, now source-resolving) + astro build (15 pages).**
-- **Session 2026-07-05 (cont.) — rendering + oracles + planning overhaul.** Formula typography settled
-  (ADR-0025): producer LaTeX now upright (`\mathrm`), generated practice/gym/scenario prose gets Unicode
-  sub/superscripts view-side (brief §6.1), display sig-figs finalized (closes architecture Q7). Independent
-  **test oracles** added (ADR-0026: `chempy` + `periodictable` dev-deps cross-check molar masses + both
-  lesson balances — **74 producer tests**). Doc sweep (architecture as-built to 7 gates/gym, README status)
-  and this roadmap's **Phase-1 scope blocks, session map, and definition of done** landed; scope decision:
-  Phase 1 + Atlas breadth first, **Phase 2 opens only on owner review**.
-- **Session 2026-07-05 (cont.) — Phase-1 item 2: formula & nomenclature engine (ionic).** Landed the second
-  gym family `ionic_nomenclature_v1` (name↔formula both directions, Stock system), a sourced `compound_name`
-  on every ion + 6 new metals (oracle-checked), the `chemkernel.nomenclature` engine, a pure-Node
-  name/formula re-derivation branch in `validate-gyms`, a `nomenclature` Atlas concept, and the Valence Table
-  to 15 elements (ADR-0027). **83 producer tests + 7 gates (2 gyms / 20 problems) + astro build (10 pages).**
-  Covalent/acid naming and the flagship formula-mode hookup are deferred within item 2.
-- **Session 2026-07-05 (cont.) — Phase-1 item 4 FINISHED.** Landed the remaining item-4 pieces (ADR-0030):
-  the **`limiting_mass_v1`** gym (limiting reagent from two masses → max product mass; the star distractor
-  sizes the yield from the excess reagent), the **flagship percent-yield lesson**
-  (`percent-yield/zinc-carbonate-percent-yield`) reusing the precipitation pipeline (theoretical = precipitate
-  mass) + an authored `[yield]` block → a new optional `result.percent_yield` block (re-derived by
-  `check-ledger`; >100% refused; a yield card + the full equations/ledger/interactives/practice for free), and
-  the **Avogadro constant** as a curated, sourced, exact datum (`data/constants.toml`, `bipm-si-2019`).
-  **139 producer tests + 7 gates (6 gyms / 60 problems; 3 solutions) + astro build (15 pages).** Item 4 is
-  complete bar the *particle-count* drills (moles↔particles), deferred to Phase 2 (the datum is in place; the
-  drills need sci-notation display and pair with gas/molar-volume work). **3 lessons total** now.
-- **Session 2026-07-05 (cont.) — Phase-1 item 4 (part): the stoichiometry gyms.** Landed two gym families
-  (ADR-0029): **`mass_stoichiometry_v1`** (grams → moles → mole ratio → moles → grams) and
-  **`percent_yield_v1`** (theoretical yield, then actual ÷ theoretical × 100), both forward-generated from
-  clean mole amounts (exact values) over the balancing corpus's neutral reactions. The gate **re-verifies each
-  equation balances** (reusing item 3's `verifyBalance` — the mole ratio is proven, not trusted) **and**
-  re-derives the mass/percent numerically; molar-mass consistency now spans the whole gym corpus; `chempy`
-  cross-checks the corpus molar masses. Named-mistake distractors throughout; a `percent-yield` Atlas concept;
-  the drill island's chain caption went family-aware. Fixed an island bug caught in-browser: the
-  conservation-tally block keyed on `derivation.species` (which stoichiometry also emits) — re-keyed to
-  balancing-only. **133 producer tests + 7 gates (5 gyms / 50 problems) + astro build (13 pages).** Deferred:
-  the `limiting_mass_v1` gym, the flagship percent-yield lesson, and the Avogadro datum.
-- **Session 2026-07-05 (cont.) — Phase-1 item 3: the balancing engine.** Landed the third gym family
-  `balancing_v1` (ADR-0028): a curated skeletal-reaction corpus (synthesis · combustion · decomposition ·
-  single/double replacement · acid-base · net-ionic) each **balanced by the engine**, emitting the
-  **conservation matrix** so the `DimensionalGym` island shows a **live per-element + charge tally** (integer
-  addition over producer data). Distractors are named mistakes — a coefficient that throws a stated element
-  off, and the **subscript-mutation trap** (H₂O→H₂O₂, CO→CO₂, proven honest at emit time). New verifiers: a
-  **pure-JS formula parser** (`scripts/validate/formula.mjs`, closing the ADR-0023 gap) re-parses every
-  formula and re-proves the coefficients zero every element + charge row; `chempy` cross-checks the neutral
-  corpus. Also fixed the gym islands' choice ordering (deterministic per-problem shuffle — the producer emits
-  the correct choice first). **100 producer tests + 7 gates (3 gyms / 30 problems) + astro build (11 pages).**
-  Deferred: redox half-reactions (Phase 2); a free coefficient-entry mode.
+- **Now (2026-07-08): Phase 1 OPEN — items 1–5 landed and deployed; item 6 (reaction families) is next**,
+  then the Atlas breadth audit (session-map #8) and the Phase-1 definition-of-done check → owner review
+  before Phase 2. Counters live in `AGENTS.md ## Current state`; per-increment detail in
+  [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan
+  of record.
+- **Bootstrap — COMPLETE** (2026-07-05): docs-first founding — routing + close-out protocol, ADR-0001…0011,
+  architecture contract, regime map, SOURCES, licenses, private repo.
+- **Phase 0 — the vertical slice — COMPLETE** (2026-07-05, owner-reviewed): the whole emit → verify →
+  present pipeline on the calcium-carbonate precipitation lesson — ChemKernel engine (ADR-0012…0019), one
+  solution schema + the five-gate Node suite (ADR-0020/0023), the player with both parity-verified
+  interactives (ADR-0021/0022), practice tab, authoring guide, CI → live Pages (ADR-0010), and the Chemical
+  Atlas (Valence Table + concepts). All eight brief-§16 items met.
+- **Post-Phase-0 breadth** (2026-07-05): second lesson `calcium-phosphate-limiting` — first non-1:1
+  stoichiometry, limiting-by-capacity teaching; Atlas to 13 concepts.
+- **Phase 1 — the procedural core — OPEN (2026-07-05), filling depth-first:**
+  - **Item 1** — dimensional-analysis gym, the reusable generated-problem instrument (ADR-0024).
+  - **Item 2** — formula & nomenclature engine, ionic both directions + Stock system (ADR-0027).
+  - **Item 3** — balancing gym + conservation-matrix tally + the pure-JS formula parser (ADR-0028).
+  - **Item 4** — stoichiometry suite: 3 gym families + the percent-yield lesson + the Avogadro datum
+    (ADR-0029/0030).
+  - **Practice hardening** — numeric answers are free-entry with diagnostics, never gameable menus; gyms
+    and the lesson Practice tab both (ADR-0032, owner-caught).
+  - **Item 5** — the Valence-Table flagship: 5a sourced property data (ADR-0031); 5b the four modes
+    (lenses/trends/formula-builder/bonding) + the `periodic_trends_v1` gym + architecture Q4 resolved
+    (ADR-0033/0034).
 
 ---
 
@@ -354,7 +239,7 @@ $\Delta G = -nFE$). Sequenced after Phase 1 review; not scoped yet — opening P
 
 As in the sibling: lessons go deep, the reference goes broad. Species atlas, formula/equation sheet,
 reaction atlas, concept graph (typed edges, brief §10.5) fill breadth-first alongside whatever phase is
-open. Status: **16 concept entries + the Valence Table**; reaction-family and species entry kinds arrive
+open. Status: **19 concept entries + the Valence Table**; reaction-family and species entry kinds arrive
 with Phase-1 items 6 and 8; coverage dashboard in [`docs/regime-map.md`](./docs/regime-map.md).
 
 ## Out of scope (v1)

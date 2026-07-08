@@ -27,7 +27,7 @@ as in the sibling: `prepare:data` = `produce` + `validate`; `build` = `validate`
 The load-bearing invariant: **ChemKernel refuses to emit** an object that fails any check below
 (ADR-0008). CI re-gates the committed output with Node-only checks. A green build certifies both layers.
 
-**As-built (2026-07-05 — Phase 0 complete, Phase 1 open).** The pipeline runs end to end — compute → emit →
+**As-built (2026-07-08 — Phase 0 complete; Phase 1 open, items 1–5 landed).** The pipeline runs end to end — compute → emit →
 verify → **present**. The engine: `data/` (element, ion, solubility datasets, ADR-0012/0017);
 `chemkernel.data`/`formula`/`balance`/`units`/`extent`/`reaction`/`solubility`/`build` (ADR-0012–0019);
 `chemkernel.interactive` (ADR-0022) — parity-verified closed forms for the sliders; `chemkernel.practice`
@@ -86,7 +86,9 @@ initial mol, stoich coefficient, final mol; limiting species; ξ_max); a dimensi
 `result`; `visualizations[]` (kind, static/interactive mode, params, annotations — ADR-0011 governs mode);
 an optional `interactive` block (ADR-0022: slider params + JS closed forms + engine-computed sample points
 the player evaluates and `check-parity` re-proves); an optional `practice` block (ADR-0022: deterministic
-solver-verified variants, each with `args` so `check-parity` re-derives the answer in Node);
+solver-verified variants, each with `args` so `check-parity` re-derives the answer in Node; per ADR-0032
+each question carries a `mode` — numeric ones are free-entry with a `diagnostics` catalogue, only the
+categorical limiting question keeps a `choices` menu);
 `misconception` (claim + what refutes it); `reference_links[]` (must resolve into the Atlas); badge
 annotations on every data/rule/model-dependent value; `provenance` (producer version, dataset versions,
 author, created).
@@ -121,7 +123,7 @@ reject-list.
 | validate-reference | **built** (+ADR-0031/0033): each `derived/reference/*.json` schema-valid by `kind` (`valence-table`/`concept`); unique ids; concept `related` edges + `lessons` slugs resolve; every charge-balance salt's ions come from the table; **every emitted `source` id (concept or Valence-Table facet) resolves to a `docs/SOURCES.md` register row**; and the ADR-0033 re-derivations — valence electrons from the IUPAC group (He = 2, d-block omitted), every salt's `name` by compound-name concatenation + subscripts by gcd crossover + formula reconstruction, every `mistake` re-proven wrong (non-neutral vs unreduced), and the bonding ΔEN classes tiling their boundaries |
 | validate-gyms | **built** (ADR-0024/0027/0028/0029/0034): each `derived/gyms/*.gym.json` Ajv-valid; every answer **re-derived in pure Node** per kind — conversions from raw `derivation.inputs`; nomenclature by name-concatenation + gcd charge-crossover; balancing by re-parsing each formula (`formula.mjs`) and re-proving the coefficients zero every element + charge row; **stoichiometry** (mass→mass, percent yield, limiting reagent) by re-verifying the equation balances (`verifyBalance`) **and** re-deriving the mass/percent/limiting reagent from the given/target molar masses + the coefficient ratio; **periodic trends** by re-comparing/re-sorting the embedded property values and **cross-checking every value, ion, and symbol against the committed `valence-table.json`**; plus the **response-mode split** (ADR-0032: numeric → a `diagnostics` catalogue each ≥ 3 % from the answer, no gameable menu; categorical → a one-correct `choices` menu) and molar-mass consistency across the **whole** corpus (conversions ∪ stoichiometry) |
 | check-ledger | **built** (ADR-0023): re-derives every row's final amount as n = n₀ + ν·ξ from the committed initial/coefficient/extent (independent of Python), checks role/sign consistency, matches the reported result (precipitate moles, leftovers), and **re-derives percent yield** (ADR-0030: theoretical = precipitate mass, percent = actual ÷ theoretical × 100, actual physical). A JS formula parser now exists (`formula.mjs`, ADR-0028) for a future atom/charge re-check by element counts |
-| check-parity | **built** (ADR-0023, ADR-0022): recompiles the exported JS closed forms and re-evaluates them at the embedded engine-computed sample points within tolerance; cross-checks the default slider setting against the committed static answer; **re-derives every practice answer** in Node from those closed forms (mass/leftover numerically, limiting by capacity) and asserts exactly-one-correct + distinct choices |
+| check-parity | **built** (ADR-0023, ADR-0022, ADR-0032): recompiles the exported JS closed forms and re-evaluates them at the embedded engine-computed sample points within tolerance; cross-checks the default slider setting against the committed static answer; **re-derives every practice answer** in Node from those closed forms (mass/leftover numerically, limiting by capacity) and enforces the mode split — numeric questions carry a `diagnostics` catalogue (each ≥ 3 % from the answer) and no menu; the categorical limiting question keeps a one-correct `choices` menu |
 | check-katex | **built** (ADR-0023): every LaTeX string renders through KaTeX with `throwOnError:true` |
 | scan-text | **built** (ADR-0023): committed text is provider-agnostic; banned-terms list in the gate, seeded from the sibling's (ADR-0004) |
 
@@ -135,6 +137,12 @@ paint-verification. Interactive islands evaluate only the producer's exported, p
 (ADR-0022) — no runtime chemistry. Nested Svelte islands (the interactives inside `SolutionPlayer`) require
 `svelte({ compilerOptions: { css: "injected" } })` in `astro.config.mjs` or their scoped CSS is silently
 dropped (known trap #2) — set, and confirmed rendering in the browser.
+
+**Choice presentation (ADR-0028).** The gym drill islands show multiple-choice options in a deterministic
+per-problem shuffle **seeded by the problem id** — the producer always emits the correct choice first, and a
+problem-id seed makes server and client agree (no hydration mismatch). Never reorder choices with
+`Math.random()` or client-only state; picking uses each choice's original index, and the gate is
+position-agnostic.
 
 **Formula typography (ADR-0025).** Producer LaTeX is upright (`\mathrm{CaCl_{2}}`, IUPAC). Generated and
 authored prose (practice prompts/choices/explanations, gym drills, scenarios, assumption claims) gets

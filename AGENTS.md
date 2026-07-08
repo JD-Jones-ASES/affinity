@@ -32,7 +32,10 @@ Always, in order (every session, ~5 minutes):
 
 1. This file, if you haven't this session.
 2. [`ROADMAP.md`](./ROADMAP.md) `## Status` — where the build is.
-3. The newest [`docs/sessions/`](./docs/sessions/) log — what just happened and what was flagged next.
+3. The newest [`docs/sessions/`](./docs/sessions/) log — **read its closing "State at session end" block
+   first** (every increment ends with a state + next-pointer block; older logs vary the label slightly);
+   read the rest of the log only if that block leaves questions. Logs can run long on multi-increment
+   days; the tail is the contract.
 
 Then, by session type:
 
@@ -61,12 +64,27 @@ No session ends without this checklist. Small session → short sweep; long sess
 
 1. **Decisions.** Every ADR-level call made this session is recorded in [`DECISIONS.md`](./DECISIONS.md)
    (format: context → decision → consequences, newest at bottom).
-2. **Doc sweep.** Update `ROADMAP.md ## Status` if the phase state moved; append to `CHANGELOG.md` if
-   something shipped; update this file's `## Current state` if counters or architecture changed. Deep
-   sweep additionally re-reads the touched docs for bloat, drift, and stale instructions, and fixes them.
-3. **Session log.** Write or append `docs/sessions/YYYY-MM-DD.md`: what was resumed, decisions (ADR ids),
-   what shipped, verification evidence (exact counts, never "tests pass"), deferred items, state at
-   session end, next-up candidates.
+2. **Doc sweep — update AND compress.** Append to `CHANGELOG.md` if something shipped (the canonical
+   what-shipped record); update `ROADMAP.md ## Status` if the phase state moved and this file's
+   `## Current state` if counters or standing facts changed (counters live *only* here — never restate
+   them in ROADMAP). Then enforce the **anti-bloat budgets** — history accumulates in CHANGELOG and the
+   session logs, never in the orientation docs:
+   - `AGENTS.md ## Current state` = the counters block + a short standing-facts note (25-line ceiling,
+     counted from the heading). It states *what is*, never *how it got there*.
+   - `AGENTS.md ## Where this might go next` = one paragraph pointing at the open item + the standing
+     options; next-up detail lives in the newest session log's closing block.
+   - `ROADMAP.md ## Status` = one "Now" line naming the open item, then **one compressed line per landed
+     roadmap item** (plus one for a cross-cutting increment worth a line) — ADR ids, no narrative;
+     CHANGELOG has the detail. Only the open phase's current work may carry a full paragraph.
+   - ROADMAP scope blocks for **landed** items keep their deferred/open lists (a future session needs
+     those) but shed step-by-step narrative.
+   - Deep sweep additionally re-reads every touched doc for bloat, drift, and stale instructions, and fixes
+     them. **Smell test:** if the orientation docs (this file, ROADMAP `## Status`) grew beyond the budgets
+     above during a session that didn't open a phase, the sweep isn't done.
+3. **Session log.** Write or append `docs/sessions/YYYY-MM-DD.md` (one file per date): what was resumed,
+   decisions (ADR ids), what shipped, verification evidence (exact counts, never "tests pass"), deferred
+   items — and **always end with a "State at session end" block whose last line is a "Next up" pointer**
+   (the cold-start contract; routing step 3 reads that block first).
 4. **Git.** Stage; **verify staging with `git ls-files --cached`** (Google Drive spawns
    `.tmp.driveupload/` junk mid-session — it must never be committed); commit with a message naming what
    shipped; push. Branches only when they make sense; this is a simple, single-owner repo.
@@ -165,7 +183,7 @@ contracts needs no permission; record it and go.
 ## Deploy
 
 **Live (2026-07-05).** `.github/workflows/deploy.yml`: push to `main` → GitHub Actions runs `npm install`
-(not `npm ci` — known trap #1) → the five Node gates + `astro build` → GitHub Pages at base path `/affinity`
+(not `npm ci` — known trap #1) → the seven Node gates + `astro build` → GitHub Pages at base path `/affinity`
 (https://jd-jones-ases.github.io/affinity/). Producer never runs in CI; CI validates the committed `derived/`.
 The **repo stays private** (ADR-0010); the owner's GitHub Educator plan allows Pages from a private repo, so
 Pages was enabled without going public. Caveat: on non-Enterprise plans the deployed *site* is world-readable
@@ -173,119 +191,36 @@ at its URL even though the repo is private (private/access-controlled Pages need
 
 ## Current state
 
-**Phase 0 COMPLETE; Phase 1 OPEN (2026-07-05).** Phase 0's eight scope items landed, verified, and deployed;
-the owner then opened Phase 1 and its **first item — the dimensional-analysis gym — landed** as the reusable
-generated-problem instrument the rest of Phase 1 inherits (ADR-0024; see the Phase-1 note below the counters).
-Bootstrap docs shipped, then the full ChemKernel compute + chemistry engine: `data/` (element/ion/
-solubility datasets, ADR-0012/0017) and the `chemkernel` package —
-`data`, `formula` (ADR-0014), `balance` (ADR-0014), `units` (ADR-0015), `extent` (species ledger, the
-ADR-0002 pivot, ADR-0016), `reaction` (dissociation + complete/net ionic, ADR-0018), `solubility` (sourced
-classifier, ADR-0017), `build` (orchestrator + `build-problems` entry point, ADR-0019), `interactive`
-(parity-verified closed forms for the sliders, ADR-0022), `practice` (deterministic solver-verified
-variants, brief §6.8), `reference` (the Valence Table projection + charge-crossover salt assembly + concept
-entries) — all exact Decimal/Fraction, never float (ADR-0013). The **emit → verify → present pipeline is live end to end**: the authored spec
-`problems/precipitation/calcium-carbonate-limiting.problem.toml` builds to a committed, schema-valid
-`derived/…solution.json` (`schemas/solution.schema.json`, ADR-0020), passes **five Node gates**
-(`validate-solutions`, `check-ledger`, `check-parity`, `check-katex`, `scan-text`), and **renders as an
-Astro/Svelte site** (ADR-0021): the lesson page steps scenario → three equations → dimensional chains →
-species ledger → result, shows the three honesty badges + the misconception register, and hosts **both
-interactives** — the extent bar and the beaker/species view — whose **limiting-reagent switch** runs on the
-parity-verified closed forms (ADR-0022). The lesson also renders a **Practice** tab (6 solver-verified
-variants with misconception distractors, brief §6.8), the spec format is documented
-(`docs/authoring-problems.md`), **CI deploys to GitHub Pages** (live), and the **Chemical Atlas** exists —
-the **Valence Table** periodic lens (click an element for its common ion; click a polyatomic to see neutral
-formulas fall out of charge balance; the two lessons' salts — incl. Ca₃(PO₄)₂/Na₃PO₄ — assembled by crossover
-+ machine-verified; 23 elements now carry sourced electronegativity/covalent-radius/first-ionization-energy,
-ADR-0031) plus **16 cross-linked concept entries**, gated by `validate-reference`. Molecular →
-complete ionic → net ionic (spectators Na⁺/Cl⁻), carbonate rule cited, ledger, Ca²⁺ limiting, 0.250 g CaCO₃.
-A **second lesson** (`calcium-phosphate-limiting`, post-Phase-0 within settled contracts) adds the first
-**non-1:1** reaction (`3 Ca²⁺ + 2 PO₄³⁻ → Ca₃(PO₄)₂`, 0.310 g): the `interactive`/`practice` emitters
-generalised to coefficient > 1 with no code changes, the player refutes the "fewer moles = limiting"
-misconception by **capacity** (moles ÷ coefficient), and the practice explanation teaches the same.
+**Phase 0 COMPLETE (2026-07-05). Phase 1 OPEN — items 1–5 landed and deployed; item 6 (reaction families)
+remains (2026-07-08).** How it got here lives elsewhere: per-increment history in
+[`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/), the plan + per-item scope blocks in
+[`ROADMAP.md`](./ROADMAP.md), module-by-module status in [`docs/architecture.md`](./docs/architecture.md)
+(§as-built). This section states only *what is*.
 
-**Phase 1 (OPEN)** adds the **gym** content type (ADR-0024): authored `gyms/*.gym.toml` →
-`chemkernel.gym`/`build-gyms` → committed `derived/gyms/*.gym.json`, one `schemas/gym.schema.json`, the
-**`validate-gyms`** Node gate (re-derives every answer in pure Node), and a `/gym/` drill player (the
-`DimensionalGym` island reveals the unit-cancellation chain on each pick). The first family
-`solution_conversions_v1` generates 10 deterministic, units-engine-verified conversions
-(volume·molarity·moles·mass); each value is exact (non-terminating rejected) and each wrong choice is a named
-cancellation mistake. Formula typography is settled (ADR-0025): upright `\mathrm` LaTeX, Unicode
-sub/superscripts in all generated/authored prose (view-side `prettyText`/`renderGym`), ASCII in data and
-gate comparisons; independent **test oracles** (ADR-0026: chempy/periodictable dev-deps) cross-check the
-masses and both balances in pytest. **Item 2 (formula & nomenclature engine) landed** (ADR-0027): a second
-gym family `ionic_nomenclature_v1` (name↔formula both directions, the Stock system for variable-charge
-metals), a sourced `compound_name` on every ion + 6 new metals (K/Mg/Al/Fe/Cu/Zn, oracle-checked), the
-`chemkernel.nomenclature` engine, and a pure-Node re-derivation branch in `validate-gyms` (name by
-concatenation, formula by gcd crossover). **Item 3 (balancing engine) landed** (ADR-0028): a third gym family
-`balancing_v1` over a curated skeletal-reaction corpus (synthesis/combustion/decomposition/replacement/
-acid-base/net-ionic), each **balanced by the engine**; the producer emits the **conservation matrix** so the
-`DimensionalGym` island shows a live per-element + charge tally (integer addition over producer data). Wrong
-choices are named mistakes — a coefficient that throws a stated element off, and the **subscript-mutation
-trap** (H₂O→H₂O₂, CO→CO₂, proven honest at emit time). A new **pure-JS formula parser**
-(`scripts/validate/formula.mjs`, closing the ADR-0023 gap) re-parses every formula and re-proves the
-coefficients zero every element + charge row; `chempy` cross-checks the neutral corpus. The gym islands now
-present choices in a deterministic per-problem shuffle (producer still emits the correct choice first).
-**Item 4 (stoichiometry suite) is DONE** (ADR-0029 + ADR-0030): three gym families —
-`mass_stoichiometry_v1` (grams → moles → mole ratio → moles → grams), `percent_yield_v1` (theoretical yield,
-then actual ÷ theoretical × 100), and `limiting_mass_v1` (limiting reagent from two masses → max product mass;
-the star distractor sizes the yield from the *excess* reagent) — all forward-generated from clean mole amounts
-(exact) over the neutral reaction corpus; the gate **re-verifies each equation balances** (reusing item 3's
-`verifyBalance`) **and** re-derives the number, with molar-mass consistency across the whole gym corpus. The
-**flagship percent-yield lesson** (`percent-yield/zinc-carbonate-percent-yield`) reuses the precipitation
-pipeline (theoretical yield = the precipitate mass) + an authored `[yield]` block → an optional
-`result.percent_yield` block (re-derived by `check-ledger`; >100% refused), inheriting equations/ledger/
-interactives/practice for free with a yield card added. The **Avogadro constant** is now a curated, sourced,
-exact datum (`data/constants.toml`, `bipm-si-2019`). A `percent-yield` Atlas concept landed; the drill
-island's chain caption is family-aware. **Deferred to Phase 2:** the *particle-count* drills (moles↔particles
-— the datum is in place, but they need sci-notation display and pair with gas/molar-volume work).
-**Item 5 (the Valence-Table flagship) is COMPLETE** (ADR-0031 data + ADR-0033/0034 modes, 2026-07-08): the
-table now runs **four modes** — Explore (five lenses, each a sourced color overlay + a pattern panel rendered
-with the **interpretive marker**: architecture Q4 resolved, regime-4 renders under the model-assumed badge, no
-fourth badge), Trends (SVG property graphs by period/group, honest gaps), Formula builder (the full 156-pair
-crossover product, machine-verified **and named** by the nomenclature engine, the own-charge mistake proven
-wrong per pair), and Bonding (exact integer ΔEN against the sourced OpenStax thresholds in `data/bonding.toml`,
-caution attached) — plus a **seventh gym family** `periodic_trends_v1` drilled from the same data (trend
-exceptions like the B/Be and O/N ionization dips are answered from data and named as traps);
-`validate-reference` re-derives valence electrons/names/subscripts/mistakes in pure Node and `validate-gyms`
-cross-checks every embedded value against the committed table.
-**Counters: 3 lessons (2 precipitation + 1 percent-yield) + 7 gyms (dimensional analysis + ionic nomenclature
-+ balancing + mass stoichiometry + percent yield + limiting reagent + periodic trends; 70 verified problems —
-the four numeric families are **free-entry with a diagnostics catalogue**, not gameable menus, ADR-0032; the
-lesson Practice tab's mass/leftover questions are free-entry too), 1 Valence Table (23 elements, four modes,
-five lenses, 156 named+verified salts, ADR-0031/0033) + 19 cross-linked concept entries (5 rule-sourced,
-cited; 1 mechanistic/interpretive), 7 Node gates + CI + live Pages, 167 producer tests green; astro build =
-16 pages.**
-**Phase 0 remains complete end to end**; Phase 1 is filling depth-first — **items 1–5 are done; item 6
-(reaction families) remains**, with its full scope block, the 8-session map, and a **Phase-1 definition of
-done** in the ROADMAP, with a review gate before Phase 2. See
-[`ROADMAP.md`](./ROADMAP.md) and [`docs/architecture.md`](./docs/architecture.md) (§as-built) for module status.
+**Counters:** 3 lessons (2 precipitation + 1 percent-yield) · 7 gyms / 70 verified problems (dimensional
+analysis · ionic nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent · periodic
+trends) · 1 Valence Table (23 elements; four modes — Explore lenses / Trends / Formula builder / Bonding;
+156 named + machine-verified salts) · 19 concept entries (5 rule-sourced, 1 interpretive) · 7 Node gates +
+CI + live Pages · 167 producer tests · astro build = 16 pages.
+
+**Standing facts a session should know:** all seven architecture open questions are resolved — the honesty
+model is settled at three badges, with regime-4 content rendering under the model-assumed badge + an
+explicit "interpretive" marker (Q4, ADR-0033). Numeric generated practice is free-entry with a diagnostics
+catalogue, never a menu; categorical stays a plausible menu (ADR-0032). The `interactive`/`practice` lesson
+emitters handle single-precipitate double-displacement at any integer stoichiometry; other reaction shapes
+(acid-base, gas evolution, redox) render statically until item 6 generalises them. The producer never runs
+in CI — the seven Node gates re-verify committed `derived/` from scratch.
 
 ## Where this might go next (paths for a future session)
 
-Phase 0 is complete and deployed; **Phase 1 is now open** (owner-opened 2026-07-05) and filling depth-first.
-Phase-0 foundations, done and tested: (a) element/ion/solubility datasets + SOURCES; (b) parser + balancer; (c) units/quantity engine;
-(d) dissociation + net-ionic transforms + solubility classifier; (e) Extent solver → species ledger; (f)
-the solution schema + `build.py` + the **five-gate** Node suite (validate-solutions, check-ledger,
-check-parity, check-katex, scan-text); (g) the **player** with **both interactives**; (h) the gate suite;
-(i) the **practice generator** + Practice tab; (j) the **Chemical Atlas** (Valence Table lens +
-`build-reference` + `reference.schema.json`/`valence-table.schema.json` + `validate-reference` + concept
-entries, now **13**); (k) `docs/authoring-problems.md`; and **CI/Pages** (live at `/affinity`) — **all eight
-items landed and verified. Phase 0 is complete.**
-
-**Phase 1 is open and filling depth-first** (ADR-0024). Items 1–5 are done — the dimensional-analysis gym,
-the formula/nomenclature engine, the balancing engine, the stoichiometry suite, and the **Valence Table
-flagship** (ADR-0031/0033/0034) — leaving **item 6, reaction families** (brief §17; it adds a `family` to
-`chemkernel.gym` and, for a new answer shape, a per-kind branch to `validate-gyms` — not new plumbing —
-plus the reaction-atlas entry kind and the first non-precipitation lesson shape). The **Atlas breadth-fill** (more species/reactions/
-concept-graph edges, `docs/regime-map.md` is the coverage dashboard) runs in parallel, as does another lesson.
-Docs-only sessions are always in season. **Opening Phase 2** (the model-bearing topics — gases,
-thermochemistry, equilibrium, kinetics, electrochemistry) remains a phase boundary the owner opens.
-**Extending inside the open phases** (a new gym family, a second lesson, more Atlas entries) is fair game and inherits the settled
-contracts — a second lesson (`calcium-phosphate-limiting`) and six more concepts landed this way (2026-07-05).
-Note the `interactive`/`practice` emitters (`chemkernel.interactive`/`practice`) support single-precipitate
-double-displacement at **any** integer stoichiometry (proven on the 3:2 phosphate reaction) — other reaction
-shapes (acid-base, gas-evolution, redox) still render statically (the blocks are omitted, by design) until
-the emitters generalise to them.
+**Item 6 — reaction families** is the last Phase-1 item (full scope block in the ROADMAP): the
+reaction-atlas entry kind, a reaction classifier, a `reaction_families_v1` gym, and the acid-base
+neutralization lesson — the first non-precipitation lesson shape, which generalises the
+`interactive`/`practice` emitters. After it: the Atlas breadth audit (session-map #8) and the **Phase-1
+definition-of-done check → owner review**. Always in season inside settled contracts: Atlas breadth-fill
+(species/reactions/concept edges — `docs/regime-map.md` is the coverage dashboard), further lessons, and
+docs-only sessions. **Opening Phase 2** (gases, thermochemistry, equilibrium, kinetics, electrochemistry)
+is a phase boundary only the owner opens.
 
 **Known traps (1 and 2 bit the sibling; 3–5 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested
