@@ -1,27 +1,43 @@
 ---
 // The equilibrium-lesson player (ADR-0048): the ICE table = the species ledger with the extent solved from mass
-// action. A fully STATIC Astro component (nothing to hydrate) — the reversible reaction, the ICE table, the
-// mass-action check (the machine-found extent that makes Q = Kₐ), the pH headline, the SHOWN checks, and the
-// misconception. Every value came from ChemKernel and was re-verified by the gates (equilibriumcheck.mjs).
+// action. Two subtypes — `weak-acid` (the pH) and `solubility` (Ksp → molar solubility, the pure solid excluded
+// from Q). A fully STATIC Astro component. Every value came from ChemKernel and was re-verified (equilibriumcheck.mjs).
 const { lesson } = Astro.props;
+const isKsp = lesson.subtype === "solubility";
 const ice = lesson.ice;
 const rows = ice.species;
-const acidRow = rows.find((r) => r.role === "reactant");
-const hplus = rows.find((r) => r.id === "H^+");
-const anion = rows.find((r) => r.role === "product" && r.id !== "H^+");
-const xDisp = ice.extent_M_display;
+const xSym = ice.extent_symbol;                          // "x" (acid) or "s" (Ksp)
 const kc = lesson.equilibrium_constant;
 const res = lesson.result;
-// display change = ν·x with a typographic minus
-const changeDisp = (r) => (r.nu < 0 ? "−" : "+") + xDisp;
-const changeSym = (r) => (r.nu < 0 ? "−x" : "+x");
+
+// the constant symbol as HTML (K_a → Kₐ, K_sp → K_sp)
+const kParts = kc.symbol.split("_");
+const kHtml = `${kParts[0]}${kParts[1] ? `<sub>${kParts[1]}</sub>` : ""}`;
+
+// symbolic change per row: ν·x, e.g. −x, +x, +2s; a pure solid (excluded) shows a dash
+const SUP = { "2": "²", "3": "³", "4": "⁴" };
+const changeSym = (r) => {
+  if (r.in_quotient === false) return "—";
+  const n = Math.abs(r.nu);
+  return (r.nu < 0 ? "−" : "+") + (n === 1 ? "" : n) + xSym;
+};
+
+// generic mass-action substitution from the in-quotient rows: ∏[products]^ν / ∏[reactants]^ν
+const inQ = rows.filter((r) => r.in_quotient !== false);
+const term = (r) => `(${r.equilibrium_M_display})${r.nu > 1 ? (SUP[r.nu] ?? `^${r.nu}`) : ""}`;
+const numer = inQ.filter((r) => r.nu > 0).map(term).join("");
+const denom = inQ.filter((r) => r.nu < 0).map(term).join("");
+const substitution = denom ? `${numer} / ${denom}` : numer;
+
+// misconception helper numbers
+const acidRow = !isKsp ? rows.find((r) => r.role === "reactant") : null;
 ---
 
 <section class="player">
   <header class="head">
     <div class="badges">
-      <span class="badge machine"><span class="dot"></span>ICE ledger machine-checked — every row is initial + ν·x, one extent x</span>
-      <span class="badge sourced"><span class="dot"></span>K<sub>a</sub> data-sourced ({kc.source})</span>
+      <span class="badge machine"><span class="dot"></span>ICE ledger machine-checked — every dissolved row is initial + ν·{xSym}, one extent {xSym}</span>
+      <span class="badge sourced"><span class="dot"></span><Fragment set:html={kHtml} /> data-sourced ({kc.source})</span>
       <span class="badge model"><span class="dot"></span>{lesson.assumptions.length} modeling assumption{lesson.assumptions.length === 1 ? "" : "s"} (disclosed)</span>
     </div>
     <p class="scenario" set:html={lesson.scenarioHtml} />
@@ -38,12 +54,12 @@ const changeSym = (r) => (r.nu < 0 ? "−x" : "+x");
     </div>
   </div>
 
-  <!-- the ICE table: Initial → Change → Equilibrium. This IS the species ledger (c = c₀ + ν·x) in concentrations. -->
+  <!-- the ICE table: Initial → Change → Equilibrium. This IS the species ledger (c = c₀ + ν·{xSym}) in concentrations. -->
   <div class="tablewrap">
     <table class="ice">
       <thead>
         <tr>
-          <th>Species <span class="hint">(aq)</span></th>
+          <th>Species</th>
           <th class="num">Initial (M)</th>
           <th class="num">Change (M)</th>
           <th class="num">Equilibrium (M)</th>
@@ -51,11 +67,11 @@ const changeSym = (r) => (r.nu < 0 ? "−x" : "+x");
       </thead>
       <tbody>
         {rows.map((r) => (
-          <tr>
-            <td class="sym"><span set:html={r.symbolHtml} /> <span class={`role ${r.role}`}>{r.role}</span></td>
-            <td class="num">{r.initial_M}</td>
-            <td class="num change"><span class="csym">{changeSym(r)}</span> = {changeDisp(r)}</td>
-            <td class="num eqm">{r.equilibrium_M_display}</td>
+          <tr class={r.in_quotient === false ? "solid" : ""}>
+            <td class="sym"><span set:html={r.symbolHtml} /> <span class="phase">({r.phase})</span>{r.in_quotient === false && <span class="excluded">pure solid · excluded from {isKsp ? "Ksp" : "Q"}</span>}</td>
+            <td class="num">{r.in_quotient === false ? "—" : r.initial_M}</td>
+            <td class="num change"><span class="csym">{changeSym(r)}</span></td>
+            <td class="num eqm">{r.in_quotient === false ? "—" : r.equilibrium_M_display}</td>
           </tr>
         ))}
       </tbody>
@@ -63,46 +79,66 @@ const changeSym = (r) => (r.nu < 0 ? "−x" : "+x");
   </div>
   <p class="ledger-note">
     <span class="badge machine tiny"><span class="dot"></span>machine-checked</span>
-    The Change row is <strong>ν·x</strong> — the very same extent ledger <span class="mono">c<sub>i</sub> = c<sub>i,0</sub> + ν<sub>i</sub>·x</span>
-    as any reaction. What differs is only where <em>x</em> stops.
+    The Change row is <strong>ν·{xSym}</strong> — the very same extent ledger <span class="mono">c<sub>i</sub> = c<sub>i,0</sub> + ν<sub>i</sub>·{xSym}</span>
+    as any reaction. {isKsp ? "The pure solid has activity 1, so it never enters the equilibrium expression." : "What differs is only where the extent stops."}
   </p>
 
-  <!-- the payoff: the extent x that makes the reaction quotient equal Kₐ (the reversible-extent solve) -->
+  <!-- the payoff: the extent that makes the reaction quotient equal K (the reversible-extent solve) -->
   <div class="proof massaction">
     <div class="proof-head">
       <span class="badge machine"><span class="dot"></span>Mass action</span>
-      <strong>x = {xDisp} M — the extent where Q = K<sub>a</sub>.</strong>
+      <strong>{xSym} = {ice.extent_M_display} {isKsp ? "M — the molar solubility, where" : "M — the extent where"} Q = <Fragment set:html={kHtml} />.</strong>
     </div>
     <p class="subst">
       <span class="expr" set:html={kc.expressionHtml} />
       <span class="eq">=</span>
-      <span class="nums mono">({hplus.equilibrium_M_display})({anion.equilibrium_M_display}) / {acidRow.equilibrium_M_display}</span>
+      <span class="nums mono">{substitution}</span>
       <span class="eq">=</span>
       <span class="kaval">{lesson.mass_action.quotientSci}</span>
-      <span class="eq">= K<sub>a</sub> ✓</span>
+      <span class="eq">= <Fragment set:html={kHtml} /> ✓</span>
     </p>
-    <p class="resid">Put the committed equilibrium concentrations back in and the quotient reproduces K<sub>a</sub> to
-      within {lesson.mass_action.residualSci} — the solver found the extent, and the gate re-solved it independently.</p>
+    <p class="resid">Put the committed equilibrium concentrations back in and the quotient reproduces <Fragment set:html={kHtml} /> to
+      within {lesson.mass_action.residualSci} — the solver found the extent{isKsp ? " (a cubic — bisection, not a formula)" : ""}, and the gate re-solved it independently.</p>
   </div>
 
   <!-- the reported results -->
-  <div class="results">
-    <div class="card">
-      <span class="k">[H<sup>+</sup>]</span>
-      <span class="v">{res.hydronium_M_display} M</span>
-      <span class="sub">{res.percent_ionization_display}% of the acid ionized</span>
+  {isKsp ? (
+    <div class="results">
+      <div class="card headline">
+        <span class="k">molar solubility</span>
+        <span class="v big">{res.molar_solubility_M_display} M</span>
+        <span class="sub">of {lesson.reaction.saltPretty} dissolves</span>
+      </div>
+      <div class="card">
+        <span class="k">solubility</span>
+        <span class="v">{res.solubility_g_per_L_display} g/L</span>
+        <span class="sub">= {xSym} × {res.molar_mass_g_per_mol} g/mol</span>
+      </div>
+      <div class="card">
+        <span class="k">saturated ions</span>
+        <span class="v small">{inQ.map((r) => `[${r.idPretty}] = ${r.equilibrium_M_display}`).join(" · ")}</span>
+        <span class="sub">M at equilibrium</span>
+      </div>
     </div>
-    <div class="card headline">
-      <span class="k">pH</span>
-      <span class="v big">{res.pH_display}</span>
-      <span class="sub">= −log<sub>10</sub>[H<sup>+</sup>]</span>
+  ) : (
+    <div class="results">
+      <div class="card">
+        <span class="k">[H<sup>+</sup>]</span>
+        <span class="v">{res.hydronium_M_display} M</span>
+        <span class="sub">{res.percent_ionization_display}% of the acid ionized</span>
+      </div>
+      <div class="card headline">
+        <span class="k">pH</span>
+        <span class="v big">{res.pH_display}</span>
+        <span class="sub">= −log<sub>10</sub>[H<sup>+</sup>]</span>
+      </div>
+      <div class="card">
+        <span class="k">un-ionized</span>
+        <span class="v">{acidRow.equilibrium_M_display} M</span>
+        <span class="sub">stays as intact {lesson.reaction.acidPretty}</span>
+      </div>
     </div>
-    <div class="card">
-      <span class="k">un-ionized</span>
-      <span class="v">{acidRow.equilibrium_M_display} M</span>
-      <span class="sub">stays as intact {lesson.reaction.acidPretty}</span>
-    </div>
-  </div>
+  )}
 
   <!-- the machine-checked facts, SHOWN not asserted -->
   <div class="proof">
@@ -111,23 +147,36 @@ const changeSym = (r) => (r.nu < 0 ? "−x" : "+x");
       <strong>Proven at build time — not asserted.</strong>
     </div>
     <ul class="checks">
-      <li><span class="tick">✓</span> Every equilibrium concentration = initial + ν·x <span class="tier">[ICE identity]</span></li>
-      <li><span class="tick">✓</span> The extent x re-solved independently (bisection) reproduces Q = K<sub>a</sub> <span class="tier">[mass-action root]</span></li>
-      <li><span class="tick">✓</span> 0 &lt; x &lt; [{lesson.reaction.acidPretty}]<sub>0</sub> — no concentration goes negative <span class="tier">[extent physical]</span></li>
-      <li><span class="tick">✓</span> pH = −log<sub>10</sub>[H<sup>+</sup>] <span class="tier">[log consistent]</span></li>
+      <li><span class="tick">✓</span> Every equilibrium concentration = initial + ν·{xSym} <span class="tier">[ICE identity]</span></li>
+      <li><span class="tick">✓</span> The extent {xSym} re-solved independently (bisection) reproduces Q = <Fragment set:html={kHtml} /> <span class="tier">[mass-action root]</span></li>
+      <li><span class="tick">✓</span> {isKsp ? "The pure solid is excluded from Q; s > 0" : `0 < ${xSym} < [${lesson.reaction.acidPretty}]₀`} — no concentration goes negative <span class="tier">[extent physical]</span></li>
+      <li><span class="tick">✓</span> {isKsp ? "solubility (g/L) = s × molar mass" : "pH = −log₁₀[H⁺]"} <span class="tier">[{isKsp ? "solubility consistent" : "log consistent"}]</span></li>
     </ul>
   </div>
 
-  <!-- misconception register: the weak acid treated as strong, refuted from the ledger -->
+  <!-- misconception register -->
   {lesson.misconception && (
     <div class="misconception">
       <div class="mis-claim"><span class="x">✗</span> Common misconception: “<span set:html={lesson.misconception.claimHtml} />”</div>
       <p class="mis-fix">
-        That would be true for a <strong>strong</strong> acid, which ionizes completely. But the ledger shows the
-        extent is only <strong>x = {xDisp} M</strong> — just <strong>{res.percent_ionization_display}%</strong> of
-        the acid ionizes. So [H<sup>+</sup>] = {res.hydronium_M_display} M and pH = <strong>{res.pH_display}</strong>,
-        not 1.00; the other {acidRow.equilibrium_M_display} M ({(100 - Number(res.percent_ionization_display)).toFixed(2)}%)
-        stays as intact {lesson.reaction.acidPretty} molecules. “Weak” means the equilibrium barely moves off the left.
+        {isKsp ? (
+          <>
+            Careful with the coefficient. Each {lesson.reaction.saltPretty} releases <strong>two</strong> {inQ[1].idPretty}
+            ions, so [{inQ[1].idPretty}] = 2{xSym}, and <Fragment set:html={kHtml} /> = [{inQ[0].idPretty}][{inQ[1].idPretty}]<sup>2</sup>
+            = {xSym}·(2{xSym})<sup>2</sup> = 4{xSym}<sup>3</sup> — a <strong>cubic</strong>, not {xSym}<sup>2</sup>. That gives
+            {" "}{xSym} = ({kHtml.includes("sp") ? "Ksp" : "K"}/4)<sup>1/3</sup> = <strong>{res.molar_solubility_M_display} M</strong>,
+            about 35× larger than √<Fragment set:html={kHtml} /> ≈ {(Math.sqrt(Number(kc.value))).toExponential(1)}. The coefficient
+            enters <strong>twice</strong> — as a concentration factor and as an exponent.
+          </>
+        ) : (
+          <>
+            That would be true for a <strong>strong</strong> acid, which ionizes completely. But the ledger shows the
+            extent is only <strong>{xSym} = {ice.extent_M_display} M</strong> — just <strong>{res.percent_ionization_display}%</strong>
+            of the acid ionizes. So [H<sup>+</sup>] = {res.hydronium_M_display} M and pH = <strong>{res.pH_display}</strong>, not
+            1.00; the other {acidRow.equilibrium_M_display} M ({(100 - Number(res.percent_ionization_display)).toFixed(2)}%) stays
+            as intact {lesson.reaction.acidPretty} molecules. “Weak” means the equilibrium barely moves off the left.
+          </>
+        )}
       </p>
     </div>
   )}
@@ -161,10 +210,10 @@ const changeSym = (r) => (r.nu < 0 ? "−x" : "+x");
   table.ice th, table.ice td { padding: 0.5rem 0.7rem; text-align: left; border-bottom: 1px solid var(--line); }
   table.ice th.num, table.ice td.num { text-align: right; font-family: var(--font-mono); white-space: nowrap; }
   table.ice thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); font-weight: 600; }
-  table.ice th .hint { text-transform: none; letter-spacing: 0; font-weight: 400; }
   table.ice .sym { font-size: 1.02rem; }
-  table.ice .role { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); margin-left: 0.35rem; }
-  table.ice td.change { color: var(--ink-2); }
+  table.ice .phase { color: var(--ink-faint); font-size: 0.8rem; }
+  table.ice .excluded { display: block; font-size: 0.68rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.03em; }
+  table.ice tr.solid td { color: var(--ink-faint); }
   table.ice td.change .csym { color: var(--accent); font-weight: 600; }
   table.ice td.eqm { font-weight: 600; color: var(--ink); }
   .ledger-note { margin: 0; font-size: 0.9rem; color: var(--ink-2); display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; line-height: 1.55; }
@@ -188,6 +237,7 @@ const changeSym = (r) => (r.nu < 0 ? "−x" : "+x");
   .card .k { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); }
   .card .v { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 600; color: var(--ink); }
   .card .v.big { font-size: 1.7rem; }
+  .card .v.small { font-size: 0.9rem; }
   .card .sub { font-size: 0.78rem; color: var(--ink-faint); }
   .card.headline { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
 

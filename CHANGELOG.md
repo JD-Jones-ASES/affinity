@@ -3,6 +3,33 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — equilibrium: Ksp solubility — the reversible-extent solver proven on the cubic (ADR-0048, 2nd increment)
+
+The reversible-extent solver **generalizes** — same machine, a structurally different equilibrium. A **Ksp
+(solubility)** lesson dissolves a sparingly soluble salt; the dissolving species is a **pure solid** (activity 1),
+so it is excluded from the mass-action quotient — and for a 1:2 salt that makes $K_{sp} = 4s^3$, a **cubic**, which
+bisection solves but the quadratic formula can't (the reason the solver was built general, ADR-0048).
+
+- **Lesson `equilibrium/calcium-fluoride-solubility`** — CaF₂(s) ⇌ Ca²⁺ + 2 F⁻, $K_{sp} = 3.45\times10^{-11}$ →
+  molar solubility $s = 2.05\times10^{-4}$ M (0.016 g/L). The misconception is forgetting the coefficient
+  ($s=\sqrt{K_{sp}}$), refuted from the cubic: [F⁻] = 2s enters $K_{sp}$ **twice** (a factor and an exponent), so
+  $s = (K_{sp}/4)^{1/3}$, ~35× larger than $\sqrt{K_{sp}}$. Closes the Phase-0 loop — the quantitative version of the
+  qualitative precipitation rules (the `precipitation` concept backlinks).
+- **Engine:** `solve_equilibrium` gains an `in_quotient` flag — a pure solid is excluded from Q and, being in
+  excess, does not bound the forward extent (the bracket is grown until Q > K). A new `build_solubility_lesson`; the
+  `equilibrium` lesson kind now has two **subtypes** (`weak-acid` / `solubility`), one schema (a `subtype`
+  discriminator), dispatched in `build_equilibrium` by `acid` vs `salt`.
+- **Data:** `data/solubility-products.toml` (Ksp, OpenStax App J: CaF₂, Mg(OH)₂) — the ion counts derived by charge
+  crossover + the salt composition machine-checked on load; the `solubility-product` concept.
+- **Gate:** `equilibriumcheck.mjs` handles the solid row (no concentration, excluded from Q) + re-derives the molar
+  solubility + g/L; `validate-solutions` enforces the subtype-specific fields. The static `EquilibriumLesson.astro`
+  renders both subtypes (the solid row shows "— pure solid · excluded from Ksp"; the change column "+2s").
+- **Verification:** **340 producer tests** (+7); 7 gates green (validate-solutions = 6 + 2 structure + 1 comparison +
+  **2 equilibrium**; validate-reference 64; check-katex 555); **32 pages** (+1); `derived/` byte-stable (the acetic
+  lesson gained `subtype`, + 2 new files). **4-way tamper-tested** — a coherent wrong solubility → the independent
+  re-solve; a corrupted fluoride coefficient → ICE identity; a bad g/L → solubility-consistent; the solid forced
+  into Q → ICE identity.
+
 ## Phase 2 — 2026-07-08 — open equilibrium & acid-base: the reversible-extent solver + weak-acid pH (ADR-0048)
 
 Opened the **equilibrium & acid-base** tier on its stress scenario, **the pH of a weak acid** — the thesis made literal:

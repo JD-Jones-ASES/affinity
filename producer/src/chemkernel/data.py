@@ -53,7 +53,8 @@ class ChemData:
                  constants: dict[str, Decimal] | None = None, bonding: dict | None = None,
                  constant_units: dict[str, str] | None = None, specific_heats: dict | None = None,
                  formation_enthalpies: dict | None = None, vsepr: dict | None = None,
-                 boiling_points: dict | None = None, ionization_constants: dict | None = None):
+                 boiling_points: dict | None = None, ionization_constants: dict | None = None,
+                 solubility_products: dict | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
@@ -75,6 +76,11 @@ class ChemData:
         # equilibrium tier's sourced datum (regime-3): the equilibrium engine solves the ICE ledger for the extent
         # that satisfies mass action, Ka = [H+][A-]/[HA]. Small Ka => the equilibrium lies far to the left.
         self.ionization_constants = ionization_constants or {}
+        # solubility-product constants Ksp (ADR-0048), keyed by salt formula -> {name, ksp (Decimal), cation,
+        # anion, n_cation, n_anion}. The ion counts are derived by charge crossover + the salt composition
+        # machine-checked on load (regime-1); the Ksp value is sourced (regime-3). The engine dissolves the solid
+        # and solves the mass-action root for the molar solubility.
+        self.solubility_products = solubility_products or {}
 
     @property
     def avogadro(self) -> Decimal:
@@ -105,6 +111,14 @@ class ChemData:
         if formula not in self.ionization_constants:
             raise BuildError(f"no ionization constant for '{formula}' in data/ionization-constants.toml")
         return self.ionization_constants[formula]
+
+    def solubility_product(self, formula: str) -> dict:
+        """The solubility-product constant Ksp (Decimal) of a sparingly soluble salt by formula, with its ions +
+        derived counts, from data/solubility-products.toml (ADR-0048). Raises if absent — the equilibrium engine
+        refuses to guess a missing Ksp (ADR-0008)."""
+        if formula not in self.solubility_products:
+            raise BuildError(f"no solubility product for '{formula}' in data/solubility-products.toml")
+        return self.solubility_products[formula]
 
     @classmethod
     def load(cls, root: Path | None = None) -> "ChemData":
@@ -270,6 +284,41 @@ class ChemData:
                 except (KeyError, ArithmeticError) as exc:
                     raise BuildError(f"data/ionization-constants.toml: bad entry for '{key}': {exc}") from exc
 
+        # solubility-product constants Ksp (optional file; ADR-0006/0048). The Ksp value is sourced (regime-3);
+        # the ion counts are DERIVED by charge crossover and the salt composition machine-checked here (regime-1),
+        # like data/acids-bases.toml — so "CaF2 is Ca^2+ + 2 F^-" is verified, the Ksp is the sourced datum.
+        from math import gcd as _gcd
+        solubility_products: dict = {}
+        sp_source = ""
+        sp_path = d / "solubility-products.toml"
+        if sp_path.exists():
+            sp_doc = tomllib.loads(sp_path.read_text(encoding="utf-8"))
+            sp_source = sp_doc.get("source", "")
+            for formula, v in sp_doc.get("salts", {}).items():
+                try:
+                    ksp = Decimal(v["ksp"])
+                    if ksp <= 0:
+                        raise BuildError(f"data/solubility-products.toml: '{formula}' ksp must be positive")
+                    cation, anion = ions.get(v["cation"]), ions.get(v["anion"])
+                    if cation is None or anion is None:
+                        raise BuildError(f"data/solubility-products.toml: '{formula}' names an unknown ion "
+                                         f"({v['cation']} / {v['anion']})")
+                    z_cat, z_an = cation.charge, abs(anion.charge)
+                    g = _gcd(z_cat, z_an)
+                    n_cat, n_an = z_an // g, z_cat // g              # charge crossover → smallest integer counts
+                    # machine-check the salt composition = n_cat cations + n_an anions (regime-1)
+                    expect: dict[str, int] = {}
+                    for cnt, ion in ((n_cat, cation), (n_an, anion)):
+                        for el, k in parse_formula(ion.formula).counts.items():
+                            expect[el] = expect.get(el, 0) + k * cnt
+                    if dict(parse_formula(formula).counts) != expect:
+                        raise BuildError(f"data/solubility-products.toml: '{formula}' is not {n_cat} {cation.id} "
+                                         f"+ {n_an} {anion.id} ({expect})")
+                    solubility_products[formula] = {"name": v["name"], "ksp": ksp, "cation": cation.id,
+                                                    "anion": anion.id, "n_cation": n_cat, "n_anion": n_an}
+                except (KeyError, ArithmeticError) as exc:
+                    raise BuildError(f"data/solubility-products.toml: bad entry for '{formula}': {exc}") from exc
+
         sources = {
             "atomic_weight": el_doc.get("source", ""),
             "position": el_doc.get("position_source", ""),
@@ -284,9 +333,10 @@ class ChemData:
             "vsepr": vsepr_source,
             "boiling_points": bp_source,
             "ionization_constants": ic_source,
+            "solubility_products": sp_source,
         }
         obj = cls(elements, ions, sources, constants, bonding, constant_units, specific_heats,
-                  formation_enthalpies, vsepr, boiling_points, ionization_constants)
+                  formation_enthalpies, vsepr, boiling_points, ionization_constants, solubility_products)
         obj.validate()
         return obj
 

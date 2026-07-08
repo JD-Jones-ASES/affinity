@@ -1,0 +1,135 @@
+{
+  "kind": "equilibrium",
+  "subtype": "solubility",
+  "id": "calcium-fluoride-solubility",
+  "title": "How much dissolves? The solubility of calcium fluoride",
+  "slug": "calcium-fluoride-solubility",
+  "topic": "equilibrium",
+  "tags": [
+    "equilibrium",
+    "solubility",
+    "Ksp",
+    "molar solubility",
+    "ICE table"
+  ],
+  "scenario": "Calcium fluoride — the mineral fluorite — is called “insoluble,” but no salt is perfectly insoluble: a tiny amount dissolves until the solution is **saturated**, $\\mathrm{CaF_2(s)} \\rightleftharpoons \\mathrm{Ca^{2+}(aq)} + 2\\,\\mathrm{F^-(aq)}$. *How much?* It is the ICE table again — but the dissolving species is a **pure solid**, whose activity is 1, so it never appears in the equilibrium expression: $K_{sp} = [\\mathrm{Ca^{2+}}][\\mathrm{F^-}]^2$. The extent of this reaction is the **molar solubility** $s$ — solve $K_{sp}$ for it.",
+  "regimes": [
+    {
+      "facet": "ICE ledger (species accounting)",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "equilibrium constant",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "equilibrium position (solubility)",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The solution is at saturation equilibrium with excess solid present, and this dissolution is the only reaction (no complex ions, no pH effect on $\\mathrm{F^-}$).",
+      "kind": "model"
+    },
+    {
+      "claim": "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which is why $K_{sp}$ is written with concentrations.",
+      "kind": "model"
+    }
+  ],
+  "reaction": {
+    "salt": "CaF2",
+    "salt_name": "calcium fluoride",
+    "salt_latex": "\\mathrm{CaF_{2}}",
+    "text": "CaF2(s) <=> Ca^2+(aq) + 2 F^-(aq)",
+    "latex": "\\mathrm{CaF_{2}}\\,\\text{(s)} \\rightleftharpoons \\mathrm{Ca}^{2+}\\,\\text{(aq)} + 2\\,\\mathrm{F}^{-}\\,\\text{(aq)}",
+    "cation": "Ca^2+",
+    "anion": "F^-"
+  },
+  "equilibrium_constant": {
+    "symbol": "K_sp",
+    "value": "0.0000000000345",
+    "expression_latex": "K_{sp} = [\\mathrm{Ca}^{2+}][\\mathrm{F}^{-}]^{2}",
+    "source": "openstax-chemistry-2e"
+  },
+  "ice": {
+    "extent_symbol": "s",
+    "extent_M": "0.000205078296485",
+    "extent_M_display": "0.000205",
+    "species": [
+      {
+        "id": "CaF2",
+        "latex": "\\mathrm{CaF_{2}}",
+        "phase": "s",
+        "role": "reactant",
+        "nu": -1,
+        "in_quotient": false
+      },
+      {
+        "id": "Ca^2+",
+        "latex": "\\mathrm{Ca}^{2+}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 1,
+        "in_quotient": true,
+        "initial_M": "0",
+        "change_M": "+0.000205078296485",
+        "equilibrium_M": "0.000205078296485",
+        "equilibrium_M_display": "0.000205"
+      },
+      {
+        "id": "F^-",
+        "latex": "\\mathrm{F}^{-}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 2,
+        "in_quotient": true,
+        "initial_M": "0",
+        "change_M": "+0.00041015659297",
+        "equilibrium_M": "0.00041015659297",
+        "equilibrium_M_display": "0.00041"
+      }
+    ]
+  },
+  "mass_action": {
+    "quotient_symbol": "Q",
+    "quotient_at_equilibrium": "0.0000000000345",
+    "residual_relative": "0.0000000000017"
+  },
+  "result": {
+    "molar_solubility_M": "0.000205078296485",
+    "molar_solubility_M_display": "0.000205",
+    "solubility_g_per_L": "0.0160113",
+    "solubility_g_per_L_display": "0.016",
+    "molar_mass_g_per_mol": "78.074"
+  },
+  "misconception": {
+    "claim": "Ksp is small (3.45e-11) and Ksp = s^2, so the molar solubility is s = sqrt(Ksp).",
+    "refuted_by": "stoichiometry_in_ksp"
+  },
+  "reference_links": [
+    "solubility-product",
+    "chemical-equilibrium",
+    "precipitation",
+    "extent-of-reaction",
+    "molarity"
+  ],
+  "checks": {
+    "ice_identity": true,
+    "mass_action_satisfied": true,
+    "extent_physical": true,
+    "solubility_consistent": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "solubility_products": "openstax-chemistry-2e",
+      "ion_charge": "openstax-chemistry-2e",
+      "atomic_weight": "ciaaw-2021-atomic-weights"
+    }
+  }
+}

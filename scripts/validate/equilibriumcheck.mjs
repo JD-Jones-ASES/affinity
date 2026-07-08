@@ -6,56 +6,73 @@
 // re-verifies the equilibrium with no Python. Shared (like structurecheck.mjs), used by validate-solutions.
 
 // The mass-action reaction quotient Q = ∏ c_i^{ν_i} (ν signed: products multiply, reactants divide via a
-// negative power). Every concentration must be positive (the caller stays on the physical interval).
-export function reactionQuotient(concs, nus) {
+// negative power). A species with inQ[i] false is a pure solid (activity 1, excluded from Q — the Ksp case,
+// ADR-0048). Every included concentration must be positive (the caller stays on the physical interval).
+export function reactionQuotient(concs, nus, inQ) {
   let q = 1;
-  for (let i = 0; i < concs.length; i++) q *= Math.pow(concs[i], nus[i]);
+  for (let i = 0; i < concs.length; i++) {
+    if (inQ && !inQ[i]) continue;
+    q *= Math.pow(concs[i], nus[i]);
+  }
   return q;
 }
 
-// Independently solve for the extent x at which Q(x) = K, by bisection over the physical interval
-// (−rev_limit, +fwd_limit) — a reactant hits 0 at x=fwd_limit, a product at x=−rev_limit. Q is strictly
-// increasing across it, so exactly one root. This is the Node mirror of chemkernel.equilibrium.solve_equilibrium
-// (float64 here — ample against 12-significant-figure committed values).
+// Independently solve for the extent x at which Q(x) = K by bisection. Q is strictly increasing in x, so exactly
+// one root. A species with in_quotient false (a pure solid) is excluded from Q and, being in excess, does not
+// bound the forward extent — so when no quotient reactant limits the forward direction the bracket is grown until
+// Q > K (the Ksp dissolution). Node mirror of chemkernel.equilibrium.solve_equilibrium (float64 — ample here).
 export function solveEquilibrium(species, K) {
   const nus = species.map((s) => s.nu);
   const c0 = species.map((s) => s.initial);
+  const inQ = species.map((s) => s.in_quotient !== false);
   const idx = species.map((_s, i) => i);
-  const fwd = Math.min(...idx.filter((i) => nus[i] < 0).map((i) => c0[i] / -nus[i]));
-  const prodRoom = idx.filter((i) => nus[i] > 0).map((i) => c0[i] / nus[i]);
-  const rev = prodRoom.length ? Math.min(...prodRoom) : 0;
-  const span = fwd + rev;
-  const eps = span * 1e-15;
-  let lo = -rev + eps, hi = fwd - eps;
   const concsAt = (x) => c0.map((c, i) => c + nus[i] * x);
-  const f = (x) => reactionQuotient(concsAt(x), nus) - K;
-  if (!(f(lo) < 0 && f(hi) > 0)) return { extent: NaN, fwd, rev };  // caller flags an unbracketed root
+  const f = (x) => reactionQuotient(concsAt(x), nus, inQ) - K;
+  const prodRoom = idx.filter((i) => nus[i] > 0 && inQ[i]).map((i) => c0[i] / nus[i]);
+  const rev = prodRoom.length ? Math.min(...prodRoom) : 0;
+  const reactRoom = idx.filter((i) => nus[i] < 0 && inQ[i]).map((i) => c0[i] / -nus[i]);
+  let lo, hi;
+  if (reactRoom.length) {
+    const fwd = Math.min(...reactRoom);
+    const eps = (fwd + rev) * 1e-15;
+    lo = -rev + eps; hi = fwd - eps;
+  } else {
+    lo = 1e-30; hi = 1;                              // a pure solid dissolving: grow hi until Q > K
+    let guard = 0;
+    while (f(hi) <= 0 && guard < 400) { hi *= 2; guard++; }
+  }
+  if (!(f(lo) < 0 && f(hi) > 0)) return { extent: NaN };  // caller flags an unbracketed root
   for (let k = 0; k < 200; k++) {
     const m = (lo + hi) / 2;
     if (f(m) > 0) hi = m; else lo = m;
   }
   const x = (lo + hi) / 2;
-  return { extent: x, fwd, rev, concs: concsAt(x), quotient: reactionQuotient(concsAt(x), nus) };
+  return { extent: x, concs: concsAt(x), quotient: reactionQuotient(concsAt(x), nus, inQ) };
 }
 
-// Re-derive + verify one equilibrium lesson. `fail(rel, msg)` exits the process (the caller's fail).
+// Re-derive + verify one equilibrium lesson (both subtypes — weak-acid pH + Ksp solubility, ADR-0048). `fail(rel,
+// msg)` exits the process (the caller's fail).
 export function verifyEquilibrium(rel, les, fail) {
   const rc = (g, w, t = 1e-6) => Math.abs(g - w) <= t * Math.abs(w) + 1e-12;
   const ice = les.ice;
   const x = Number(ice.extent_M);
-  if (!(x > 0)) fail(rel, `ice.extent_M ${ice.extent_M} is not positive`);
+  if (!(x > 0)) fail(rel, `ice.extent_M ${ice.extent_M} is not positive (extent physical)`);
 
+  // a row with in_quotient false is a pure solid (activity 1) — no concentration, excluded from Q. Others carry
+  // concentrations and enter Q. Keep the emitted in_quotient flag so the re-solve matches the producer.
   const species = ice.species.map((s) => ({
-    id: s.id, nu: s.nu, role: s.role, initial: Number(s.initial_M),
-    equilibrium: Number(s.equilibrium_M), change: Number(s.change_M),
+    id: s.id, nu: s.nu, role: s.role, in_quotient: s.in_quotient !== false,
+    initial: Number(s.initial_M), equilibrium: Number(s.equilibrium_M), change: Number(s.change_M),
   }));
   if (!species.some((s) => s.nu < 0)) fail(rel, "no reactant (ν<0) in the ICE table");
-  if (!species.some((s) => s.nu > 0)) fail(rel, "no product (ν>0) in the ICE table");
+  if (!species.some((s) => s.nu > 0 && s.in_quotient)) fail(rel, "no product in the quotient (ν>0)");
 
-  // 1. the ICE identity, re-derived: equilibrium = initial + ν·x, change = ν·x; roles agree with the ν signs.
+  // 1. the ICE identity, re-derived for each DISSOLVED row: equilibrium = initial + ν·x, change = ν·x; roles
+  // agree with the ν signs. A pure-solid row (in_quotient false) has no concentration — only its role/ν is checked.
   for (const s of species) {
     if ((s.nu > 0) !== (s.role === "product"))
       fail(rel, `${s.id}: role ${s.role} disagrees with ν sign ${s.nu}`);
+    if (!s.in_quotient) continue;                 // the pure solid carries no concentration to re-derive
     if (!rc(s.equilibrium, s.initial + s.nu * x))
       fail(rel, `${s.id}: equilibrium_M ${s.equilibrium} != initial + ν·x = ${(s.initial + s.nu * x)}`);
     if (!rc(s.change, s.nu * x))
@@ -66,36 +83,47 @@ export function verifyEquilibrium(rel, les, fail) {
   const K = Number(les.equilibrium_constant.value);
   if (!(K > 0)) fail(rel, `equilibrium constant ${les.equilibrium_constant.value} is not positive`);
 
-  // 2. the extent is physical: 0 < x < the reactant's initial concentration (nothing goes negative)
-  const solve = solveEquilibrium(species.map((s) => ({ nu: s.nu, initial: s.initial })), K);
-  if (!(x > 0 && x < solve.fwd + 1e-12))
-    fail(rel, `extent ${x} is not strictly between 0 and the forward limit ${solve.fwd}`);
-
-  // 3. INDEPENDENT re-solve of the mass-action root matches the committed extent (the reversible-extent solve)
+  // 2. INDEPENDENT re-solve of the mass-action root matches the committed extent (the reversible-extent solve —
+  // the same machine handles the weak-acid quadratic AND the Ksp cubic, the solid excluded from Q)
+  const solve = solveEquilibrium(species.map((s) => ({ nu: s.nu, initial: s.initial, in_quotient: s.in_quotient })), K);
   if (Number.isNaN(solve.extent)) fail(rel, "mass-action root not bracketed on re-solve");
   if (!rc(x, solve.extent, 1e-4))
     fail(rel, `ice.extent_M ${ice.extent_M} != independently re-solved root ${solve.extent} (Q=K)`);
 
-  // 4. mass action satisfied: Q at the COMMITTED equilibrium concentrations reproduces K (the residual is the
-  // machine-check — a reader can plug the table back in and get K). Both the emitted quotient + residual agree.
-  const Qc = reactionQuotient(species.map((s) => s.equilibrium), species.map((s) => s.nu));
+  // 3. mass action satisfied: Q at the COMMITTED concentrations (the solid excluded) reproduces K — the residual
+  // is the machine-check (a reader can plug the table back in and get K). The emitted quotient + residual agree.
+  const concs = species.map((s) => s.equilibrium), nus = species.map((s) => s.nu), inQ = species.map((s) => s.in_quotient);
+  const Qc = reactionQuotient(concs, nus, inQ);
   if (!rc(Qc, K, 1e-5)) fail(rel, `Q at the committed concentrations ${Qc} != K ${K}`);
   if (!rc(Number(les.mass_action.quotient_at_equilibrium), K, 1e-3))
     fail(rel, `mass_action.quotient_at_equilibrium ${les.mass_action.quotient_at_equilibrium} != K ${K}`);
   const residual = Math.abs(Qc - K) / K;
   if (residual > 1e-5) fail(rel, `residual |Q-K|/K = ${residual} is too large — the extent does not satisfy mass action`);
 
-  // 5. the reported results: [H⁺] is the hydronium row's equilibrium concentration; pH = −log₁₀[H⁺]; percent
-  // ionization = x / [HA]₀ × 100.
-  const hplus = species.find((s) => s.id === "H^+");
-  if (!hplus) fail(rel, "no H^+ row — a weak-acid equilibrium must produce hydronium");
-  if (!rc(Number(les.result.hydronium_M), hplus.equilibrium))
-    fail(rel, `result.hydronium_M ${les.result.hydronium_M} != H^+ equilibrium ${hplus.equilibrium}`);
-  const pH = -Math.log10(hplus.equilibrium);
-  if (Math.abs(pH - Number(les.result.pH)) > 1e-3)
-    fail(rel, `result.pH ${les.result.pH} != -log10[H+] = ${pH.toFixed(6)}`);
-  const acid = species.find((s) => s.nu < 0);
-  const percent = (x / acid.initial) * 100;
-  if (!rc(percent, Number(les.result.percent_ionization), 1e-3))
-    fail(rel, `result.percent_ionization ${les.result.percent_ionization} != x/[HA]0·100 = ${percent.toFixed(6)}`);
+  // 4. the subtype-specific reported results.
+  if (les.subtype === "weak-acid") {
+    // [H⁺] is the hydronium row's equilibrium concentration; pH = −log₁₀[H⁺]; percent ionization = x / [HA]₀ × 100
+    const hplus = species.find((s) => s.id === "H^+");
+    if (!hplus) fail(rel, "no H^+ row — a weak-acid equilibrium must produce hydronium");
+    if (!rc(Number(les.result.hydronium_M), hplus.equilibrium))
+      fail(rel, `result.hydronium_M ${les.result.hydronium_M} != H^+ equilibrium ${hplus.equilibrium}`);
+    const pH = -Math.log10(hplus.equilibrium);
+    if (Math.abs(pH - Number(les.result.pH)) > 1e-3)
+      fail(rel, `result.pH ${les.result.pH} != -log10[H+] = ${pH.toFixed(6)}`);
+    const acid = species.find((s) => s.nu < 0);
+    const percent = (x / acid.initial) * 100;
+    if (!rc(percent, Number(les.result.percent_ionization), 1e-3))
+      fail(rel, `result.percent_ionization ${les.result.percent_ionization} != x/[HA]0·100 = ${percent.toFixed(6)}`);
+  } else if (les.subtype === "solubility") {
+    // the molar solubility IS the extent; solubility(g/L) = s × molar mass. Exactly one solid row, excluded from Q.
+    const solids = species.filter((s) => !s.in_quotient);
+    if (solids.length !== 1 || solids[0].nu >= 0) fail(rel, "a solubility lesson needs exactly one pure-solid reactant row (in_quotient false, ν<0)");
+    if (!rc(Number(les.result.molar_solubility_M), x))
+      fail(rel, `result.molar_solubility_M ${les.result.molar_solubility_M} != extent ${x}`);
+    const gPerL = x * Number(les.result.molar_mass_g_per_mol);
+    if (!rc(gPerL, Number(les.result.solubility_g_per_L), 1e-4))
+      fail(rel, `result.solubility_g_per_L ${les.result.solubility_g_per_L} != s × molar mass = ${gPerL}`);
+  } else {
+    fail(rel, `unknown equilibrium subtype '${les.subtype}'`);
+  }
 }

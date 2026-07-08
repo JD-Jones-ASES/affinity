@@ -1,0 +1,29 @@
+# Solubility-product constants Kₛₚ (ADR-0048, 2nd increment). Regime-3 sourced data — the quantitative version of
+# the qualitative solubility rules (data/solubility.toml): how insoluble is "insoluble"?
+#
+# For a sparingly soluble ionic solid dissolving,  MₐXᵦ(s) <=> a Mⁿ⁺(aq) + b Xᵐ⁻(aq),  the solubility product is
+#   Kₛₚ = [Mⁿ⁺]ᵃ [Xᵐ⁻]ᵇ   (activities — the pure SOLID has activity 1, so it does NOT appear in Kₛₚ; that
+#   exclusion is the load-bearing idea of a Kₛₚ problem). A SMALL Kₛₚ means very little dissolves. Values are the
+#   standard 25 °C data, source `openstax-chemistry-2e` Appendix J (Solubility Products, CC BY 4.0) — see
+#   docs/SOURCES.md.
+#
+# Read as Decimal (never float — ADR-0013). Table keys are the neutral salt formula (house ASCII). The salt's
+# ions are named (cation/anion, which must exist in the ion table); on load, data.py CROSS-CHECKS that the salt
+# formula equals the charge-balanced combination of those ions (regime-1 composition check, like
+# data/acids-bases.toml) and derives the ion counts a, b. So "CaF₂ is Ca²⁺ + 2 F⁻" is machine-verified; the Kₛₚ
+# value is the sourced datum. The equilibrium engine dissolves the solid and solves the mass-action root for the
+# molar solubility (ADR-0048).
+
+source = "openstax-chemistry-2e"
+
+[salts."CaF2"]        # calcium fluoride (fluorite) — the canonical 1:2 Kₛₚ; Kₛₚ = [Ca²⁺][F⁻]² = 4s³ (a CUBIC)
+name = "calcium fluoride"
+ksp = "3.45e-11"
+cation = "Ca^2+"
+anion = "F^-"
+
+[salts."Mg(OH)2"]     # magnesium hydroxide (milk of magnesia) — another 1:2 cubic; Kₛₚ = [Mg²⁺][OH⁻]²
+name = "magnesium hydroxide"
+ksp = "5.61e-12"
+cation = "Mg^2+"
+anion = "OH^-"

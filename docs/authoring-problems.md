@@ -316,6 +316,27 @@ ionization, the `reaction`/`equilibrium_constant` blocks, `checks`, `regimes`, a
 not author them. See
 [`problems/equilibrium/acetic-acid-ph.equilibrium.toml`](../problems/equilibrium/acetic-acid-ph.equilibrium.toml).
 
+The **solubility subtype (Ksp)** is the same file shape but names a `salt` instead of an `acid` — a sparingly soluble
+salt curated in [`data/solubility-products.toml`](../data/solubility-products.toml) (currently CaF₂, Mg(OH)₂). The
+dissolving solid is excluded from the quotient, and the extent solved is the **molar solubility** $s$; the producer
+refuses an unknown salt. Everything else (the ICE table with the pure-solid row, the molar solubility + g/L, the
+`reaction`/`equilibrium_constant`) is machine-set:
+
+```toml
+id = "calcium-fluoride-solubility"
+title = "…"
+slug = "calcium-fluoride-solubility"
+topic = "equilibrium"
+salt = "CaF2"                                     # a salt in data/solubility-products.toml (not `acid`)
+scenario = "…"
+
+[misconception]
+claim = "…"
+refuted_by = "stoichiometry_in_ksp"               # the player renders the cubic refutation for this key
+```
+
+See [`problems/equilibrium/calcium-fluoride-solubility.equilibrium.toml`](../problems/equilibrium/calcium-fluoride-solubility.equilibrium.toml).
+
 ### Other optional keys
 
 `tags` (array), `reference_links` (array of Atlas ids — they become links as the Atlas is built),

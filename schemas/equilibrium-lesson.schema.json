@@ -2,11 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://affinity/schemas/equilibrium-lesson.schema.json",
   "title": "Affinity equilibrium lesson",
-  "description": "One verified reversible-equilibrium lesson (ADR-0048): the species ledger with the extent solved from MASS ACTION rather than the limiting reagent. Where a solution.json (ADR-0020) runs a reaction to completion (ξ = the limiting-reagent minimum), an equilibrium lesson is the ICE table — every concentration c_i = c_{i,0} + ν_i·x, with x the root of Q(x)=K (chemkernel.equilibrium.solve_equilibrium). A distinct, tight schema keeps solution.schema.json pristine. additionalProperties:false everywhere.",
+  "description": "One verified reversible-equilibrium lesson (ADR-0048): the species ledger with the extent solved from MASS ACTION rather than the limiting reagent. Where a solution.json (ADR-0020) runs a reaction to completion (ξ = the limiting-reagent minimum), an equilibrium lesson is the ICE table — every concentration c_i = c_{i,0} + ν_i·x, with x the root of Q(x)=K (chemkernel.equilibrium.solve_equilibrium). Two subtypes share this schema: `weak-acid` (HA ⇌ H⁺ + A⁻, the pH) and `solubility` (a Ksp dissolution, the molar solubility — the pure solid is excluded from Q). A distinct, tight schema keeps solution.schema.json pristine. additionalProperties:false everywhere.",
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "kind", "id", "title", "slug", "topic", "scenario", "regimes", "assumptions",
+    "kind", "subtype", "id", "title", "slug", "topic", "scenario", "regimes", "assumptions",
     "reaction", "equilibrium_constant", "ice", "mass_action", "result", "misconception", "checks", "provenance"
   ],
   "$defs": {
@@ -14,6 +14,7 @@
   },
   "properties": {
     "kind": { "const": "equilibrium" },
+    "subtype": { "enum": ["weak-acid", "solubility"], "$comment": "discriminates the two equilibrium shapes; the allOf below requires the subtype-specific reaction/result/checks fields" },
     "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
     "title": { "type": "string", "minLength": 1 },
     "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
@@ -48,14 +49,20 @@
     "reaction": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["acid", "acid_name", "acid_latex", "text", "latex", "conjugate_base"],
+      "required": ["text", "latex"],
+      "$comment": "the subtype-specific ids (acid/conjugate_base vs salt/cation/anion) are optional here and required by the allOf branch below",
       "properties": {
+        "text": { "type": "string", "minLength": 1, "$comment": "house ASCII with the <=> equilibrium arrow" },
+        "latex": { "type": "string", "minLength": 1, "$comment": "\\rightleftharpoons for the equilibrium" },
         "acid": { "type": "string", "minLength": 1 },
         "acid_name": { "type": "string", "minLength": 1 },
         "acid_latex": { "type": "string", "minLength": 1 },
-        "text": { "type": "string", "minLength": 1, "$comment": "house ASCII with the <=> equilibrium arrow" },
-        "latex": { "type": "string", "minLength": 1, "$comment": "\\rightleftharpoons for the equilibrium" },
-        "conjugate_base": { "type": "string", "minLength": 1 }
+        "conjugate_base": { "type": "string", "minLength": 1 },
+        "salt": { "type": "string", "minLength": 1 },
+        "salt_name": { "type": "string", "minLength": 1 },
+        "salt_latex": { "type": "string", "minLength": 1 },
+        "cation": { "type": "string", "minLength": 1 },
+        "anion": { "type": "string", "minLength": 1 }
       }
     },
     "equilibrium_constant": {
@@ -63,7 +70,7 @@
       "additionalProperties": false,
       "required": ["symbol", "value", "expression_latex", "source"],
       "properties": {
-        "symbol": { "type": "string", "minLength": 1 },
+        "symbol": { "type": "string", "minLength": 1, "$comment": "K_a (weak acid) or K_sp (solubility)" },
         "value": { "$ref": "#/$defs/decimalString" },
         "expression_latex": { "type": "string", "minLength": 1 },
         "source": { "type": "string", "minLength": 1, "$comment": "must resolve in docs/SOURCES.md (data-sourced badge)" }
@@ -72,7 +79,7 @@
     "ice": {
       "type": "object",
       "additionalProperties": false,
-      "description": "The ICE table = the species ledger in concentrations. Every row's equilibrium_M = initial_M + ν·extent_M (the ledger identity, re-derived by the gate). extent_M is the solved reaction extent x (the value that satisfies mass action); it is model-exact-then-rounded (the root is generally irrational).",
+      "description": "The ICE table = the species ledger in concentrations. Every dissolved row's equilibrium_M = initial_M + ν·extent_M (the ledger identity, re-derived by the gate). A row with in_quotient=false is a pure condensed phase (a solid — the Ksp case) with NO concentration (activity 1, excluded from Q). extent_M is the solved extent (weak acid: the reaction extent x; solubility: the molar solubility s), model-exact-then-rounded.",
       "required": ["extent_symbol", "extent_M", "extent_M_display", "species"],
       "properties": {
         "extent_symbol": { "type": "string", "minLength": 1 },
@@ -84,13 +91,14 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "latex", "phase", "role", "nu", "initial_M", "change_M", "equilibrium_M", "equilibrium_M_display"],
+            "required": ["id", "latex", "phase", "role", "nu"],
             "properties": {
               "id": { "type": "string", "minLength": 1 },
               "latex": { "type": "string", "minLength": 1 },
               "phase": { "enum": ["s", "l", "g", "aq"] },
               "role": { "enum": ["reactant", "product"] },
               "nu": { "type": "integer", "not": { "const": 0 } },
+              "in_quotient": { "type": "boolean", "$comment": "default true; false = a pure solid excluded from Q, which then omits the concentration fields" },
               "initial_M": { "$ref": "#/$defs/decimalString" },
               "change_M": { "$ref": "#/$defs/decimalString" },
               "equilibrium_M": { "$ref": "#/$defs/decimalString" },
@@ -103,7 +111,7 @@
     "mass_action": {
       "type": "object",
       "additionalProperties": false,
-      "description": "The reaction quotient Q evaluated at the committed equilibrium concentrations, which reproduces K (the residual is the machine-check — the gate re-solves the root independently and re-checks Q=K).",
+      "description": "The reaction quotient Q evaluated at the committed equilibrium concentrations (the pure solid excluded), which reproduces K (the residual is the machine-check — the gate re-solves the root independently and re-checks Q=K).",
       "required": ["quotient_symbol", "quotient_at_equilibrium", "residual_relative"],
       "properties": {
         "quotient_symbol": { "type": "string", "minLength": 1 },
@@ -114,14 +122,19 @@
     "result": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["hydronium_M", "hydronium_M_display", "pH", "pH_display", "percent_ionization", "percent_ionization_display"],
+      "$comment": "subtype-specific: the weak acid reports hydronium/pH/percent ionization; solubility reports molar solubility + g/L. The allOf branch requires the right set.",
       "properties": {
         "hydronium_M": { "$ref": "#/$defs/decimalString" },
         "hydronium_M_display": { "$ref": "#/$defs/decimalString" },
         "pH": { "$ref": "#/$defs/decimalString" },
         "pH_display": { "$ref": "#/$defs/decimalString" },
         "percent_ionization": { "$ref": "#/$defs/decimalString" },
-        "percent_ionization_display": { "$ref": "#/$defs/decimalString" }
+        "percent_ionization_display": { "$ref": "#/$defs/decimalString" },
+        "molar_solubility_M": { "$ref": "#/$defs/decimalString" },
+        "molar_solubility_M_display": { "$ref": "#/$defs/decimalString" },
+        "solubility_g_per_L": { "$ref": "#/$defs/decimalString" },
+        "solubility_g_per_L_display": { "$ref": "#/$defs/decimalString" },
+        "molar_mass_g_per_mol": { "$ref": "#/$defs/decimalString" }
       }
     },
     "misconception": {
@@ -137,13 +150,14 @@
     "checks": {
       "type": "object",
       "additionalProperties": false,
-      "$comment": "the machine-checked facts, SHOWN not asserted. All const true — solve_equilibrium refuses to emit otherwise (ADR-0008).",
-      "required": ["ice_identity", "mass_action_satisfied", "extent_physical", "ph_consistent"],
+      "$comment": "the machine-checked facts, SHOWN not asserted. All const true — the solver refuses to emit otherwise (ADR-0008). The 4th (ph_consistent / solubility_consistent) is subtype-specific.",
+      "required": ["ice_identity", "mass_action_satisfied", "extent_physical"],
       "properties": {
         "ice_identity": { "const": true },
         "mass_action_satisfied": { "const": true },
         "extent_physical": { "const": true },
-        "ph_consistent": { "const": true }
+        "ph_consistent": { "const": true },
+        "solubility_consistent": { "const": true }
       }
     },
     "provenance": {
@@ -159,10 +173,12 @@
         "sources": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["ionization_constants", "ion_charge"],
+          "$comment": "the weak acid cites ionization_constants + ion_charge; solubility cites solubility_products + ion_charge + atomic_weight. validate-solutions enforces the subtype-appropriate set + non-empty (schema strictRequired can't follow required names across subschemas, so the subtype cross-field constraints live in the gate).",
           "properties": {
             "ionization_constants": { "type": "string", "minLength": 1 },
-            "ion_charge": { "type": "string", "minLength": 1 }
+            "solubility_products": { "type": "string", "minLength": 1 },
+            "ion_charge": { "type": "string", "minLength": 1 },
+            "atomic_weight": { "type": "string", "minLength": 1 }
           }
         }
       }

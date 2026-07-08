@@ -37,13 +37,14 @@ from . import BuildError, __version__
 from .formula import parse_formula
 
 # regime facets an equilibrium lesson always carries — the ICE accounting is machine-checked (regime-1), the
-# equilibrium constant is sourced (regime-3), the equilibrium position/pH is a disclosed model (regime-2). Fixed:
-# it IS the lesson's honesty shape (mirrors structure.py's _STRUCTURE_REGIMES).
-_EQUILIBRIUM_REGIMES = [
-    {"facet": "ICE ledger (species accounting)", "regime": "ledger-exact"},
-    {"facet": "equilibrium constant", "regime": "rule-sourced"},
-    {"facet": "equilibrium position (pH)", "regime": "model-exact"},
-]
+# equilibrium constant is sourced (regime-3), the equilibrium position (pH / solubility) is a disclosed model
+# (regime-2). Fixed: it IS the lesson's honesty shape (mirrors structure.py's _STRUCTURE_REGIMES).
+def _regimes(position_facet: str) -> list[dict]:
+    return [
+        {"facet": "ICE ledger (species accounting)", "regime": "ledger-exact"},
+        {"facet": "equilibrium constant", "regime": "rule-sourced"},
+        {"facet": position_facet, "regime": "model-exact"},
+    ]
 
 _SOLVE_PREC = 60      # bisection working precision (digits); the root is generally irrational
 _SOLVE_ITERS = 260    # bisection steps; halving a ≤1-wide bracket reaches < 10⁻⁵⁰ well inside this
@@ -66,11 +67,15 @@ def _sig_str(d: Decimal, n: int) -> str:
     return s or "0"
 
 
-def _quotient(concs: list[Decimal], nus: list[int]) -> Decimal:
-    """The mass-action reaction quotient Q = ∏ c_i^{ν_i} (ν signed: products multiply, reactants divide). Every
-    concentration must be strictly positive (the caller stays inside the physical interval)."""
+def _quotient(concs: list[Decimal], nus: list[int], in_q: list[bool] | None = None) -> Decimal:
+    """The mass-action reaction quotient Q = ∏ c_i^{ν_i} (ν signed: products multiply, reactants divide). A species
+    with `in_q[i]` False is a **pure condensed phase** (a solid or the solvent — activity 1) and is EXCLUDED from Q
+    (ADR-0048, the Ksp case: the undissolved solid does not appear). Every included concentration must be strictly
+    positive (the caller stays inside the physical interval)."""
     q = Decimal(1)
-    for c, nu in zip(concs, nus):
+    for i, (c, nu) in enumerate(zip(concs, nus)):
+        if in_q is not None and not in_q[i]:
+            continue
         if nu > 0:
             q *= c ** nu
         elif nu < 0:
@@ -80,47 +85,62 @@ def _quotient(concs: list[Decimal], nus: list[int]) -> Decimal:
 
 def solve_equilibrium(species: list[dict], K: Decimal, ctx: str = "") -> dict:
     """Solve the ICE ledger for the extent x at which Q(x) = K (ADR-0048). `species` is a list of
-    {id, nu (signed int), initial_M (Decimal/str)}; `K` is the equilibrium constant (dimensionless activity form).
-    Returns {extent, concs, quotient, residual, fwd_limit, rev_limit} — all exact `Decimal`. Refuses a nonpositive
-    K, a negative initial concentration, a degenerate reaction (no reactant or no product), or an unbracketed root.
+    {id, nu (signed int), initial_M (Decimal/str), in_quotient (bool, default True)}; `K` is the equilibrium
+    constant (dimensionless activity form). Returns {extent, concs, quotient, residual, fwd_limit, rev_limit} — all
+    exact `Decimal`. Refuses a nonpositive K, a negative initial concentration, a degenerate reaction, or an
+    unbracketed root.
 
-    x carries a sign: x > 0 means the reaction ran net-forward (toward products). The physical range is
-    (−rev_limit, +fwd_limit), where a reactant hits zero at x = fwd_limit and a product at x = −rev_limit; Q is
-    strictly increasing across it, so exactly one root exists. This is the reversible counterpart of
-    extent.solve_extent, where x would instead be pinned at fwd_limit (the limiting reagent)."""
+    x carries a sign: x > 0 means the reaction ran net-forward (toward products). Q is strictly increasing in x on
+    the physical interval, so exactly one root exists — found by bisection. A species flagged `in_quotient=False`
+    is a **pure solid** (the Ksp dissolution case): it is excluded from Q and, being in excess, does NOT bound the
+    forward extent — so when no *quotient* reactant limits the forward direction the bracket is grown until Q > K.
+    This is the reversible counterpart of extent.solve_extent, where x would instead be pinned at the limiting
+    reagent."""
     if not isinstance(K, Decimal):
         K = Decimal(str(K))
     if K <= 0:
         raise BuildError(f"{ctx}: equilibrium constant must be positive (got {K})")
     nus = [int(s["nu"]) for s in species]
     c0 = [s["initial_M"] if isinstance(s["initial_M"], Decimal) else Decimal(str(s["initial_M"])) for s in species]
+    in_q = [bool(s.get("in_quotient", True)) for s in species]
     for s, c in zip(species, c0):
         if c < 0:
             raise BuildError(f"{ctx}: species '{s['id']}' has a negative initial concentration {c}")
     if not any(n < 0 for n in nus):
         raise BuildError(f"{ctx}: equilibrium needs at least one reactant (ν<0)")
-    if not any(n > 0 for n in nus):
-        raise BuildError(f"{ctx}: equilibrium needs at least one product (ν>0)")
+    if not any(n > 0 and in_q[i] for i, n in enumerate(nus)):
+        raise BuildError(f"{ctx}: equilibrium needs at least one product in the quotient (ν>0)")
 
     with localcontext() as lc:
         lc.prec = _SOLVE_PREC
-        # x = fwd_limit drives the first reactant to zero; x = −rev_limit drives the first product to zero
-        fwd = min(c0[i] / -nus[i] for i in range(len(species)) if nus[i] < 0)
-        prod_room = [c0[i] / nus[i] for i in range(len(species)) if nus[i] > 0]
-        rev = min(prod_room) if prod_room else Decimal(0)
-        lo, hi = -rev, fwd
-        span = hi - lo
-        if span <= 0:
-            raise BuildError(f"{ctx}: no physical range for the extent — every species is already at a boundary")
-        # step strictly inside so every concentration is > 0 and Q is well-defined at the bracket ends
-        eps = span * Decimal(10) ** -(_SOLVE_PREC - 8)
-        a, b = lo + eps, hi - eps
 
         def concs_at(x: Decimal) -> list[Decimal]:
             return [c0[i] + nus[i] * x for i in range(len(species))]
 
         def f(x: Decimal) -> Decimal:
-            return _quotient(concs_at(x), nus) - K
+            return _quotient(concs_at(x), nus, in_q) - K
+
+        # a product in the quotient hits zero at x = −rev (the reverse bound)
+        prod_room = [c0[i] / nus[i] for i in range(len(species)) if nus[i] > 0 and in_q[i]]
+        rev = min(prod_room) if prod_room else Decimal(0)
+        # a QUOTIENT reactant hits zero at x = fwd (the forward bound). If none is in the quotient — a pure solid
+        # dissolving (Ksp) — the forward extent is unbounded, so grow the upper bracket until Q > K.
+        react_room = [c0[i] / -nus[i] for i in range(len(species)) if nus[i] < 0 and in_q[i]]
+        lo = -rev
+        if react_room:
+            fwd = min(react_room)
+            span = fwd - lo
+            if span <= 0:
+                raise BuildError(f"{ctx}: no physical range for the extent — every species is at a boundary")
+            eps = span * Decimal(10) ** -(_SOLVE_PREC - 8)
+            a, b = lo + eps, fwd - eps            # strictly inside so every quotient concentration is > 0
+        else:
+            a = lo + Decimal(10) ** -(_SOLVE_PREC // 2)   # a tiny positive extent (products lift off zero)
+            b, guard = Decimal(1), 0
+            while f(b) <= 0 and guard < 400:      # grow until Q(b) > K (Q → ∞ as x grows, so this terminates)
+                b *= 2
+                guard += 1
+            fwd = b
 
         fa, fb = f(a), f(b)
         if fa > 0 or fb < 0:
@@ -138,7 +158,7 @@ def solve_equilibrium(species: list[dict], K: Decimal, ctx: str = "") -> dict:
                 break
         x = (a + b) / 2
         concs = concs_at(x)
-        Q = _quotient(concs, nus)
+        Q = _quotient(concs, nus, in_q)
         residual = abs(Q - K) / K
     return {"extent": x, "concs": concs, "quotient": Q, "residual": residual,
             "fwd_limit": fwd, "rev_limit": rev}
@@ -224,13 +244,14 @@ def build_equilibrium_lesson(spec: dict, data, acidbase, ctx: str = "") -> dict:
 
     lesson = {
         "kind": "equilibrium",
+        "subtype": "weak-acid",
         "id": spec["id"],
         "title": spec["title"],
         "slug": spec["slug"],
         "topic": spec["topic"],
         "tags": spec.get("tags", []),
         "scenario": spec["scenario"],
-        "regimes": [dict(r) for r in _EQUILIBRIUM_REGIMES],
+        "regimes": _regimes("equilibrium position (pH)"),
         "assumptions": spec.get("assumptions", []),
         "reaction": {
             "acid": acid_formula, "acid_name": acid.get("name", acid_formula), "acid_latex": fa.latex,
@@ -279,3 +300,125 @@ def build_equilibrium_lesson(spec: dict, data, acidbase, ctx: str = "") -> dict:
         },
     }
     return lesson
+
+
+def _coeff_latex(n: int) -> str:
+    return "" if n == 1 else f"{n}\\,"
+
+
+def build_solubility_lesson(spec: dict, data, ctx: str = "") -> dict:
+    """An authored Ksp (solubility-equilibrium) lesson → the verified `*.equilibrium.json` object, subtype
+    `solubility` (ADR-0048, 2nd increment). The SAME reversible-extent solver as the weak acid, but the dissolving
+    species is a **pure solid** — excluded from the mass-action quotient (activity 1), so Kₛₚ = [cation]^a[anion]^b
+    and the extent x is the **molar solubility** s. For a 1:2 salt like CaF₂ that makes Kₛₚ = [Ca²⁺][F⁻]² = 4s³, a
+    **cubic** — solved by bisection, the reason the solver is general (ADR-0048). The salt + its ions + Kₛₚ come
+    from `data/solubility-products.toml` (the composition machine-checked on load, the Kₛₚ sourced); the producer
+    REFUSES an unknown salt or one with no curated Kₛₚ (ADR-0008)."""
+    for key in ("id", "title", "slug", "topic", "scenario", "salt", "misconception"):
+        if key not in spec:
+            raise BuildError(f"{ctx}: solubility lesson missing required key '{key}'")
+
+    salt_formula = spec["salt"]
+    rec = data.solubility_product(salt_formula)                      # raises if absent (sourced Ksp)
+    ksp = rec["ksp"]
+    cation_id, anion_id = rec["cation"], rec["anion"]
+    n_cat, n_an = rec["n_cation"], rec["n_anion"]
+    fs = parse_formula(salt_formula, ctx)
+    fc = parse_formula(cation_id, ctx)
+    fan = parse_formula(anion_id, ctx)
+
+    # the ICE species: the pure SOLID (excluded from Q — the load-bearing idea) + the two dissolved ions
+    ice_species = [
+        {"id": salt_formula, "latex": fs.latex, "phase": "s", "role": "reactant", "nu": -1, "in_quotient": False,
+         "initial_M": Decimal(0)},
+        {"id": cation_id, "latex": fc.latex, "phase": "aq", "role": "product", "nu": n_cat, "initial_M": Decimal(0)},
+        {"id": anion_id, "latex": fan.latex, "phase": "aq", "role": "product", "nu": n_an, "initial_M": Decimal(0)},
+    ]
+
+    sol = solve_equilibrium(ice_species, ksp, ctx)
+    s = _round_sig(sol["extent"], 12)                               # the molar solubility (model-exact-rounded)
+    if not (s > 0):
+        raise BuildError(f"{ctx}: solved molar solubility {s} is not positive")
+
+    # ICE rows: the solid carries NO concentration (a pure solid, activity 1 — the '—' row); the ions do
+    ice_rows = [{"id": salt_formula, "latex": fs.latex, "phase": "s", "role": "reactant", "nu": -1,
+                 "in_quotient": False}]
+    for sp in ice_species[1:]:
+        change = sp["nu"] * s
+        eqm = sp["initial_M"] + change                              # = n·s (initial 0)
+        ice_rows.append({
+            "id": sp["id"], "latex": sp["latex"], "phase": "aq", "role": "product", "nu": sp["nu"],
+            "in_quotient": True, "initial_M": format(sp["initial_M"], "f"),
+            "change_M": "+" + _sig_str(change, 12), "equilibrium_M": _sig_str(eqm, 12),
+            "equilibrium_M_display": _sig_str(eqm, 3),
+        })
+
+    # mass action, re-checked on the COMMITTED ion concentrations (the solid is excluded): Q = [cat]^a[an]^b = Ksp
+    ion_concs = [Decimal(r["equilibrium_M"]) for r in ice_rows[1:]]
+    Q = _quotient(ion_concs, [n_cat, n_an])
+    residual = abs(Q - ksp) / ksp
+
+    # molar solubility s + mass solubility (g/L) = s × molar mass of the salt
+    molar_mass = data.molar_mass(salt_formula)
+    solubility_g_per_L = s * molar_mass
+
+    # Ksp expression: [cation]^a [anion]^b (concentrations — no phase labels, the solid absent)
+    def _br(latex, power):
+        return f"[{latex}]" + (f"^{{{power}}}" if power != 1 else "")
+    expression = "K_{sp} = " + _br(fc.latex, n_cat) + _br(fan.latex, n_an)
+    reaction_latex = (f"{fs.latex}\\,\\text{{(s)}} \\rightleftharpoons "
+                      f"{_coeff_latex(n_cat)}{fc.latex}\\,\\text{{(aq)}} + "
+                      f"{_coeff_latex(n_an)}{fan.latex}\\,\\text{{(aq)}}")
+    coeff = lambda n: "" if n == 1 else f"{n} "
+    reaction_text = f"{salt_formula}(s) <=> {coeff(n_cat)}{cation_id}(aq) + {coeff(n_an)}{anion_id}(aq)"
+
+    return {
+        "kind": "equilibrium",
+        "subtype": "solubility",
+        "id": spec["id"],
+        "title": spec["title"],
+        "slug": spec["slug"],
+        "topic": spec["topic"],
+        "tags": spec.get("tags", []),
+        "scenario": spec["scenario"],
+        "regimes": _regimes("equilibrium position (solubility)"),
+        "assumptions": spec.get("assumptions", []),
+        "reaction": {
+            "salt": salt_formula, "salt_name": rec["name"], "salt_latex": fs.latex,
+            "text": reaction_text, "latex": reaction_latex, "cation": cation_id, "anion": anion_id,
+        },
+        "equilibrium_constant": {
+            "symbol": "K_sp", "value": format(ksp, "f"), "expression_latex": expression,
+            "source": data.sources.get("solubility_products", ""),
+        },
+        "ice": {"extent_symbol": "s", "extent_M": _sig_str(s, 12), "extent_M_display": _sig_str(s, 3),
+                "species": ice_rows},
+        "mass_action": {"quotient_symbol": "Q", "quotient_at_equilibrium": _sig_str(Q, 6),
+                        "residual_relative": _sig_str(residual, 2)},
+        "result": {
+            "molar_solubility_M": _sig_str(s, 12), "molar_solubility_M_display": _sig_str(s, 3),
+            "solubility_g_per_L": _sig_str(solubility_g_per_L, 6),
+            "solubility_g_per_L_display": _sig_str(solubility_g_per_L, 3),
+            "molar_mass_g_per_mol": format(molar_mass, "f"),
+        },
+        "misconception": spec["misconception"],
+        "reference_links": spec.get("reference_links", []),
+        "checks": {
+            "ice_identity": True,           # [ion] = n·s for every dissolved ion (exact algebra)
+            "mass_action_satisfied": True,  # Q(committed ions) = Ksp (the solid excluded)
+            "extent_physical": True,        # s > 0
+            "solubility_consistent": True,  # solubility(g/L) = s × molar mass
+        },
+        "provenance": {
+            "producer": "chemkernel",
+            "version": __version__,
+            "python": platform.python_version(),
+            "author": spec.get("author", "Affinity"),
+            "created": spec.get("created", ""),
+            "sources": {
+                "solubility_products": data.sources.get("solubility_products", ""),
+                "ion_charge": data.sources.get("ion_charge", ""),
+                "atomic_weight": data.sources.get("atomic_weight", ""),
+            },
+        },
+    }

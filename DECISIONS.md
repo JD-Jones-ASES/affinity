@@ -1541,8 +1541,23 @@ validate-reference = 63 (+2 concepts); check-katex = 530 (+28); **31 pages** (+1
 files). **5-way tamper-tested** (corrupt extent → ICE identity; a *coherent* wrong extent that satisfies the identity →
 the independent re-solve; corrupt $K_a$ → re-solve; corrupt pH → log consistency; corrupt the quotient → mass action —
 each caught by a distinct branch). There are now **four lesson shapes**. **Deferred (the rest of the tier):** the weak
-**base** ($K_b$, pOH, $K_w$); **Ksp** solubility equilibria (the solid's activity = 1, excluded from $Q$ — a small model
-refinement to the generic solver); **buffers** (Henderson–Hasselbalch = the ICE ledger with both HA and A⁻ present, the
+**base** ($K_b$, pOH, $K_w$); **buffers** (Henderson–Hasselbalch = the ICE ledger with both HA and A⁻ present, the
 reverse-direction bracket the solver already supports); **titration curves**; **polyprotic** staged equilibria (H₃PO₄
 $K_{a1}/K_{a2}/K_{a3}$); a weak-acid **gym** (solve-for-pH / solve-for-Kₐ, model-exact-then-rounded); the $K$/pH/$K_w$
 **formula-sheet** entries (with the activity treatment). Then kinetics ($d\xi/dt$) and electrochemistry.
+
+**Update (2nd increment, same day) — the `solubility` subtype (Ksp) landed, proving the solver generalizes.** The generic
+solver was built for exactly this: `solve_equilibrium` gained an **`in_quotient`** flag — a **pure solid** (activity 1) is
+excluded from $Q$ and, being in excess, does not bound the forward extent (so when no quotient reactant limits it the
+bracket is grown until $Q>K$). The `equilibrium` lesson kind now carries **two subtypes** under one schema (a `subtype`
+discriminator; the subtype-specific reaction/result/checks fields are enforced in the gate, since Ajv `strictRequired`
+can't follow `required` names across subschemas — kept out of the schema deliberately). `build_solubility_lesson` +
+`build_equilibrium` dispatch by `acid` vs `salt`. The opener: **`equilibrium/calcium-fluoride-solubility`** — CaF₂(s) ⇌
+Ca²⁺ + 2 F⁻, $K_{sp}=[\mathrm{Ca^{2+}}][\mathrm{F^-}]^2=4s^3$ (a **cubic** — the bisection solver's whole justification),
+$s=2.05\times10^{-4}$ M (0.016 g/L); the misconception is the coefficient-forgetting $s=\sqrt{K_{sp}}$, refuted from the
+cubic. $K_{sp}$ from `data/solubility-products.toml` (App J); the salt's ion counts are derived by **charge crossover** and
+its composition machine-checked on load (regime-1, like acids-bases). It closes the Phase-0 precipitation loop (the
+`precipitation` concept backlinks). **340 tests** (+7); validate-solutions = 6 + 2 structure + 1 comparison + **2
+equilibrium**; check-katex 555; **32 pages**; the acetic lesson gained `subtype` (byte-change, re-verified). **4-way
+tamper-tested** (coherent wrong solubility → the independent re-solve; corrupted fluoride coefficient → ICE identity;
+bad g/L → solubility-consistent; the solid forced into Q → ICE identity).

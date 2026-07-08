@@ -199,14 +199,14 @@ on its stress scenario (ADR-0048 — the **reversible-extent solver** + a **weak
 in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
 [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
-**Counters:** 10 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
-3 bonding (2 structure + 1 IMF comparison) + **1 equilibrium** (weak-acid pH, ADR-0048)) · 11 gyms / 110 verified problems
-(dimensional analysis · ionic nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent · periodic
-trends · reaction families · gas laws · calorimetry · Lewis structures) · 1 Valence Table (23 elements; four modes; 156
-named + machine-verified salts) · 26 concept entries (8 rule-sourced, 1 interpretive) + 7 reaction families (21 example
-reactions) + 14 species entries + 6 molecule structure entries (Lewis ledger + VSEPR + dominant IMF, ADR-0044/0046) + 9
-formula-sheet entries (ADR-0039/0043) · 63 Atlas reference objects · 7 Node gates + CI + live Pages · 333 producer tests ·
-astro build = 31 pages.
+**Counters:** 11 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
+3 bonding (2 structure + 1 IMF comparison) + **2 equilibrium** (weak-acid pH + Ksp solubility, ADR-0048)) · 11 gyms / 110
+verified problems (dimensional analysis · ionic nomenclature · balancing · mass stoichiometry · percent yield · limiting
+reagent · periodic trends · reaction families · gas laws · calorimetry · Lewis structures) · 1 Valence Table (23 elements;
+four modes; 156 named + machine-verified salts) · 27 concept entries (8 rule-sourced, 1 interpretive) + 7 reaction families
+(21 example reactions) + 14 species entries + 6 molecule structure entries (Lewis ledger + VSEPR + dominant IMF,
+ADR-0044/0046) + 9 formula-sheet entries (ADR-0039/0043) · 64 Atlas reference objects · 7 Node gates + CI + live Pages ·
+340 producer tests · astro build = 32 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; honesty = three badges
 (regime-4 → model-assumed badge + an "interpretive" marker, ADR-0033); numeric practice free-entry (diagnostics), categorical
@@ -219,10 +219,13 @@ molecules vs. a property, the trend machine-checked (rows reuse verified Atlas m
 dominant-IMF rank must be **non-decreasing** — refuses a non-monotonic corpus); and an **`equilibrium` lesson**
 (`*.equilibrium.json`, ADR-0048): the **ICE table = the species ledger with the extent solved from mass action** ($Q=K$,
 not the limiting reagent) — `chemkernel.equilibrium.solve_equilibrium` finds the root by **bisection to high precision**
-(exact Decimal, general beyond the quadratic), the extent/pH model-exact-then-rounded, the machine-check the **residual**
+(exact Decimal, general beyond the quadratic), the extent model-exact-then-rounded, the machine-check the **residual**
 $Q(\text{committed})=K$ + the gate's **independent re-solve** (shared `equilibriumcheck.mjs`); triple-badged (ICE
-machine-checked / $K_a$ sourced from `data/ionization-constants.toml` / position model-assumed); the HA ⇌ H⁺ + A⁻
-dissociation DRY-sourced from `data/acids-bases.toml`. `mass_g`→moles supported; a fully molecular
+machine-checked / $K$ sourced / position model-assumed). **Two subtypes** (one schema, a `subtype` discriminator; dispatched
+by `acid` vs `salt`): **weak-acid** (HA ⇌ H⁺ + A⁻ DRY-sourced from `data/acids-bases.toml`, $K_a$ from
+`data/ionization-constants.toml`, → pH) and **solubility** (a Ksp dissolution — a **pure solid excluded from Q** via an
+`in_quotient` flag, so $K_{sp}=4s^3$ is a **cubic**; $K_{sp}$ from `data/solubility-products.toml`, ion composition
+machine-checked by charge crossover; → molar solubility). `mass_g`→moles supported; a fully molecular
 reaction omits the ionic equations; redox = the free-element signature (Phase 2).
 The Atlas carries all four brief-§10 kinds (lens, concepts, reactions, species ADR-0038, formula sheet ADR-0039 — machine-checked
 **dimensional homogeneity** via `chemkernel.dimension`, separate from Decimal `units.py` per ADR-0015) **plus a fifth structural
@@ -240,17 +243,18 @@ never runs in CI — the seven Node gates re-verify committed `derived/` from sc
 ## Where this might go next (paths for a future session)
 
 **Phase 2 is open** (ADR-0039–0048). The **gas + thermochemistry** and **bonding & structure** tiers are complete, and
-**equilibrium & acid-base is now open** (ADR-0048 — the reversible-extent solver + the weak-acid pH lesson, a fourth lesson
-shape). The flagged next increment (newest session log's closing block) is **the rest of the equilibrium tier**, all reusing
-the same `solve_equilibrium` instrument: the weak **base** ($K_b$/pOH/$K_w$); **Ksp** solubility equilibria (the pure
-solid's activity = 1, excluded from $Q$ — a small solver refinement); **buffers** (both HA + A⁻ present — the
-reverse-direction bracket the solver already supports; Henderson–Hasselbalch); **titration curves**; **polyprotic** staged
-equilibria (H₃PO₄); a weak-acid **gym**; the $K$/pH/$K_w$ **formula-sheet** entries (they need the *activity* — dimensionless
-— treatment). Then **kinetics** (dξ/dt, rate laws, half-life) and **electrochemistry** (oxidation numbers → electron ledger,
-ΔG=−nFE, Nernst). Bonding corpus-depth deferrals: octet exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻), more
-structure lessons (NH₃/CH₄), more comparison axes, a "which IMF dominates?" gym drill. Smaller/optional: endothermic /
-multi-step Hess-cycle lessons; the gas lesson's **slider interactive**. Always in season inside settled contracts: Atlas
-breadth-fill, further lessons, docs-only sessions. **Opening the later Phase-2 tiers** proceeds inside the open phase.
+**equilibrium & acid-base is now open** (ADR-0048 — the reversible-extent solver + the `equilibrium` lesson kind, a fourth
+shape, with **two subtypes**: weak-acid pH + Ksp solubility — the Ksp landed the `in_quotient` pure-solid-excluded
+generalization + proved the solver on the **cubic**). The flagged next increment (newest session log's closing block) is
+**more of the equilibrium tier**, all reusing the same `solve_equilibrium` instrument: the weak **base** ($K_b$/pOH/$K_w$);
+**buffers** (both HA + A⁻ present — the reverse-direction bracket the solver already supports; Henderson–Hasselbalch);
+**titration curves**; **polyprotic** staged equilibria (H₃PO₄); a weak-acid **gym**; common-ion Ksp + $Q$-vs-$K_{sp}$
+precipitation prediction; the $K$/pH/$K_w$ **formula-sheet** entries (they need the *activity* — dimensionless — treatment).
+Then **kinetics** (dξ/dt, rate laws, half-life) and **electrochemistry** (oxidation numbers → electron ledger, ΔG=−nFE,
+Nernst). Bonding corpus-depth deferrals: octet exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻), more structure
+lessons (NH₃/CH₄), more comparison axes, a "which IMF dominates?" gym drill. Smaller/optional: endothermic / multi-step
+Hess-cycle lessons; the gas lesson's **slider interactive**. Always in season inside settled contracts: Atlas breadth-fill,
+further lessons, docs-only sessions. **Opening the later Phase-2 tiers** proceeds inside the open phase.
 
 **Known traps (1 and 2 bit the sibling; 3–5 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested

@@ -1,5 +1,6 @@
 {
   "kind": "equilibrium",
+  "subtype": "weak-acid",
   "id": "acetic-acid-ph",
   "title": "The pH of a weak acid: acetic acid",
   "slug": "acetic-acid-ph",

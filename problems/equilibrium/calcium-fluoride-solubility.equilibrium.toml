@@ -1,0 +1,36 @@
+# Equilibrium lesson, subtype `solubility` (ADR-0048, 2nd increment) — Ksp. The SAME reversible-extent solver as
+# the weak acid, but the dissolving species is a pure SOLID (activity 1), so it is excluded from the mass-action
+# quotient: Ksp = [Ca²⁺][F⁻]² = 4s³, a CUBIC — solved by bisection, the reason the solver is general. The salt +
+# its ions + Ksp come from data/solubility-products.toml; the author writes only the salt, prose, misconception.
+# TOML trap #4: every bare key precedes the [[assumptions]] / [misconception] headers.
+
+id = "calcium-fluoride-solubility"
+title = "How much dissolves? The solubility of calcium fluoride"
+slug = "calcium-fluoride-solubility"
+topic = "equilibrium"
+tags = ["equilibrium", "solubility", "Ksp", "molar solubility", "ICE table"]
+
+# the sparingly soluble salt; Ksp + the ion composition are curated + machine-checked in solubility-products.toml
+salt = "CaF2"
+
+scenario = "Calcium fluoride — the mineral fluorite — is called “insoluble,” but no salt is perfectly insoluble: a tiny amount dissolves until the solution is **saturated**, $\\mathrm{CaF_2(s)} \\rightleftharpoons \\mathrm{Ca^{2+}(aq)} + 2\\,\\mathrm{F^-(aq)}$. *How much?* It is the ICE table again — but the dissolving species is a **pure solid**, whose activity is 1, so it never appears in the equilibrium expression: $K_{sp} = [\\mathrm{Ca^{2+}}][\\mathrm{F^-}]^2$. The extent of this reaction is the **molar solubility** $s$ — solve $K_{sp}$ for it."
+
+reference_links = ["solubility-product", "chemical-equilibrium", "precipitation", "extent-of-reaction", "molarity"]
+
+author = "Affinity"
+created = "2026-07-08"
+
+# modeling assumptions — disclosed (ADR-0003, the model-assumed badge). The ICE accounting is exact; the
+# solubility rides on these idealizations.
+[[assumptions]]
+claim = "The solution is at saturation equilibrium with excess solid present, and this dissolution is the only reaction (no complex ions, no pH effect on $\\mathrm{F^-}$)."
+kind = "model"
+
+[[assumptions]]
+claim = "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which is why $K_{sp}$ is written with concentrations."
+kind = "model"
+
+# the canonical wrong move: forgetting the fluoride coefficient and treating every salt as 1:1 (Ksp = s²).
+[misconception]
+claim = "Ksp is small (3.45e-11) and Ksp = s^2, so the molar solubility is s = sqrt(Ksp)."
+refuted_by = "stoichiometry_in_ksp"

@@ -13,11 +13,13 @@ import pytest
 from chemkernel import BuildError
 from chemkernel.build import build_equilibrium
 from chemkernel.data import ChemData
-from chemkernel.equilibrium import build_equilibrium_lesson, solve_equilibrium, _quotient
+from chemkernel.equilibrium import (build_equilibrium_lesson, build_solubility_lesson, solve_equilibrium,
+                                    _quotient)
 from chemkernel.reactivity import AcidBase
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT / "problems" / "equilibrium" / "acetic-acid-ph.equilibrium.toml"
+SPEC_KSP = ROOT / "problems" / "equilibrium" / "calcium-fluoride-solubility.equilibrium.toml"
 
 
 def _acid_system(c0, hplus=Decimal(0)):
@@ -184,3 +186,81 @@ def test_build_equilibrium_round_trip():
     assert out_rel == "equilibrium/acetic-acid-ph.equilibrium.json"
     assert lesson["id"] == "acetic-acid-ph"
     assert lesson["kind"] == "equilibrium"
+    assert lesson["subtype"] == "weak-acid"
+
+
+# ── Ksp / solubility (the 2nd increment — the cubic, the pure solid excluded from Q) ──
+
+def _ksp_system(ksp):
+    # CaF2(s) <=> Ca2+ + 2 F- ; the solid excluded from Q -> Q = [Ca][F]^2 = 4s^3 (a CUBIC)
+    return [
+        {"id": "CaF2", "nu": -1, "initial_M": Decimal(0), "in_quotient": False},
+        {"id": "Ca^2+", "nu": 1, "initial_M": Decimal(0)},
+        {"id": "F^-", "nu": 2, "initial_M": Decimal(0)},
+    ]
+
+
+def test_ksp_cubic_root():
+    """The 1:2 salt gives a CUBIC (4s³ = Ksp) — the reason the solver is bisection, not the quadratic formula."""
+    r = solve_equilibrium(_ksp_system(Decimal("3.45e-11")), Decimal("3.45e-11"), "CaF2")
+    expected = (Decimal("3.45e-11") / 4) ** (Decimal(1) / 3)
+    assert abs(r["extent"] - expected) < Decimal("1e-10")
+    assert r["residual"] < Decimal("1e-40")
+
+
+def test_pure_solid_excluded_from_quotient():
+    """Q is over the ions only — the pure solid (in_quotient False) never enters, whatever its 'concentration'."""
+    q_ions = _quotient([Decimal("0.0002"), Decimal("0.0004")], [1, 2])
+    q_all = _quotient([Decimal("99"), Decimal("0.0002"), Decimal("0.0004")], [-1, 1, 2],
+                      in_q=[False, True, True])
+    assert q_all == q_ions          # the solid's value is irrelevant
+
+
+def test_builds_calcium_fluoride_lesson():
+    data = ChemData.load(ROOT)
+    L = build_solubility_lesson({"id": "t", "title": "t", "slug": "t", "topic": "equilibrium", "scenario": "s",
+                                 "salt": "CaF2",
+                                 "misconception": {"claim": "c", "refuted_by": "stoichiometry_in_ksp"}}, data, "t")
+    assert L["subtype"] == "solubility"
+    assert L["equilibrium_constant"]["symbol"] == "K_sp"
+    assert L["equilibrium_constant"]["value"] == "0.0000000000345"
+    assert L["reaction"]["text"] == "CaF2(s) <=> Ca^2+(aq) + 2 F^-(aq)"
+    # the solid row is present, excluded from Q, and carries no concentration
+    solid = L["ice"]["species"][0]
+    assert solid["id"] == "CaF2" and solid["in_quotient"] is False and "equilibrium_M" not in solid
+    # the molar solubility ≈ 2.05e-4, solubility ≈ 0.016 g/L
+    assert L["result"]["molar_solubility_M_display"] == "0.000205"
+    assert L["result"]["solubility_g_per_L_display"] == "0.016"
+    assert all(L["checks"].values())
+
+
+def test_ksp_mass_action_residual_tiny():
+    data = ChemData.load(ROOT)
+    L = build_solubility_lesson({"id": "t", "title": "t", "slug": "t", "topic": "equilibrium", "scenario": "s",
+                                 "salt": "CaF2",
+                                 "misconception": {"claim": "c", "refuted_by": "stoichiometry_in_ksp"}}, data, "t")
+    ions = [r for r in L["ice"]["species"] if r.get("in_quotient") is not False]
+    Q = _quotient([Decimal(r["equilibrium_M"]) for r in ions], [r["nu"] for r in ions])
+    ksp = Decimal(L["equilibrium_constant"]["value"])
+    assert abs(Q - ksp) / ksp < Decimal("1e-6")
+
+
+def test_refuses_unknown_salt():
+    data = ChemData.load(ROOT)
+    with pytest.raises(BuildError, match="no solubility product"):
+        build_solubility_lesson({"id": "t", "title": "t", "slug": "t", "topic": "equilibrium", "scenario": "s",
+                                 "salt": "NaCl", "misconception": {"claim": "c", "refuted_by": "x"}}, data, "t")
+
+
+def test_solubility_products_loaded():
+    data = ChemData.load(ROOT)
+    rec = data.solubility_product("CaF2")
+    assert rec["ksp"] == Decimal("3.45e-11")
+    assert rec["n_cation"] == 1 and rec["n_anion"] == 2       # crossover derived + composition machine-checked
+    assert data.sources["solubility_products"] == "openstax-chemistry-2e"
+
+
+def test_build_solubility_round_trip():
+    lesson, out_rel = build_equilibrium(SPEC_KSP, ROOT)
+    assert out_rel == "equilibrium/calcium-fluoride-solubility.equilibrium.json"
+    assert lesson["subtype"] == "solubility"

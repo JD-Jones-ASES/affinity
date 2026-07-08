@@ -1,0 +1,17 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0048). Ksp: the quantitative version of the qualitative solubility
+# rules (data/solubility.toml, Phase 0) — how insoluble is "insoluble." Model-exact (a disclosed idealization —
+# saturation equilibrium, activities ≈ concentrations). No [[array-of-tables]] / TOML trap #4 N/A.
+id = "solubility-product"
+kind = "concept"
+title = "Solubility product (Ksp) and molar solubility"
+term = "solubility product"
+regime = "model-exact"
+definition = "For a sparingly soluble salt at saturation, $\\mathrm{M}_a\\mathrm{X}_b(s) \\rightleftharpoons a\\,\\mathrm{M}^{n+} + b\\,\\mathrm{X}^{m-}$, the **solubility product** is $K_{sp} = [\\mathrm{M}^{n+}]^a[\\mathrm{X}^{m-}]^b$. The dissolving solid is a **pure phase** (activity 1), so it does **not** appear — that exclusion is the whole move. The equilibrium's extent is the **molar solubility** $s$ (mol dissolved per litre): $[\\mathrm{M}^{n+}] = a s$, $[\\mathrm{X}^{m-}] = b s$, so $K_{sp} = (a s)^a (b s)^b$ — a polynomial in $s$ (a **cubic** for a 1:2 salt), solved for $s$. A smaller $K_{sp}$ means less dissolves, but $K_{sp}$ values compare solubility directly only for salts of the **same** ion ratio. Comparing $K_{sp}$ to the reaction quotient $Q$ predicts precipitation: $Q > K_{sp}$ means a solid forms (the Phase-0 precipitation rules, quantified)."
+latex = "K_{sp} = [\\mathrm{M}^{n+}]^a\\,[\\mathrm{X}^{m-}]^b"
+related = [
+  { to = "chemical-equilibrium", type = "instance-of" },
+  { to = "precipitation", type = "quantifies" },
+  { to = "solubility-rules", type = "quantifies" },
+  { to = "extent-of-reaction", type = "extends" },
+]
+lessons = ["calcium-fluoride-solubility"]

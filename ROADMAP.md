@@ -14,21 +14,26 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043), the **bonding tier** (ADR-0044), the **`structure`
   lesson kind** (ADR-0045), **intermolecular forces** (ADR-0046), the **IMF comparison lesson** (ADR-0047 — a third lesson
   shape), and the **equilibrium tier opener** (ADR-0048 — the reversible-extent solver + the `equilibrium` lesson kind, a
-  fourth shape). **Next inside Phase 2:** the rest of equilibrium & acid-base (weak base/Kb, Ksp, buffers, titration, a
-  gym), then kinetics and electrochemistry, each opening with its stress scenario. Counters live in `AGENTS.md ## Current
-  state`; per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks
-  below are the plan of record.
-- **Equilibrium & acid-base — OPENED** (2026-07-08, ADR-0048): the thesis made literal — *the ICE table is the species
-  ledger with the extent solved from mass action* ($Q=K$), not driven to a limiting reagent. The **reversible-extent
-  solver** (`chemkernel.equilibrium.solve_equilibrium`) finds the extent by bisection to high precision (exact Decimal,
-  general beyond the quadratic); the root is model-exact-then-rounded, the machine-check is the residual $Q(\text{committed})=K$
-  + the gate's independent re-solve. A new **`equilibrium` lesson kind** (fourth shape, own tight schema, `*.equilibrium.json`)
-  → `equilibrium/acetic-acid-ph` (0.100 M acetic acid, $K_a=1.8\times10^{-5}$ → pH 2.88, 1.33% ionized; the weak-as-strong
-  misconception refuted). Triple-badged (ICE machine-checked / $K_a$ sourced / position model-assumed); $K_a$ from
-  `data/ionization-constants.toml` (OpenStax App H), the dissociation DRY-sourced from acids-bases; two concepts. Gate
-  `equilibriumcheck.mjs` re-derives the spine in Node; 5-way tamper-tested. **Deferred (the rest of the tier):** weak base
-  ($K_b$/pOH/$K_w$), Ksp (solid excluded from $Q$), buffers (both HA+A⁻ present — the reverse bracket already works),
-  titration curves, polyprotic staging, a weak-acid gym, the $K$/pH/$K_w$ formula-sheet entries (need the activity treatment).
+  fourth shape). **Next inside Phase 2:** the rest of equilibrium & acid-base (weak base/Kb, buffers, titration, a gym), then
+  kinetics and electrochemistry, each opening with its stress scenario. Counters live in `AGENTS.md ## Current state`;
+  per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are
+  the plan of record.
+- **Equilibrium & acid-base — OPENED, weak-acid pH + Ksp** (2026-07-08, ADR-0048): the thesis made literal — *the ICE
+  table is the species ledger with the extent solved from mass action* ($Q=K$), not driven to a limiting reagent. The
+  **reversible-extent solver** (`chemkernel.equilibrium.solve_equilibrium`) finds the extent by **bisection to high
+  precision** (exact Decimal, general beyond the quadratic); the root is model-exact-then-rounded, the machine-check the
+  residual $Q(\text{committed})=K$ + the gate's independent re-solve. A new **`equilibrium` lesson kind** (fourth shape,
+  own tight schema, `*.equilibrium.json`) with **two subtypes**: **weak-acid** → `equilibrium/acetic-acid-ph` (0.100 M
+  acetic acid, $K_a=1.8\times10^{-5}$ → pH 2.88; the weak-as-strong misconception refuted; $K_a$ from
+  `data/ionization-constants.toml` App H, dissociation DRY-sourced from acids-bases), and **solubility** →
+  `equilibrium/calcium-fluoride-solubility` (Ksp — a **pure solid excluded from Q**, so $K_{sp}=4s^3$, a **cubic**;
+  molar solubility $s=2.05\times10^{-4}$ M; the coefficient-forgetting misconception refuted; $K_{sp}$ from
+  `data/solubility-products.toml` App J, the ion composition machine-checked by charge crossover; quantifies the Phase-0
+  precipitation rules). Triple-badged; gate `equilibriumcheck.mjs` re-derives the spine (weak-acid quadratic + Ksp cubic)
+  in Node; concepts `chemical-equilibrium`/`ph`/`solubility-product`; 9-way tamper-tested across the two subtypes.
+  **Deferred (the rest of the tier):** weak base ($K_b$/pOH/$K_w$), buffers (both HA+A⁻ present — the reverse bracket
+  already works), titration curves, polyprotic staging, a weak-acid gym, the $K$/pH/$K_w$ formula-sheet entries (need
+  the activity treatment); common-ion Ksp + $Q$-vs-$K_{sp}$ precipitation prediction.
 - **IMF comparison lesson — LANDED** (2026-07-08, ADR-0047): the bonding capstone + a **third lesson shape** (`comparison`).
   `bonding/boiling-points-and-imfs` lines up CH₄ ≪ NH₃ ≪ H₂O (equal-mass hydrides, so size is controlled) and the
   machine-checked payoff is the trend itself: sorted by boiling point, the dominant-IMF rank is **non-decreasing** (the
@@ -405,11 +410,16 @@ lesson kind** (the fourth shape — own tight `equilibrium-lesson.schema.json`, 
 1.33\times10^{-3}$ M, **pH 2.88**, 1.33% ionized; the misconception is treating the weak acid as strong. Triple-badged (ICE
 identity machine-checked / $K_a$ data-sourced / equilibrium position + pH model-assumed); $K_a$ from
 `data/ionization-constants.toml` (OpenStax App H), the HA ⇌ H⁺ + A⁻ dissociation DRY-sourced from `data/acids-bases.toml`;
-concepts `chemical-equilibrium` + `ph`; a static `EquilibriumLesson.astro` (ICE table + mass-action check + pH). **Next
-in-tier:** the weak **base** ($K_b$/pOH/$K_w$); **Ksp** (the pure solid's activity = 1, excluded from $Q$ — a small solver
-refinement); **buffers** (both HA + A⁻ present — the reverse-direction bracket the solver already supports; Henderson–
-Hasselbalch); **titration curves**; **polyprotic** staged equilibria (H₃PO₄); a weak-acid **gym**; the $K$/pH/$K_w$
-formula-sheet entries (they need the *activity* — dimensionless — treatment so the dimension engine stays homogeneous).
+concepts `chemical-equilibrium` + `ph`; a static `EquilibriumLesson.astro`. The **`solubility` subtype landed too** (2nd
+increment): `equilibrium/calcium-fluoride-solubility` — `solve_equilibrium` gained an `in_quotient` flag so a **pure solid
+is excluded from Q** (and, in excess, does not bound the forward extent — the bracket grows until Q > K), making
+$K_{sp}=[\mathrm{Ca^{2+}}][\mathrm{F^-}]^2=4s^3$ a **cubic** the bisection solver handles; one schema, two subtypes
+(`subtype` discriminator, dispatched by `acid` vs `salt`); $K_{sp}$ from `data/solubility-products.toml` (App J), the salt
+composition machine-checked by charge crossover; the `solubility-product` concept; it closes the Phase-0 precipitation loop.
+**Next in-tier:** the weak **base** ($K_b$/pOH/$K_w$); **buffers** (both HA + A⁻ present — the reverse-direction bracket the
+solver already supports; Henderson–Hasselbalch); **titration curves**; **polyprotic** staged equilibria (H₃PO₄); a weak-acid
+**gym**; common-ion Ksp + $Q$-vs-$K_{sp}$ precipitation prediction; the $K$/pH/$K_w$ formula-sheet entries (they need the
+*activity* — dimensionless — treatment so the dimension engine stays homogeneous).
 
 **Then (each its own increment, sketch):** the rest of bonding (above) + the rest of equilibrium & acid-base (above);
 kinetics ($d\xi/dt$, rate laws, integrated rate laws, half-life); electrochemistry (oxidation numbers — completing the

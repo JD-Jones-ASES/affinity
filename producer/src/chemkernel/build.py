@@ -24,7 +24,7 @@ from pathlib import Path
 from . import BuildError, __version__
 from .balance import balance
 from .data import ChemData
-from .equilibrium import build_equilibrium_lesson
+from .equilibrium import build_equilibrium_lesson, build_solubility_lesson
 from .extent import solve_extent, species_mass_g, to_decimal
 from .formula import Formula, parse_formula
 from .gym import generate_gym
@@ -584,14 +584,20 @@ def build_comparison(path: Path, root: Path) -> tuple[dict, str]:
 
 def build_equilibrium(path: Path, root: Path) -> tuple[dict, str]:
     """An authored equilibrium lesson (ADR-0048): the ICE table = the species ledger with the extent solved from
-    mass action. The acid's dissociation (HA ⇌ H⁺ + A⁻) comes from data/acids-bases.toml (DRY-sourced) and its
-    Kₐ from data/ionization-constants.toml; build_equilibrium_lesson solves the reversible extent + the pH."""
+    mass action. Two subtypes, dispatched by the spec's key: a **weak-acid** lesson (`acid` — the dissociation
+    HA ⇌ H⁺ + A⁻ from acids-bases.toml + Kₐ from ionization-constants.toml → the pH) or a **solubility** lesson
+    (`salt` — the dissolution from solubility-products.toml → the molar solubility; the solid excluded from Q)."""
     spec = tomllib.loads(path.read_text(encoding="utf-8"))
     ctx = spec.get("id", path.stem)
     data = ChemData.load(root)
-    acidbase = AcidBase.load(root)
-    acidbase.validate(data)      # regime-1 composition self-check of the sourced acid/base table
-    lesson = build_equilibrium_lesson(spec, data, acidbase, ctx)
+    if "salt" in spec:
+        lesson = build_solubility_lesson(spec, data, ctx)
+    elif "acid" in spec:
+        acidbase = AcidBase.load(root)
+        acidbase.validate(data)  # regime-1 composition self-check of the sourced acid/base table
+        lesson = build_equilibrium_lesson(spec, data, acidbase, ctx)
+    else:
+        raise BuildError(f"{ctx}: equilibrium lesson needs an `acid` (weak-acid pH) or a `salt` (Ksp solubility)")
     return lesson, f"{spec['topic']}/{spec['slug']}.equilibrium.json"
 
 

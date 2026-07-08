@@ -278,8 +278,22 @@ for (const file of equilibriumFiles) {
     if (!les.regimes.some((x) => x.regime === r)) fail(rel, `equilibrium lesson missing a ${r} regime`);
   if (!les.assumptions.some((a) => a.kind === "model"))
     fail(rel, "equilibrium lesson discloses no model assumption (the equilibrium position is model-assumed)");
-  if (!les.equilibrium_constant.source) fail(rel, "equilibrium_constant.source (the Kₐ data source) is missing");
+  if (!les.equilibrium_constant.source) fail(rel, "equilibrium_constant.source (the K data source) is missing");
   for (const [k, v] of Object.entries(les.provenance.sources)) if (!v) fail(rel, `provenance.sources.${k} is empty`);
+
+  // subtype-specific field presence (the schema keeps the union optional — strictRequired can't cross subschemas)
+  const need = (obj, keys, where) => { for (const k of keys) if (obj[k] === undefined) fail(rel, `${where}.${k} missing for subtype ${les.subtype}`); };
+  if (les.subtype === "weak-acid") {
+    need(les.reaction, ["acid", "acid_name", "acid_latex", "conjugate_base"], "reaction");
+    need(les.result, ["hydronium_M", "hydronium_M_display", "pH", "pH_display", "percent_ionization", "percent_ionization_display"], "result");
+    need(les.checks, ["ph_consistent"], "checks");
+    need(les.provenance.sources, ["ionization_constants", "ion_charge"], "provenance.sources");
+  } else if (les.subtype === "solubility") {
+    need(les.reaction, ["salt", "salt_name", "salt_latex", "cation", "anion"], "reaction");
+    need(les.result, ["molar_solubility_M", "molar_solubility_M_display", "solubility_g_per_L", "solubility_g_per_L_display", "molar_mass_g_per_mol"], "result");
+    need(les.checks, ["solubility_consistent"], "checks");
+    need(les.provenance.sources, ["solubility_products", "ion_charge", "atomic_weight"], "provenance.sources");
+  } else fail(rel, `unknown equilibrium subtype '${les.subtype}'`);
 
   // the machine-checked core: re-derive the reversible-extent solve independently of Python
   verifyEquilibrium(rel, les, fail);
