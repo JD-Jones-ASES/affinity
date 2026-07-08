@@ -157,3 +157,14 @@ def test_vsepr_table_loaded_and_sourced():
     assert d.vsepr[(4, 1)]["molecular_shape"] == "trigonal pyramidal"
     assert d.vsepr[(4, 2)]["molecular_shape"] == "bent"        # water's shape
     assert (5, 0) not in d.vsepr                               # expanded octets deferred
+
+
+def test_boiling_points_loaded_and_sourced():
+    from decimal import Decimal
+    d = data()
+    # the sourced boiling-point evidence (ADR-0046) for the intermolecular-forces concept, keyed by formula
+    assert d.sources["boiling_points"] == "openstax-chemistry-2e"
+    assert d.boiling_points["H2O"]["temperature_c"] == Decimal("100.0")
+    assert d.boiling_points["H2O"]["phase_change"] == "boiling"
+    assert d.boiling_points["CO2"]["phase_change"] == "sublimation"   # no liquid at 1 atm
+    assert d.boiling_points["CH4"]["temperature_c"] == Decimal("-161.5")

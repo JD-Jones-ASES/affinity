@@ -204,10 +204,10 @@ equilibrium/acid-base, kinetics, electrochemistry. History in [`CHANGELOG.md`](.
 **Counters:** 8 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
 **2 bonding/structure** — water bent-polar + CO₂ linear-nonpolar) · 11 gyms / 110 verified problems (dimensional analysis · ionic nomenclature · balancing · mass
 stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas laws · calorimetry · Lewis
-structures) · 1 Valence Table (23 elements; four modes; 156 named + machine-verified salts) · 23 concept entries (7
+structures) · 1 Valence Table (23 elements; four modes; 156 named + machine-verified salts) · 24 concept entries (8
 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species entries + **6 molecule structure
-entries** (ADR-0044) + 9 formula-sheet entries (ADR-0039/0043) · 60 Atlas reference objects · 7 Node gates + CI + live
-Pages · 306 producer tests · astro build = 29 pages.
+entries** (Lewis ledger + VSEPR + **dominant IMF**, ADR-0044/0046) + 9 formula-sheet entries (ADR-0039/0043) · 61 Atlas
+reference objects · 7 Node gates + CI + live Pages · 311 producer tests · astro build = 29 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; honesty = three badges
 (regime-4 → model-assumed badge + an "interpretive" marker, ADR-0033); numeric practice free-entry (diagnostics), categorical
@@ -218,8 +218,10 @@ ADR-0045): a single molecule, no reaction, pivoting on the **Lewis electron ledg
 `mass_g`→moles supported; a fully molecular reaction omits the ionic equations; redox = the free-element signature (Phase 2).
 The Atlas carries all four brief-§10 kinds (lens, concepts, reactions, species ADR-0038, formula sheet ADR-0039 — machine-checked
 **dimensional homogeneity** via `chemkernel.dimension`, separate from Decimal `units.py` per ADR-0015) **plus a fifth structural
-surface**, the **`molecule` kind** (ADR-0044): the Lewis electron ledger (valence total → octet → formal charge, exact integer
-accounting **machine-checked**) + sourced VSEPR geometry (`data/vsepr.toml`) + sourced bond ΔEN + disclosed polarity.
+surface**, the **`molecule` kind** (ADR-0044/0046): the Lewis electron ledger (valence total → octet → formal charge, exact
+integer accounting **machine-checked**) + sourced VSEPR geometry (`data/vsepr.toml`) + sourced bond ΔEN + disclosed polarity
++ a **dominant IMF** (ADR-0046 — London-dispersion/dipole-dipole/hydrogen-bonding from the polarity + an *exact* H-on-N/O/F
+test; the ranking is the sourced rule, a sourced boiling point the evidence — neutral molecules only).
 **`compute_ledger` is one engine shared by the molecule Atlas builder, the `lewis_structures_v1` gym, AND the structure lesson**;
 a shared `scripts/validate/structurecheck.mjs` re-derives the ledger in pure Node for both the reference + solutions gates. Atlas
 ids are **kind-prefixed** where they'd collide (`formula-*`/`reaction-*`/`molecule-*`); species/concepts stay bare. `units.py`
@@ -229,20 +231,20 @@ never runs in CI — the seven Node gates re-verify committed `derived/` from sc
 
 ## Where this might go next (paths for a future session)
 
-**Phase 2 is open** (ADR-0039–0045). The **gas + thermochemistry tiers are complete across all surfaces**, and the
-**bonding & structure tier** now has its engine, `molecule` Atlas kind, `lewis_structures_v1` gym (ADR-0044), AND its deep
-vertical slice — the **`structure` lesson** `bonding/water-molecular-shape` (ADR-0045). The flagged next increment (newest
-session log's closing block) is **IMFs** — the rest of the bonding tier, building on the disclosed molecular polarity
-(dipole–dipole, hydrogen bonding, London forces; likely a new concept + boiling-point evidence, and possibly a second
-structure lesson framing). Corpus-depth deferrals: octet exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻ —
-equivalent-structure handling), a formal-charge gym drill, more structure lessons (CO₂'s linear-nonpolar contrast; NH₃/CH₄).
-Then the later tiers — equilibrium/acid-base (ICE = ledger with reversible extent), kinetics (dξ/dt), electrochemistry
-(oxidation numbers → electron ledger, ΔG=−nFE) — each opening with its stress scenario. Smaller/optional: endothermic /
-multi-step Hess-cycle lessons; the gas lesson's **slider interactive** (`ExtentBar` is cation/anion-locked, needs its own
-component); calorimetry initial/final-temperature framing + cooling drills. Always in season inside settled contracts: more
-formula-sheet entries (pH, K, ΔG, Nernst land with their topics), Atlas breadth-fill, further lessons (gas-evolution /
-diprotic neutralization), an average-atomic-mass or particle-count gym (needs isotope data / scientific-notation display),
-docs-only sessions. **Opening the later Phase-2 tiers** proceeds inside the open phase.
+**Phase 2 is open** (ADR-0039–0046). The **gas + thermochemistry tiers are complete across all surfaces**, and the
+**bonding & structure tier** now has its engine, `molecule` Atlas kind, `lewis_structures_v1` gym (ADR-0044), two
+`structure` lessons (water + CO₂, ADR-0045), and **IMFs** (the dominant-IMF classifier + concept, ADR-0046). The flagged
+next increment (newest session log's closing block) is the **IMF comparison lesson** — a *new multi-molecule lesson shape*
+(the existing `structure` lesson is single-molecule): compare the corpus's molecules and teach the boiling-point trend
+(CH₄ ≪ NH₃ ≪ H₂O) as the payoff. That new shape is a design decision worth surfacing to the owner. Corpus-depth deferrals:
+octet exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻), a formal-charge gym drill, more single-molecule structure
+lessons (NH₃/CH₄), drilling "which IMF dominates?" in the gym. Then the later tiers — equilibrium/acid-base (ICE = ledger
+with reversible extent), kinetics (dξ/dt), electrochemistry (oxidation numbers → electron ledger, ΔG=−nFE) — each opening
+with its stress scenario. Smaller/optional: endothermic / multi-step Hess-cycle lessons; the gas lesson's **slider
+interactive** (`ExtentBar` is cation/anion-locked, needs its own component); calorimetry initial/final-temperature framing.
+Always in season inside settled contracts: more formula-sheet entries (pH, K, ΔG, Nernst land with their topics), Atlas
+breadth-fill, further lessons, an average-atomic-mass or particle-count gym (needs scientific-notation display), docs-only
+sessions. **Opening the later Phase-2 tiers** proceeds inside the open phase.
 
 **Known traps (1 and 2 bit the sibling; 3–5 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested

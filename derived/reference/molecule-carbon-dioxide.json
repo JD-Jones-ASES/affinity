@@ -113,5 +113,15 @@
     "carbon-dioxide-molecular-shape"
   ],
   "polarity": "nonpolar",
-  "polarity_reason": "The molecule is linear, so the two equal, opposite C=O bond dipoles cancel exactly — polar bonds, but no net molecular dipole."
+  "polarity_reason": "The molecule is linear, so the two equal, opposite C=O bond dipoles cancel exactly — polar bonds, but no net molecular dipole.",
+  "intermolecular": {
+    "dominant": "london-dispersion",
+    "forces": [
+      "london-dispersion"
+    ],
+    "h_bond_donor": false,
+    "boiling_point_c": "-78.5",
+    "phase_change": "sublimation",
+    "boiling_source": "openstax-chemistry-2e"
+  }
 }

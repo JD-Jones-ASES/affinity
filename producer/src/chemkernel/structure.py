@@ -195,6 +195,35 @@ def compute_ledger(atoms_spec: list, bonds_spec: list, central: str, formula_str
     }
 
 
+_HBOND_ACCEPTORS = ("N", "O", "F")   # the small, strongly electronegative atoms that make a bonded H a donor
+
+
+def classify_imf(atoms: list, bonds: list, polarity: str) -> dict:
+    """The dominant intermolecular force of a NEUTRAL molecule (ADR-0046), derived from its VERIFIED structure +
+    the machine-derived polarity. Every molecule has **London dispersion**; a **polar** molecule adds
+    **dipole–dipole**; a molecule with an H bonded directly to N, O, or F adds **hydrogen bonding**. The DOMINANT
+    force is the strongest TYPE present (hydrogen bonding > dipole–dipole > London dispersion) — the standard
+    intro-chemistry rule (regime-3, a sourced convention; disclosed caveat: dispersion strength grows with
+    size/polarizability, so for large molecules it can overtake a small dipole). The H-bond-donor detection is
+    exact over the atoms + bonds (a graph fact of the verified structure); the ranking is the sourced rule."""
+    element_of = {a["id"]: a["element"] for a in atoms}
+    h_bond_donor = False
+    for b in bonds:
+        pair = {element_of.get(b["a"]), element_of.get(b["b"])}
+        if "H" in pair and (pair & set(_HBOND_ACCEPTORS)):
+            h_bond_donor = True
+            break
+    forces = ["london-dispersion"]                    # present in every molecule
+    if polarity == "polar":
+        forces.append("dipole-dipole")
+    if h_bond_donor and polarity == "polar":          # hydrogen bonding presupposes a molecular dipole
+        forces.append("hydrogen-bonding")
+    dominant = ("hydrogen-bonding" if "hydrogen-bonding" in forces
+                else "dipole-dipole" if "dipole-dipole" in forces
+                else "london-dispersion")
+    return {"dominant": dominant, "forces": forces, "h_bond_donor": h_bond_donor}
+
+
 def build_molecule_entry(spec: dict, data, ctx: str = "") -> dict:
     """An authored molecule entry → the emitted Atlas object (ADR-0044). The electron ledger (valence total,
     octet, per-atom formal charge) is DERIVED from the authored atoms + bonds and machine-verified (via
@@ -264,6 +293,19 @@ def build_molecule_entry(spec: dict, data, ctx: str = "") -> dict:
             raise BuildError(f"{ctx}: polarity needs a `polarity_reason` (the disclosed dipole argument)")
         entry["polarity"] = polarity
         entry["polarity_reason"] = spec["polarity_reason"]
+
+    # intermolecular forces (ADR-0046) — for a NEUTRAL molecule only (IMFs act between neutral molecules; an ion's
+    # interactions are ionic, a different regime). Derived from the verified structure + polarity; the sourced
+    # normal boiling point is attached as evidence when curated (`data/boiling-points.toml`), keyed by formula.
+    if charge == 0:
+        imf = classify_imf(led["atoms"], led["bonds"], polarity)
+        imf_block = {"dominant": imf["dominant"], "forces": imf["forces"], "h_bond_donor": imf["h_bond_donor"]}
+        bp = data.boiling_points.get(spec["formula"])
+        if bp is not None:
+            imf_block["boiling_point_c"] = format(bp["temperature_c"], "f")
+            imf_block["phase_change"] = bp["phase_change"]
+            imf_block["boiling_source"] = data.sources.get("boiling_points", "")
+        entry["intermolecular"] = imf_block
 
     if "notes" in spec:
         entry["notes"] = list(spec["notes"])

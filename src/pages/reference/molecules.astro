@@ -34,8 +34,9 @@ const lessonTitle = Object.fromEntries([...Object.values(sols), ...Object.values
     an octet (a duet for H), each atom's formal charge, and that the formal charges sum to the molecular
     charge. It refuses any structure that fails. The <strong>shape</strong> then follows from the
     electron-domain count (VSEPR, sourced), and the shape decides <strong>polarity</strong> — a disclosed
-    model conclusion. Bond ΔEN comes from the <a href={withBase("/reference/valence-table/")}>Valence
-    Table</a>'s electronegativities.</p>
+    model conclusion. Polarity in turn fixes the dominant <a href={withBase("/reference/#intermolecular-forces")}>intermolecular
+    force</a> (with the H-on-N/O/F test — machine-derived from the structure; the boiling point is sourced evidence).
+    Bond ΔEN comes from the <a href={withBase("/reference/valence-table/")}>Valence Table</a>'s electronegativities.</p>
 
   <nav class="jump">
     {molecules.map((m) => <a href={`#${m.id}`}>{m.formulaPretty}</a>)}
@@ -130,6 +131,22 @@ const lessonTitle = Object.fromEntries([...Object.values(sols), ...Object.values
         </div>
       )}
 
+      {m.intermolecular && (
+        <div class="section imf-sec">
+          <div class="s-head">
+            <span class="lbl"><a href={hrefFor("intermolecular-forces")}>Intermolecular forces</a></span>
+            <span class="badge machine tiny"><span class="dot"></span>from the structure</span>
+          </div>
+          <p class="imf">Dominant: <strong class={`imf ${m.intermolecular.dominant}`}>{m.intermolecular.dominantLabel}</strong>
+            <span class="imf-all"> · present: {m.intermolecular.forceLabels.join(", ")}</span>
+            {m.intermolecular.h_bond_donor && <span class="imf-flag"> · H-bond donor</span>}</p>
+          {m.intermolecular.boiling_point_c && (
+            <p class="imf-bp mono">{m.intermolecular.phase_change === "sublimation" ? "sublimes" : "boils"} at {m.intermolecular.boiling_point_c} °C
+              <span class="badge sourced tiny"><span class="dot"></span>{m.intermolecular.boiling_source}</span></p>
+          )}
+        </div>
+      )}
+
       <p class="summary" set:html={m.summaryHtml} />
       {m.notesHtml.length > 0 && <ul class="notes">{m.notesHtml.map((n) => <li set:html={n} />)}</ul>}
 
@@ -192,6 +209,16 @@ const lessonTitle = Object.fromEntries([...Object.values(sols), ...Object.values
     .btype { font-weight: 600; min-width: 4rem; }
     .bmeta { color: var(--ink-2); }
     .pol-sec p { margin: 0.2rem 0; font-size: 0.92rem; color: var(--ink-2); }
+    .imf-sec .lbl a { color: inherit; }
+    .imf-sec .lbl a:hover { color: var(--accent); }
+    .imf { margin: 0.2rem 0; font-size: 0.92rem; color: var(--ink-2); }
+    .imf strong.imf { text-transform: none; }
+    .imf strong.imf.hydrogen-bonding { color: var(--accent); }
+    .imf strong.imf.dipole-dipole { color: var(--model); }
+    .imf strong.imf.london-dispersion { color: var(--ink-2); }
+    .imf-all { color: var(--ink-faint); }
+    .imf-flag { color: var(--accent); font-weight: 600; }
+    .imf-bp { font-size: 0.84rem; color: var(--ink-faint); margin: 0.2rem 0 0; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
     .summary { color: var(--ink-2); margin: 0.7rem 0 0; max-width: 56rem; }
     .notes { margin: 0.5rem 0 0; padding-left: 1.1rem; color: var(--ink-faint); font-size: 0.88rem; }
     .links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; font-size: 0.86rem; color: var(--ink-faint); margin-top: 0.8rem; border-top: 1px solid var(--line); padding-top: 0.5rem; }

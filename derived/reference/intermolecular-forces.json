@@ -1,0 +1,24 @@
+{
+  "kind": "concept",
+  "id": "intermolecular-forces",
+  "title": "Intermolecular forces (IMFs)",
+  "term": "intermolecular force",
+  "definition": "The attractions **between** whole molecules — distinct from the covalent bonds **within** one. They decide the physical properties: melting and boiling points, whether a substance is a gas, liquid, or solid at room temperature, and what dissolves in what. Three kinds, and which a molecule has follows from its verified structure: **London dispersion forces** act between *all* molecules (fleeting, induced dipoles from moving electrons) and are the *only* force for a nonpolar molecule; **dipole–dipole forces** act additionally between **polar** molecules (the permanent dipoles attract); and **hydrogen bonding** — the strongest of the three for small molecules — acts when a molecule has an **H bonded directly to N, O, or F** (a small, strongly electron-pulling atom leaves that H very positive). The **dominant** force is the strongest kind present, ranked hydrogen bonding > dipole–dipole > dispersion. The evidence is in the boiling points of similar-sized hydrides: CH₄ (dispersion only) boils at −161.5 °C, NH₃ (hydrogen bonding) at −33.3 °C, and H₂O (hydrogen bonding, with two donors and two acceptors) all the way up at 100 °C — same rough size, wildly different boiling points, because the force holding the molecules together is stronger. CO₂ (nonpolar, dispersion only) doesn't even form a liquid at 1 atm: it sublimes at −78.5 °C. The presence of each force is machine-derived from the structure (polarity, and the H-on-N/O/F test); the strength ordering is the sourced rule, and one caveat is disclosed — dispersion grows with molecular size and polarizability, so for large molecules it can outweigh a small dipole.",
+  "related": [
+    {
+      "to": "lewis-structure",
+      "type": "depends-on"
+    },
+    {
+      "to": "vsepr",
+      "type": "depends-on"
+    },
+    {
+      "to": "electronegativity",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [],
+  "regime": "rule-sourced",
+  "source": "openstax-chemistry-2e"
+}

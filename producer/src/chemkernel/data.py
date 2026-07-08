@@ -52,7 +52,8 @@ class ChemData:
     def __init__(self, elements: dict[str, Element], ions: dict[str, Ion], sources: dict[str, str],
                  constants: dict[str, Decimal] | None = None, bonding: dict | None = None,
                  constant_units: dict[str, str] | None = None, specific_heats: dict | None = None,
-                 formation_enthalpies: dict | None = None, vsepr: dict | None = None):
+                 formation_enthalpies: dict | None = None, vsepr: dict | None = None,
+                 boiling_points: dict | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
@@ -66,6 +67,10 @@ class ChemData:
         # VSEPR geometry table (ADR-0044), keyed (domains, lone_pairs) -> the sourced geometry names + angle.
         # The molecule Atlas looks up the machine-derived domain count in this sourced table (regime-3 naming).
         self.vsepr = vsepr or {}
+        # normal boiling points (ADR-0046), keyed by phase-less formula -> {name, temperature_c (Decimal),
+        # phase_change}. Sourced empirical evidence (regime-3) for the intermolecular-forces concept: IMF strength
+        # shows up in the boiling point. The molecule Atlas attaches it; the classification itself is structural.
+        self.boiling_points = boiling_points or {}
 
     @property
     def avogadro(self) -> Decimal:
@@ -218,6 +223,24 @@ class ChemData:
                 except (KeyError, ValueError) as exc:
                     raise BuildError(f"data/vsepr.toml: bad entry {g!r}: {exc}") from exc
 
+        # normal boiling points (optional file; ADR-0006/0046). A measured, data-sourced datum (regime-3) — the
+        # intermolecular-forces evidence — keyed by phase-less formula, read as Decimal (ADR-0013).
+        boiling_points: dict = {}
+        bp_source = ""
+        bp_path = d / "boiling-points.toml"
+        if bp_path.exists():
+            bp_doc = tomllib.loads(bp_path.read_text(encoding="utf-8"))
+            bp_source = bp_doc.get("source", "")
+            for key, v in bp_doc.get("substances", {}).items():
+                try:
+                    pc = v.get("phase_change", "boiling")
+                    if pc not in ("boiling", "sublimation"):
+                        raise BuildError(f"data/boiling-points.toml: '{key}' phase_change '{pc}' invalid")
+                    boiling_points[key] = {"name": v["name"], "temperature_c": Decimal(v["temperature_c"]),
+                                           "phase_change": pc}
+                except (KeyError, ArithmeticError) as exc:
+                    raise BuildError(f"data/boiling-points.toml: bad entry for '{key}': {exc}") from exc
+
         sources = {
             "atomic_weight": el_doc.get("source", ""),
             "position": el_doc.get("position_source", ""),
@@ -230,9 +253,10 @@ class ChemData:
             "specific_heats": sh_source,
             "formation_enthalpies": fe_source,
             "vsepr": vsepr_source,
+            "boiling_points": bp_source,
         }
         obj = cls(elements, ions, sources, constants, bonding, constant_units, specific_heats,
-                  formation_enthalpies, vsepr)
+                  formation_enthalpies, vsepr, boiling_points)
         obj.validate()
         return obj
 

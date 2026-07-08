@@ -127,5 +127,17 @@
   ],
   "lessons": [],
   "polarity": "polar",
-  "polarity_reason": "The molecule is trigonal pyramidal (not planar), so the three N–H bond dipoles and the lone pair do not cancel — a net dipole points through the nitrogen toward the lone pair."
+  "polarity_reason": "The molecule is trigonal pyramidal (not planar), so the three N–H bond dipoles and the lone pair do not cancel — a net dipole points through the nitrogen toward the lone pair.",
+  "intermolecular": {
+    "dominant": "hydrogen-bonding",
+    "forces": [
+      "london-dispersion",
+      "dipole-dipole",
+      "hydrogen-bonding"
+    ],
+    "h_bond_donor": true,
+    "boiling_point_c": "-33.3",
+    "phase_change": "boiling",
+    "boiling_source": "openstax-chemistry-2e"
+  }
 }

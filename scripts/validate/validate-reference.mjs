@@ -14,7 +14,7 @@ import addFormats from "ajv-formats";
 import { verifyBalance, redoxFreeElements } from "./balancecheck.mjs";
 import { parseFormula } from "./formula.mjs";
 import { unitDimension, eq as dimEq, addScaled, DIMENSIONLESS } from "./dimension.mjs";
-import { verifyElectronLedger, ledgerTables } from "./structurecheck.mjs";
+import { verifyElectronLedger, ledgerTables, classifyIMF } from "./structurecheck.mjs";
 
 const ROOT = process.cwd();
 const refDir = join(ROOT, "derived", "reference");
@@ -222,6 +222,33 @@ for (const { rel, obj } of entries) {
     for (const e of obj.related) if (!ids.has(e.to)) fail(rel, `related edge → '${e.to}' resolves to no reference`);
     for (const s of obj.lessons) if (!slugs.has(s)) fail(rel, `lesson '${s}' is not a real lesson slug`);
     verifyElectronLedger(rel, obj, ledgerT, fail);
+
+    // ADR-0046: the intermolecular block (neutral molecules only) re-derives from the verified structure +
+    // polarity. The h_bond_donor + forces + dominant are re-computed in pure Node; the boiling point is
+    // data-sourced (its source register-checked, its value not re-derivable — an empirical measurement).
+    if (obj.intermolecular) {
+      if (obj.charge !== 0) fail(rel, `intermolecular block present on a charged species (charge ${obj.charge})`);
+      const want = classifyIMF(obj.atoms, obj.bonds, obj.polarity);
+      if (obj.intermolecular.h_bond_donor !== want.hBondDonor)
+        fail(rel, `intermolecular h_bond_donor ${obj.intermolecular.h_bond_donor} != re-derived ${want.hBondDonor}`);
+      if (obj.intermolecular.dominant !== want.dominant)
+        fail(rel, `dominant IMF '${obj.intermolecular.dominant}' != re-derived '${want.dominant}'`);
+      if (JSON.stringify(obj.intermolecular.forces) !== JSON.stringify(want.forces))
+        fail(rel, `IMF forces ${JSON.stringify(obj.intermolecular.forces)} != re-derived ${JSON.stringify(want.forces)}`);
+      // the dominant must be the strongest force actually present
+      if (!obj.intermolecular.forces.includes(obj.intermolecular.dominant))
+        fail(rel, `dominant IMF '${obj.intermolecular.dominant}' is not among the forces present`);
+      // a boiling point + its phase_change + its source travel together, and the source resolves in SOURCES.md
+      const hasBp = obj.intermolecular.boiling_point_c !== undefined;
+      if (hasBp !== (obj.intermolecular.boiling_source !== undefined) || hasBp !== (obj.intermolecular.phase_change !== undefined))
+        fail(rel, `boiling_point_c, phase_change, and boiling_source must all be present or all absent`);
+      if (hasBp && !registeredSources.has(obj.intermolecular.boiling_source))
+        fail(rel, `boiling_source '${obj.intermolecular.boiling_source}' is not registered in docs/SOURCES.md`);
+      if (hasBp && !Number.isFinite(Number(obj.intermolecular.boiling_point_c)))
+        fail(rel, `boiling_point_c '${obj.intermolecular.boiling_point_c}' is not numeric`);
+    } else if (obj.charge === 0) {
+      fail(rel, `neutral molecule '${obj.id}' has no intermolecular block (ADR-0046)`);
+    }
   } else if (obj.kind === "valence-table") {
     // every source id the table cites (atomic weight, position, ion charge, and the ADR-0031 properties)
     // must resolve to a SOURCES.md register row

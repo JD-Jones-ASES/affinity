@@ -133,5 +133,13 @@
   ],
   "lessons": [],
   "polarity": "polar",
-  "polarity_reason": "Trigonal planar, but the bonds differ: the strong C=O dipole is not cancelled by the two weak C–H dipoles, leaving a net dipole toward oxygen."
+  "polarity_reason": "Trigonal planar, but the bonds differ: the strong C=O dipole is not cancelled by the two weak C–H dipoles, leaving a net dipole toward oxygen.",
+  "intermolecular": {
+    "dominant": "dipole-dipole",
+    "forces": [
+      "london-dispersion",
+      "dipole-dipole"
+    ],
+    "h_bond_donor": false
+  }
 }

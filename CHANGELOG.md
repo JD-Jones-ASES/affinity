@@ -3,6 +3,27 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — intermolecular forces: a structure-derived dominant-IMF classifier (ADR-0046)
+
+The bonding tier's last core topic — anchored to the machine-verified structure so it stays on-thesis despite being the
+tier's first predominantly empirical subject.
+
+- **Engine** (`structure.classify_imf`): the dominant intermolecular force of a neutral molecule, from its verified
+  structure + polarity — every molecule has **London dispersion**, a **polar** one adds **dipole–dipole**, an **H bonded
+  to N/O/F** adds **hydrogen bonding**; dominant = the strongest present. The H-bond-donor test is an exact graph fact;
+  the ordering is the sourced rule (regime-3, with the dispersion-grows-with-size caveat disclosed).
+- **Atlas:** an optional **`intermolecular` block** on the `molecule` kind (neutral molecules only — ions' interactions
+  are ionic) with `dominant`/`forces`/`h_bond_donor` (machine-derived) + a **sourced normal boiling point** as evidence
+  (`data/boiling-points.toml`). A new **`intermolecular-forces` concept** (rule-sourced) carries the teaching + the
+  boiling-point trend. Every neutral molecule page now shows its dominant IMF + boiling point under the right badges.
+- **Subtlety, right:** CH₂O is polar (dipole–dipole) but its H's are on **carbon** → *not* an H-bond donor; CH₄/CO₂ are
+  dispersion-only; H₂O/NH₃ hydrogen-bond. Evidence: CH₄ (−161.5 °C) ≪ NH₃ (−33.3 °C) ≪ H₂O (100 °C); CO₂ sublimes (−78.5 °C).
+- **Gate:** the IMF classification re-derives in pure Node (shared `structurecheck.classifyIMF`); the boiling **source** is
+  register-checked (its value is empirical, not re-derivable). **6-way tamper-tested** (dominant / h_bond_donor / forces /
+  a block on the ammonium ion / an unregistered source / a missing block on a neutral molecule — each caught).
+- **Verification:** **311 producer tests** (+5); 7 gates green (**validate-reference = 61**, +1 concept; check-katex = 499);
+  29 pages; `derived/` byte-stable — the 5 neutral molecule JSONs gain the block, NH₄⁺ (an ion) byte-identical.
+
 ## Phase 2 — 2026-07-08 — CO₂ structure lesson: polar bonds, nonpolar molecule (ADR-0045, 2nd increment)
 
 The second `structure` lesson — the marquee VSEPR contrast, proving the new machinery generalises to a different shape.

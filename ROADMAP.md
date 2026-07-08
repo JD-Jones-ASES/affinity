@@ -9,14 +9,21 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 
 - **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed; Phase 2 (the
   model-bearing tier) has landed its **gases + thermochemistry** tiers and its **bonding & structure** tier's engine +
-  Atlas + gym + **lesson**. Landed: the **formula/equation sheet** (ADR-0039), **`gas_laws_v1` gym** (ADR-0040),
+  Atlas + gym + 2 lessons + **IMFs**. Landed: the **formula/equation sheet** (ADR-0039), **`gas_laws_v1` gym** (ADR-0040),
   **gas-stoichiometry lesson** (ADR-0041), **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043 — q=ΔH_rxn·ξ
   via Hess's law), the **bonding tier** (ADR-0044 — Lewis electron-ledger engine + `molecule` Atlas kind +
-  `lewis_structures_v1` gym), and the **bonding & structure lesson** (ADR-0045 — the `structure` lesson kind; water's
-  valence → Lewis → VSEPR → polarity). **Next inside Phase 2:** IMFs (the rest of bonding), then equilibrium/acid-base,
-  kinetics, electrochemistry, each opening with its stress scenario. Counters live in `AGENTS.md ## Current state`;
-  per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are
-  the plan of record.
+  `lewis_structures_v1` gym), the **`structure` lesson kind** (ADR-0045 — water bent-polar + CO₂ linear-nonpolar), and
+  **intermolecular forces** (ADR-0046 — a structure-derived dominant-IMF classifier + concept). **Next inside Phase 2:** an
+  IMF comparison lesson (a new multi-molecule shape), then equilibrium/acid-base, kinetics, electrochemistry, each opening
+  with its stress scenario. Counters live in `AGENTS.md ## Current state`; per-increment detail in
+  [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are the plan of record.
+- **Intermolecular forces — LANDED** (2026-07-08, ADR-0046): the bonding tier's last core topic, kept on-thesis by
+  anchoring it to the machine-verified structure. `structure.classify_imf` derives a neutral molecule's **dominant IMF**
+  (London dispersion / dipole–dipole / hydrogen bonding) from its polarity + an **exact H-on-N/O/F test** (the ranking is
+  the sourced rule, regime-3). Delivered as an optional **`intermolecular` block** on the `molecule` Atlas kind + a sourced
+  normal boiling point as evidence (`data/boiling-points.toml`) + a new **`intermolecular-forces` concept**. The classifier
+  gets CH₂O right (polar but H-on-C → not an H-bond donor). Gate re-derives it in pure Node (shared `structurecheck`);
+  6-way tamper-tested. **Deferred:** the IMF **comparison lesson** (a new multi-molecule lesson shape — the payoff).
 - **Bonding & structure lesson — LANDED** (2026-07-08, ADR-0045): `bonding/water-molecular-shape` — the tier's deep
   vertical slice and the **first single-molecule lesson**. A new **`structure` lesson kind** (own tight
   `schemas/structure-lesson.schema.json` + `build_structure_lesson`, `*.structure.json`) rather than a bent reaction
@@ -361,10 +368,12 @@ valence total / electron domains (free-entry) + molecular geometry (categorical,
 off the shared engine — the counting practice for the ledger. The **deep vertical slice — the `structure` lesson kind**
 (`bonding/water-molecular-shape`, ADR-0045) — landed: a single molecule stepped valence → Lewis → VSEPR → polarity on the
 shared `compute_ledger`, a new tight `structure-lesson.schema.json` (no reaction), the electron-ledger re-derivation
-factored into a shared `structurecheck.mjs`. **Deferred within:** octet exceptions (electron-deficient BeH₂/BF₃, expanded
-PCl₅/SF₆); resonance (CO₃²⁻/NO₃⁻ — equivalent-structure handling); **IMFs** (build on molecular polarity — the tier's next
-increment); more structure lessons (CO₂'s linear-nonpolar contrast; NH₃/CH₄); a formal-charge gym drill (wants nonzero-FC
-molecules, i.e. resonance).
+factored into a shared `structurecheck.mjs`. **IMFs landed** (ADR-0046): `structure.classify_imf` derives the dominant
+intermolecular force from the verified structure + polarity (the H-on-N/O/F test is exact; the ranking sourced), delivered
+as the molecule Atlas `intermolecular` block + sourced boiling points + the `intermolecular-forces` concept. **Deferred
+within:** the IMF **comparison lesson** (a new multi-molecule lesson shape — teaching the boiling-point trend as the
+payoff); octet exceptions (electron-deficient BeH₂/BF₃, expanded PCl₅/SF₆); resonance (CO₃²⁻/NO₃⁻ — equivalent-structure
+handling); more structure lessons (NH₃/CH₄); a formal-charge gym drill (wants nonzero-FC molecules, i.e. resonance).
 
 **Then (each its own increment, sketch):** the rest of bonding (above); equilibrium & acid-base (ICE table = the ledger
 with reversible extent — $n_i = n_{i,0} + \nu_i\xi$ solved for the $\xi$ that satisfies mass action; K, Q, pH, weak

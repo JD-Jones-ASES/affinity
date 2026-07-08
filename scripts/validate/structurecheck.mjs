@@ -121,6 +121,26 @@ export function verifyElectronLedger(rel, mol, { valenceE, electroneg, vt }, fai
   if (mol.polarity !== undefined && !mol.polarity_reason) fail(rel, `polarity stated without a polarity_reason`);
 }
 
+// The dominant intermolecular force (ADR-0046) — the Node counterpart of structure.classify_imf. Re-derived from
+// the verified atoms + bonds (the H-bond-donor detection is exact) + the machine-derived polarity; every molecule
+// has London dispersion, a polar molecule adds dipole–dipole, an H bonded to N/O/F adds hydrogen bonding, and the
+// dominant force is the strongest TYPE present (H-bonding > dipole–dipole > dispersion, the sourced rule).
+const HBOND_ACCEPTORS = new Set(["N", "O", "F"]);
+export function classifyIMF(atoms, bonds, polarity) {
+  const elementOf = new Map(atoms.map((a) => [a.id, a.element]));
+  let hBondDonor = false;
+  for (const b of bonds) {
+    const ea = elementOf.get(b.a), eb = elementOf.get(b.b);
+    if ((ea === "H" && HBOND_ACCEPTORS.has(eb)) || (eb === "H" && HBOND_ACCEPTORS.has(ea))) { hBondDonor = true; break; }
+  }
+  const forces = ["london-dispersion"];
+  if (polarity === "polar") forces.push("dipole-dipole");
+  if (hBondDonor && polarity === "polar") forces.push("hydrogen-bonding");
+  const dominant = forces.includes("hydrogen-bonding") ? "hydrogen-bonding"
+    : forces.includes("dipole-dipole") ? "dipole-dipole" : "london-dispersion";
+  return { dominant, forces, hBondDonor };
+}
+
 // Build the { valenceE, electroneg } lookup Maps from an emitted valence-table.json object — one source of
 // truth for both gates (as species molar masses re-sum the same table's weights, ADR-0038).
 export function ledgerTables(vt) {

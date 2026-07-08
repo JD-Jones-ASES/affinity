@@ -14,8 +14,10 @@ families** with engine-classified example reactions + **14 species entries** wit
 the **Valence Table flagship** (five lenses, trend graphs, a 156-salt formula builder, a ΔEN bonding mode over 23
 sourced elements) + the **formula & equation sheet** (the ideal gas law, calorimetry, mole–mass and more, each
 with its **dimensional homogeneity machine-checked**) + now **molecule structure entries** (Lewis **electron ledgers** —
-valence total, octet, and formal charge machine-checked — with VSEPR shape and polarity: why CO₂ is nonpolar but H₂O is
-not) — and generated practice. Phase 2 has landed its gas + thermochemistry tiers and opened **bonding & structure**; see
+valence total, octet, and formal charge machine-checked — with VSEPR shape, polarity, and the **dominant intermolecular
+force** derived from the structure: why CO₂ is nonpolar but H₂O is not, and why water boils at 100 °C while methane boils
+at −161 °C) — and generated practice. Phase 2 has landed its gas + thermochemistry tiers and its **bonding & structure**
+tier (engine, gym, two lessons, and intermolecular forces); see
 [`ROADMAP.md`](./ROADMAP.md). See [`AGENTS.md`](./AGENTS.md) to work the repo.
 
 ## The idea in three lines

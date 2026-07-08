@@ -1420,3 +1420,42 @@ lewis-structure, vsepr). 7-way tamper-tested (corrupt the valence total / a form
 shape / drop the model assumption / a bad ref_id / a flipped check — each caught by a distinct gate branch). **Deferred:**
 generated practice on the lesson (the gym already drills the counting); more structure lessons (CO₂'s linear-nonpolar
 contrast as its own slice; NH₃/CH₄) once wanted; IMFs (the tier's next increment, building on molecular polarity).
+
+## ADR-0046 — Open intermolecular forces (IMFs): a structure-derived dominant-IMF classifier on the molecule Atlas (2026-07-08)
+
+**Context.** The bonding tier's remaining topic is **intermolecular forces** — the attractions *between* molecules that
+set boiling points, states of matter, and solubility. Unlike everything in the tier so far (electron ledger, VSEPR
+geometry — machine-checkable or cleanly sourced), IMFs are the first predominantly **empirical/interpretive** topic
+(regime 3–4): "which force is stronger" and "why does that raise the boiling point" are not theorems. Because "the
+verification system is the product," shipping IMFs as unanchored prose would be off-thesis. The owner authorized opening
+IMFs with the scope proposed here.
+
+**Decision.** Anchor IMFs to the **already-verified molecular structure**. The machine-checkable spine is a **dominant-IMF
+classifier** (`structure.classify_imf`) that reads the verified structure + the machine-derived polarity: every molecule
+has **London dispersion**; a **polar** molecule adds **dipole–dipole**; a molecule with an **H bonded directly to N/O/F**
+adds **hydrogen bonding**; the **dominant** force is the strongest type present (H-bonding > dipole–dipole > dispersion).
+The **H-bond-donor detection is exact** — a graph fact over the atoms + bonds — and polarity is already derived, so the
+*presence* of each force is machine-derived (the gate re-derives it in pure Node via `structurecheck.classifyIMF`); the
+**strength ordering is the sourced rule** (regime-3, OpenStax §10.1), with one disclosed caveat (dispersion grows with
+size/polarizability, so for large molecules it can overtake a small dipole). It is delivered as an optional
+**`intermolecular` block on the `molecule` Atlas kind** (neutral molecules only — an ion's interactions are ionic, a
+different regime), carrying `dominant` + `forces` + `h_bond_donor` (machine-derived) plus a **sourced normal boiling
+point** as evidence (`data/boiling-points.toml`, regime-3 — the value is not re-derivable, so the gate register-checks its
+source, not its magnitude). A new **`intermolecular-forces` concept** (rule-sourced) carries the teaching: the three
+forces, when each dominates, the ordering, and the canonical boiling-point evidence.
+
+**Consequences.** Every neutral molecule Atlas entry now shows its dominant IMF + the forces present + its sourced boiling
+point, each under the right badge (machine-derived "from the structure" · data-sourced for the boiling point). The
+classifier gets the subtle cases right: **CH₂O** is polar (dipole–dipole) but its H's are on **carbon**, so it is *not* a
+hydrogen-bond donor; **CH₄**/**CO₂** are nonpolar (dispersion only); **H₂O**/**NH₃** hydrogen-bond. The evidence is the
+canonical hydride comparison — CH₄ (−161.5 °C) ≪ NH₃ (−33.3 °C) ≪ H₂O (100 °C) — plus CO₂ subliming at −78.5 °C (a
+nonpolar molecule barely condensing). New (additive): `data/boiling-points.toml` (+ a `boiling_points` source facet + the
+`data.py` loader), `structure.classify_imf` + `structurecheck.classifyIMF` (the shared re-derivation), the molecule
+schema's optional `intermolecular` block, the `intermolecular-forces` concept, and the molecules-page IMF display. The
+molecule schema change is additive (optional block); the 5 neutral molecule JSONs intentionally gain the block (NH₄⁺, an
+ion, does not — verified byte-identical). **311 producer tests** (+5); **validate-reference = 61** (+1 concept);
+check-katex = 499; 29 pages; `derived/` byte-stable. **6-way tamper-tested** (flip the dominant / the h_bond_donor / the
+forces list / add a block to the ammonium ion / an unregistered boiling source / drop a neutral molecule's block — each
+caught). **Deferred:** the **IMF comparison lesson** (a new *multi-molecule* lesson shape — the natural next increment,
+teaching the boiling-point trend as the payoff); ion–dipole + the strength-vs-size nuance as their own content; drilling
+"which IMF dominates?" in the `lewis_structures_v1` gym.

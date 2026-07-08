@@ -9,7 +9,7 @@ import pytest
 
 from chemkernel import BuildError
 from chemkernel.data import ChemData
-from chemkernel.structure import build_molecule_entry, build_structure_lesson
+from chemkernel.structure import build_molecule_entry, build_structure_lesson, classify_imf
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -260,6 +260,48 @@ def test_refuse_missing_required_lesson_key():
     del bad["scenario"]
     with pytest.raises(BuildError, match="missing required key 'scenario'"):
         _lesson(bad, WATER)
+
+
+# ── intermolecular forces (ADR-0046): dominant IMF from the verified structure + polarity ──
+def _atoms(*pairs):
+    return [{"id": i, "element": e} for i, e in pairs]
+
+
+def test_imf_hydrogen_bonding_water():
+    # H bonded to O + polar → hydrogen bonding is the dominant force; all three forces present
+    imf = classify_imf(_atoms(("O1", "O"), ("H1", "H"), ("H2", "H")),
+                        [{"a": "O1", "b": "H1"}, {"a": "O1", "b": "H2"}], "polar")
+    assert imf["h_bond_donor"] is True
+    assert imf["dominant"] == "hydrogen-bonding"
+    assert imf["forces"] == ["london-dispersion", "dipole-dipole", "hydrogen-bonding"]
+
+
+def test_imf_dipole_dipole_formaldehyde():
+    # CH2O is polar, but its H's are bonded to CARBON (not N/O/F) — no H-bond DONOR, so dipole-dipole dominates
+    imf = classify_imf(_atoms(("C1", "C"), ("O1", "O"), ("H1", "H"), ("H2", "H")),
+                       [{"a": "C1", "b": "O1"}, {"a": "C1", "b": "H1"}, {"a": "C1", "b": "H2"}], "polar")
+    assert imf["h_bond_donor"] is False
+    assert imf["dominant"] == "dipole-dipole"
+    assert "hydrogen-bonding" not in imf["forces"]
+
+
+def test_imf_dispersion_only_nonpolar():
+    # a nonpolar molecule (CH4) has only London dispersion, whatever its bonds
+    imf = classify_imf(_atoms(("C1", "C"), ("H1", "H"), ("H2", "H"), ("H3", "H"), ("H4", "H")),
+                       [{"a": "C1", "b": h} for h in ("H1", "H2", "H3", "H4")], "nonpolar")
+    assert imf["dominant"] == "london-dispersion" and imf["forces"] == ["london-dispersion"]
+
+
+def test_molecule_entry_carries_imf_block():
+    m = _mol(WATER)
+    assert m["intermolecular"]["dominant"] == "hydrogen-bonding"
+    assert m["intermolecular"]["boiling_point_c"] == "100.0" and m["intermolecular"]["phase_change"] == "boiling"
+    assert m["intermolecular"]["boiling_source"]                       # sourced evidence attached
+    co2 = _mol(CO2)
+    assert co2["intermolecular"]["dominant"] == "london-dispersion"
+    assert co2["intermolecular"]["phase_change"] == "sublimation"      # CO2 has no liquid at 1 atm
+    # a charged species carries NO intermolecular block (IMFs are between neutral molecules)
+    assert "intermolecular" not in _mol(NH4)
 
 
 def test_all_authored_structure_lessons_build():

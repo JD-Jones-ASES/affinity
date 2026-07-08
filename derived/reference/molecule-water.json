@@ -115,5 +115,17 @@
     "water-molecular-shape"
   ],
   "polarity": "polar",
-  "polarity_reason": "The molecule is bent, so the two polar O–H bond dipoles (ΔEN 1.24) add rather than cancel — a net dipole points from the H side toward oxygen."
+  "polarity_reason": "The molecule is bent, so the two polar O–H bond dipoles (ΔEN 1.24) add rather than cancel — a net dipole points from the H side toward oxygen.",
+  "intermolecular": {
+    "dominant": "hydrogen-bonding",
+    "forces": [
+      "london-dispersion",
+      "dipole-dipole",
+      "hydrogen-bonding"
+    ],
+    "h_bond_donor": true,
+    "boiling_point_c": "100.0",
+    "phase_change": "boiling",
+    "boiling_source": "openstax-chemistry-2e"
+  }
 }

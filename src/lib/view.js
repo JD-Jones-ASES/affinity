@@ -270,6 +270,8 @@ export function renderFormula(f) {
 // (C=O ×2) for a compact ΔEN row; the summary/polarity/notes may carry inline $…$ + the molecule's formula.
 const _BOND_MARK = { 1: "–", 2: "=", 3: "≡" };
 const _fcDisplay = (q) => (q > 0 ? `+${q}` : q < 0 ? `−${Math.abs(q)}` : "0");
+// display labels for the intermolecular forces (ADR-0046) — the emitted values are stable slugs
+const _IMF_LABEL = { "london-dispersion": "London dispersion", "dipole-dipole": "dipole–dipole", "hydrogen-bonding": "hydrogen bonding" };
 // Decorate a molecule block (the `molecule` Atlas entry OR a structure lesson's embedded block — same
 // structural shape) with the display fields the atlas/lesson render: the formula symbol, per-atom formal-charge
 // display, and the connectivity grouped into distinct bond TYPES (identical C=O bonds collapse to one row ×2).
@@ -292,6 +294,11 @@ export function renderMolecule(m) {
   r.summaryHtml = inline(prettyText(m.summary, toks));
   r.polarityReasonHtml = m.polarity_reason ? inline(prettyText(m.polarity_reason, toks)) : null;
   r.notesHtml = (m.notes ?? []).map((n) => inline(prettyText(n, toks)));
+  // intermolecular forces (ADR-0046): the dominant force + the forces present, with display labels
+  if (m.intermolecular) {
+    r.intermolecular = { ...m.intermolecular, dominantLabel: _IMF_LABEL[m.intermolecular.dominant],
+                         forceLabels: m.intermolecular.forces.map((f) => _IMF_LABEL[f]) };
+  }
   return r;
 }
 

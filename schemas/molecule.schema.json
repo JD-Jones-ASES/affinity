@@ -92,6 +92,23 @@
     },
     "polarity": { "enum": ["polar", "nonpolar"], "$comment": "authored + disclosed (model-assumed); only for neutral molecules" },
     "polarity_reason": { "type": "string", "minLength": 1 },
+    "intermolecular": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "the dominant intermolecular force (ADR-0046), derived from the verified structure + polarity — for neutral molecules only (an ion's interactions are ionic). h_bond_donor + forces + dominant are machine-derived (the gate re-derives them); the boiling point is data-sourced evidence.",
+      "required": ["dominant", "forces", "h_bond_donor"],
+      "properties": {
+        "dominant": { "enum": ["london-dispersion", "dipole-dipole", "hydrogen-bonding"] },
+        "forces": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "enum": ["london-dispersion", "dipole-dipole", "hydrogen-bonding"] }
+        },
+        "h_bond_donor": { "type": "boolean" },
+        "boiling_point_c": { "type": "string", "$comment": "sourced normal boiling (or sublimation) point in °C at 1 atm" },
+        "phase_change": { "enum": ["boiling", "sublimation"] },
+        "boiling_source": { "type": "string", "minLength": 1 }
+      }
+    },
     "summary": { "type": "string", "minLength": 1 },
     "source": { "type": "string", "minLength": 1, "$comment": "the geometry/model source; resolves to a docs/SOURCES.md row" },
     "en_source": { "type": "string", "minLength": 1, "$comment": "the electronegativity source behind the bond ΔEN" },

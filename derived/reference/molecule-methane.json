@@ -141,5 +141,15 @@
   ],
   "lessons": [],
   "polarity": "nonpolar",
-  "polarity_reason": "Four identical C–H bonds point to the corners of a symmetric tetrahedron, so any bond dipoles cancel; the C–H bond is nearly nonpolar to begin with (ΔEN 0.35)."
+  "polarity_reason": "Four identical C–H bonds point to the corners of a symmetric tetrahedron, so any bond dipoles cancel; the C–H bond is nearly nonpolar to begin with (ΔEN 0.35).",
+  "intermolecular": {
+    "dominant": "london-dispersion",
+    "forces": [
+      "london-dispersion"
+    ],
+    "h_bond_donor": false,
+    "boiling_point_c": "-161.5",
+    "phase_change": "boiling",
+    "boiling_source": "openstax-chemistry-2e"
+  }
 }
