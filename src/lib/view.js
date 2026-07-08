@@ -361,7 +361,7 @@ export function renderEquilibriumLesson(lesson) {
   const isKsp = s.subtype === "solubility";
   const isBase = s.subtype === "weak-base";
   const toks = isKsp
-    ? [s.reaction.salt, s.reaction.cation, s.reaction.anion]
+    ? [s.reaction.salt, s.reaction.cation, s.reaction.anion, s.reaction.common_ion].filter(Boolean)
     : isBase
     ? [s.reaction.base, s.reaction.conjugate_acid, "OH^-", "H2O"]
     : [s.reaction.acid, s.reaction.conjugate_base, "H^+"];
@@ -372,6 +372,7 @@ export function renderEquilibriumLesson(lesson) {
   s.reaction.basePretty = prettyIon(s.reaction.base);
   s.reaction.conjugateBasePretty = prettyIon(s.reaction.conjugate_base);
   s.reaction.saltPretty = prettyIon(s.reaction.salt);
+  if (s.reaction.common_ion) s.reaction.commonIonPretty = prettyIon(s.reaction.common_ion);
   s.equilibrium_constant.expressionHtml = tex(s.equilibrium_constant.expression_latex, false);
   s.equilibrium_constant.valueSci = toSci(s.equilibrium_constant.value);
   if (s.result.kw) s.result.kwSci = toSci(s.result.kw);

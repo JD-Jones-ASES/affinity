@@ -303,6 +303,11 @@ for (const file of equilibriumFiles) {
     need(les.result, ["molar_solubility_M", "molar_solubility_M_display", "solubility_g_per_L", "solubility_g_per_L_display", "molar_mass_g_per_mol"], "result");
     need(les.checks, ["solubility_consistent"], "checks");
     need(les.provenance.sources, ["solubility_products", "ion_charge", "atomic_weight"], "provenance.sources");
+    // the common-ion variant carries the ion already present + the pure-water contrast (checked by the gate)
+    if (les.reaction.common_ion !== undefined) {
+      need(les.reaction, ["common_ion_latex", "common_ion_molarity_M"], "reaction");
+      need(les.result, ["molar_solubility_pure_water_M", "molar_solubility_pure_water_M_display", "suppression_factor_display"], "result");
+    }
   } else fail(rel, `unknown equilibrium subtype '${les.subtype}'`);
 
   // the machine-checked core: re-derive the reversible-extent solve independently of Python

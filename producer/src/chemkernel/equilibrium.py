@@ -600,12 +600,18 @@ def _coeff_latex(n: int) -> str:
 
 def build_solubility_lesson(spec: dict, data, ctx: str = "") -> dict:
     """An authored Ksp (solubility-equilibrium) lesson → the verified `*.equilibrium.json` object, subtype
-    `solubility` (ADR-0048, 2nd increment). The SAME reversible-extent solver as the weak acid, but the dissolving
-    species is a **pure solid** — excluded from the mass-action quotient (activity 1), so Kₛₚ = [cation]^a[anion]^b
-    and the extent x is the **molar solubility** s. For a 1:2 salt like CaF₂ that makes Kₛₚ = [Ca²⁺][F⁻]² = 4s³, a
-    **cubic** — solved by bisection, the reason the solver is general (ADR-0048). The salt + its ions + Kₛₚ come
-    from `data/solubility-products.toml` (the composition machine-checked on load, the Kₛₚ sourced); the producer
-    REFUSES an unknown salt or one with no curated Kₛₚ (ADR-0008)."""
+    `solubility` (ADR-0048, 2nd increment; 6th increment adds the **common-ion** variant). The SAME reversible-extent
+    solver as the weak acid, but the dissolving species is a **pure solid** — excluded from the mass-action quotient
+    (activity 1), so Kₛₚ = [cation]^a[anion]^b and the extent x is the **molar solubility** s. For a 1:2 salt like
+    CaF₂ that makes Kₛₚ = [Ca²⁺][F⁻]² = 4s³, a **cubic** — solved by bisection, the reason the solver is general
+    (ADR-0048). The salt + its ions + Kₛₚ come from `data/solubility-products.toml` (the composition machine-checked
+    on load, the Kₛₚ sourced); the producer REFUSES an unknown salt or one with no curated Kₛₚ (ADR-0008).
+
+    OPTIONALLY the author names a **common ion** (`common_ion` + `common_ion_molarity_M`) — one of the salt's own
+    ions, already present from a fully-dissociated soluble salt (its counter-ion a spectator, omitted). That is a
+    nonzero initial product concentration, so (Le Chatelier — the **common-ion effect**) the dissolution is driven
+    LEFT and far less dissolves. It is exactly the buffer's nonzero-initial-product case, now on the Ksp **cubic**;
+    the solver is unchanged. The lesson then also re-solves the salt in PURE water for the suppression contrast."""
     for key in ("id", "title", "slug", "topic", "scenario", "salt", "misconception"):
         if key not in spec:
             raise BuildError(f"{ctx}: solubility lesson missing required key '{key}'")
@@ -619,12 +625,28 @@ def build_solubility_lesson(spec: dict, data, ctx: str = "") -> dict:
     fc = parse_formula(cation_id, ctx)
     fan = parse_formula(anion_id, ctx)
 
-    # the ICE species: the pure SOLID (excluded from Q — the load-bearing idea) + the two dissolved ions
+    # optional COMMON ION: one of the salt's own ions, already in solution (nonzero initial product). It must be
+    # shared with the salt — a foreign ion would not be a *common* ion (that is a different, ionic-strength effect).
+    common_id = spec.get("common_ion")
+    common_c0 = {cation_id: Decimal(0), anion_id: Decimal(0)}
+    if common_id is not None:
+        if common_id not in (cation_id, anion_id):
+            raise BuildError(f"{ctx}: common ion '{common_id}' is not one of {salt_formula}'s ions "
+                             f"({cation_id} / {anion_id}) — a common ion must be shared with the salt")
+        cc = Decimal(str(spec.get("common_ion_molarity_M", 0)))
+        if cc <= 0:
+            raise BuildError(f"{ctx}: a common-ion solubility lesson needs a positive common_ion_molarity_M")
+        common_c0[common_id] = cc
+
+    # the ICE species: the pure SOLID (excluded from Q — the load-bearing idea) + the two dissolved ions (one may
+    # start nonzero — the common ion)
     ice_species = [
         {"id": salt_formula, "latex": fs.latex, "phase": "s", "role": "reactant", "nu": -1, "in_quotient": False,
          "initial_M": Decimal(0)},
-        {"id": cation_id, "latex": fc.latex, "phase": "aq", "role": "product", "nu": n_cat, "initial_M": Decimal(0)},
-        {"id": anion_id, "latex": fan.latex, "phase": "aq", "role": "product", "nu": n_an, "initial_M": Decimal(0)},
+        {"id": cation_id, "latex": fc.latex, "phase": "aq", "role": "product", "nu": n_cat,
+         "initial_M": common_c0[cation_id]},
+        {"id": anion_id, "latex": fan.latex, "phase": "aq", "role": "product", "nu": n_an,
+         "initial_M": common_c0[anion_id]},
     ]
 
     sol = solve_equilibrium(ice_species, ksp, ctx)
@@ -654,6 +676,17 @@ def build_solubility_lesson(spec: dict, data, ctx: str = "") -> dict:
     molar_mass = data.molar_mass(salt_formula)
     solubility_g_per_L = s * molar_mass
 
+    # the common-ion contrast: re-solve in PURE water (both ions initial 0) — the higher solubility the
+    # misconception assumes. Both s values are real solver outputs (the gate re-derives the pure-water one too).
+    pure_water_s = suppression = None
+    if common_id is not None:
+        pure = [dict(ice_species[0]), dict(ice_species[1], initial_M=Decimal(0)),
+                dict(ice_species[2], initial_M=Decimal(0))]
+        s0 = _round_sig(solve_equilibrium(pure, ksp, ctx)["extent"], 12)
+        with localcontext() as lc:
+            lc.prec = 40
+            pure_water_s, suppression = s0, s0 / s              # how many-fold the common ion suppressed dissolution
+
     # Ksp expression: [cation]^a [anion]^b (concentrations — no phase labels, the solid absent)
     def _br(latex, power):
         return f"[{latex}]" + (f"^{{{power}}}" if power != 1 else "")
@@ -664,6 +697,25 @@ def build_solubility_lesson(spec: dict, data, ctx: str = "") -> dict:
     coeff = lambda n: "" if n == 1 else f"{n} "
     reaction_text = f"{salt_formula}(s) <=> {coeff(n_cat)}{cation_id}(aq) + {coeff(n_an)}{anion_id}(aq)"
 
+    reaction = {
+        "salt": salt_formula, "salt_name": rec["name"], "salt_latex": fs.latex,
+        "text": reaction_text, "latex": reaction_latex, "cation": cation_id, "anion": anion_id,
+    }
+    result = {
+        "molar_solubility_M": _sig_str(s, 12), "molar_solubility_M_display": _sig_str(s, 3),
+        "solubility_g_per_L": _sig_str(solubility_g_per_L, 6),
+        "solubility_g_per_L_display": _sig_str(solubility_g_per_L, 3),
+        "molar_mass_g_per_mol": format(molar_mass, "f"),
+    }
+    # the common-ion additions: the ion already present (name + molarity) + the pure-water contrast it suppresses
+    if common_id is not None:
+        reaction["common_ion"] = common_id
+        reaction["common_ion_latex"] = parse_formula(common_id, ctx).latex
+        reaction["common_ion_molarity_M"] = format(common_c0[common_id], "f")
+        result["molar_solubility_pure_water_M"] = _sig_str(pure_water_s, 12)
+        result["molar_solubility_pure_water_M_display"] = _sig_str(pure_water_s, 3)
+        result["suppression_factor_display"] = _sig_str(suppression, 3)
+
     return {
         "kind": "equilibrium",
         "subtype": "solubility",
@@ -673,12 +725,10 @@ def build_solubility_lesson(spec: dict, data, ctx: str = "") -> dict:
         "topic": spec["topic"],
         "tags": spec.get("tags", []),
         "scenario": spec["scenario"],
-        "regimes": _regimes("equilibrium position (solubility)"),
+        "regimes": _regimes("equilibrium position ("
+                            + ("solubility with a common ion)" if common_id is not None else "solubility)")),
         "assumptions": spec.get("assumptions", []),
-        "reaction": {
-            "salt": salt_formula, "salt_name": rec["name"], "salt_latex": fs.latex,
-            "text": reaction_text, "latex": reaction_latex, "cation": cation_id, "anion": anion_id,
-        },
+        "reaction": reaction,
         "equilibrium_constant": {
             "symbol": "K_sp", "value": format(ksp, "f"), "expression_latex": expression,
             "source": data.sources.get("solubility_products", ""),
@@ -687,12 +737,7 @@ def build_solubility_lesson(spec: dict, data, ctx: str = "") -> dict:
                 "species": ice_rows},
         "mass_action": {"quotient_symbol": "Q", "quotient_at_equilibrium": _sig_str(Q, 6),
                         "residual_relative": _sig_str(residual, 2)},
-        "result": {
-            "molar_solubility_M": _sig_str(s, 12), "molar_solubility_M_display": _sig_str(s, 3),
-            "solubility_g_per_L": _sig_str(solubility_g_per_L, 6),
-            "solubility_g_per_L_display": _sig_str(solubility_g_per_L, 3),
-            "molar_mass_g_per_mol": format(molar_mass, "f"),
-        },
+        "result": result,
         "misconception": spec["misconception"],
         "reference_links": spec.get("reference_links", []),
         "checks": {

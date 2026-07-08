@@ -1,9 +1,12 @@
 ---
 // The equilibrium-lesson player (ADR-0048): the ICE table = the species ledger with the extent solved from mass
-// action. Two subtypes — `weak-acid` (the pH) and `solubility` (Ksp → molar solubility, the pure solid excluded
-// from Q). A fully STATIC Astro component. Every value came from ChemKernel and was re-verified (equilibriumcheck.mjs).
+// action. Four subtypes — `weak-acid` (the pH), `buffer` (common-ion + Henderson–Hasselbalch), `weak-base` (→ pOH
+// → pH via K_w), and `solubility` (Ksp → molar solubility, the pure solid excluded from Q; optionally with a
+// common ion pre-loaded — the common-ion effect on the cubic). A fully STATIC Astro component. Every value came
+// from ChemKernel and was re-verified (equilibriumcheck.mjs).
 const { lesson } = Astro.props;
 const isKsp = lesson.subtype === "solubility";
+const isCommonIon = isKsp && !!lesson.reaction.common_ion;   // the Ksp common-ion variant (a shared ion pre-loaded)
 const isBase = lesson.subtype === "weak-base";
 const isBuffer = lesson.subtype === "buffer";
 const ice = lesson.ice;
@@ -127,6 +130,13 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
         <span class="v small">{inQ.map((r) => `[${r.idPretty}] = ${r.equilibrium_M_display}`).join(" · ")}</span>
         <span class="sub">M at equilibrium</span>
       </div>
+      {isCommonIon && (
+        <div class="card">
+          <span class="k">vs. pure water</span>
+          <span class="v">{res.suppression_factor_display}× less</span>
+          <span class="sub">{res.molar_solubility_pure_water_M_display} M → {res.molar_solubility_M_display} M</span>
+        </div>
+      )}
     </div>
   ) : isBase ? (
     <div class="results">
@@ -206,6 +216,19 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
     </p>
   )}
 
+  <!-- the common-ion effect, the Ksp variant's new move: a pre-loaded shared ion suppresses dissolution (SHOWN + checked) -->
+  {isCommonIon && (
+    <p class="hhnote">
+      <span class="badge machine tiny"><span class="dot"></span>Common-ion effect</span>
+      In <strong>pure water</strong> {lesson.reaction.saltPretty} dissolves to <span class="mono">{res.molar_solubility_pure_water_M_display} M</span>.
+      Start instead with <strong>{lesson.reaction.common_ion_molarity_M} M {lesson.reaction.commonIonPretty}</strong> already in solution and that shared ion
+      hardly moves as the solid dissolves, so <span class="mono">K<sub>sp</sub> = {inQ.map((r) => `[${r.idPretty}]${r.nu > 1 ? (SUP[r.nu] ?? `^${r.nu}`) : ""}`).join("")}</span>
+      is satisfied at a far smaller [{inQ[0].idPretty}]. The <strong>same cubic</strong> now gives
+      <span class="mono">{xSym} = {res.molar_solubility_M_display} M</span> — about <strong>{res.suppression_factor_display}× less</strong>.
+      Le Chatelier: the pre-loaded {lesson.reaction.commonIonPretty} pushes <Fragment set:html={lesson.reaction.latexHtml} /> to the left.
+    </p>
+  )}
+
   <!-- the machine-checked facts, SHOWN not asserted -->
   <div class="proof">
     <div class="proof-head">
@@ -225,7 +248,18 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
     <div class="misconception">
       <div class="mis-claim"><span class="x">✗</span> Common misconception: “<span set:html={lesson.misconception.claimHtml} />”</div>
       <p class="mis-fix">
-        {isKsp ? (
+        {isCommonIon ? (
+          <>
+            Solubility is <strong>not</strong> a fixed property of the salt — it depends on what is <em>already</em> dissolved.
+            The shared {lesson.reaction.commonIonPretty} is a <strong>product</strong> of the dissolution, so (Le Chatelier) it
+            drives <Fragment set:html={lesson.reaction.latexHtml} /> back toward the solid. The ledger shows it: with
+            {" "}{lesson.reaction.common_ion_molarity_M} M {lesson.reaction.commonIonPretty} present, only
+            {" "}<strong>{xSym} = {res.molar_solubility_M_display} M</strong> of {lesson.reaction.saltPretty} dissolves — about
+            {" "}<strong>{res.suppression_factor_display}×</strong> less than the {res.molar_solubility_pure_water_M_display} M it
+            reaches in pure water. <Fragment set:html={kHtml} /> is unchanged; the <em>solubility</em> is not. That is the
+            {" "}<strong>common-ion effect</strong> — the same move that holds a buffer's pH near pK<sub>a</sub>.
+          </>
+        ) : isKsp ? (
           <>
             Careful with the coefficient. Each {lesson.reaction.saltPretty} releases <strong>two</strong> {inQ[1].idPretty}
             ions, so [{inQ[1].idPretty}] = 2{xSym}, and <Fragment set:html={kHtml} /> = [{inQ[0].idPretty}][{inQ[1].idPretty}]<sup>2</sup>

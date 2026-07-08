@@ -10,6 +10,10 @@
       "type": "instance-of"
     },
     {
+      "to": "common-ion-effect",
+      "type": "see-also"
+    },
+    {
       "to": "precipitation",
       "type": "quantifies"
     },
@@ -23,7 +27,8 @@
     }
   ],
   "lessons": [
-    "calcium-fluoride-solubility"
+    "calcium-fluoride-solubility",
+    "calcium-fluoride-common-ion"
   ],
   "regime": "model-exact",
   "latex": "K_{sp} = [\\mathrm{M}^{n+}]^a\\,[\\mathrm{X}^{m-}]^b"

@@ -1,0 +1,27 @@
+{
+  "kind": "concept",
+  "id": "common-ion-effect",
+  "title": "The common-ion effect",
+  "term": "common-ion effect",
+  "definition": "A **common ion** is a species already present in solution that also appears in an equilibrium — shared between a dissolved salt and the reaction. By **Le Chatelier's principle**, adding more of a product ion drives the equilibrium **back toward reactants**, so the reaction proceeds *less*. Two headline cases, one idea: a **buffer** adds the conjugate base $\\mathrm{A^-}$ to a weak acid $\\mathrm{HA} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{A^-}$, suppressing ionization so the pH holds near $\\mathrm{p}K_a$; a **common ion in a saturated solution** adds (say) $\\mathrm{F^-}$ to $\\mathrm{CaF_2(s)} \\rightleftharpoons \\mathrm{Ca^{2+}} + 2\\,\\mathrm{F^-}$, suppressing dissolution so far less solid dissolves than in pure water. Nothing new is happening — the equilibrium constant is unchanged. It is only that the mass-action expression is now satisfied at a smaller reaction extent, because one product started above zero. Solubility, then, is **not** a fixed property of a salt: it depends on what is already dissolved.",
+  "related": [
+    {
+      "to": "chemical-equilibrium",
+      "type": "instance-of"
+    },
+    {
+      "to": "buffer",
+      "type": "generalizes"
+    },
+    {
+      "to": "solubility-product",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [
+    "acetate-buffer",
+    "calcium-fluoride-common-ion"
+  ],
+  "regime": "model-exact",
+  "latex": "K = Q(x)\\ \\text{met at smaller}\\ x\\ \\text{when a product starts}> 0"
+}

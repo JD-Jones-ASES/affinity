@@ -1,0 +1,45 @@
+# Equilibrium lesson, subtype `solubility` — the COMMON-ION variant (ADR-0048, 6th increment). The SAME Ksp
+# dissolution as calcium-fluoride-solubility, but the calcium fluoride now dissolves into a solution that ALREADY
+# contains fluoride (from dissolved NaF). That common ion is a nonzero initial product concentration, so the
+# reversible-extent solver's nonzero-initial-product case — proven on the buffer's quadratic — runs on the Ksp
+# CUBIC unchanged, and Le Chatelier (the common-ion effect) drives the dissolution far to the left.
+# TOML trap #4: every bare key precedes the [[assumptions]] / [misconception] headers.
+
+id = "calcium-fluoride-common-ion"
+title = "The common-ion effect: calcium fluoride in a fluoride solution"
+slug = "calcium-fluoride-common-ion"
+topic = "equilibrium"
+tags = ["equilibrium", "solubility", "Ksp", "common-ion effect", "Le Chatelier", "ICE table"]
+
+# the sparingly soluble salt; Ksp + the ion composition are curated + machine-checked in solubility-products.toml
+salt = "CaF2"
+# the COMMON ION already in solution (one of the salt's own ions) + its molarity, from fully-dissolved NaF (0.10 M).
+# The Na⁺ is a spectator, so it never enters the equilibrium — only the shared F⁻ matters.
+common_ion = "F^-"
+common_ion_molarity_M = "0.10"
+
+scenario = "In the last lesson, $\\mathrm{CaF_2}$ dissolved in **pure water**. Now dissolve it in water that is already **0.10 M in $\\mathrm{F^-}$** — a solution of sodium fluoride, $\\mathrm{NaF}$, which dissociates completely. The $\\mathrm{Na^+}$ is a spectator, but the $\\mathrm{F^-}$ is *shared* with the salt: it is a **common ion**. The very same equilibrium, $\\mathrm{CaF_2(s)} \\rightleftharpoons \\mathrm{Ca^{2+}(aq)} + 2\\,\\mathrm{F^-(aq)}$, now starts with $\\mathrm{F^-}$ already on the product side. By Le Chatelier that extra $\\mathrm{F^-}$ pushes the dissolution **backward** — so *how much less* dissolves? It is the ICE table again, with one column no longer starting at zero."
+
+reference_links = ["common-ion-effect", "solubility-product", "chemical-equilibrium", "buffer", "extent-of-reaction"]
+
+author = "Affinity"
+created = "2026-07-08"
+
+# modeling assumptions — disclosed (ADR-0003, the model-assumed badge). The ICE accounting is exact; the
+# solubility rides on these idealizations.
+[[assumptions]]
+claim = "The added sodium fluoride is fully dissociated, so $[\\mathrm{F^-}]_0 = 0.10$ M before any $\\mathrm{CaF_2}$ dissolves, and the $\\mathrm{Na^+}$ is a spectator absent from the equilibrium."
+kind = "model"
+
+[[assumptions]]
+claim = "The solution is at saturation equilibrium with excess solid present, and this dissolution is the only reaction (no complex ions, no pH effect on $\\mathrm{F^-}$)."
+kind = "model"
+
+[[assumptions]]
+claim = "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which is why $K_{sp}$ is written with concentrations."
+kind = "model"
+
+# the canonical wrong move: treating solubility as a fixed property of the salt, ignoring what is already dissolved.
+[misconception]
+claim = "Solubility is a fixed property of the salt, so calcium fluoride dissolves just as much here as it does in pure water."
+refuted_by = "common_ion_suppresses_solubility"

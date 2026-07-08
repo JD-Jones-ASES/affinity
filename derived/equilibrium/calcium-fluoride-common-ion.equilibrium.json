@@ -1,0 +1,146 @@
+{
+  "kind": "equilibrium",
+  "subtype": "solubility",
+  "id": "calcium-fluoride-common-ion",
+  "title": "The common-ion effect: calcium fluoride in a fluoride solution",
+  "slug": "calcium-fluoride-common-ion",
+  "topic": "equilibrium",
+  "tags": [
+    "equilibrium",
+    "solubility",
+    "Ksp",
+    "common-ion effect",
+    "Le Chatelier",
+    "ICE table"
+  ],
+  "scenario": "In the last lesson, $\\mathrm{CaF_2}$ dissolved in **pure water**. Now dissolve it in water that is already **0.10 M in $\\mathrm{F^-}$** — a solution of sodium fluoride, $\\mathrm{NaF}$, which dissociates completely. The $\\mathrm{Na^+}$ is a spectator, but the $\\mathrm{F^-}$ is *shared* with the salt: it is a **common ion**. The very same equilibrium, $\\mathrm{CaF_2(s)} \\rightleftharpoons \\mathrm{Ca^{2+}(aq)} + 2\\,\\mathrm{F^-(aq)}$, now starts with $\\mathrm{F^-}$ already on the product side. By Le Chatelier that extra $\\mathrm{F^-}$ pushes the dissolution **backward** — so *how much less* dissolves? It is the ICE table again, with one column no longer starting at zero.",
+  "regimes": [
+    {
+      "facet": "ICE ledger (species accounting)",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "equilibrium constant",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "equilibrium position (solubility with a common ion)",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The added sodium fluoride is fully dissociated, so $[\\mathrm{F^-}]_0 = 0.10$ M before any $\\mathrm{CaF_2}$ dissolves, and the $\\mathrm{Na^+}$ is a spectator absent from the equilibrium.",
+      "kind": "model"
+    },
+    {
+      "claim": "The solution is at saturation equilibrium with excess solid present, and this dissolution is the only reaction (no complex ions, no pH effect on $\\mathrm{F^-}$).",
+      "kind": "model"
+    },
+    {
+      "claim": "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which is why $K_{sp}$ is written with concentrations.",
+      "kind": "model"
+    }
+  ],
+  "reaction": {
+    "salt": "CaF2",
+    "salt_name": "calcium fluoride",
+    "salt_latex": "\\mathrm{CaF_{2}}",
+    "text": "CaF2(s) <=> Ca^2+(aq) + 2 F^-(aq)",
+    "latex": "\\mathrm{CaF_{2}}\\,\\text{(s)} \\rightleftharpoons \\mathrm{Ca}^{2+}\\,\\text{(aq)} + 2\\,\\mathrm{F}^{-}\\,\\text{(aq)}",
+    "cation": "Ca^2+",
+    "anion": "F^-",
+    "common_ion": "F^-",
+    "common_ion_latex": "\\mathrm{F}^{-}",
+    "common_ion_molarity_M": "0.10"
+  },
+  "equilibrium_constant": {
+    "symbol": "K_sp",
+    "value": "0.0000000000345",
+    "expression_latex": "K_{sp} = [\\mathrm{Ca}^{2+}][\\mathrm{F}^{-}]^{2}",
+    "source": "openstax-chemistry-2e"
+  },
+  "ice": {
+    "extent_symbol": "s",
+    "extent_M": "0.0000000034499995239",
+    "extent_M_display": "0.00000000345",
+    "species": [
+      {
+        "id": "CaF2",
+        "latex": "\\mathrm{CaF_{2}}",
+        "phase": "s",
+        "role": "reactant",
+        "nu": -1,
+        "in_quotient": false
+      },
+      {
+        "id": "Ca^2+",
+        "latex": "\\mathrm{Ca}^{2+}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 1,
+        "in_quotient": true,
+        "initial_M": "0",
+        "change_M": "+0.0000000034499995239",
+        "equilibrium_M": "0.0000000034499995239",
+        "equilibrium_M_display": "0.00000000345"
+      },
+      {
+        "id": "F^-",
+        "latex": "\\mathrm{F}^{-}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 2,
+        "in_quotient": true,
+        "initial_M": "0.10",
+        "change_M": "+0.0000000068999990478",
+        "equilibrium_M": "0.1000000069",
+        "equilibrium_M_display": "0.1"
+      }
+    ]
+  },
+  "mass_action": {
+    "quotient_symbol": "Q",
+    "quotient_at_equilibrium": "0.0000000000345",
+    "residual_relative": "0.000000000000014"
+  },
+  "result": {
+    "molar_solubility_M": "0.0000000034499995239",
+    "molar_solubility_M_display": "0.00000000345",
+    "solubility_g_per_L": "0.000000269355",
+    "solubility_g_per_L_display": "0.000000269",
+    "molar_mass_g_per_mol": "78.074",
+    "molar_solubility_pure_water_M": "0.000205078296485",
+    "molar_solubility_pure_water_M_display": "0.000205",
+    "suppression_factor_display": "59400"
+  },
+  "misconception": {
+    "claim": "Solubility is a fixed property of the salt, so calcium fluoride dissolves just as much here as it does in pure water.",
+    "refuted_by": "common_ion_suppresses_solubility"
+  },
+  "reference_links": [
+    "common-ion-effect",
+    "solubility-product",
+    "chemical-equilibrium",
+    "buffer",
+    "extent-of-reaction"
+  ],
+  "checks": {
+    "ice_identity": true,
+    "mass_action_satisfied": true,
+    "extent_physical": true,
+    "solubility_consistent": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "solubility_products": "openstax-chemistry-2e",
+      "ion_charge": "openstax-chemistry-2e",
+      "atomic_weight": "ciaaw-2021-atomic-weights"
+    }
+  }
+}

@@ -10,6 +10,10 @@
       "type": "extends"
     },
     {
+      "to": "common-ion-effect",
+      "type": "instance-of"
+    },
+    {
       "to": "ph",
       "type": "depends-on"
     },

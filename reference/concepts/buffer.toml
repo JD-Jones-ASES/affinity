@@ -11,6 +11,7 @@ definition = "A **buffer** holds both halves of a weak-acid equilibrium at once 
 latex = "\\mathrm{pH} = \\mathrm{p}K_a + \\log_{10}\\frac{[\\mathrm{A^-}]}{[\\mathrm{HA}]}"
 related = [
   { to = "chemical-equilibrium", type = "extends" },
+  { to = "common-ion-effect", type = "instance-of" },
   { to = "ph", type = "depends-on" },
   { to = "reaction-acid-base", type = "see-also" },
 ]

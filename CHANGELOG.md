@@ -3,6 +3,30 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — equilibrium: the common-ion effect on solubility (ADR-0048, 6th increment)
+
+The natural Ksp follow-on — and the **second face of the common-ion effect** the buffer already showed for a weak acid, now
+on the **cubic**. A sparingly soluble salt dissolves not into pure water but into a solution that **already contains one of
+its own ions** (from a fully-dissociated soluble salt). That shared ion is a nonzero initial product concentration — exactly
+the buffer's case — so the reversible-extent solver is **reused unchanged**, and Le Chatelier drives the dissolution left, so
+far less dissolves. Solubility, it turns out, is **not** a fixed property of a salt.
+
+- **Lesson `equilibrium/calcium-fluoride-common-ion`** — CaF₂ dissolving in **0.10 M F⁻** (from NaF; the Na⁺ a spectator).
+  The same ICE table as the plain Ksp lesson, but the fluoride column starts at 0.10, not 0. Molar solubility drops to
+  **3.45×10⁻⁹ M**, about **59 400× less** than the 2.05×10⁻⁴ M in pure water. The misconception — "solubility is a fixed
+  property, so it dissolves the same as in pure water" — is refuted from the machine-checked contrast.
+- **A variant, not a new subtype.** `build_solubility_lesson` gained an optional `common_ion` + `common_ion_molarity_M`; the
+  reaction, the Ksp expression, and the molar-solubility result are unchanged. It also **re-solves the salt in pure water** for
+  the suppression contrast (mirroring the buffer's acid-alone re-solve). Additive schema; the subtype enum stays four.
+- **New concept `common-ion-effect`** — the one principle behind both buffers and suppressed solubility (Le Chatelier on a
+  shared ion), cross-linked from `buffer` and `solubility-product`.
+- **Gate:** `equilibriumcheck.mjs`'s solubility branch re-checks the common ion's initial concentration and re-solves pure
+  water to reproduce the suppression; `validate-solutions` enforces the variant's fields.
+- **Verification:** **369 producer tests** (+7); 7 Node gates green (**validate-solutions = 5 equilibrium / 14 ids**,
+  **validate-reference = 67**, check-katex 643); **astro build = 36 pages** (+1); `derived/` byte-stable (2 new files + the
+  concept cross-links). 3-way tamper-tested on the new branch. In-browser: the ICE table shows F⁻ pre-loaded at 0.10, the
+  "59 400× less" contrast card, the common-ion note, and the refuted misconception; 0 KaTeX errors.
+
 ## Phase 2 — 2026-07-08 — equilibrium: the weak-acid pH gym — the tier's drill instrument (ADR-0048, 5th increment)
 
 Every model-bearing tier gets a gym; equilibrium's is the **pH of a weak acid**, drilled endlessly over the curated weak

@@ -20,6 +20,7 @@ from chemkernel.reactivity import AcidBase
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT / "problems" / "equilibrium" / "acetic-acid-ph.equilibrium.toml"
 SPEC_KSP = ROOT / "problems" / "equilibrium" / "calcium-fluoride-solubility.equilibrium.toml"
+SPEC_KSP_COMMON = ROOT / "problems" / "equilibrium" / "calcium-fluoride-common-ion.equilibrium.toml"
 SPEC_BASE = ROOT / "problems" / "equilibrium" / "ammonia-ph.equilibrium.toml"
 SPEC_BUFFER = ROOT / "problems" / "equilibrium" / "acetate-buffer.equilibrium.toml"
 
@@ -266,6 +267,88 @@ def test_build_solubility_round_trip():
     lesson, out_rel = build_equilibrium(SPEC_KSP, ROOT)
     assert out_rel == "equilibrium/calcium-fluoride-solubility.equilibrium.json"
     assert lesson["subtype"] == "solubility"
+
+
+def test_plain_solubility_carries_no_common_ion_fields():
+    """The common-ion machinery is OPTIONAL — a plain Ksp lesson emits neither the reaction nor the result additions."""
+    data = ChemData.load(ROOT)
+    L = build_solubility_lesson({"id": "t", "title": "t", "slug": "t", "topic": "equilibrium", "scenario": "s",
+                                 "salt": "CaF2",
+                                 "misconception": {"claim": "c", "refuted_by": "stoichiometry_in_ksp"}}, data, "t")
+    assert "common_ion" not in L["reaction"]
+    assert "molar_solubility_pure_water_M" not in L["result"]
+    # both ions still start at zero in pure water
+    assert all(r["initial_M"] == "0" for r in L["ice"]["species"] if r.get("in_quotient") is not False)
+
+
+# ── the common-ion effect (the 6th increment — a shared ion pre-loaded suppresses solubility, on the CUBIC) ──
+
+def test_common_ion_solver_nonzero_initial_product():
+    """CaF2 into 0.10 M F⁻: the solver's nonzero-initial-product case (the buffer's move) on the Ksp cubic. Q=Ksp
+    is met at a far smaller extent — s drops roughly Ksp/[F⁻]² ≈ 3.45e-9, not 2.05e-4."""
+    sys = [
+        {"id": "CaF2", "nu": -1, "initial_M": Decimal(0), "in_quotient": False},
+        {"id": "Ca^2+", "nu": 1, "initial_M": Decimal(0)},
+        {"id": "F^-", "nu": 2, "initial_M": Decimal("0.10")},
+    ]
+    r = solve_equilibrium(sys, Decimal("3.45e-11"), "CaF2/F-")
+    assert Decimal("3e-9") < r["extent"] < Decimal("4e-9")     # ~Ksp / 0.10² = 3.45e-9
+    assert r["residual"] < Decimal("1e-30")
+
+
+def _common_spec(common_ion="F^-", molarity="0.10"):
+    return {"id": "t", "title": "t", "slug": "t", "topic": "equilibrium", "scenario": "s", "salt": "CaF2",
+            "common_ion": common_ion, "common_ion_molarity_M": molarity,
+            "misconception": {"claim": "c", "refuted_by": "common_ion_suppresses_solubility"}}
+
+
+def test_common_ion_suppresses_solubility():
+    data = ChemData.load(ROOT)
+    L = build_solubility_lesson(_common_spec(), data, "t")
+    assert L["subtype"] == "solubility"                         # same subtype — a variant, not a new shape
+    assert L["reaction"]["common_ion"] == "F^-"
+    assert L["reaction"]["common_ion_molarity_M"] == "0.10"
+    # the fluoride row starts at 0.10, not 0; the calcium row at 0
+    fluoride = next(r for r in L["ice"]["species"] if r["id"] == "F^-")
+    calcium = next(r for r in L["ice"]["species"] if r["id"] == "Ca^2+")
+    assert fluoride["initial_M"] == "0.10" and calcium["initial_M"] == "0"
+    # solubility is far below the pure-water value, and the contrast is emitted
+    assert Decimal(L["result"]["molar_solubility_M"]) < Decimal(L["result"]["molar_solubility_pure_water_M"])
+    assert L["result"]["molar_solubility_M_display"] == "0.00000000345"
+    assert L["result"]["molar_solubility_pure_water_M_display"] == "0.000205"
+    # suppression = s(pure) / s(common ion), ~5.9e4-fold
+    supp = Decimal(L["result"]["molar_solubility_pure_water_M"]) / Decimal(L["result"]["molar_solubility_M"])
+    assert Decimal("5e4") < supp < Decimal("7e4")
+    assert all(L["checks"].values())
+
+
+def test_common_ion_mass_action_still_reproduces_ksp():
+    """The pre-loaded fluoride is in the quotient: Q = [Ca²⁺][F⁻]² over the COMMITTED concentrations = Ksp."""
+    data = ChemData.load(ROOT)
+    L = build_solubility_lesson(_common_spec(), data, "t")
+    ions = [r for r in L["ice"]["species"] if r.get("in_quotient") is not False]
+    Q = _quotient([Decimal(r["equilibrium_M"]) for r in ions], [r["nu"] for r in ions])
+    ksp = Decimal(L["equilibrium_constant"]["value"])
+    assert abs(Q - ksp) / ksp < Decimal("1e-6")
+
+
+def test_common_ion_refuses_foreign_ion():
+    """A 'common' ion must be shared with the salt — Cl⁻ is not one of CaF2's ions."""
+    data = ChemData.load(ROOT)
+    with pytest.raises(BuildError, match="not one of"):
+        build_solubility_lesson(_common_spec(common_ion="Cl^-"), data, "t")
+
+
+def test_common_ion_refuses_nonpositive_molarity():
+    data = ChemData.load(ROOT)
+    with pytest.raises(BuildError, match="positive common_ion_molarity_M"):
+        build_solubility_lesson(_common_spec(molarity="0"), data, "t")
+
+
+def test_build_common_ion_round_trip():
+    lesson, out_rel = build_equilibrium(SPEC_KSP_COMMON, ROOT)
+    assert out_rel == "equilibrium/calcium-fluoride-common-ion.equilibrium.json"
+    assert lesson["subtype"] == "solubility" and lesson["reaction"]["common_ion"] == "F^-"
 
 
 # ── weak base (the 3rd increment — water excluded from Q like the solid; Kb → pOH → pH via Kw) ──

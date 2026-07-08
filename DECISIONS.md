@@ -1622,3 +1622,24 @@ gym gate). New (additive): `gym._generate_weak_acid_ph` + `_sci` (Unicode scient
 (4.9E-10 → 4.9E-1). **362 tests** (+6); validate-gyms = **12 gyms / 120 problems**; check-katex unchanged (gym prompts are
 Unicode prose, not KaTeX); **35 pages** (+1: `/gym/weak-acid-ph/`); `derived/` byte-stable (1 new file). In-browser: the free
 entry accepts the correct pH and the wrong "treated as strong" entry fires the named diagnostic.
+
+**Update (6th increment, same day) — the common-ion effect: solubility with a shared ion pre-loaded.** The natural Ksp
+follow-on, and the second face of the common-ion effect the buffer already showed for a weak acid — now on the **cubic**. A
+Ksp salt dissolves not into pure water but into a solution that **already contains one of its own ions** (from a
+fully-dissociated soluble salt — the counter-ion a spectator, omitted). That is a **nonzero initial product concentration** —
+exactly the buffer's case — so `solve_equilibrium` is **reused unchanged**; Le Chatelier drives the dissolution left and far
+less dissolves. Delivered as a **variant of the existing `solubility` subtype** (NOT a new subtype — the reaction, the Ksp
+expression, the molar-solubility result are all identical; only one product column starts above zero): `build_solubility_lesson`
+gained an optional `common_ion` + `common_ion_molarity_M`, sets that ion's initial concentration, and **re-solves the salt in
+pure water** for the suppression contrast (mirroring the buffer's acid-alone re-solve). The opener:
+**`equilibrium/calcium-fluoride-common-ion`** — CaF₂ into 0.10 M F⁻ (from NaF) → molar solubility **3.45×10⁻⁹ M**, about
+**59 400× less** than the 2.05×10⁻⁴ M in pure water; the misconception is that solubility is a fixed property of the salt,
+refuted from the contrast. A new **`common-ion-effect` concept** (the one principle behind both buffers and suppressed
+solubility), cross-linked from `buffer` and `solubility-product`. Additive schema (reaction `common_ion`/`common_ion_latex`/
+`common_ion_molarity_M`; result `molar_solubility_pure_water_M`(`_display`); `suppression_factor_display` **reused** from the
+buffer) — the subtype enum stays four, `checks` unchanged. **369 tests** (+7); validate-solutions = 6 + 2 structure + 1
+comparison + **5 equilibrium** (14 ids); validate-reference = **67** (+1 concept); check-katex **643** (+24); **36 pages**
+(+1: `/lessons/calcium-fluoride-common-ion/`); `derived/` byte-stable (2 new files + the buffer/solubility-product
+cross-links). **3-way tamper-tested** on the new branch (the suppression factor; the pure-water contrast solubility; the
+common ion's initial concentration vs the reaction block). In-browser: the ICE table shows F⁻ pre-loaded at 0.10, the
+"59 400× less" card, the common-ion note, and the refuted misconception; 0 KaTeX errors.

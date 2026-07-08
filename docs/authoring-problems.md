@@ -337,6 +337,20 @@ refuted_by = "stoichiometry_in_ksp"               # the player renders the cubic
 
 See [`problems/equilibrium/calcium-fluoride-solubility.equilibrium.toml`](../problems/equilibrium/calcium-fluoride-solubility.equilibrium.toml).
 
+The **common-ion variant** of a solubility lesson adds a `common_ion` (one of the salt's own ions, already present from a
+fully-dissociated soluble salt) and its `common_ion_molarity_M`. That pre-loaded product suppresses dissolution (Le Chatelier
+— the common-ion effect); the same solver runs unchanged, and the producer also re-solves the salt in pure water for the
+suppression contrast. The producer refuses a `common_ion` that is not one of the salt's ions, or a non-positive molarity. Use
+`refuted_by = "common_ion_suppresses_solubility"` for the player's common-ion refutation:
+
+```toml
+salt = "CaF2"
+common_ion = "F^-"                                # must be the salt's cation or anion
+common_ion_molarity_M = "0.10"                    # e.g. from 0.10 M NaF; the Na⁺ is a spectator, omitted
+```
+
+See [`problems/equilibrium/calcium-fluoride-common-ion.equilibrium.toml`](../problems/equilibrium/calcium-fluoride-common-ion.equilibrium.toml).
+
 The **weak-base subtype** is the same file shape but names a `base` instead of an `acid` — a weak molecular base curated
 in [`data/ionization-constants.toml`](../data/ionization-constants.toml) `[bases]` (currently NH₃), with its $K_b$ and its
 conjugate acid. The base ionizes against water, B + H₂O ⇌ BH⁺ + OH⁻; **water is the pure solvent** (excluded from the

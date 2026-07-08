@@ -50,8 +50,8 @@ export function solveEquilibrium(species, K) {
   return { extent: x, concs: concsAt(x), quotient: reactionQuotient(concsAt(x), nus, inQ) };
 }
 
-// Re-derive + verify one equilibrium lesson (both subtypes — weak-acid pH + Ksp solubility, ADR-0048). `fail(rel,
-// msg)` exits the process (the caller's fail).
+// Re-derive + verify one equilibrium lesson (all four subtypes — weak-acid pH, buffer, weak-base pH, and Ksp
+// solubility incl. the common-ion variant, ADR-0048). `fail(rel, msg)` exits the process (the caller's fail).
 export function verifyEquilibrium(rel, les, fail) {
   const rc = (g, w, t = 1e-6) => Math.abs(g - w) <= t * Math.abs(w) + 1e-12;
   const ice = les.ice;
@@ -188,6 +188,24 @@ export function verifyEquilibrium(rel, les, fail) {
     const gPerL = x * Number(les.result.molar_mass_g_per_mol);
     if (!rc(gPerL, Number(les.result.solubility_g_per_L), 1e-4))
       fail(rel, `result.solubility_g_per_L ${les.result.solubility_g_per_L} != s × molar mass = ${gPerL}`);
+    // the common-ion variant: one of the salt's ions is ALREADY present (a nonzero initial product — the core
+    // re-solve above already accounts for it). Re-check the ion's initial matches the reaction block, and re-solve
+    // the salt in PURE water (both ions at 0) to reproduce the suppression contrast the misconception denies.
+    if (les.reaction.common_ion) {
+      const commonRow = species.find((s) => s.id === les.reaction.common_ion);
+      if (!commonRow || !(commonRow.nu > 0)) fail(rel, `common ion ${les.reaction.common_ion} is not a product ion of the salt`);
+      if (!(commonRow.initial > 0)) fail(rel, `common ion ${les.reaction.common_ion} initial ${commonRow.initial} is not > 0 (that is plain solubility, not a common-ion lesson)`);
+      if (!rc(commonRow.initial, Number(les.reaction.common_ion_molarity_M)))
+        fail(rel, `common ion initial ${commonRow.initial} != reaction.common_ion_molarity_M ${les.reaction.common_ion_molarity_M}`);
+      const pure = species.map((s) => ({ nu: s.nu, initial: 0, in_quotient: s.in_quotient }));
+      const solo = solveEquilibrium(pure, K);
+      if (Number.isNaN(solo.extent)) fail(rel, "pure-water (no common ion) re-solve not bracketed");
+      if (!rc(Number(les.result.molar_solubility_pure_water_M), solo.extent, 1e-4))
+        fail(rel, `result.molar_solubility_pure_water_M ${les.result.molar_solubility_pure_water_M} != pure-water s ${solo.extent}`);
+      const suppression = solo.extent / x;                  // s(pure water) / s(with common ion) — many-fold
+      if (!rc(suppression, Number(les.result.suppression_factor_display), 5e-3))
+        fail(rel, `result.suppression_factor_display ${les.result.suppression_factor_display} != s_pure/s = ${suppression}`);
+    }
   } else {
     fail(rel, `unknown equilibrium subtype '${les.subtype}'`);
   }

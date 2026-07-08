@@ -194,20 +194,21 @@ at its URL even though the repo is private (private/access-controlled Pages need
 **Phase 0 + Phase 1 COMPLETE (owner-reviewed). Phase 2 OPEN (2026-07-08, ADR-0039–0048)** — the model-bearing tier.
 Its **gases + thermochemistry** and **bonding & structure** tiers are complete across all surfaces (formula sheet + gyms +
 lessons + the Lewis-ledger engine/`molecule` Atlas kind + IMFs, ADR-0039–0047), and **equilibrium & acid-base is open** with
-four subtypes (ADR-0048 — the **reversible-extent solver** + the `equilibrium` lesson kind, a fourth lesson shape: weak-acid
-pH · buffer (common-ion + Henderson–Hasselbalch) · weak-base pH via Kw · Ksp solubility). **Next:** the rest of equilibrium
-(titration, polyprotic, a gym), then kinetics, electrochemistry. History
+four subtypes + a gym (ADR-0048 — the **reversible-extent solver** + the `equilibrium` lesson kind, a fourth lesson shape:
+weak-acid pH · buffer (common-ion + Henderson–Hasselbalch) · weak-base pH via Kw · Ksp solubility, incl. a **common-ion**
+solubility variant). **Next:** the rest of equilibrium (titration, polyprotic, common-ion Q-vs-Ksp prediction), then kinetics,
+electrochemistry. History
 in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
 [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
-**Counters:** 13 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
-3 bonding (2 structure + 1 IMF comparison) + **4 equilibrium** (weak-acid pH + buffer + weak-base pH + Ksp solubility,
-ADR-0048)) · 12 gyms / 120 verified problems (dimensional analysis · ionic nomenclature · balancing · mass stoichiometry ·
-percent yield · limiting reagent · periodic trends · reaction families · gas laws · calorimetry · Lewis structures ·
-weak-acid pH) · 1 Valence Table (23 elements; four modes; 156 named + machine-verified salts) · 29 concept entries
-(8 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species entries + 6 molecule structure
-entries (Lewis ledger + VSEPR + dominant IMF, ADR-0044/0046) + 9 formula-sheet entries (ADR-0039/0043) · 66 Atlas
-reference objects · 7 Node gates + CI + live Pages · 362 producer tests · astro build = 35 pages.
+**Counters:** 14 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
+3 bonding (2 structure + 1 IMF comparison) + **5 equilibrium** (weak-acid pH + buffer + weak-base pH + Ksp solubility +
+common-ion Ksp, ADR-0048)) · 12 gyms / 120 verified problems (dimensional analysis · ionic nomenclature · balancing · mass
+stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas laws · calorimetry · Lewis
+structures · weak-acid pH) · 1 Valence Table (23 elements; four modes; 156 named + machine-verified salts) · 30 concept
+entries (8 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species entries + 6 molecule
+structure entries (Lewis ledger + VSEPR + dominant IMF, ADR-0044/0046) + 9 formula-sheet entries (ADR-0039/0043) · 67 Atlas
+reference objects · 7 Node gates + CI + live Pages · 369 producer tests · astro build = 36 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; honesty = three badges
 (regime-4 → model-assumed badge + an "interpretive" marker, ADR-0033); numeric practice free-entry (diagnostics), categorical
@@ -230,7 +231,8 @@ re-solves the acid alone for the common-ion contrast); **weak-base** (B + H₂O 
 **`in_quotient` flag** that drops a pure condensed phase so the solver is unchanged; $K_b$ + conjugate acid from
 `ionization-constants.toml` `[bases]`, proton accounting checked on load, → [OH⁻] → pOH → **pH via the $K_w$ bridge**
 $[\mathrm{H^+}][\mathrm{OH^-}]=K_w$); **solubility** (Ksp — **solid excluded** via `in_quotient`, so $K_{sp}=4s^3$ a **cubic**;
-from `solubility-products.toml`, ion composition checked by charge crossover; → molar solubility). `mass_g`→moles supported;
+from `solubility-products.toml`, ion composition checked by charge crossover; → molar solubility; optionally a **common ion**
+pre-loaded — the buffer's nonzero-initial-product case on the cubic, dissolution suppressed). `mass_g`→moles supported;
 a fully molecular reaction omits the ionic equations; redox = the free-element signature (Phase 2).
 The Atlas carries all four brief-§10 kinds (lens, concepts, reactions, species ADR-0038, formula sheet ADR-0039 — machine-checked
 **dimensional homogeneity** via `chemkernel.dimension`, separate from Decimal `units.py` per ADR-0015) **plus a fifth structural
@@ -251,12 +253,13 @@ never runs in CI — the seven Node gates re-verify committed `derived/` from sc
 **equilibrium & acid-base is open** (ADR-0048 — the reversible-extent solver + the `equilibrium` lesson kind, a fourth
 shape, with **four subtypes**: weak-acid pH + buffer (common-ion effect + Henderson–Hasselbalch, the nonzero-initial-product
 case) + weak-base pH (via the $K_w$ bridge, water excluded from Q — the solver reused unchanged) + Ksp solubility (the
-`in_quotient` pure-solid-excluded generalization, the solver proven on the **cubic**)). The flagged next increment (newest
-session log's closing block) is **more of the equilibrium tier**, all reusing the same `solve_equilibrium` instrument:
-**titration curves** (a march of extent as titrant is added); **polyprotic** staged equilibria (H₃PO₄); common-ion Ksp +
-$Q$-vs-$K_{sp}$ precipitation prediction; the $K$/pH/$K_w$ **formula-sheet** entries (they need the *activity* — dimensionless
-— treatment). The tier's **`weak_acid_ph_v1` gym** landed (ADR-0048 5th increment — pH via the mass-action root, the gate
-re-solving in pure Node); a weak-**base**/buffer gym extension could follow.
+`in_quotient` pure-solid-excluded generalization, the solver proven on the **cubic**, incl. a **common-ion** variant that
+suppresses solubility — the buffer's nonzero-initial-product case on the cubic, ADR-0048 6th increment)). The flagged next
+increment (newest session log's closing block) is **more of the equilibrium tier**, all reusing the same `solve_equilibrium`
+instrument: **titration curves** (a march of extent as titrant is added); **polyprotic** staged equilibria (H₃PO₄);
+$Q$-vs-$K_{sp}$ precipitation prediction (the common-ion Ksp machinery is now in place — a *prediction* face on top of it);
+the $K$/pH/$K_w$ **formula-sheet** entries (they need the *activity* — dimensionless — treatment). The tier's
+**`weak_acid_ph_v1` gym** landed (ADR-0048 5th increment); a weak-**base**/buffer gym extension could follow.
 Then **kinetics** (dξ/dt, rate laws, half-life) and **electrochemistry** (oxidation numbers → electron ledger, ΔG=−nFE,
 Nernst). Bonding corpus-depth deferrals: octet exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻), more structure
 lessons (NH₃/CH₄), more comparison axes, a "which IMF dominates?" gym drill. Smaller/optional: endothermic / multi-step
