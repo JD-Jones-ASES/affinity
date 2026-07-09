@@ -7,10 +7,12 @@ const refs = import.meta.glob("../../../derived/reference/*.json", { eager: true
 const all = Object.values(refs).map((m) => m.default);
 const formulas = all.filter((r) => r.kind === "formula").map(renderFormula);
 
-// teaching order + two sections (the ledger-exact backfill, then the model-bearing gas/energy openers)
+// teaching order + sections (the ledger-exact backfill, the model-bearing gas/energy openers, then the
+// dimensionless equilibrium constants — ADR-0048)
 const GROUPS = [
   { label: "Amount, mass & solutions", ids: ["formula-mole-mass", "formula-molarity", "formula-dilution", "formula-avogadro-number", "formula-percent-yield"] },
-  { label: "Gases & energy", ids: ["formula-ideal-gas-law", "formula-combined-gas-law", "formula-calorimetry"] },
+  { label: "Gases & energy", ids: ["formula-ideal-gas-law", "formula-combined-gas-law", "formula-calorimetry", "formula-enthalpy-of-reaction"] },
+  { label: "Equilibrium & acid–base", ids: ["formula-acid-ionization-constant", "formula-base-ionization-constant", "formula-water-ion-product", "formula-conjugate-ka-kb", "formula-solubility-product"] },
 ];
 const byId = Object.fromEntries(formulas.map((f) => [f.id, f]));
 const groups = GROUPS.map((g) => ({ label: g.label, items: g.ids.map((id) => byId[id]).filter(Boolean) }))

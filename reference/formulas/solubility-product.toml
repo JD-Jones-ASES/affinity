@@ -1,0 +1,48 @@
+# Chemical Atlas formula entry (ADR-0039, ADR-0048): the solubility product K_sp — the dissolution equilibrium's
+# constant, a DIMENSIONLESS ACTIVITY relation (see formula-acid-ionization-constant for the treatment). The pure
+# solid has activity 1 and does not appear. Note: the concept `solubility-product` explains the chemistry; this
+# formula entry machine-checks the dimensional consistency. Bare keys before [[array-of-tables]].
+id = "formula-solubility-product"
+kind = "formula"
+title = "Solubility product (K_sp)"
+name = "Solubility product"
+statement = "K_{sp} = [\\mathrm{M}^{n+}]^{a}\\,[\\mathrm{X}^{m-}]^{b}"
+regime = "model-exact"
+domain = "For a sparingly soluble salt dissolving at saturation, $\\mathrm{M}_a\\mathrm{X}_b(s) \\rightleftharpoons a\\,\\mathrm{M}^{n+} + b\\,\\mathrm{X}^{m-}$. The dissolving solid is a pure phase (activity 1), so it does not appear. Comparing the reaction quotient $Q$ to $K_{sp}$ predicts whether a precipitate forms ($Q > K_{sp}$)."
+summary = "$K_{sp}$ is a product of ion **activities** ($a_X = [X]/c^\\circ$ against the $1\\ \\mathrm{M}$ standard state), each dimensionless — so $K_{sp}$ is **dimensionless** whatever the stoichiometric coefficients $a, b$ are (a dimensionless quantity raised to any power stays dimensionless). The machine checks that both sides reduce to the zero dimension. The pure solid is excluded (activity 1), the same move that lets water drop out of $K_b$; its value is the sourced datum (`data/solubility-products.toml`)."
+related = [
+  { to = "solubility-product", type = "see-also" },
+  { to = "reaction-quotient", type = "see-also" },
+  { to = "common-ion-effect", type = "see-also" },
+  { to = "precipitation", type = "quantifies" },
+]
+lessons = ["calcium-fluoride-solubility", "calcium-fluoride-common-ion", "calcium-fluoride-precipitation", "magnesium-hydroxide-no-precipitate"]
+
+[[assumptions]]
+claim = "Activities are approximated by concentrations relative to the 1 M standard state ($a_X = [X]/c^\\circ$), and the dissolving solid is a pure phase (activity 1). This is why $K_{sp}$ is dimensionless and omits the solid."
+kind = "model"
+
+[[variables]]
+symbol = "K_sp"
+meaning = "solubility-product constant (dimensionless)"
+unit = "1"
+
+[[variables]]
+symbol = "[M^n+]"
+meaning = "cation activity — its concentration relative to the 1 M standard state (dimensionless); raised to the coefficient a"
+unit = "1"
+
+[[variables]]
+symbol = "[X^m-]"
+meaning = "anion activity — its concentration relative to the 1 M standard state (dimensionless); raised to the coefficient b"
+unit = "1"
+
+[[terms]]
+side = "lhs"
+display = "K_sp"
+factors = [ { var = "K_sp", power = 1 } ]
+
+[[terms]]
+side = "rhs"
+display = "[Mⁿ⁺]ᵃ [Xᵐ⁻]ᵇ"
+factors = [ { var = "[M^n+]", power = 1 }, { var = "[X^m-]", power = 1 } ]

@@ -1,0 +1,51 @@
+# Chemical Atlas formula entry (ADR-0039, ADR-0048): the weak-base ionization constant K_b — the mirror of Kₐ,
+# also a DIMENSIONLESS ACTIVITY relation (see formula-acid-ionization-constant for the activity/standard-state
+# treatment). Water is the pure solvent (activity 1) and does not appear. Bare keys before [[array-of-tables]].
+id = "formula-base-ionization-constant"
+kind = "formula"
+title = "Base ionization constant (K_b)"
+name = "Base ionization constant"
+statement = "K_b = \\dfrac{[\\mathrm{BH^+}]\\,[\\mathrm{OH^-}]}{[\\mathrm{B}]}"
+regime = "model-exact"
+domain = "For a weak base reacting with water at equilibrium, $\\mathrm{B} + \\mathrm{H_2O} \\rightleftharpoons \\mathrm{BH^+} + \\mathrm{OH^-}$. Water is the pure solvent (activity 1), so it does not appear. A larger $K_b$ means a stronger weak base."
+summary = "Like $K_a$, $K_b$ is a ratio of **activities** ($a_X = [X]/c^\\circ$ against the $1\\ \\mathrm{M}$ standard state), so it is **dimensionless** — the machine checks that both sides reduce to the zero dimension. The solvent water is a pure liquid (activity 1) and is excluded, exactly as the pure solid is excluded from $K_{sp}$. A base and its conjugate acid are tied together by $K_a K_b = K_w$ (see that entry); its numeric value is the sourced datum."
+related = [
+  { to = "chemical-equilibrium", type = "instance-of" },
+  { to = "water-autoionization", type = "see-also" },
+  { to = "ph", type = "see-also" },
+]
+lessons = ["ammonia-ph"]
+
+[[assumptions]]
+claim = "Activities are approximated by concentrations relative to the 1 M standard state ($a_X = [X]/c^\\circ$), and water is treated as the pure solvent (activity 1). This is why $K_b$ is dimensionless and omits water."
+kind = "model"
+
+[[variables]]
+symbol = "K_b"
+meaning = "base ionization constant (dimensionless)"
+unit = "1"
+
+[[variables]]
+symbol = "[BH^+]"
+meaning = "conjugate-acid activity — [BH⁺] relative to the 1 M standard state (dimensionless)"
+unit = "1"
+
+[[variables]]
+symbol = "[OH^-]"
+meaning = "hydroxide-ion activity — [OH⁻] relative to the 1 M standard state (dimensionless)"
+unit = "1"
+
+[[variables]]
+symbol = "[B]"
+meaning = "un-ionized-base activity — [B] relative to the 1 M standard state (dimensionless)"
+unit = "1"
+
+[[terms]]
+side = "lhs"
+display = "K_b"
+factors = [ { var = "K_b", power = 1 } ]
+
+[[terms]]
+side = "rhs"
+display = "[BH⁺][OH⁻] / [B]"
+factors = [ { var = "[BH^+]", power = 1 }, { var = "[OH^-]", power = 1 }, { var = "[B]", power = -1 } ]

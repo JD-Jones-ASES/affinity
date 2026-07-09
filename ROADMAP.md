@@ -18,9 +18,9 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   fourth shape, with **six subtypes**: weak-acid pH · buffer (common-ion + Henderson–Hasselbalch) · weak-base pH via Kw ·
   Ksp solubility (incl. a **common-ion** variant) · **polyprotic** (staged Kₐ) · **titration** (a weak-acid/strong-base curve,
   a build-time SVG) + the **`weak_acid_ph_v1` gym** (the tier's drill instrument) + the **`prediction` lesson kind** (Q vs Kₛₚ —
-  does a precipitate form?, a fifth lesson shape, ADR-0048 9th increment). **Next inside Phase 2:** the rest of
-  equilibrium & acid-base (the K/pH/Kw formula-sheet entries), then kinetics and
-  electrochemistry, each opening with its stress scenario. Counters live in `AGENTS.md ## Current state`;
+  does a precipitate form?, a fifth lesson shape, both verdicts, ADR-0048 9th increment) + the **K/K_w/K_sp formula-sheet
+  entries** (dimensionless activity relations, 10th increment). **The equilibrium & acid-base tier is now feature-complete.**
+  **Next inside Phase 2:** kinetics and electrochemistry, each opening with its stress scenario. Counters live in `AGENTS.md ## Current state`;
   per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are
   the plan of record.
 - **Equilibrium & acid-base — OPENED, six subtypes + a gym + a prediction kind** (2026-07-08, ADR-0048): the thesis made literal — *the ICE
@@ -62,9 +62,12 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   so a distinct compact kind (`*.prediction.json`, `build_prediction_lesson`, its own tight schema + static `PredictionLesson.astro`);
   `equilibrium/calcium-fluoride-precipitation` — 40.0 mL 0.010 M Ca(NO₃)₂ + 60.0 mL 0.010 M NaF → $Q=1.44\times10^{-7}\gg
   K_{sp}=3.45\times10^{-11}$ (≈4170×) → **precipitates** (the **third view of CaF₂** — dissolve/suppress/**predict**, no new
-  data); a `reaction-quotient` concept; the gate's `verifyPrediction` re-derives the dilution + $Q$ + verdict in Node.
-  **Deferred (the rest of the tier):** the $K$/pH/$K_w$ formula-sheet entries (need the activity treatment); a titration slider
-  interactive.
+  data); a `reaction-quotient` concept; the gate's `verifyPrediction` re-derives the dilution + $Q$ + verdict in Node. A second
+  prediction `equilibrium/magnesium-hydroxide-no-precipitate` shows the **other verdict** (dilute Mg(NO₃)₂ + NaOH → $Q < K_{sp}$
+  → stays clear; the 2nd Ksp salt), and the player was made verdict-general. The **K/K_w/K_sp formula-sheet entries landed** too
+  (10th increment — Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w as **dimensionless activity** relations, $a_X=[X]/c^\circ$ against the 1 M
+  standard state; they fit the monomial dimension engine unchanged; pH/pOH stay in the `ph` concept — owner-decided).
+  **The tier is now feature-complete; deferred (optional):** a titration slider interactive; a weak-base/buffer gym extension.
 - **IMF comparison lesson — LANDED** (2026-07-08, ADR-0047): the bonding capstone + a **third lesson shape** (`comparison`).
   `bonding/boiling-points-and-imfs` lines up CH₄ ≪ NH₃ ≪ H₂O (equal-mass hydrides, so size is controlled) and the
   machine-checked payoff is the trend itself: sorted by boiling point, the dominant-IMF rank is **non-decreasing** (the
@@ -475,8 +478,11 @@ the player draws a **build-time SVG** (the tier's first plot) — initial pH 2.8
 equivalence (pH 8.72); reuses acetic acid's Kₐ + NaOH (no new data); a `titration` concept; the gate recomputes the whole
 curve. **Six subtypes now** (+ `titrant` → titration), **plus the `prediction` lesson kind** (Q vs $K_{sp}$ — a snapshot, not a
 solve; 9th increment: `equilibrium/calcium-fluoride-precipitation`, a `reaction-quotient` concept, `verifyPrediction` in the
-gate). **Next in-tier:** the $K$/pH/$K_w$ formula-sheet entries (they need the *activity* — dimensionless — treatment so the
-dimension engine stays homogeneous); optionally a titration slider interactive; a weak-base/buffer gym extension.
+gate) — with **both verdicts** (CaF₂ forms; dilute Mg(OH)₂ stays clear). The **K/K_w/K_sp formula-sheet entries** landed too
+(10th increment — Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w as **dimensionless activity** relations, $a_X=[X]/c^\circ$, fitting the monomial
+dimension engine unchanged; pH/pOH stay in the `ph` concept, owner-decided). **The equilibrium & acid-base tier is now
+feature-complete.** Optional leftovers: a titration slider interactive; a weak-base/buffer gym extension. **Next tiers:** kinetics
+and electrochemistry (below).
 
 **Then (each its own increment, sketch):** the rest of bonding (above) + the rest of equilibrium & acid-base (above);
 kinetics ($d\xi/dt$, rate laws, integrated rate laws, half-life); electrochemistry (oxidation numbers — completing the

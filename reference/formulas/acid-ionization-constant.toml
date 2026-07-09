@@ -1,0 +1,54 @@
+# Chemical Atlas formula entry (ADR-0039, ADR-0048): the weak-acid ionization constant Kₐ, as a DIMENSIONLESS
+# ACTIVITY relation. An equilibrium constant is built from activities, and an activity a_X = [X]/c° is the
+# concentration relative to the 1 M standard state — dimensionless. So Kₐ is a product/quotient of dimensionless
+# quantities and is itself dimensionless; the machine checks exactly that (every term reduces to the zero SI
+# vector), which is why the pH definition (a log) stays in the `ph` concept, not here. Bare keys before [[tables]].
+id = "formula-acid-ionization-constant"
+kind = "formula"
+title = "Acid ionization constant (Kₐ)"
+name = "Acid ionization constant"
+statement = "K_a = \\dfrac{[\\mathrm{H^+}]\\,[\\mathrm{A^-}]}{[\\mathrm{HA}]}"
+regime = "model-exact"
+domain = "For a weak monoprotic acid at equilibrium, $\\mathrm{HA} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{A^-}$. A larger $K_a$ means a stronger (more ionized) weak acid. For a polyprotic acid each proton has its own $K_a$ ($K_{a1} \\gg K_{a2} \\gg \\dots$)."
+summary = "An equilibrium constant is a ratio of **activities**, and an activity $a_X = [X]/c^\\circ$ is a concentration measured against the $c^\\circ = 1\\ \\mathrm{M}$ standard state — so it is **dimensionless**. That is why $K_a$ carries no units even though it is written with concentrations: every bracket is really an activity, the $\\mathrm{mol/L}$ cancels against $c^\\circ$, and the machine checks that both sides reduce to the same (zero) dimension. What $K_a$ *equals* numerically is the sourced datum (`data/ionization-constants.toml`); what is machine-checked here is that the relation is dimensionally consistent. The equilibrium **position** it encodes is the disclosed model."
+related = [
+  { to = "chemical-equilibrium", type = "instance-of" },
+  { to = "ph", type = "see-also" },
+  { to = "reaction-quotient", type = "see-also" },
+  { to = "buffer", type = "see-also" },
+]
+lessons = ["acetic-acid-ph", "acetate-buffer", "phosphoric-acid-ph", "acetic-acid-titration"]
+
+[[assumptions]]
+claim = "Activities are approximated by concentrations relative to the 1 M standard state ($a_X = [X]/c^\\circ$) — the ideal-dilute-solution model. This is why $K_a$ is dimensionless and written with concentrations."
+kind = "model"
+
+[[variables]]
+symbol = "K_a"
+meaning = "acid ionization constant (dimensionless)"
+unit = "1"
+
+[[variables]]
+symbol = "[H^+]"
+meaning = "hydrogen-ion activity — [H⁺] relative to the 1 M standard state (dimensionless)"
+unit = "1"
+
+[[variables]]
+symbol = "[A^-]"
+meaning = "conjugate-base activity — [A⁻] relative to the 1 M standard state (dimensionless)"
+unit = "1"
+
+[[variables]]
+symbol = "[HA]"
+meaning = "un-ionized-acid activity — [HA] relative to the 1 M standard state (dimensionless)"
+unit = "1"
+
+[[terms]]
+side = "lhs"
+display = "K_a"
+factors = [ { var = "K_a", power = 1 } ]
+
+[[terms]]
+side = "rhs"
+display = "[H⁺][A⁻] / [HA]"
+factors = [ { var = "[H^+]", power = 1 }, { var = "[A^-]", power = 1 }, { var = "[HA]", power = -1 } ]

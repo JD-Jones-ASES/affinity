@@ -432,9 +432,23 @@ def test_formula_model_exact_must_disclose_an_assumption():
 def test_authored_formulas_all_build():
     root = ROOT / "reference" / "formulas"
     specs = sorted(root.glob("*.toml"))
-    assert len(specs) == 9   # + enthalpy-of-reaction (Hess's law, ADR-0043)
+    assert len(specs) == 14   # 9 + the 5 equilibrium-constant entries (Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w, ADR-0048)
     for path in specs:
         spec = tomllib.loads(path.read_text(encoding="utf-8"))
         f = _formula(spec)
         # every term shares the entry's dimension — homogeneity actually holds for the shipped sheet
         assert all(t["dimension"] == f["dimension"] for t in f["terms"])
+
+
+def test_equilibrium_constant_formulas_are_dimensionless():
+    """The equilibrium-constant sheet entries (ADR-0048): Kₐ / K_b / K_w / K_sp + the conjugate identity are
+    DIMENSIONLESS activity relations — every term reduces to the zero SI vector (activities a_X = [X]/c° are
+    dimensionless), and each is model-exact, disclosing the activity/standard-state idealization."""
+    for fid in ("acid-ionization-constant", "base-ionization-constant", "water-ion-product",
+                "solubility-product", "conjugate-ka-kb"):
+        spec = tomllib.loads((ROOT / "reference" / "formulas" / f"{fid}.toml").read_text(encoding="utf-8"))
+        f = _formula(spec)
+        assert f["regime"] == "model-exact"
+        assert f["dimension"] == [0, 0, 0, 0, 0, 0] and f["dimension_name"] == "dimensionless"
+        assert all(t["dimension"] == [0, 0, 0, 0, 0, 0] for t in f["terms"])
+        assert len(f["assumptions"]) >= 1 and all(a["kind"] == "model" for a in f["assumptions"])

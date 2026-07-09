@@ -1,0 +1,130 @@
+{
+  "kind": "formula",
+  "id": "formula-conjugate-ka-kb",
+  "title": "Conjugate pair: Kₐ · K_b = K_w",
+  "name": "Conjugate acid-base relation",
+  "statement": "K_a \\, K_b = K_w",
+  "regime": "model-exact",
+  "dimension": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "dimension_name": "dimensionless",
+  "variables": [
+    {
+      "symbol": "K_a",
+      "meaning": "acid ionization constant of the acid (dimensionless)",
+      "unit": "1",
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "K_b",
+      "meaning": "base ionization constant of its conjugate base (dimensionless)",
+      "unit": "1",
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "K_w",
+      "meaning": "water ion-product constant (dimensionless)",
+      "unit": "1",
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "terms": [
+    {
+      "side": "lhs",
+      "display": "K_a K_b",
+      "factors": [
+        {
+          "var": "K_a",
+          "power": 1
+        },
+        {
+          "var": "K_b",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "side": "rhs",
+      "display": "K_w",
+      "factors": [
+        {
+          "var": "K_w",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "Activities are approximated by concentrations relative to the 1 M standard state ($a_X = [X]/c^\\circ$), the ideal-dilute-solution model — so $K_a$, $K_b$, and $K_w$ are all dimensionless and multiply cleanly.",
+      "kind": "model"
+    }
+  ],
+  "summary": "Each of $K_a$, $K_b$, $K_w$ is a **dimensionless** activity constant, so their relation is a dimensionless identity — the machine checks that both sides reduce to the zero dimension. It is why you never need a separate table of $K_b$ values: given $K_a$ and $K_w$, $K_b = K_w/K_a$. This is exactly the step a weak-acid/strong-base titration uses at the equivalence point, where the acid has all become its conjugate base.",
+  "related": [
+    {
+      "to": "chemical-equilibrium",
+      "type": "instance-of"
+    },
+    {
+      "to": "water-autoionization",
+      "type": "see-also"
+    },
+    {
+      "to": "titration",
+      "type": "see-also"
+    },
+    {
+      "to": "ph",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [
+    "ammonia-ph",
+    "acetic-acid-titration"
+  ],
+  "domain": "For any conjugate acid-base pair in water: the acid's $K_a$ and its conjugate base's $K_b$ multiply to the water ion-product $K_w$. So a strong weak-acid has a weak conjugate base and vice versa, and $K_b = K_w/K_a$ — the identity that turns a titration's equivalence point (all conjugate base) into a weak-base solve."
+}

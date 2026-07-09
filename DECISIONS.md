@@ -1730,3 +1730,21 @@ full-dissociation model (the monatomic composition check applies only to a monat
 `PredictionLesson.astro`'s misconception refutation had been hardcoded for the "precipitate forms / Q above Kₛₚ" case — now
 **branched on the verdict**, so the `prediction` kind handles both outcomes cleanly. **393 tests** (+1); validate-solutions =
 2 prediction (18 ids); check-katex 773; **40 pages**; the "no" verdict tamper-tested (flipping it to "precipitate" is caught).
+
+**Update (10th increment, same day) — the equilibrium constants on the formula sheet, as dimensionless *activity* relations
+(owner-decided).** The last flagged equilibrium-tier item: put Kₐ, K_b, K_w, K_sp (and the conjugate identity Kₐ·K_b = K_w) on
+the ADR-0039 formula/equation sheet. The design question — how a *monomial* dimension checker handles equilibrium quantities and
+the **log** relation pH = −log₁₀(a) — was put to the owner (they chose **"K-relations only"**). The resolution, now the house
+treatment: an equilibrium constant is built from **activities**, and an activity $a_X = [X]/c^\circ$ is a concentration measured
+against the $c^\circ = 1\ \mathrm{M}$ **standard state** — hence **dimensionless**. So each K is a monomial of dimensionless
+quantities, and "both sides reduce to the zero SI vector" is exactly what the existing engine checks — **no engine change**
+(the dimensionless unit `"1"` was already registered, ADR-0039). The pH/pOH **log-definitions are NOT forced onto the sheet**
+(a monomial checker can't verify a transcendental); they remain in the `ph` concept, which is their honest home. Consequences:
+**5 new formula entries** (sheet 9 → 14), all model-exact + disclosing the activity/standard-state idealization; the dimension
+re-derivation in `validate-reference.mjs` verifies them unchanged. Two display fixes fell out: the formulas page grouped by a
+hardcoded id list, so a new **"Equilibrium & acid–base"** section was added — which revealed that `formula-enthalpy-of-reaction`
+(ADR-0043) had never been listed in any group and so had **silently not rendered** (now in "Gases & energy"); and since a
+variable's `meaning` renders as plain text (not KaTeX), the activity notation moved out of `$…$` math into prose. **394 tests**
+(+1); validate-reference = **75** (+5); check-katex 830; 40 pages; `derived/` byte-stable. **The equilibrium & acid-base tier is
+now feature-complete** — six subtypes + the gym + the prediction kind (both verdicts) + the K reference surface — leaving only
+optional enhancements (a titration slider, a weak-base/buffer gym). The model-bearing tiers still open: kinetics, electrochemistry.

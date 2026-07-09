@@ -3,6 +3,27 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — equilibrium: the K/K_w/K_sp formula-sheet entries — dimensionless activity relations (ADR-0048, 10th increment)
+
+The equilibrium tier's reference surface — the equilibrium constants on the formula sheet — closing the last flagged item. The
+key move (owner-chosen): treat an equilibrium constant as **dimensionless**, because an activity $a_X = [X]/c^\circ$ is a
+concentration measured against the 1 M standard state. A dimensionless K is a **monomial of dimensionless quantities**, so it
+fits the existing monomial dimension engine (ADR-0039) **unchanged** — no need to teach the engine transcendental (log)
+relations. The pH/pOH log-definitions stay in the `ph` concept, not the sheet.
+
+- **5 new formula entries** (formula-sheet: 9 → **14**): `formula-acid-ionization-constant` (Kₐ), `formula-base-ionization-constant`
+  (K_b), `formula-water-ion-product` (K_w), `formula-solubility-product` (K_sp), and `formula-conjugate-ka-kb` (Kₐ·K_b = K_w).
+  Each declares its activities with `unit = "1"` (dimensionless), so both sides reduce to the zero SI vector — machine-checked,
+  and re-derived in pure Node by `validate-reference` with no engine change. All model-exact, disclosing the activity /
+  standard-state idealization.
+- **Display fix:** the formulas page grouped entries by a hardcoded list, so the new entries needed an "Equilibrium & acid–base"
+  section — and this surfaced that `formula-enthalpy-of-reaction` (Hess's law, ADR-0043) had **never been grouped**, so it had
+  silently not displayed; now added to "Gases & energy". Variable `meaning`s render as plain text (not KaTeX), so the activity
+  notation was moved out of `$…$` math into plain prose.
+- **Verification:** **394 producer tests** (+1 — the dimensionless-K test + the formula-count bump); 7 gates green
+  (**validate-reference = 75**, check-katex 830); `astro build` = 40 pages; `derived/` byte-stable. Browser-verified: 14 entries
+  across 3 sections, 0 KaTeX errors, clean meaning cells.
+
 ## Phase 2 — 2026-07-08 — equilibrium: the other verdict — a "stays clear" prediction lesson (ADR-0048, 9th increment follow-on)
 
 A second `prediction` lesson completing the Q-vs-Kₛₚ story — the case where **no** precipitate forms — plus a small player fix.

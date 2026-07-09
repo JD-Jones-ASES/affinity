@@ -207,8 +207,8 @@ common-ion Ksp + polyprotic + titration) + **2 prediction** (Q-vs-Ksp precipitat
 nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas
 laws · calorimetry · Lewis structures · weak-acid pH) · 1 Valence Table (23 elements; four modes; 182 named + machine-verified
 salts) · 33 concept entries (8 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species
-entries + 6 molecule structure entries (Lewis ledger + VSEPR + dominant IMF, ADR-0044/0046) + 9 formula-sheet entries
-(ADR-0039/0043) · 70 Atlas reference objects · 7 Node gates + CI + live Pages · 393 producer tests · astro build = 40 pages.
+entries + 6 molecule structure entries (Lewis ledger + VSEPR + dominant IMF, ADR-0044/0046) + 14 formula-sheet entries
+(ADR-0039/0043/0048 — incl. Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w as **dimensionless activity** relations) · 75 Atlas reference objects · 7 Node gates + CI + live Pages · 394 producer tests · astro build = 40 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; honesty = three badges
 (regime-4 → model-assumed badge + an "interpretive" marker, ADR-0033); numeric practice free-entry (diagnostics), categorical
@@ -258,11 +258,13 @@ bridge, water excluded from Q) + Ksp solubility (the `in_quotient` pure-solid-ex
 a **common-ion** suppression variant) + **polyprotic** (staged Kₐ1≫Kₐ2≫Kₐ3, the solver run once per stage) + **titration**
 (a weak-acid/strong-base curve — the ledger marched by region + a build-time SVG, ADR-0048 8th increment)), **plus a fifth
 lesson shape** — the **`prediction` kind** (Q-vs-$K_{sp}$ precipitation, a snapshot not a solve; ADR-0048 9th increment:
-`equilibrium/calcium-fluoride-precipitation`, a `reaction-quotient` concept, `verifyPrediction` in the gate). The flagged next
-increment (newest session log's closing block) is the $K$/pH/$K_w$ **formula-sheet** entries (they need the *activity* —
-dimensionless — treatment). The tier's **`weak_acid_ph_v1` gym** landed (ADR-0048 5th increment); a weak-**base**/buffer/polyprotic gym
-extension could follow. A titration **slider interactive** (drag the volume, watch the curve point move) is an optional
-enhancement on the now-verified curve.
+`equilibrium/calcium-fluoride-precipitation`, a `reaction-quotient` concept, `verifyPrediction` in the gate). The **K/K_w/K_sp
+formula-sheet entries landed too** (ADR-0048 10th increment — Kₐ/K_b/K_w/K_sp + the conjugate Kₐ·K_b=K_w, as **dimensionless
+activity** relations: an activity $a_X=[X]/c^\circ$ against the 1 M standard state is dimensionless, so K is a monomial of
+dimensionless quantities and fits the existing dimension engine unchanged; pH/pOH — log relations — stay in the `ph` concept,
+per the owner's call). **The equilibrium & acid-base tier is now feature-complete** (six subtypes + gym + prediction kind, both
+verdicts + the K reference surface). Optional leftovers: a titration **slider interactive**; a weak-**base**/buffer/polyprotic
+**gym** extension. **Next major tiers:** kinetics + electrochemistry (below).
 Then **kinetics** (dξ/dt, rate laws, half-life) and **electrochemistry** (oxidation numbers → electron ledger, ΔG=−nFE,
 Nernst). Bonding corpus-depth deferrals: octet exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻), more structure
 lessons (NH₃/CH₄), more comparison axes, a "which IMF dominates?" gym drill. Smaller/optional: endothermic / multi-step

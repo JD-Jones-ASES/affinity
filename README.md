@@ -26,8 +26,9 @@ structures** — valence electrons, electron domains, molecular shape, counted e
 mass-action root, solved not approximated), the Chemical Atlas — five reference surfaces: a typed concept graph + **7 reaction
 families** with engine-classified example reactions + **14 species entries** with engine-derived molar masses +
 the **Valence Table flagship** (five lenses, trend graphs, a 156-salt formula builder, a ΔEN bonding mode over 23
-sourced elements) + the **formula & equation sheet** (the ideal gas law, calorimetry, mole–mass and more, each
-with its **dimensional homogeneity machine-checked**) + now **molecule structure entries** (Lewis **electron ledgers** —
+sourced elements) + the **formula & equation sheet** (the ideal gas law, calorimetry, mole–mass, and the
+**equilibrium constants** Kₐ/K_b/K_w/K_sp written as dimensionless activity relations, each with its
+**dimensional homogeneity machine-checked**) + now **molecule structure entries** (Lewis **electron ledgers** —
 valence total, octet, and formal charge machine-checked — with VSEPR shape, polarity, and the **dominant intermolecular
 force** derived from the structure: why CO₂ is nonpolar but H₂O is not, and why water boils at 100 °C while methane boils
 at −161 °C) — and generated practice. Phase 2 has landed its gas + thermochemistry tiers, its **bonding & structure**

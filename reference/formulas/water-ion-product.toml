@@ -1,0 +1,46 @@
+# Chemical Atlas formula entry (ADR-0039, ADR-0048): the water ion-product K_w — the bridge between [H⁺] and
+# [OH⁻] that lets a weak-base [OH⁻] become a pH. A DIMENSIONLESS ACTIVITY relation (see
+# formula-acid-ionization-constant for the treatment). Bare keys before [[array-of-tables]].
+id = "formula-water-ion-product"
+kind = "formula"
+title = "Water ion-product (K_w)"
+name = "Water ion-product"
+statement = "K_w = [\\mathrm{H^+}]\\,[\\mathrm{OH^-}]"
+regime = "model-exact"
+domain = "The autoionization of water, $\\mathrm{H_2O} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{OH^-}$, at every point in any aqueous solution. At 25 °C, $K_w = 1.0\\times10^{-14}$. It is the bridge that turns an $[\\mathrm{OH^-}]$ into an $[\\mathrm{H^+}]$ (and pOH into pH): $[\\mathrm{H^+}] = K_w/[\\mathrm{OH^-}]$."
+summary = "$K_w$ is the product of the hydrogen-ion and hydroxide-ion **activities** ($a_X = [X]/c^\\circ$), so it is **dimensionless** — the machine checks that both sides reduce to the zero dimension. Because it always holds, it ties $[\\mathrm{H^+}]$ and $[\\mathrm{OH^-}]$ together: a weak base fixes $[\\mathrm{OH^-}]$, and $K_w$ converts that to $[\\mathrm{H^+}]$ and thus a pH. Its value ($1.0\\times10^{-14}$ at 25 °C) is the sourced datum; what is checked here is dimensional consistency."
+related = [
+  { to = "water-autoionization", type = "instance-of" },
+  { to = "ph", type = "see-also" },
+  { to = "chemical-equilibrium", type = "see-also" },
+]
+lessons = ["ammonia-ph", "acetic-acid-titration"]
+
+[[assumptions]]
+claim = "Activities are approximated by concentrations relative to the 1 M standard state ($a_X = [X]/c^\\circ$), the ideal-dilute-solution model. This is why $K_w$ is dimensionless and written with concentrations."
+kind = "model"
+
+[[variables]]
+symbol = "K_w"
+meaning = "water ion-product constant (dimensionless)"
+unit = "1"
+
+[[variables]]
+symbol = "[H^+]"
+meaning = "hydrogen-ion activity — [H⁺] relative to the 1 M standard state (dimensionless)"
+unit = "1"
+
+[[variables]]
+symbol = "[OH^-]"
+meaning = "hydroxide-ion activity — [OH⁻] relative to the 1 M standard state (dimensionless)"
+unit = "1"
+
+[[terms]]
+side = "lhs"
+display = "K_w"
+factors = [ { var = "K_w", power = 1 } ]
+
+[[terms]]
+side = "rhs"
+display = "[H⁺][OH⁻]"
+factors = [ { var = "[H^+]", power = 1 }, { var = "[OH^-]", power = 1 } ]

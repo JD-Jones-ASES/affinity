@@ -1,0 +1,142 @@
+{
+  "kind": "formula",
+  "id": "formula-base-ionization-constant",
+  "title": "Base ionization constant (K_b)",
+  "name": "Base ionization constant",
+  "statement": "K_b = \\dfrac{[\\mathrm{BH^+}]\\,[\\mathrm{OH^-}]}{[\\mathrm{B}]}",
+  "regime": "model-exact",
+  "dimension": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "dimension_name": "dimensionless",
+  "variables": [
+    {
+      "symbol": "K_b",
+      "meaning": "base ionization constant (dimensionless)",
+      "unit": "1",
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "[BH^+]",
+      "meaning": "conjugate-acid activity — [BH⁺] relative to the 1 M standard state (dimensionless)",
+      "unit": "1",
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "[OH^-]",
+      "meaning": "hydroxide-ion activity — [OH⁻] relative to the 1 M standard state (dimensionless)",
+      "unit": "1",
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "symbol": "[B]",
+      "meaning": "un-ionized-base activity — [B] relative to the 1 M standard state (dimensionless)",
+      "unit": "1",
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "terms": [
+    {
+      "side": "lhs",
+      "display": "K_b",
+      "factors": [
+        {
+          "var": "K_b",
+          "power": 1
+        }
+      ],
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "side": "rhs",
+      "display": "[BH⁺][OH⁻] / [B]",
+      "factors": [
+        {
+          "var": "[BH^+]",
+          "power": 1
+        },
+        {
+          "var": "[OH^-]",
+          "power": 1
+        },
+        {
+          "var": "[B]",
+          "power": -1
+        }
+      ],
+      "dimension": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "Activities are approximated by concentrations relative to the 1 M standard state ($a_X = [X]/c^\\circ$), and water is treated as the pure solvent (activity 1). This is why $K_b$ is dimensionless and omits water.",
+      "kind": "model"
+    }
+  ],
+  "summary": "Like $K_a$, $K_b$ is a ratio of **activities** ($a_X = [X]/c^\\circ$ against the $1\\ \\mathrm{M}$ standard state), so it is **dimensionless** — the machine checks that both sides reduce to the zero dimension. The solvent water is a pure liquid (activity 1) and is excluded, exactly as the pure solid is excluded from $K_{sp}$. A base and its conjugate acid are tied together by $K_a K_b = K_w$ (see that entry); its numeric value is the sourced datum.",
+  "related": [
+    {
+      "to": "chemical-equilibrium",
+      "type": "instance-of"
+    },
+    {
+      "to": "water-autoionization",
+      "type": "see-also"
+    },
+    {
+      "to": "ph",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [
+    "ammonia-ph"
+  ],
+  "domain": "For a weak base reacting with water at equilibrium, $\\mathrm{B} + \\mathrm{H_2O} \\rightleftharpoons \\mathrm{BH^+} + \\mathrm{OH^-}$. Water is the pure solvent (activity 1), so it does not appear. A larger $K_b$ means a stronger weak base."
+}
