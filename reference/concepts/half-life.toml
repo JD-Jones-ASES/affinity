@@ -1,0 +1,14 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0049). Half-life: the time to consume half the reactant. For a
+# first-order reaction t½ = ln2/k — independent of concentration, the defining signature. Model-exact. No tables.
+id = "half-life"
+kind = "concept"
+title = "Half-life of a reaction"
+term = "half-life"
+regime = "model-exact"
+definition = "The **half-life** $t_{1/2}$ is the time for a reactant to fall to half its concentration. Its concentration dependence is the fingerprint of the **order**: for a **first-order** reaction the integrated law $[\\mathrm{A}] = [\\mathrm{A}]_0 e^{-kt}$ gives $t_{1/2} = \\ln 2 / k \\approx 0.693/k$ — **independent of the starting concentration**, so the reactant keeps halving on the *same clock* (1.000 → 0.500 → 0.250 → …, each step the same $t_{1/2}$). That constancy is the classic test for first order (and the reason radioactive decay, also first order, has a fixed half-life). For second order $t_{1/2}$ grows as the reactant depletes; for zero order it shrinks — so a constant half-life is *not* a general fact but a first-order one."
+latex = "t_{1/2} = \\dfrac{\\ln 2}{k} \\quad(\\text{first order})"
+related = [
+  { to = "rate-law", type = "see-also" },
+  { to = "reaction-rate", type = "see-also" },
+]
+lessons = ["hydrogen-peroxide-decomposition"]

@@ -1,0 +1,36 @@
+# Kinetics lesson, subtype `first-order` (ADR-0049) — the kinetics tier opener: the species ledger with the extent
+# evolving in TIME. Hydrogen peroxide decomposes first-order, [H2O2] = [H2O2]0·e^(-kt), t½ = ln2/k. The rate law is
+# a disclosed model (the order is empirical); k is sourced (data/rate-constants.toml, OpenStax §12.4); the decay is
+# model-exact-then-rounded. TOML trap #4: every bare key precedes the [[assumptions]] / [misconception] headers.
+
+id = "hydrogen-peroxide-decomposition"
+title = "How fast does hydrogen peroxide decompose? A first-order clock"
+slug = "hydrogen-peroxide-decomposition"
+topic = "kinetics"
+tags = ["kinetics", "first-order", "half-life", "rate law", "integrated rate law"]
+
+# the reactant; its rate constant + order (first order) are curated + machine-checked in data/rate-constants.toml
+reactant = "H2O2"
+initial_molarity_M = "1.000"
+
+scenario = "A bottle of hydrogen peroxide slowly falls apart on the shelf: 2 H2O2 → 2 H2O + O2. The reaction is **first order** in H2O2 — its rate is proportional to how much is left, $\\text{rate} = k[\\mathrm{H_2O_2}]$, with $k = 3.21\\times10^{-5}\\ \\mathrm{s^{-1}}$. That one fact fixes the whole future: the amount left follows the **integrated rate law** $[\\mathrm{H_2O_2}] = [\\mathrm{H_2O_2}]_0\\,e^{-kt}$, a smooth exponential decay from 1.000 M. Its **half-life** — the time to lose half — is $t_{1/2} = \\ln 2 / k$, and for a first-order reaction it does **not** depend on how much you start with. This is the species ledger again, but with the extent *marching in time*."
+
+reference_links = ["half-life", "rate-law", "reaction-rate", "extent-of-reaction"]
+
+author = "Affinity"
+created = "2026-07-08"
+
+# modeling assumptions — disclosed (ADR-0003, the model-assumed badge). The ledger accounting is exact; the decay
+# rides on the empirical rate law + a constant k.
+[[assumptions]]
+claim = "The reaction is first order in H2O2 ($\\text{rate} = k[\\mathrm{H_2O_2}]$) — an experimentally determined rate law, not read off the balanced equation. The order and the rate constant $k$ are the sourced data; the integrated law and half-life follow exactly."
+kind = "model"
+
+[[assumptions]]
+claim = "The rate constant is constant over the run — fixed temperature, dilute solution, unchanging conditions — so the integrated rate law and half-life hold throughout."
+kind = "model"
+
+# the canonical wrong move: thinking the half-life shrinks as the reactant runs low (true for higher orders, NOT first).
+[misconception]
+claim = "As the peroxide runs low there is less of it, so the last half disappears faster than the first — the half-life shrinks as the reaction proceeds."
+refuted_by = "first_order_half_life_constant"

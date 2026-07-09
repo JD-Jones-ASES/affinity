@@ -3,6 +3,30 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — KINETICS TIER OPENED: the ledger in time — first-order decay (ADR-0049)
+
+The next model-bearing tier (owner-directed). Kinetics is the thesis's most literal time extension: the reaction extent ξ — static
+in a completed ledger, solved-from-mass-action in equilibrium — now **evolves in time**, and dξ/dt is the *rate*. Opened on the
+iconic first-order case, a new **`kinetics` lesson kind** (the 6th lesson shape) with a build-time decay curve.
+
+- **Lesson `kinetics/hydrogen-peroxide-decomposition`** — 2 H₂O₂ → 2 H₂O + O₂, first order, k = 3.21×10⁻⁵ s⁻¹ (OpenStax §12.4).
+  The integrated rate law [H₂O₂] = [H₂O₂]₀·e^(−kt) decays 1.000 M → 0.500 → 0.250 → 0.125, and the half-life **t½ = ln2/k = 6.00 h**
+  is **independent of concentration** — so each halving takes the same 6.00 h. The misconception (the half-life shrinks as the
+  reactant runs low — true for higher orders, not first) is refuted: t½ = ln2/k has no concentration in it.
+- **A build-time decay-curve SVG** (reusing the titration-plot pattern): the exponential decay with the three halving landmarks
+  (1/2/3 t½) marked at evenly-spaced 6-hour intervals — the constant half-life made visible.
+- **Engine:** `chemkernel.kinetics` (`concentration_first_order` via Decimal `.exp()`, `half_life_first_order` via `.ln()`,
+  `build_kinetics_lesson`); model-exact-then-rounded (the ADR-0040 pattern). A new curated dataset `data/rate-constants.toml`
+  (k + order + the balanced equation, machine-checked on load).
+- **Honesty (no new badge):** the species accounting is machine-checked (regime-1); the rate law + its order are a disclosed
+  model (regime-2 — the order is measured, not read off the coefficients); k is sourced (regime-3); the integrated law + half-life
+  are exact given the model. Three concepts: `reaction-rate`, `rate-law`, `half-life`.
+- **Gate:** `kineticscheck.mjs` re-derives the whole spine in pure Node — the reaction balance, every curve point c(t)=c₀·e^(−kt),
+  k·t½ = ln2, and the halving landmarks c(n·t½)=c₀/2ⁿ.
+- **Verification:** **404 producer tests** (+10); 7 gates green (**validate-solutions +1 kinetics / 19 ids**, validate-reference 78,
+  check-katex 857); **astro build = 41 pages** (+1); `derived/` byte-stable. Gate 5-way tamper-tested; browser-verified (the decay
+  curve renders, 0 KaTeX errors, all concept chips resolve). Lessons now come in **six shapes**.
+
 ## Phase 2 — 2026-07-08 — equilibrium: the K/K_w/K_sp formula-sheet entries — dimensionless activity relations (ADR-0048, 10th increment)
 
 The equilibrium tier's reference surface — the equilibrium constants on the formula sheet — closing the last flagged item. The

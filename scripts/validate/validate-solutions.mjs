@@ -8,6 +8,7 @@ import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { verifyElectronLedger, ledgerTables, classifyIMF } from "./structurecheck.mjs";
 import { verifyEquilibrium, verifyPrediction } from "./equilibriumcheck.mjs";
+import { verifyKinetics } from "./kineticscheck.mjs";
 
 const ROOT = process.cwd();
 const schema = JSON.parse(readFileSync(join(ROOT, "schemas", "solution.schema.json"), "utf8"));
@@ -15,6 +16,7 @@ const structureSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "structure
 const comparisonSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "comparison-lesson.schema.json"), "utf8"));
 const equilibriumSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "equilibrium-lesson.schema.json"), "utf8"));
 const predictionSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "prediction-lesson.schema.json"), "utf8"));
+const kineticsSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "kinetics-lesson.schema.json"), "utf8"));
 const ajv = new Ajv({ allErrors: true, strict: true });
 addFormats(ajv);
 const validate = ajv.compile(schema);
@@ -22,6 +24,7 @@ const validateStructure = ajv.compile(structureSchema);
 const validateComparison = ajv.compile(comparisonSchema);
 const validateEquilibrium = ajv.compile(equilibriumSchema);
 const validatePrediction = ajv.compile(predictionSchema);
+const validateKinetics = ajv.compile(kineticsSchema);
 const IMF_RANK = { "london-dispersion": 1, "dipole-dipole": 2, "hydrogen-bonding": 3 };
 
 // walk derived/ for lesson files matching a suffix (*.solution.json reactions, *.structure.json structures)
@@ -363,4 +366,34 @@ for (const file of predictionFiles) {
   verifyPrediction(rel, les, fail);
 }
 
-console.log(`validate-solutions: ${files.length} solution(s) + ${structureFiles.length} structure + ${comparisonFiles.length} comparison + ${equilibriumFiles.length} equilibrium + ${predictionFiles.length} prediction lesson(s) valid; ${ids.size} unique id(s).`);
+// ── kinetics lessons (ADR-0049): the species ledger with the extent evolving in TIME. A first-order reactant
+// decays by [A](t) = [A]₀·e^(−kt), half-life t½ = ln2/k. The gate re-derives the whole spine in pure Node
+// (kineticscheck.mjs): the reaction balance, every curve point's c(t), k·t½ = ln2, and the halving landmarks. Same
+// three-badge honesty: the species accounting is machine-checked (regime-1), k is sourced (regime-3), the rate
+// law + decay is a disclosed model (regime-2).
+const kineticsFiles = walkSuffix(derived, ".kinetics.json");
+for (const file of kineticsFiles) {
+  const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
+  const les = JSON.parse(readFileSync(file, "utf8"));
+
+  if (!validateKinetics(les)) fail(rel, ajv.errorsText(validateKinetics.errors, { separator: "; " }));
+
+  const expected = `derived/${les.topic}/${les.slug}.kinetics.json`;
+  if (rel !== expected) fail(rel, `path does not match topic/slug (expected ${expected})`);
+  if (ids.has(les.id)) fail(rel, `duplicate id ${les.id}`);
+  ids.add(les.id);
+  for (const [k, v] of Object.entries(les.checks)) if (v !== true) fail(rel, `check ${k} is not true`);
+
+  // honesty shape: all three regimes present; a model assumption disclosed (the rate law is regime-2); the k source.
+  for (const r of ["ledger-exact", "rule-sourced", "model-exact"])
+    if (!les.regimes.some((x) => x.regime === r)) fail(rel, `kinetics lesson missing a ${r} regime`);
+  if (!les.assumptions.some((a) => a.kind === "model"))
+    fail(rel, "kinetics lesson discloses no model assumption (the rate law is model-assumed)");
+  if (!les.rate_law.source) fail(rel, "rate_law.source (the k data source) is missing");
+  for (const [k, v] of Object.entries(les.provenance.sources)) if (!v) fail(rel, `provenance.sources.${k} is empty`);
+
+  // the machine-checked core: re-derive the integrated rate law + half-life + curve independently of Python
+  verifyKinetics(rel, les, fail);
+}
+
+console.log(`validate-solutions: ${files.length} solution(s) + ${structureFiles.length} structure + ${comparisonFiles.length} comparison + ${equilibriumFiles.length} equilibrium + ${predictionFiles.length} prediction + ${kineticsFiles.length} kinetics lesson(s) valid; ${ids.size} unique id(s).`);

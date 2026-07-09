@@ -26,9 +26,10 @@ polarity — [Structure lessons](#structure-lessons--a-single-molecule-structure
 **multi-molecule comparison** (`*.comparison.toml`, several molecules vs. a property — [Comparison
 lessons](#comparison-lessons--several-molecules-vs-a-property-comparisontoml-adr-0047) below), an **equilibrium**
 lesson (`*.equilibrium.toml`, the ICE table solved by mass action — a weak acid's pH, a buffer, a weak base's pH, or a Ksp
-solubility — [Equilibrium lessons](#equilibrium-lessons--a-weak-acids-ph-equilibriumtoml-adr-0048) below), and a **prediction**
+solubility — [Equilibrium lessons](#equilibrium-lessons--a-weak-acids-ph-equilibriumtoml-adr-0048) below), a **prediction**
 lesson (`*.prediction.toml`, Q vs Ksp — does a precipitate form?, a snapshot not a solve — [Prediction
-lessons](#prediction-lessons--q-vs-ksp-does-a-precipitate-form-predictiontoml-adr-0048) below).
+lessons](#prediction-lessons--q-vs-ksp-does-a-precipitate-form-predictiontoml-adr-0048) below), and a **kinetics**
+lesson (`*.kinetics.toml`, first-order decay — the ledger in time — [Kinetics lessons](#kinetics-lessons--first-order-decay-kineticstoml-adr-0049) below).
 
 ## The one TOML gotcha
 
@@ -480,6 +481,34 @@ refuted_by = "q_exceeds_ksp"                      # the player renders the Q-exc
 ```
 
 See [`problems/equilibrium/calcium-fluoride-precipitation.prediction.toml`](../problems/equilibrium/calcium-fluoride-precipitation.prediction.toml).
+
+### Kinetics lessons — first-order decay (`*.kinetics.toml`, ADR-0049)
+
+A **kinetics lesson** is a *different lesson kind* — the species ledger with the extent evolving in **time**. A first-order
+reactant decays by the integrated rate law $[\mathrm{A}](t) = [\mathrm{A}]_0 e^{-kt}$, with a concentration-independent
+half-life $t_{1/2} = \ln 2 / k$. Its own extension (`*.kinetics.toml` → `*.kinetics.json`) and its own tight schema.
+
+Author only the `reactant` (whose rate constant + order live in `data/rate-constants.toml`, sourced + machine-checked) and its
+`initial_molarity_M`. The producer requires **first order**, computes the decay curve (sampled at multiples of the half-life),
+the halving landmarks, and $t_{1/2}$ — all machine-checked. Use `refuted_by = "first_order_half_life_constant"` for the player's
+shrinking-half-life refutation:
+
+```toml
+topic = "kinetics"
+reactant = "H2O2"                                 # first-order in data/rate-constants.toml (k + order, sourced)
+initial_molarity_M = "1.000"
+scenario = "…"
+
+[[assumptions]]                                   # disclose the rate law is an empirical model (the order is measured)
+claim = "…"
+kind = "model"
+
+[misconception]
+claim = "…"
+refuted_by = "first_order_half_life_constant"     # the player renders the constant-half-life refutation for this key
+```
+
+See [`problems/kinetics/hydrogen-peroxide-decomposition.kinetics.toml`](../problems/kinetics/hydrogen-peroxide-decomposition.kinetics.toml).
 
 ### Other optional keys
 

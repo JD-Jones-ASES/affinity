@@ -5,8 +5,9 @@ import StructureLesson from "../../components/StructureLesson.astro";
 import ComparisonLesson from "../../components/ComparisonLesson.astro";
 import EquilibriumLesson from "../../components/EquilibriumLesson.astro";
 import PredictionLesson from "../../components/PredictionLesson.astro";
+import KineticsLesson from "../../components/KineticsLesson.astro";
 import { withBase } from "../../lib/withBase.js";
-import { renderSolution, renderStructureLesson, renderComparisonLesson, renderEquilibriumLesson, renderPredictionLesson } from "../../lib/view.js";
+import { renderSolution, renderStructureLesson, renderComparisonLesson, renderEquilibriumLesson, renderPredictionLesson, renderKineticsLesson } from "../../lib/view.js";
 import { plain } from "../../lib/katex.js";
 
 // One page per committed lesson JSON. Five lesson shapes share the /lessons/<slug>/ route: a reaction lesson
@@ -21,12 +22,14 @@ export function getStaticPaths() {
   const cmps = import.meta.glob("../../../derived/**/*.comparison.json", { eager: true });
   const eqs = import.meta.glob("../../../derived/**/*.equilibrium.json", { eager: true });
   const preds = import.meta.glob("../../../derived/**/*.prediction.json", { eager: true });
+  const kins = import.meta.glob("../../../derived/**/*.kinetics.json", { eager: true });
   return [
     ...Object.values(sols).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "reaction" } })),
     ...Object.values(structs).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "structure" } })),
     ...Object.values(cmps).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "comparison" } })),
     ...Object.values(eqs).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "equilibrium" } })),
     ...Object.values(preds).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "prediction" } })),
+    ...Object.values(kins).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "kinetics" } })),
   ];
 }
 
@@ -35,7 +38,9 @@ const isStructure = kind === "structure";
 const isComparison = kind === "comparison";
 const isEquilibrium = kind === "equilibrium";
 const isPrediction = kind === "prediction";
-const view = isPrediction ? renderPredictionLesson(lesson)
+const isKinetics = kind === "kinetics";
+const view = isKinetics ? renderKineticsLesson(lesson)
+  : isPrediction ? renderPredictionLesson(lesson)
   : isEquilibrium ? renderEquilibriumLesson(lesson)
   : isComparison ? renderComparisonLesson(lesson)
   : isStructure ? renderStructureLesson(lesson) : renderSolution(lesson);
@@ -66,7 +71,9 @@ const concepts = (lesson.reference_links ?? []).map((id) => {
   <p class="crumb faint"><a href={withBase("/lessons/")}>Lessons</a> · {lesson.topic}</p>
   <h1>{lesson.title}</h1>
 
-  {isPrediction
+  {isKinetics
+    ? <KineticsLesson lesson={view} />
+    : isPrediction
     ? <PredictionLesson lesson={view} />
     : isEquilibrium
     ? <EquilibriumLesson lesson={view} />

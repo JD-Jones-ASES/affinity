@@ -1,0 +1,20 @@
+# Rate constants k (ADR-0049). Regime-3 sourced data — the empirical constant in a rate law, the one number a
+# kinetics problem cannot derive. A rate law rate = k[A]ⁿ is a MODEL (the order n is found by experiment, not
+# from the balanced equation); the value of k and the order are the sourced data, and the integrated rate law +
+# half-life follow exactly from them (model-exact-then-rounded, like the gas-law volume — ADR-0040).
+#
+# Read as Decimal (never float — ADR-0013). Table keys are the reactant formula (house ASCII). On load, data.py
+# checks the reactant formula parses, k > 0, the order is a positive integer, and k_unit is a known kinetic unit;
+# the balanced equation is verified by the balancer in the kinetics builder (engine-checked, not asserted).
+# Values: OpenStax Chemistry 2e §12.4 (Integrated Rate Laws), CC BY 4.0 — see docs/SOURCES.md.
+
+source = "openstax-chemistry-2e"
+
+[reactions."H2O2"]           # hydrogen peroxide decomposition — the canonical FIRST-ORDER example (Example 12.11)
+name = "decomposition of hydrogen peroxide"
+reactant = "H2O2"
+order = 1
+k = "3.21e-5"
+k_unit = "1/s"               # first order → k carries inverse-time units (s⁻¹)
+equation = "2 H2O2 -> 2 H2O + O2"
+conditions = "dilute aqueous solution"

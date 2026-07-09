@@ -437,6 +437,28 @@ export function renderPredictionLesson(lesson) {
   return s;
 }
 
+// Render a first-order kinetics lesson (ADR-0049): the ledger in time. The balanced reaction (→), the rate law,
+// the integrated rate law, and the half-life relation render from the producer's upright LaTeX; the scenario /
+// assumptions / misconception get their formula tokens subscripted + inline $…$ rendered. The curve/landmarks are
+// numeric (used as-is by the build-time SVG).
+export function renderKineticsLesson(lesson) {
+  const s = structuredClone(lesson);
+  // tokens for prose subscripting: the reactant + every formula in the balanced equation (H2O2, H2O, O2)
+  const eqToks = String(s.reaction.equation_text).split(/[\s+]+/).filter((t) => /[A-Z]/.test(t) && t !== "->");
+  const toks = [s.reaction.reactant, ...eqToks];
+  s.scenarioHtml = inline(prettyText(s.scenario, toks));
+  delete s.scenario;
+  s.reaction.equationHtml = tex(s.reaction.equation_latex, false);
+  s.reaction.reactantPretty = prettyIon(s.reaction.reactant);
+  s.rate_law.statementHtml = tex(s.rate_law.statement_latex, false);
+  s.rate_law.kSci = toSci(s.rate_law.k_value);
+  s.integrated.lawHtml = tex(s.integrated.law_latex, false);
+  s.half_life.relationHtml = tex(s.half_life.relation_latex, false);
+  s.assumptions = (s.assumptions ?? []).map((a) => ({ ...a, claimHtml: inline(prettyText(a.claim, toks)) }));
+  if (s.misconception) s.misconception.claimHtml = inline(prettyText(s.misconception.claim, toks));
+  return s;
+}
+
 // Render a concept entry (definition may carry inline $…$; latex is a standalone display formula).
 export function renderConcept(c) {
   return {

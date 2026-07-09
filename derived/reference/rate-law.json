@@ -1,0 +1,26 @@
+{
+  "kind": "concept",
+  "id": "rate-law",
+  "title": "Rate law and reaction order",
+  "term": "rate law",
+  "definition": "A **rate law** relates the reaction rate to concentrations: $\\text{rate} = k[\\mathrm{A}]^m[\\mathrm{B}]^n$. The exponents are the **reaction orders** — the **overall order** is $m+n$ — and, crucially, they are found by **experiment**, *not* read off the balanced-equation coefficients (a common trap). The proportionality constant $k$ is the **rate constant** (a sourced, temperature-dependent datum). A **first-order** reaction, rate $= k[\\mathrm{A}]$, is the simplest: its concentration decays exponentially and its half-life is constant (see [[half-life]]). The rate law is a disclosed model — regime-2; $k$ is regime-3 — while the integrated form that follows from it is exact given the model.",
+  "related": [
+    {
+      "to": "reaction-rate",
+      "type": "see-also"
+    },
+    {
+      "to": "half-life",
+      "type": "see-also"
+    },
+    {
+      "to": "balancing-equations",
+      "type": "contrast"
+    }
+  ],
+  "lessons": [
+    "hydrogen-peroxide-decomposition"
+  ],
+  "regime": "model-exact",
+  "latex": "\\text{rate} = k[\\mathrm{A}]^m[\\mathrm{B}]^n"
+}

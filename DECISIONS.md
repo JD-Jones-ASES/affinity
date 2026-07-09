@@ -1748,3 +1748,40 @@ variable's `meaning` renders as plain text (not KaTeX), the activity notation mo
 (+1); validate-reference = **75** (+5); check-katex 830; 40 pages; `derived/` byte-stable. **The equilibrium & acid-base tier is
 now feature-complete** — six subtypes + the gym + the prediction kind (both verdicts) + the K reference surface — leaving only
 optional enhancements (a titration slider, a weak-base/buffer gym). The model-bearing tiers still open: kinetics, electrochemistry.
+
+## ADR-0049 — Open kinetics: the ledger in time (dξ/dt), first-order decay (2026-07-08)
+
+**Context.** Phase 2 extends the species-ledger-over-extent machine to the model-bearing tiers. The equilibrium & acid-base tier
+is feature-complete, and the owner directed opening **kinetics** next. Kinetics is the thesis's most literal time extension: the
+reaction extent ξ — static in a completed ledger, solved-from-mass-action in equilibrium — now **evolves in time**, and dξ/dt is
+the *rate*. Opening a tier needs a stress scenario (its hardest single case, per the ROADMAP method), a decay engine, the honesty
+treatment for an empirical rate law, and a new lesson kind.
+
+**Decision.** (1) Open kinetics on **first-order decay** — the simplest, most iconic case, the one that isolates the tier's ideas:
+a rate law rate = k[A], its integrated form [A](t) = [A]₀e^(−kt), and the concentration-independent half-life t½ = ln2/k.
+(2) A new `chemkernel.kinetics` module: `concentration_first_order` (Decimal `.exp()`), `half_life_first_order` (Decimal
+`.ln()`), `build_kinetics_lesson`. The transcendental decay is computed at high Decimal precision and rounded for display —
+**model-exact-then-rounded**, the same honesty as the gas-law volume (ADR-0040), not a weakening of ledger exactness. (3) A new
+**`kinetics` lesson kind** (the **6th lesson shape** — own tight `kinetics-lesson.schema.json`, `*.kinetics.json`), a curve
+lesson like titration: the rate law + k + the integrated law + the half-life + a decay **curve** (a build-time SVG of verified
+points) + the halving landmarks. (4) Honesty, layered (the three badges, **no new badge**): the species accounting (the ledger,
+[A] = [A]₀ − aξ) is machine-checked (regime-1); the **rate law and its order are a disclosed model** (regime-2 — the order is
+found by experiment, *not* read off the balanced-equation coefficients, a named misconception); k is a **sourced empirical
+datum** (regime-3, `data/rate-constants.toml`, OpenStax §12.4); the integrated law + half-life + every curve point are exact
+given the model (regime-2). (5) The machine-check is the algebra, re-derived in pure Node (`kineticscheck.mjs`): the reaction
+balances, every curve point c(t) = c₀·e^(−kt), k·t½ = ln2, and c(n·t½) = c₀/2ⁿ (successive half-lives equal — the first-order
+tell). The producer refuses a non-first-order reaction sent to this builder, an unknown reactant, or a nonpositive input
+(ADR-0008).
+
+**Consequences.** The tier opens on **`kinetics/hydrogen-peroxide-decomposition`** — 2 H₂O₂ → 2 H₂O + O₂, first order, k =
+3.21×10⁻⁵ s⁻¹ → **t½ = 6.00 h**, decaying 1.000 → 0.500 → 0.250 → 0.125 M each 6.00 h. The misconception is the shrinking-half-life
+error (true for higher orders, not first): refuted because t½ = ln2/k carries **no concentration**, so every half-life is the same
+clock — machine-checked. Three concepts: `reaction-rate` (the ledger's time derivative dξ/dt — the tier's gateway), `rate-law`
+(rate = k[A]ⁿ, the order empirical, not the coefficient — an explicit `contrast` edge to `balancing-equations`), `half-life` (the
+first-order signature). `data/rate-constants.toml` is the new curated dataset (k + order + the balanced equation, machine-checked
+on load). The player reuses the titration-plot SVG pattern for the decay curve (the constant half-life visualized as evenly-spaced
+halvings). **404 producer tests** (+10); validate-solutions = +1 kinetics (19 ids); validate-reference = 78 (+3 concepts);
+check-katex 857; 41 pages; the gate 5-way tamper-tested; browser-verified. Lessons now come in **six shapes** (reaction ·
+structure · comparison · equilibrium · prediction · kinetics). **Next in-tier:** second- and zero-order decay (a half-life that
+grows / shrinks — the contrast that makes "constant t½" meaningful), a kinetics **gym** (compute [A](t) / t½ / determine the order
+from data), and the **Arrhenius** temperature dependence of k. Then **electrochemistry** remains the last Phase-2 tier.

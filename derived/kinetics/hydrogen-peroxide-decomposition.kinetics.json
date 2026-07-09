@@ -1,0 +1,219 @@
+{
+  "kind": "kinetics",
+  "subtype": "first-order",
+  "id": "hydrogen-peroxide-decomposition",
+  "title": "How fast does hydrogen peroxide decompose? A first-order clock",
+  "slug": "hydrogen-peroxide-decomposition",
+  "topic": "kinetics",
+  "tags": [
+    "kinetics",
+    "first-order",
+    "half-life",
+    "rate law",
+    "integrated rate law"
+  ],
+  "scenario": "A bottle of hydrogen peroxide slowly falls apart on the shelf: 2 H2O2 → 2 H2O + O2. The reaction is **first order** in H2O2 — its rate is proportional to how much is left, $\\text{rate} = k[\\mathrm{H_2O_2}]$, with $k = 3.21\\times10^{-5}\\ \\mathrm{s^{-1}}$. That one fact fixes the whole future: the amount left follows the **integrated rate law** $[\\mathrm{H_2O_2}] = [\\mathrm{H_2O_2}]_0\\,e^{-kt}$, a smooth exponential decay from 1.000 M. Its **half-life** — the time to lose half — is $t_{1/2} = \\ln 2 / k$, and for a first-order reaction it does **not** depend on how much you start with. This is the species ledger again, but with the extent *marching in time*.",
+  "regimes": [
+    {
+      "facet": "species accounting over time (the ledger)",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "rate constant",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "rate law + integrated decay",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The reaction is first order in H2O2 ($\\text{rate} = k[\\mathrm{H_2O_2}]$) — an experimentally determined rate law, not read off the balanced equation. The order and the rate constant $k$ are the sourced data; the integrated law and half-life follow exactly.",
+      "kind": "model"
+    },
+    {
+      "claim": "The rate constant is constant over the run — fixed temperature, dilute solution, unchanging conditions — so the integrated rate law and half-life hold throughout.",
+      "kind": "model"
+    }
+  ],
+  "reaction": {
+    "reactant": "H2O2",
+    "reactant_name": "decomposition of hydrogen peroxide",
+    "reactant_latex": "\\mathrm{H_{2}O_{2}}",
+    "equation_text": "2 H2O2 -> 2 H2O + O2",
+    "equation_latex": "2\\,\\mathrm{H_{2}O_{2}} \\rightarrow 2\\,\\mathrm{H_{2}O} + \\mathrm{O_{2}}",
+    "conditions": "dilute aqueous solution"
+  },
+  "rate_law": {
+    "order": 1,
+    "statement_latex": "\\text{rate} = k\\,[\\mathrm{H_{2}O_{2}}]",
+    "k_symbol": "k",
+    "k_value": "0.0000321",
+    "k_display": "0.0000321",
+    "k_unit": "1/s",
+    "k_unit_display": "s⁻¹",
+    "source": "openstax-chemistry-2e"
+  },
+  "integrated": {
+    "law_latex": "[\\mathrm{H_{2}O_{2}}] = [\\mathrm{H_{2}O_{2}}]_0\\,e^{-kt}",
+    "initial_molarity_M": "1.000",
+    "initial_molarity_display": "1"
+  },
+  "half_life": {
+    "symbol": "t_{1/2}",
+    "relation_latex": "t_{1/2} = \\dfrac{\\ln 2}{k}",
+    "seconds": "21593.37",
+    "seconds_display": "21600",
+    "hours_display": "6",
+    "k_times_thalf": "0.69314718"
+  },
+  "curve": {
+    "points": [
+      {
+        "half_lives": "0",
+        "t_seconds": "0",
+        "t_seconds_display": "0",
+        "t_hours_display": "0",
+        "concentration_M": "1",
+        "concentration_display": "1",
+        "percent_remaining_display": "100",
+        "percent_decomposed_display": "0"
+      },
+      {
+        "half_lives": "0.5",
+        "t_seconds": "10796.685",
+        "t_seconds_display": "10800",
+        "t_hours_display": "3",
+        "concentration_M": "0.707106781187",
+        "concentration_display": "0.707",
+        "percent_remaining_display": "70.7",
+        "percent_decomposed_display": "29.3"
+      },
+      {
+        "half_lives": "1",
+        "t_seconds": "21593.37",
+        "t_seconds_display": "21600",
+        "t_hours_display": "6",
+        "concentration_M": "0.5",
+        "concentration_display": "0.5",
+        "percent_remaining_display": "50",
+        "percent_decomposed_display": "50"
+      },
+      {
+        "half_lives": "1.5",
+        "t_seconds": "32390.055",
+        "t_seconds_display": "32400",
+        "t_hours_display": "9",
+        "concentration_M": "0.353553390593",
+        "concentration_display": "0.354",
+        "percent_remaining_display": "35.4",
+        "percent_decomposed_display": "64.6"
+      },
+      {
+        "half_lives": "2",
+        "t_seconds": "43186.74",
+        "t_seconds_display": "43200",
+        "t_hours_display": "12",
+        "concentration_M": "0.25",
+        "concentration_display": "0.25",
+        "percent_remaining_display": "25",
+        "percent_decomposed_display": "75"
+      },
+      {
+        "half_lives": "2.5",
+        "t_seconds": "53983.425",
+        "t_seconds_display": "54000",
+        "t_hours_display": "15",
+        "concentration_M": "0.176776695297",
+        "concentration_display": "0.177",
+        "percent_remaining_display": "17.7",
+        "percent_decomposed_display": "82.3"
+      },
+      {
+        "half_lives": "3",
+        "t_seconds": "64780.11",
+        "t_seconds_display": "64800",
+        "t_hours_display": "18",
+        "concentration_M": "0.125",
+        "concentration_display": "0.125",
+        "percent_remaining_display": "12.5",
+        "percent_decomposed_display": "87.5"
+      },
+      {
+        "half_lives": "4",
+        "t_seconds": "86373.48",
+        "t_seconds_display": "86400",
+        "t_hours_display": "24",
+        "concentration_M": "0.0625",
+        "concentration_display": "0.0625",
+        "percent_remaining_display": "6.25",
+        "percent_decomposed_display": "93.8"
+      },
+      {
+        "half_lives": "5",
+        "t_seconds": "107966.85",
+        "t_seconds_display": "108000",
+        "t_hours_display": "30",
+        "concentration_M": "0.03125",
+        "concentration_display": "0.0313",
+        "percent_remaining_display": "3.13",
+        "percent_decomposed_display": "96.9"
+      }
+    ]
+  },
+  "result": {
+    "half_life_hours_display": "6",
+    "half_life_seconds_display": "21600",
+    "landmarks": [
+      {
+        "half_lives": 1,
+        "t_hours_display": "6",
+        "concentration_M": "0.5",
+        "concentration_display": "0.5",
+        "percent_decomposed_display": "50"
+      },
+      {
+        "half_lives": 2,
+        "t_hours_display": "12",
+        "concentration_M": "0.25",
+        "concentration_display": "0.25",
+        "percent_decomposed_display": "75"
+      },
+      {
+        "half_lives": 3,
+        "t_hours_display": "18",
+        "concentration_M": "0.125",
+        "concentration_display": "0.125",
+        "percent_decomposed_display": "87.5"
+      }
+    ]
+  },
+  "misconception": {
+    "claim": "As the peroxide runs low there is less of it, so the last half disappears faster than the first — the half-life shrinks as the reaction proceeds.",
+    "refuted_by": "first_order_half_life_constant"
+  },
+  "reference_links": [
+    "half-life",
+    "rate-law",
+    "reaction-rate",
+    "extent-of-reaction"
+  ],
+  "checks": {
+    "reaction_balanced": true,
+    "integrated_law": true,
+    "half_life_relation": true,
+    "half_life_constant": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "rate_constants": "openstax-chemistry-2e",
+      "atomic_weight": "ciaaw-2021-atomic-weights"
+    }
+  }
+}

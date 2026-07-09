@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://affinity/schemas/kinetics-lesson.schema.json",
+  "title": "Affinity kinetics lesson",
+  "description": "One verified first-order kinetics lesson (ADR-0049): the species ledger with the extent evolving in TIME. A first-order reactant A decays by the integrated rate law [A](t) = [A]₀·e^(−kt), with half-life t½ = ln2/k (independent of [A]₀ — the first-order signature). Honesty is layered (the three badges): the species accounting is machine-checked (regime-1), the rate constant k is sourced (regime-3), the rate law + decay is a disclosed model (regime-2, model-exact-then-rounded). A distinct, tight schema (like structure/comparison/equilibrium/prediction). The `subtype` is `first-order` for now (second-/zero-order can extend it). additionalProperties:false everywhere.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind", "subtype", "id", "title", "slug", "topic", "scenario", "regimes", "assumptions",
+    "reaction", "rate_law", "integrated", "half_life", "curve", "result", "misconception", "checks", "provenance"
+  ],
+  "$defs": {
+    "decimalString": { "type": "string", "pattern": "^[+-]?(?:[0-9]+\\.?[0-9]*|\\.[0-9]+)$" }
+  },
+  "properties": {
+    "kind": { "const": "kinetics" },
+    "subtype": { "enum": ["first-order"], "$comment": "first-order for now; second-/zero-order would extend the enum" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "topic": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "scenario": { "type": "string", "minLength": 1 },
+    "regimes": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["facet", "regime"],
+        "properties": {
+          "facet": { "type": "string" },
+          "regime": { "enum": ["ledger-exact", "model-exact", "rule-sourced", "mechanistic"] }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["claim", "kind"],
+        "properties": {
+          "claim": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["model", "rule"] }
+        }
+      }
+    },
+    "reaction": {
+      "type": "object", "additionalProperties": false,
+      "required": ["reactant", "reactant_name", "reactant_latex", "equation_text", "equation_latex"],
+      "properties": {
+        "reactant": { "type": "string", "minLength": 1 },
+        "reactant_name": { "type": "string", "minLength": 1 },
+        "reactant_latex": { "type": "string", "minLength": 1 },
+        "equation_text": { "type": "string", "minLength": 1, "$comment": "house ASCII with -> ; balance re-checked by the gate" },
+        "equation_latex": { "type": "string", "minLength": 1 },
+        "conditions": { "type": "string" }
+      }
+    },
+    "rate_law": {
+      "type": "object", "additionalProperties": false,
+      "description": "The rate law rate = k[A]ⁿ — a disclosed model (the order is empirical). k is the sourced datum.",
+      "required": ["order", "statement_latex", "k_symbol", "k_value", "k_display", "k_unit", "k_unit_display", "source"],
+      "properties": {
+        "order": { "const": 1 },
+        "statement_latex": { "type": "string", "minLength": 1 },
+        "k_symbol": { "type": "string", "minLength": 1 },
+        "k_value": { "$ref": "#/$defs/decimalString" },
+        "k_display": { "$ref": "#/$defs/decimalString" },
+        "k_unit": { "type": "string", "minLength": 1 },
+        "k_unit_display": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1, "$comment": "must resolve in docs/SOURCES.md (data-sourced badge)" }
+      }
+    },
+    "integrated": {
+      "type": "object", "additionalProperties": false,
+      "description": "The integrated first-order rate law [A](t) = [A]₀·e^(−kt) — exact given the model.",
+      "required": ["law_latex", "initial_molarity_M", "initial_molarity_display"],
+      "properties": {
+        "law_latex": { "type": "string", "minLength": 1 },
+        "initial_molarity_M": { "$ref": "#/$defs/decimalString" },
+        "initial_molarity_display": { "$ref": "#/$defs/decimalString" }
+      }
+    },
+    "half_life": {
+      "type": "object", "additionalProperties": false,
+      "description": "t½ = ln2/k. The gate re-checks k·t½ = ln2 (so t½ is independent of [A]₀).",
+      "required": ["symbol", "relation_latex", "seconds", "seconds_display", "hours_display", "k_times_thalf"],
+      "properties": {
+        "symbol": { "type": "string", "minLength": 1 },
+        "relation_latex": { "type": "string", "minLength": 1 },
+        "seconds": { "$ref": "#/$defs/decimalString" },
+        "seconds_display": { "$ref": "#/$defs/decimalString" },
+        "hours_display": { "$ref": "#/$defs/decimalString" },
+        "k_times_thalf": { "$ref": "#/$defs/decimalString", "$comment": "= ln 2 ≈ 0.693 — the machine-checked half-life relation" }
+      }
+    },
+    "curve": {
+      "type": "object", "additionalProperties": false,
+      "description": "The decay curve [A] vs t, sampled at multiples of the half-life. The player draws a build-time SVG; the gate re-derives every point's c(t) = c₀·e^(−kt).",
+      "required": ["points"],
+      "properties": {
+        "points": {
+          "type": "array", "minItems": 3,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["half_lives", "t_seconds", "t_seconds_display", "t_hours_display", "concentration_M",
+              "concentration_display", "percent_remaining_display", "percent_decomposed_display"],
+            "properties": {
+              "half_lives": { "$ref": "#/$defs/decimalString", "$comment": "the time as a multiple of t½ (0, 0.5, 1, …)" },
+              "t_seconds": { "$ref": "#/$defs/decimalString" },
+              "t_seconds_display": { "$ref": "#/$defs/decimalString" },
+              "t_hours_display": { "$ref": "#/$defs/decimalString" },
+              "concentration_M": { "$ref": "#/$defs/decimalString" },
+              "concentration_display": { "$ref": "#/$defs/decimalString" },
+              "percent_remaining_display": { "$ref": "#/$defs/decimalString" },
+              "percent_decomposed_display": { "$ref": "#/$defs/decimalString" }
+            }
+          }
+        }
+      }
+    },
+    "result": {
+      "type": "object", "additionalProperties": false,
+      "description": "The half-life headline + the halving landmarks (1/2/3 half-lives → c₀/2, c₀/4, c₀/8) — each half-life the same t½, the first-order signature.",
+      "required": ["half_life_hours_display", "half_life_seconds_display", "landmarks"],
+      "properties": {
+        "half_life_hours_display": { "$ref": "#/$defs/decimalString" },
+        "half_life_seconds_display": { "$ref": "#/$defs/decimalString" },
+        "landmarks": {
+          "type": "array", "minItems": 3,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["half_lives", "t_hours_display", "concentration_M", "concentration_display", "percent_decomposed_display"],
+            "properties": {
+              "half_lives": { "type": "integer", "minimum": 1 },
+              "t_hours_display": { "$ref": "#/$defs/decimalString" },
+              "concentration_M": { "$ref": "#/$defs/decimalString" },
+              "concentration_display": { "$ref": "#/$defs/decimalString" },
+              "percent_decomposed_display": { "$ref": "#/$defs/decimalString" }
+            }
+          }
+        }
+      }
+    },
+    "misconception": {
+      "type": "object", "additionalProperties": false, "required": ["claim", "refuted_by"],
+      "properties": {
+        "claim": { "type": "string", "minLength": 1 },
+        "refuted_by": { "type": "string" }
+      }
+    },
+    "reference_links": { "type": "array", "items": { "type": "string" } },
+    "checks": {
+      "type": "object", "additionalProperties": false,
+      "$comment": "the machine-checked facts, SHOWN not asserted. All const true — the producer refuses to emit otherwise (ADR-0008), and the gate re-derives each independently.",
+      "required": ["reaction_balanced", "integrated_law", "half_life_relation", "half_life_constant"],
+      "properties": {
+        "reaction_balanced": { "const": true },
+        "integrated_law": { "const": true },
+        "half_life_relation": { "const": true },
+        "half_life_constant": { "const": true }
+      }
+    },
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["producer", "version", "author", "created", "sources"],
+      "properties": {
+        "producer": { "const": "chemkernel" },
+        "version": { "type": "string" },
+        "python": { "type": "string" },
+        "author": { "type": "string" },
+        "created": { "type": "string" },
+        "sources": {
+          "type": "object", "additionalProperties": false,
+          "required": ["rate_constants"],
+          "properties": {
+            "rate_constants": { "type": "string", "minLength": 1 },
+            "atomic_weight": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

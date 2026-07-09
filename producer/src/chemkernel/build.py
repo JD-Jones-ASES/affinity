@@ -27,6 +27,7 @@ from .data import ChemData
 from .equilibrium import (build_buffer_lesson, build_equilibrium_lesson, build_polyprotic_lesson,
                           build_prediction_lesson, build_solubility_lesson, build_titration_lesson,
                           build_weak_base_lesson)
+from .kinetics import build_kinetics_lesson
 from .extent import solve_extent, species_mass_g, to_decimal
 from .formula import Formula, parse_formula
 from .gym import generate_gym
@@ -632,6 +633,17 @@ def build_prediction(path: Path, root: Path) -> tuple[dict, str]:
     return lesson, f"{spec['topic']}/{spec['slug']}.prediction.json"
 
 
+def build_kinetics(path: Path, root: Path) -> tuple[dict, str]:
+    """An authored kinetics lesson (ADR-0049) → the `kinetics` lesson kind: the species ledger with the extent
+    evolving in TIME. A first-order reactant decays by the integrated rate law [A](t) = [A]₀·e^(−kt), with
+    half-life t½ = ln2/k. The rate constant + order come from data/rate-constants.toml (sourced)."""
+    spec = tomllib.loads(path.read_text(encoding="utf-8"))
+    ctx = spec.get("id", path.stem)
+    data = ChemData.load(root)
+    lesson = build_kinetics_lesson(spec, data, ctx)
+    return lesson, f"{spec['topic']}/{spec['slug']}.kinetics.json"
+
+
 def build_reference_main(argv: list[str] | None = None) -> int:
     """Build the Chemical Atlas: the Valence Table (from data/) + authored concept and reaction-family
     entries (reference/**). Reaction-family examples are balanced + classified by the engine (ADR-0035)."""
@@ -727,15 +739,17 @@ def build_problems_main(argv: list[str] | None = None) -> int:
     comparisons = sorted((root / "problems").glob("**/*.comparison.toml"))
     equilibria = sorted((root / "problems").glob("**/*.equilibrium.toml"))
     predictions = sorted((root / "problems").glob("**/*.prediction.toml"))
-    if not reactions and not structures and not comparisons and not equilibria and not predictions:
-        print("no *.problem.toml / *.structure.toml / *.comparison.toml / *.equilibrium.toml / *.prediction.toml "
-              "found under problems/", file=sys.stderr)
+    kinetics = sorted((root / "problems").glob("**/*.kinetics.toml"))
+    if not reactions and not structures and not comparisons and not equilibria and not predictions and not kinetics:
+        print("no *.problem.toml / *.structure.toml / *.comparison.toml / *.equilibrium.toml / *.prediction.toml / "
+              "*.kinetics.toml found under problems/", file=sys.stderr)
         return 1
     lessons = ([(p, build_problem) for p in reactions]
                + [(p, build_structure) for p in structures]
                + [(p, build_comparison) for p in comparisons]
                + [(p, build_equilibrium) for p in equilibria]
-               + [(p, build_prediction) for p in predictions])
+               + [(p, build_prediction) for p in predictions]
+               + [(p, build_kinetics) for p in kinetics])
     for path, builder in lessons:
         try:
             obj, out_rel = builder(path, root)

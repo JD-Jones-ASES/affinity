@@ -55,7 +55,8 @@ class ChemData:
                  formation_enthalpies: dict | None = None, vsepr: dict | None = None,
                  boiling_points: dict | None = None, ionization_constants: dict | None = None,
                  solubility_products: dict | None = None, base_ionization_constants: dict | None = None,
-                 water_kw: Decimal | None = None, polyprotic_constants: dict | None = None):
+                 water_kw: Decimal | None = None, polyprotic_constants: dict | None = None,
+                 rate_constants: dict | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
@@ -94,6 +95,11 @@ class ChemData:
         # the stages ordered by decreasing Ka. Each stage's composition (acid = anion + H+) is machine-checked on
         # load (regime-1); the Ka are sourced (regime-3). The engine solves the stages in sequence.
         self.polyprotic_constants = polyprotic_constants or {}
+        # rate constants k (ADR-0049), keyed by reactant formula -> {name, reactant, order (int), k (Decimal),
+        # k_unit, equation, conditions}. The kinetics tier's sourced datum (regime-3): a rate law rate = k[A]ⁿ is
+        # a disclosed MODEL (the order is empirical), and the integrated rate law + half-life follow exactly (the
+        # engine computes c(t) = c₀·e^(−kt), t½ = ln2/k, model-exact-then-rounded).
+        self.rate_constants = rate_constants or {}
 
     @property
     def avogadro(self) -> Decimal:
@@ -155,6 +161,14 @@ class ChemData:
         if self.water_kw is None:
             raise BuildError("no water ion-product K_w in data/ionization-constants.toml [water]")
         return self.water_kw
+
+    def rate_constant(self, formula: str) -> dict:
+        """The rate constant + order of a reaction by reactant formula, from data/rate-constants.toml (ADR-0049).
+        Returns {name, reactant, order (int), k (Decimal), k_unit, equation, conditions}. Raises if absent — the
+        kinetics engine refuses to guess an empirical rate constant (ADR-0008)."""
+        if formula not in self.rate_constants:
+            raise BuildError(f"no rate constant for '{formula}' in data/rate-constants.toml")
+        return self.rate_constants[formula]
 
     @classmethod
     def load(cls, root: Path | None = None) -> "ChemData":
@@ -430,6 +444,34 @@ class ChemData:
                 except (KeyError, ArithmeticError) as exc:
                     raise BuildError(f"data/solubility-products.toml: bad entry for '{formula}': {exc}") from exc
 
+        # rate constants k (ADR-0049): the sourced empirical datum of the kinetics tier. Machine-check the reactant
+        # formula parses, k > 0, the order is a nonnegative integer, and k_unit is a known kinetic unit. (The
+        # balanced equation is verified by the balancer in the kinetics builder, not here.)
+        rate_constants: dict = {}
+        rc_source = ""
+        rc_path = d / "rate-constants.toml"
+        _KINETIC_UNITS = {"1/s", "1/(M*s)", "M/s"}          # first- / second- / zero-order k units
+        if rc_path.exists():
+            rc_doc = tomllib.loads(rc_path.read_text(encoding="utf-8"))
+            rc_source = rc_doc.get("source", "")
+            for formula, v in rc_doc.get("reactions", {}).items():
+                try:
+                    k = Decimal(v["k"])
+                    order = int(v["order"])
+                    if k <= 0:
+                        raise BuildError(f"data/rate-constants.toml: '{formula}' k must be positive")
+                    if order < 0:
+                        raise BuildError(f"data/rate-constants.toml: '{formula}' order must be a nonnegative integer")
+                    if v.get("k_unit") not in _KINETIC_UNITS:
+                        raise BuildError(f"data/rate-constants.toml: '{formula}' k_unit "
+                                         f"'{v.get('k_unit')}' is not a known kinetic unit {sorted(_KINETIC_UNITS)}")
+                    parse_formula(v["reactant"], ctx=f"data/rate-constants.toml '{formula}' reactant")
+                    rate_constants[formula] = {"name": v["name"], "reactant": v["reactant"], "order": order,
+                                               "k": k, "k_unit": v["k_unit"], "equation": v.get("equation", ""),
+                                               "conditions": v.get("conditions", "")}
+                except (KeyError, ArithmeticError) as exc:
+                    raise BuildError(f"data/rate-constants.toml: bad entry for '{formula}': {exc}") from exc
+
         sources = {
             "atomic_weight": el_doc.get("source", ""),
             "position": el_doc.get("position_source", ""),
@@ -445,10 +487,11 @@ class ChemData:
             "boiling_points": bp_source,
             "ionization_constants": ic_source,
             "solubility_products": sp_source,
+            "rate_constants": rc_source,
         }
         obj = cls(elements, ions, sources, constants, bonding, constant_units, specific_heats,
                   formation_enthalpies, vsepr, boiling_points, ionization_constants, solubility_products,
-                  base_ionization_constants, water_kw, polyprotic_constants)
+                  base_ionization_constants, water_kw, polyprotic_constants, rate_constants)
         obj.validate()
         return obj
 

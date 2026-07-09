@@ -1,0 +1,16 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0049). Reaction rate: the species ledger's time derivative — how
+# fast the extent advances. The gateway to kinetics (the ledger in time). No [[array-of-tables]] / TOML trap #4 N/A.
+id = "reaction-rate"
+kind = "concept"
+title = "Reaction rate — the ledger in time"
+term = "reaction rate"
+regime = "model-exact"
+definition = "The **reaction rate** is how fast the reaction extent advances — the time derivative of the species ledger. For a reactant A with coefficient $a$, rate $= -\\tfrac{1}{a}\\tfrac{d[\\mathrm{A}]}{dt}$; it is the same $d\\xi/dt$ that stoichiometry, thermochemistry, and equilibrium all view differently — here watched *in time*. A rate is **positive and changes as the reaction proceeds** (usually slowing as reactants deplete). How the rate depends on concentration is not read off the balanced equation — it is the empirically measured **rate law** (see [[rate-law]]). Equilibrium is the limit where the forward and reverse rates become equal, so the ledger stops moving."
+latex = "\\text{rate} = -\\tfrac{1}{a}\\dfrac{d[\\mathrm{A}]}{dt} = \\dfrac{d\\xi}{dt}\\cdot\\tfrac{1}{V}"
+related = [
+  { to = "extent-of-reaction", type = "extends" },
+  { to = "rate-law", type = "see-also" },
+  { to = "half-life", type = "see-also" },
+  { to = "chemical-equilibrium", type = "see-also" },
+]
+lessons = ["hydrogen-peroxide-decomposition"]
