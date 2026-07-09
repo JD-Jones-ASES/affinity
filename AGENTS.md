@@ -191,7 +191,7 @@ at its URL even though the repo is private (private/access-controlled Pages need
 
 ## Current state
 
-**Phase 0 + Phase 1 COMPLETE (owner-reviewed). Phase 2 OPEN (2026-07-08, ADR-0039–0049)** — the model-bearing tier.
+**Phase 0 + Phase 1 COMPLETE (owner-reviewed). Phase 2 OPEN (2026-07-08, ADR-0039–0051)** — the model-bearing tier.
 Its **gases + thermochemistry** and **bonding & structure** tiers are complete (formula sheet + gyms + lessons + the Lewis-ledger
 engine/`molecule` Atlas kind + IMFs, ADR-0039–0047); **equilibrium & acid-base is FEATURE-COMPLETE** (ADR-0048 — the
 reversible-extent solver + **six `equilibrium` subtypes** (weak-acid pH · buffer · weak-base pH · Ksp solubility (+ common-ion) ·
@@ -204,14 +204,14 @@ the contrast that makes "constant t½" mean something (each a build-time decay c
 in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
 [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
-**Counters:** 21 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
+**Counters:** 22 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
 3 bonding (2 structure + 1 IMF comparison) + **7 equilibrium** (weak-acid pH + buffer + weak-base pH + Ksp solubility +
 common-ion Ksp + polyprotic + titration) + **2 prediction** (Q-vs-Ksp precipitation — CaF₂ forms, dilute Mg(OH)₂ stays clear),
 ADR-0048 + **3 kinetics** (first/second/zero-order decay — the ledger in time, t½ constant/grows/shrinks, ADR-0049) +
 **1 electrochemistry** (the Daniell cell — the electron ledger: oxidation numbers → half-reactions → E°cell → ΔG=−nFE, ADR-0050)) · 13 gyms / 130 verified problems (dimensional analysis · ionic
 nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas
 laws · calorimetry · Lewis structures · weak-acid pH · **kinetics** ([A](t)/t½/read-the-order, ADR-0049)) · 1 Valence Table (23 elements; four modes; 182 named + machine-verified
-salts) · 43 concept entries (9 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species
+salts) · 43 concept entries (11 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species
 entries + 6 molecule structure entries (Lewis ledger + VSEPR + dominant IMF, ADR-0044/0046) + 14 formula-sheet entries
 (ADR-0039/0043/0048 — incl. Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w as **dimensionless activity** relations) · 85 Atlas reference objects · 7 Node gates + CI + live Pages · 427 producer tests · astro build = 45 pages.
 
@@ -270,7 +270,7 @@ never runs in CI — the seven Node gates re-verify committed `derived/` from sc
 
 ## Where this might go next (paths for a future session)
 
-**Phase 2 is open** (ADR-0039–0048). The **gas + thermochemistry** and **bonding & structure** tiers are complete, and
+**Phase 2 is open** (ADR-0039–0051). The **gas + thermochemistry** and **bonding & structure** tiers are complete, and
 **equilibrium & acid-base is open** (ADR-0048 — the reversible-extent solver + the `equilibrium` lesson kind, a fourth
 shape, with **six subtypes**: weak-acid pH + buffer (common-ion + Henderson–Hasselbalch) + weak-base pH (via the $K_w$
 bridge, water excluded from Q) + Ksp solubility (the `in_quotient` pure-solid-excluded generalization on the **cubic**, incl.

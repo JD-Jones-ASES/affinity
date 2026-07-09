@@ -130,6 +130,14 @@ A `family` selects the generator in `chemkernel.gym.generate_gym`. Today:
   approximation**), the same machine as the acetic-acid lesson; the gate reuses `solveEquilibrium` from the shared
   `equilibriumcheck.mjs`. The `derivation` carries an `equilibrium` block (acid + Kₐ + [HA]₀). Named diagnostics: treating
   the weak acid as strong (pH = −log[HA]₀), confusing Kₐ with [H⁺] (that is the pKₐ), and dropping the square root.
+- **`kinetics_v1`** (ADR-0049) — the kinetics tier's drill, three kinds over **orders 0/1/2**: apply the order's
+  integrated rate law for `[A](t)` (`kinetics_concentration`, numeric), apply the order's half-life relation
+  (`kinetics_half_life`, numeric), or — given three successive half-lives — **read the order** off the progression
+  (`kinetics_order`, a categorical menu). Numeric kinds are **model-exact-then-rounded** *and* **data-sourced**: the
+  integrated law rides the disclosed rate-law model (an `assumptions` block) and rests on the sourced rate constant `k`
+  in its native units (`data/rate-constants.toml`). Generator and gate share the order-general solver
+  (`chemkernel.kinetics` ↔ `kineticscheck.mjs`'s `concAt`/`halfLife`/`timeToReach`). Named diagnostics on the numeric
+  kinds name **which wrong order's formula** you slipped into (the zero/first/second confusion the tier exists to teach).
 
 Adding a new procedural skill means adding a new `family` to `generate_gym` and, if it introduces a new answer
 shape, a per-kind branch to `validate-gyms.mjs` so the gate can re-derive it. It does **not** mean new plumbing.
