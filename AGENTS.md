@@ -201,14 +201,14 @@ electrochemistry. History
 in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
 [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
-**Counters:** 15 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
-3 bonding (2 structure + 1 IMF comparison) + **6 equilibrium** (weak-acid pH + buffer + weak-base pH + Ksp solubility +
-common-ion Ksp + polyprotic, ADR-0048)) · 12 gyms / 120 verified problems (dimensional analysis · ionic nomenclature ·
-balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas laws ·
-calorimetry · Lewis structures · weak-acid pH) · 1 Valence Table (23 elements; four modes; 182 named + machine-verified
-salts) · 31 concept entries (8 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species
+**Counters:** 16 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
+3 bonding (2 structure + 1 IMF comparison) + **7 equilibrium** (weak-acid pH + buffer + weak-base pH + Ksp solubility +
+common-ion Ksp + polyprotic + titration, ADR-0048)) · 12 gyms / 120 verified problems (dimensional analysis · ionic
+nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas
+laws · calorimetry · Lewis structures · weak-acid pH) · 1 Valence Table (23 elements; four modes; 182 named + machine-verified
+salts) · 32 concept entries (8 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species
 entries + 6 molecule structure entries (Lewis ledger + VSEPR + dominant IMF, ADR-0044/0046) + 9 formula-sheet entries
-(ADR-0039/0043) · 68 Atlas reference objects · 7 Node gates + CI + live Pages · 376 producer tests · astro build = 37 pages.
+(ADR-0039/0043) · 69 Atlas reference objects · 7 Node gates + CI + live Pages · 383 producer tests · astro build = 38 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; honesty = three badges
 (regime-4 → model-assumed badge + an "interpretive" marker, ADR-0033); numeric practice free-entry (diagnostics), categorical
@@ -223,12 +223,14 @@ dominant-IMF rank must be **non-decreasing** — refuses a non-monotonic corpus)
 not the limiting reagent) — `chemkernel.equilibrium.solve_equilibrium` finds the root by **bisection to high precision**
 (exact Decimal, general beyond the quadratic), the extent model-exact-then-rounded, the machine-check the **residual**
 $Q(\text{committed})=K$ + the gate's **independent re-solve** (shared `equilibriumcheck.mjs`); triple-badged (ICE
-machine-checked / $K$ sourced / position model-assumed). **Five subtypes** on one `solve_equilibrium` (one schema +
-`subtype`; dispatched `salt`/`base`/`acid`, + `conjugate_base_molarity_M` → buffer, ≥2 protons → polyprotic; $K$ +
-composition sourced + machine-checked on load — detail in ADR-0048): **weak-acid** pH · **buffer** (common-ion +
-Henderson–Hasselbalch, A⁻ pre-loaded) · **weak-base** (water excluded from $Q$ via `in_quotient`, pH via the $K_w$ bridge) ·
+machine-checked / $K$ sourced / position model-assumed). **Six subtypes** on one `solve_equilibrium` (one schema +
+`subtype`; dispatched `salt`/`base`/`acid`, + `conjugate_base_molarity_M` → buffer, ≥2 protons → polyprotic, `titrant` →
+titration; $K$ + composition sourced + machine-checked on load — detail in ADR-0048): **weak-acid** pH · **buffer** (common-ion
++ Henderson–Hasselbalch, A⁻ pre-loaded) · **weak-base** (water excluded from $Q$ via `in_quotient`, pH via the $K_w$ bridge) ·
 **solubility** (Ksp cubic, solid excluded; optional **common-ion** suppression) · **polyprotic** (staged Kₐ1≫Kₐ2≫Kₐ3, the
-solver run once per stage — top-level ice = stage 1, `result.later_stages` the rest; [H⁺] tracks stage 1, mid-anion ≈ Kₐ2).
+solver run once per stage — top-level ice = stage 1, `result.later_stages` the rest; [H⁺] tracks stage 1, mid-anion ≈ Kₐ2) ·
+**titration** (a weak-acid/strong-base curve — the ledger marched by region, top-level ice = the initial point + a `titration`
+block with the (volume, pH) curve; the player draws a **build-time SVG**; pH=pKₐ at half-eq, basic at equivalence).
 `mass_g`→moles supported; a fully molecular reaction omits the ionic equations; redox = the free-element signature (Phase 2).
 The Atlas carries all four brief-§10 kinds (lens, concepts, reactions, species ADR-0038, formula sheet ADR-0039 — machine-checked
 **dimensional homogeneity** via `chemkernel.dimension`, separate from Decimal `units.py` per ADR-0015) **plus a fifth structural
@@ -247,15 +249,16 @@ never runs in CI — the seven Node gates re-verify committed `derived/` from sc
 
 **Phase 2 is open** (ADR-0039–0048). The **gas + thermochemistry** and **bonding & structure** tiers are complete, and
 **equilibrium & acid-base is open** (ADR-0048 — the reversible-extent solver + the `equilibrium` lesson kind, a fourth
-shape, with **five subtypes**: weak-acid pH + buffer (common-ion + Henderson–Hasselbalch) + weak-base pH (via the $K_w$
+shape, with **six subtypes**: weak-acid pH + buffer (common-ion + Henderson–Hasselbalch) + weak-base pH (via the $K_w$
 bridge, water excluded from Q) + Ksp solubility (the `in_quotient` pure-solid-excluded generalization on the **cubic**, incl.
-a **common-ion** suppression variant) + **polyprotic** (staged Kₐ1≫Kₐ2≫Kₐ3, the solver run once per stage, ADR-0048 7th
-increment)). The flagged next increment (newest session log's closing block) is **more of the equilibrium tier**, all reusing
-the same `solve_equilibrium` instrument: **titration curves** (a march of extent as titrant is added — the tier's remaining
-marquee; the producer computes every point + emits a static SVG pH curve); $Q$-vs-$K_{sp}$ precipitation prediction (the
-common-ion Ksp machinery is now in place — a *prediction* face on top of it); the $K$/pH/$K_w$ **formula-sheet** entries (they
-need the *activity* — dimensionless — treatment). The tier's **`weak_acid_ph_v1` gym** landed (ADR-0048 5th increment); a
-weak-**base**/buffer/polyprotic gym extension could follow.
+a **common-ion** suppression variant) + **polyprotic** (staged Kₐ1≫Kₐ2≫Kₐ3, the solver run once per stage) + **titration**
+(a weak-acid/strong-base curve — the ledger marched by region + a build-time SVG, ADR-0048 8th increment)). The flagged next
+increments (newest session log's closing block) are **the rest of the equilibrium tier**, all reusing the same
+`solve_equilibrium` instrument: **$Q$-vs-$K_{sp}$ precipitation prediction** (the common-ion Ksp machinery is now in place — a
+*prediction* face on top of it); the $K$/pH/$K_w$ **formula-sheet** entries (they need the *activity* — dimensionless —
+treatment). The tier's **`weak_acid_ph_v1` gym** landed (ADR-0048 5th increment); a weak-**base**/buffer/polyprotic gym
+extension could follow. A titration **slider interactive** (drag the volume, watch the curve point move) is an optional
+enhancement on the now-verified curve.
 Then **kinetics** (dξ/dt, rate laws, half-life) and **electrochemistry** (oxidation numbers → electron ledger, ΔG=−nFE,
 Nernst). Bonding corpus-depth deferrals: octet exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻), more structure
 lessons (NH₃/CH₄), more comparison axes, a "which IMF dominates?" gym drill. Smaller/optional: endothermic / multi-step

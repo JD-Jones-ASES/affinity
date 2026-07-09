@@ -50,8 +50,31 @@ export function solveEquilibrium(species, K) {
   return { extent: x, concs: concsAt(x), quotient: reactionQuotient(concsAt(x), nus, inQ) };
 }
 
-// Re-derive + verify one equilibrium lesson (all five subtypes — weak-acid pH, buffer, weak-base pH, Ksp
-// solubility incl. the common-ion variant, and polyprotic staged ionization, ADR-0048). `fail(rel, msg)` exits.
+// pH at one point of a weak-acid/strong-base titration, by region — the Node mirror of equilibrium._titration_point.
+// n = C·V (the units cancel in the ratios). Region is recomputed from the volume (a tolerance so the exact
+// equivalence point is caught in float), so a tampered region label is rejected.
+export function titrationPh(cAcid, vAcid, cBase, vBase, ka, kw) {
+  const nAcid = cAcid * vAcid, nBase = cBase * vBase, vTot = vAcid + vBase;
+  const tol = 1e-9 * nAcid;
+  let hplus, region;
+  if (nBase < nAcid - tol) {
+    const ha0 = (nAcid - nBase) / vTot, a0 = nBase / vTot;
+    const sol = solveEquilibrium([{ nu: -1, initial: ha0 }, { nu: 1, initial: 0 }, { nu: 1, initial: a0 }], ka);
+    hplus = sol.extent; region = nBase === 0 ? "initial" : "buffer";
+  } else if (nBase <= nAcid + tol) {
+    const a0 = nAcid / vTot, kb = kw / ka;
+    const sol = solveEquilibrium([{ nu: -1, initial: a0 }, { nu: -1, initial: 0, in_quotient: false },
+                                  { nu: 1, initial: 0 }, { nu: 1, initial: 0 }], kb);
+    hplus = kw / sol.extent; region = "equivalence";
+  } else {
+    hplus = kw / ((nBase - nAcid) / vTot); region = "excess-base";
+  }
+  return { pH: -Math.log10(hplus), region, hplus };
+}
+
+// Re-derive + verify one equilibrium lesson (all six subtypes — weak-acid pH, buffer, weak-base pH, Ksp
+// solubility incl. the common-ion variant, polyprotic staged ionization, and a titration curve, ADR-0048).
+// `fail(rel, msg)` exits.
 export function verifyEquilibrium(rel, les, fail) {
   const rc = (g, w, t = 1e-6) => Math.abs(g - w) <= t * Math.abs(w) + 1e-12;
   const ice = les.ice;
@@ -257,6 +280,36 @@ export function verifyEquilibrium(rel, les, fail) {
     for (let k = 0; k < ladder.length; k++)
       if (!rc(Number(ladder[k].equilibrium_M), expected[k], 1e-3))
         fail(rel, `species_ladder[${k}] ${ladder[k].id} = ${ladder[k].equilibrium_M} != expected ${expected[k]}`);
+  } else if (les.subtype === "titration") {
+    // the top-level ice is the INITIAL point (already re-solved by the core above). Recompute the WHOLE curve
+    // independently — every point's region + pH from the titrant/acid inputs + Kₐ + K_w — and re-check the three
+    // landmarks (half-equivalence pH = pKₐ; equivalence basic; initial = result.pH).
+    const t = les.titration;
+    if (!t) fail(rel, "titration lesson missing the `titration` block");
+    const cAcid = Number(t.acid_molarity_M), vAcid = Number(t.acid_volume_mL), cBase = Number(t.titrant_molarity_M);
+    const kw = Number(t.kw), Ka = K;                    // K = the acid's Kₐ (equilibrium_constant.value)
+    if (!(cAcid > 0 && vAcid > 0 && cBase > 0 && kw > 0)) fail(rel, "titration inputs must be positive");
+    const vEq = (cAcid * vAcid) / cBase;
+    if (!rc(vEq, Number(t.equivalence_volume_mL), 1e-4)) fail(rel, `equivalence_volume_mL ${t.equivalence_volume_mL} != c_a·v_a/c_b = ${vEq}`);
+    if (!rc(vEq / 2, Number(t.half_equivalence_volume_mL), 1e-4)) fail(rel, `half_equivalence_volume_mL ${t.half_equivalence_volume_mL} != V_eq/2`);
+    const pKa = -Math.log10(Ka);
+    if (Math.abs(pKa - Number(t.pKa)) > 1e-3) fail(rel, `titration pKa ${t.pKa} != -log10(Kₐ) = ${pKa.toFixed(4)}`);
+    if (!(t.curve.length >= 3)) fail(rel, "titration curve needs ≥ 3 points");
+    for (const p of t.curve) {                          // recompute every point, region + pH
+      const got = titrationPh(cAcid, vAcid, cBase, Number(p.volume_mL), Ka, kw);
+      if (got.region !== p.region) fail(rel, `curve V=${p.volume_mL}: region '${p.region}' != recomputed '${got.region}'`);
+      if (Math.abs(got.pH - Number(p.pH)) > 5e-3) fail(rel, `curve V=${p.volume_mL}: pH ${p.pH} != recomputed ${got.pH.toFixed(4)}`);
+      if (!rc(Number(p.hydronium_M), got.hplus, 5e-3)) fail(rel, `curve V=${p.volume_mL}: hydronium_M ${p.hydronium_M} != recomputed ${got.hplus}`);
+    }
+    const lm = t.landmarks;
+    const half = titrationPh(cAcid, vAcid, cBase, Number(lm.half_equivalence.volume_mL), Ka, kw);
+    if (Math.abs(half.pH - pKa) > 0.05) fail(rel, `half-equivalence pH ${half.pH.toFixed(3)} not ≈ pKₐ ${pKa.toFixed(3)} — the defining buffer landmark`);
+    if (Math.abs(half.pH - Number(lm.half_equivalence.pH)) > 5e-3) fail(rel, `half_equivalence landmark pH ${lm.half_equivalence.pH} != recomputed ${half.pH.toFixed(4)}`);
+    const eq = titrationPh(cAcid, vAcid, cBase, Number(lm.equivalence.volume_mL), Ka, kw);
+    if (!(eq.pH > 7)) fail(rel, `equivalence pH ${eq.pH.toFixed(3)} is not basic (>7) — a weak acid + strong base is basic at equivalence`);
+    if (eq.region !== "equivalence") fail(rel, `equivalence landmark is region '${eq.region}', not equivalence`);
+    if (Math.abs(eq.pH - Number(lm.equivalence.pH)) > 5e-3) fail(rel, `equivalence landmark pH ${lm.equivalence.pH} != recomputed ${eq.pH.toFixed(4)}`);
+    if (Math.abs(Number(lm.initial.pH) - Number(les.result.pH)) > 1e-6) fail(rel, `result.pH ${les.result.pH} != initial landmark pH ${lm.initial.pH}`);
   } else {
     fail(rel, `unknown equilibrium subtype '${les.subtype}'`);
   }

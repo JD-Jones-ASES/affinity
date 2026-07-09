@@ -14,7 +14,8 @@ from chemkernel import BuildError
 from chemkernel.build import build_equilibrium
 from chemkernel.data import ChemData
 from chemkernel.equilibrium import (build_buffer_lesson, build_equilibrium_lesson, build_polyprotic_lesson,
-                                    build_solubility_lesson, build_weak_base_lesson, solve_equilibrium, _quotient)
+                                    build_solubility_lesson, build_titration_lesson, build_weak_base_lesson,
+                                    solve_equilibrium, _quotient)
 from chemkernel.reactivity import AcidBase
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -22,6 +23,7 @@ SPEC = ROOT / "problems" / "equilibrium" / "acetic-acid-ph.equilibrium.toml"
 SPEC_KSP = ROOT / "problems" / "equilibrium" / "calcium-fluoride-solubility.equilibrium.toml"
 SPEC_KSP_COMMON = ROOT / "problems" / "equilibrium" / "calcium-fluoride-common-ion.equilibrium.toml"
 SPEC_POLY = ROOT / "problems" / "equilibrium" / "phosphoric-acid-ph.equilibrium.toml"
+SPEC_TITRATION = ROOT / "problems" / "equilibrium" / "acetic-acid-titration.equilibrium.toml"
 SPEC_BASE = ROOT / "problems" / "equilibrium" / "ammonia-ph.equilibrium.toml"
 SPEC_BUFFER = ROOT / "problems" / "equilibrium" / "acetate-buffer.equilibrium.toml"
 
@@ -432,6 +434,72 @@ def test_polyprotic_dispatch_routes_by_proton_count():
     assert rel == "equilibrium/phosphoric-acid-ph.equilibrium.json" and poly["subtype"] == "polyprotic"
     mono, _ = build_equilibrium(SPEC, ROOT)                            # acetic-acid-ph.equilibrium.toml
     assert mono["subtype"] == "weak-acid"
+
+
+# ── titration (the ledger marched as strong base is added to a weak acid — a curve, region by region) ──
+
+def _titration_spec(acid="HC2H3O2", titrant="NaOH"):
+    return {"id": "t", "title": "t", "slug": "t", "topic": "equilibrium", "scenario": "s", "acid": acid,
+            "acid_molarity_M": "0.100", "acid_volume_mL": "25.0", "titrant": titrant, "titrant_molarity_M": "0.100",
+            "misconception": {"claim": "c", "refuted_by": "weak_acid_equivalence_is_basic"}}
+
+
+def test_builds_titration_curve():
+    data, acidbase = ChemData.load(ROOT), AcidBase.load(ROOT)
+    L = build_titration_lesson(_titration_spec(), data, acidbase, "t")
+    assert L["subtype"] == "titration"
+    t = L["titration"]
+    assert t["equivalence_volume_mL_display"] == "25"                  # 0.100·25.0 / 0.100
+    assert t["half_equivalence_volume_mL_display"] == "12.5"
+    assert t["pKa_display"] == "4.74"
+    # the three landmark pH values: initial acidic, half-eq = pKa, equivalence basic
+    assert t["landmarks"]["initial"]["pH_display"] == "2.88"
+    assert t["landmarks"]["equivalence"]["pH_display"] == "8.72"
+    assert len(t["curve"]) >= 3
+    assert all(L["checks"].values())
+
+
+def test_titration_half_equivalence_is_pka():
+    """The defining landmark: at half-equivalence [HA] = [A⁻], so pH = pKₐ (to two decimals)."""
+    data, acidbase = ChemData.load(ROOT), AcidBase.load(ROOT)
+    t = build_titration_lesson(_titration_spec(), data, acidbase, "t")["titration"]
+    assert t["landmarks"]["half_equivalence"]["pH_display"] == t["pKa_display"] or \
+        abs(Decimal(t["landmarks"]["half_equivalence"]["pH"]) - Decimal(t["pKa"])) < Decimal("0.02")
+
+
+def test_titration_equivalence_is_basic():
+    """A weak acid + strong base is BASIC at equivalence (the conjugate base hydrolyses) — refutes the pH-7 idea."""
+    data, acidbase = ChemData.load(ROOT), AcidBase.load(ROOT)
+    t = build_titration_lesson(_titration_spec(), data, acidbase, "t")["titration"]
+    assert Decimal(t["landmarks"]["equivalence"]["pH"]) > 7
+    assert t["landmarks"]["equivalence"]["region"] == "equivalence"
+
+
+def test_titration_curve_monotonic_and_regioned():
+    """pH rises monotonically along the curve, and the regions appear in order (initial → buffer → equivalence → excess)."""
+    data, acidbase = ChemData.load(ROOT), AcidBase.load(ROOT)
+    t = build_titration_lesson(_titration_spec(), data, acidbase, "t")["titration"]
+    pHs = [Decimal(p["pH"]) for p in t["curve"]]
+    assert all(b >= a for a, b in zip(pHs, pHs[1:]))                   # non-decreasing
+    regions = [p["region"] for p in t["curve"]]
+    assert regions[0] == "initial" and "buffer" in regions and "equivalence" in regions and regions[-1] == "excess-base"
+
+
+def test_titration_refuses_strong_acid():
+    data, acidbase = ChemData.load(ROOT), AcidBase.load(ROOT)
+    with pytest.raises(BuildError, match="not a weak acid"):
+        build_titration_lesson(_titration_spec(acid="HCl"), data, acidbase, "t")
+
+
+def test_titration_refuses_non_base_titrant():
+    data, acidbase = ChemData.load(ROOT), AcidBase.load(ROOT)
+    with pytest.raises(BuildError, match="not in data/acids-bases.toml"):
+        build_titration_lesson(_titration_spec(titrant="HCl"), data, acidbase, "t")
+
+
+def test_titration_dispatch_and_round_trip():
+    lesson, rel = build_equilibrium(SPEC_TITRATION, ROOT)
+    assert rel == "equilibrium/acetic-acid-titration.equilibrium.json" and lesson["subtype"] == "titration"
 
 
 # ── weak base (the 3rd increment — water excluded from Q like the solid; Kb → pOH → pH via Kw) ──

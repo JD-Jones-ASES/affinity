@@ -3,6 +3,29 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — equilibrium: titration curves — the ledger marched, and the tier's first plot (ADR-0048, 8th increment)
+
+The equilibrium tier's remaining marquee, and the payoff of the whole "ICE = ledger" thesis: a **titration curve is the
+species ledger solved over and over** as titrant is added. A weak acid titrated by a strong base, region by region — a weak
+acid / buffer before equivalence, the conjugate base's weak-base hydrolysis *at* equivalence, excess strong base after — each
+point reusing `solve_equilibrium`. The sixth `equilibrium` subtype, and the first lesson with a **chart**.
+
+- **Lesson `equilibrium/acetic-acid-titration`** — 25.0 mL 0.100 M acetic acid titrated with 0.100 M NaOH. The classic curve:
+  initial **pH 2.88**, a buffer region flattest at half-equivalence (12.5 mL) where **pH = pKₐ = 4.74**, a steep jump through
+  the **equivalence point** (25.0 mL, **pH 8.72 — basic**, the acetate hydrolysing), then excess base to ~12.5. The
+  pH-7-at-equivalence misconception (true only for strong+strong) fails against the machine's basic result.
+- **A build-time SVG.** The player draws the verified (volume, pH) points as a static SVG — no client chemistry (the "dumb
+  stepper" plots, it does not compute), with the three landmark markers + a pH-7 reference line. The tier's first plot.
+- **Engine:** `build_titration_lesson` (dispatched by a `titrant` key). Top-level ice = the initial pure-acid point; a
+  top-level `titration` block carries the curve + landmarks + volumes + pKₐ. **No new data** — reuses acetic acid's Kₐ + NaOH
+  (a curated strong base).
+- **New concept `titration`** — the four regions + the pH-7 read of pKₐ at half-equivalence + basic equivalence.
+- **Gate:** `equilibriumcheck.mjs` **recomputes the whole curve** independently (region + pH per point, from the inputs + Kₐ +
+  K_w) and re-checks the landmarks (half-eq pH ≈ pKₐ; equivalence > 7).
+- **Verification:** **383 producer tests** (+7); 7 Node gates green (**validate-solutions = 7 equilibrium / 16 ids**,
+  **validate-reference = 69**, check-katex 716); **astro build = 38 pages** (+1); `derived/` byte-stable. 5-way tamper-tested.
+  In-browser: the SVG renders the textbook curve shape (buffer plateau → equivalence jump → excess-base tail); 0 KaTeX errors.
+
 ## Phase 2 — 2026-07-08 — equilibrium: polyprotic staged ionization (ADR-0048, 7th increment)
 
 A polyprotic acid loses its protons in **stages** — H₃PO₄ ⇌ H⁺ + H₂PO₄⁻, then H₂PO₄⁻ ⇌ H⁺ + HPO₄²⁻, then HPO₄²⁻ ⇌ H⁺ +

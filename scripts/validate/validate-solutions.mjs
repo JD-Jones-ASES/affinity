@@ -317,6 +317,14 @@ for (const file of equilibriumFiles) {
       fail(rel, "polyprotic result.later_stages must list stages 2..n (≥ 1 entry)");
     need(les.checks, ["ph_consistent"], "checks");
     need(les.provenance.sources, ["ionization_constants", "ion_charge"], "provenance.sources");
+  } else if (les.subtype === "titration") {
+    // the initial point lives in the top-level reaction/ice (weak-acid shape); the curve lives in the titration block
+    need(les.reaction, ["acid", "acid_name", "acid_latex", "conjugate_base"], "reaction");
+    if (!les.titration) fail(rel, "titration lesson missing the `titration` block");
+    need(les.result, ["hydronium_M", "hydronium_M_display", "pH", "pH_display", "pH_half_equivalence_display",
+      "pH_equivalence_display", "pKa_display"], "result");
+    need(les.checks, ["ph_consistent"], "checks");
+    need(les.provenance.sources, ["ionization_constants", "ion_charge"], "provenance.sources");
   } else fail(rel, `unknown equilibrium subtype '${les.subtype}'`);
 
   // the machine-checked core: re-derive the reversible-extent solve independently of Python

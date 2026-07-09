@@ -361,12 +361,15 @@ export function renderEquilibriumLesson(lesson) {
   const isKsp = s.subtype === "solubility";
   const isBase = s.subtype === "weak-base";
   const isPoly = s.subtype === "polyprotic";
+  const isTitration = s.subtype === "titration";
   const toks = isKsp
     ? [s.reaction.salt, s.reaction.cation, s.reaction.anion, s.reaction.common_ion].filter(Boolean)
     : isBase
     ? [s.reaction.base, s.reaction.conjugate_acid, "OH^-", "H2O"]
     : isPoly
     ? ["H^+", ...(s.result.species_ladder ?? []).map((l) => l.id)]
+    : isTitration
+    ? [s.reaction.acid, s.reaction.conjugate_base, "H^+", s.titration.titrant, "OH^-", "H2O"]
     : [s.reaction.acid, s.reaction.conjugate_base, "H^+"];
   s.scenarioHtml = inline(prettyText(s.scenario, toks));
   delete s.scenario;
@@ -393,6 +396,11 @@ export function renderEquilibriumLesson(lesson) {
       reactantPretty: prettyIon(ls.reactant_id), anionPretty: prettyIon(ls.anion_id),
       extentSci: toSci(ls.extent_M_display), anionEqmSci: toSci(ls.anion_equilibrium_M_display),
     }));
+  }
+  // titration: the neutralization equation + titrant pretty (the curve/landmarks are numeric, used as-is by the SVG)
+  if (isTitration) {
+    s.titration.neutralizationHtml = tex(s.titration.neutralization_latex, false);
+    s.titration.titrantPretty = prettyIon(s.titration.titrant);
   }
   s.assumptions = (s.assumptions ?? []).map((a) => ({ ...a, claimHtml: inline(prettyText(a.claim, toks)) }));
   if (s.misconception) s.misconception.claimHtml = inline(prettyText(s.misconception.claim, toks));

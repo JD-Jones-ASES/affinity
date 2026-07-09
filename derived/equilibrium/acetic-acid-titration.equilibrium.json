@@ -1,0 +1,313 @@
+{
+  "kind": "equilibrium",
+  "subtype": "titration",
+  "id": "acetic-acid-titration",
+  "title": "Watching the pH climb: titrating acetic acid with NaOH",
+  "slug": "acetic-acid-titration",
+  "topic": "equilibrium",
+  "tags": [
+    "equilibrium",
+    "titration",
+    "buffer",
+    "pKa",
+    "equivalence point",
+    "acid-base"
+  ],
+  "scenario": "Add sodium hydroxide, a **strong** base, drop by drop to 25.0 mL of 0.100 M acetic acid and watch the pH. Each drop neutralizes a little acid, $\\mathrm{HC_2H_3O_2 + OH^- \\rightarrow C_2H_3O_2^- + H_2O}$ — but the *pH* at every moment is still set by the acetic-acid equilibrium $\\mathrm{HC_2H_3O_2 \\rightleftharpoons H^+ + C_2H_3O_2^-}$. So the whole curve is just the ICE table **marched**: a weak acid at the start, a **buffer** through the middle (flattest right where half the acid is neutralized — there $\\mathrm{pH} = \\mathrm{p}K_a$), a jump through the **equivalence point** (where all the acid has become acetate, a weak base — so the equivalence pH is *above* 7), and excess strong base after.",
+  "regimes": [
+    {
+      "facet": "ICE ledger (species accounting)",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "equilibrium constant",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "titration curve (pH vs added base)",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "Each region is solved by the dominant equilibrium — the weak acid / buffer before equivalence, the conjugate base's hydrolysis at equivalence, excess $\\mathrm{OH^-}$ after — the standard treatment; the strong base is taken as fully dissociated, so the added $\\mathrm{OH^-}$ moles are exact.",
+      "kind": "model"
+    },
+    {
+      "claim": "Volumes are additive (the total is the acid volume plus the added titrant volume), and activities are approximated by molar concentrations — the ideal-dilute-solution model.",
+      "kind": "model"
+    }
+  ],
+  "reaction": {
+    "acid": "HC2H3O2",
+    "acid_name": "acetic acid",
+    "acid_latex": "\\mathrm{HC_{2}H_{3}O_{2}}",
+    "text": "HC2H3O2 <=> H^+ + C2H3O2^-",
+    "latex": "\\mathrm{HC_{2}H_{3}O_{2}} \\rightleftharpoons \\mathrm{H}^{+} + \\mathrm{C_{2}H_{3}O_{2}}^{-}",
+    "conjugate_base": "C2H3O2^-"
+  },
+  "equilibrium_constant": {
+    "symbol": "K_a",
+    "value": "0.000018",
+    "expression_latex": "K_a = \\dfrac{[\\mathrm{H}^{+}][\\mathrm{C_{2}H_{3}O_{2}}^{-}]}{[\\mathrm{HC_{2}H_{3}O_{2}}]}",
+    "source": "openstax-chemistry-2e"
+  },
+  "ice": {
+    "extent_symbol": "x",
+    "extent_M": "0.00133267097308",
+    "extent_M_display": "0.00133",
+    "species": [
+      {
+        "id": "HC2H3O2",
+        "latex": "\\mathrm{HC_{2}H_{3}O_{2}}",
+        "phase": "aq",
+        "role": "reactant",
+        "nu": -1,
+        "initial_M": "0.1",
+        "change_M": "-0.00133267097308",
+        "equilibrium_M": "0.0986673290269",
+        "equilibrium_M_display": "0.0987"
+      },
+      {
+        "id": "H^+",
+        "latex": "\\mathrm{H}^{+}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 1,
+        "initial_M": "0",
+        "change_M": "+0.00133267097308",
+        "equilibrium_M": "0.00133267097308",
+        "equilibrium_M_display": "0.00133"
+      },
+      {
+        "id": "C2H3O2^-",
+        "latex": "\\mathrm{C_{2}H_{3}O_{2}}^{-}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 1,
+        "initial_M": "0",
+        "change_M": "+0.00133267097308",
+        "equilibrium_M": "0.00133267097308",
+        "equilibrium_M_display": "0.00133"
+      }
+    ]
+  },
+  "mass_action": {
+    "quotient_symbol": "Q",
+    "quotient_at_equilibrium": "0.000018",
+    "residual_relative": "0.0000000000033"
+  },
+  "titration": {
+    "titrant": "NaOH",
+    "titrant_name": "sodium hydroxide",
+    "titrant_latex": "\\mathrm{NaOH}",
+    "titrant_molarity_M": "0.100",
+    "acid_molarity_M": "0.100",
+    "acid_volume_mL": "25.0",
+    "neutralization_latex": "\\mathrm{HC_{2}H_{3}O_{2}} + \\mathrm{OH^-} \\rightarrow \\mathrm{C_{2}H_{3}O_{2}}^{-} + \\mathrm{H_2O}",
+    "kw": "0.000000000000010",
+    "pKa": "4.7447275",
+    "pKa_display": "4.74",
+    "equivalence_volume_mL": "25",
+    "equivalence_volume_mL_display": "25",
+    "half_equivalence_volume_mL": "12.5",
+    "half_equivalence_volume_mL_display": "12.5",
+    "curve": [
+      {
+        "volume_mL": "0",
+        "volume_mL_display": "0",
+        "fraction_of_equivalence": "0",
+        "region": "initial",
+        "pH": "2.8752771",
+        "pH_display": "2.88",
+        "hydronium_M": "0.00133267"
+      },
+      {
+        "volume_mL": "5",
+        "volume_mL_display": "5",
+        "fraction_of_equivalence": "0.2",
+        "region": "buffer",
+        "pH": "4.1449964",
+        "pH_display": "4.14",
+        "hydronium_M": "0.0000716149"
+      },
+      {
+        "volume_mL": "10",
+        "volume_mL_display": "10",
+        "fraction_of_equivalence": "0.4",
+        "region": "buffer",
+        "pH": "4.5693191",
+        "pH_display": "4.57",
+        "hydronium_M": "0.0000269576"
+      },
+      {
+        "volume_mL": "12.5",
+        "volume_mL_display": "12.5",
+        "fraction_of_equivalence": "0.5",
+        "region": "buffer",
+        "pH": "4.745196",
+        "pH_display": "4.75",
+        "hydronium_M": "0.0000179806"
+      },
+      {
+        "volume_mL": "15",
+        "volume_mL_display": "15",
+        "fraction_of_equivalence": "0.6",
+        "region": "buffer",
+        "pH": "4.9211659",
+        "pH_display": "4.92",
+        "hydronium_M": "0.0000119904"
+      },
+      {
+        "volume_mL": "20",
+        "volume_mL_display": "20",
+        "fraction_of_equivalence": "0.8",
+        "region": "buffer",
+        "pH": "5.3470073",
+        "pH_display": "5.35",
+        "hydronium_M": "0.00000449772"
+      },
+      {
+        "volume_mL": "22.5",
+        "volume_mL_display": "22.5",
+        "fraction_of_equivalence": "0.9",
+        "region": "buffer",
+        "pH": "5.6991533",
+        "pH_display": "5.70",
+        "hydronium_M": "0.00000199916"
+      },
+      {
+        "volume_mL": "24",
+        "volume_mL_display": "24",
+        "fraction_of_equivalence": "0.96",
+        "region": "buffer",
+        "pH": "6.125105",
+        "pH_display": "6.13",
+        "hydronium_M": "0.000000749713"
+      },
+      {
+        "volume_mL": "25",
+        "volume_mL_display": "25",
+        "fraction_of_equivalence": "1.0",
+        "region": "equivalence",
+        "pH": "8.7218259",
+        "pH_display": "8.72",
+        "hydronium_M": "0.00000000189747"
+      },
+      {
+        "volume_mL": "26",
+        "volume_mL_display": "26",
+        "fraction_of_equivalence": "1.04",
+        "region": "excess-base",
+        "pH": "11.29243",
+        "pH_display": "11.29",
+        "hydronium_M": "0.0000000000051"
+      },
+      {
+        "volume_mL": "27.5",
+        "volume_mL_display": "27.5",
+        "fraction_of_equivalence": "1.1",
+        "region": "excess-base",
+        "pH": "11.677781",
+        "pH_display": "11.68",
+        "hydronium_M": "0.0000000000021"
+      },
+      {
+        "volume_mL": "30",
+        "volume_mL_display": "30",
+        "fraction_of_equivalence": "1.2",
+        "region": "excess-base",
+        "pH": "11.958607",
+        "pH_display": "11.96",
+        "hydronium_M": "0.0000000000011"
+      },
+      {
+        "volume_mL": "35",
+        "volume_mL_display": "35",
+        "fraction_of_equivalence": "1.4",
+        "region": "excess-base",
+        "pH": "12.221849",
+        "pH_display": "12.22",
+        "hydronium_M": "0.0000000000006"
+      },
+      {
+        "volume_mL": "40",
+        "volume_mL_display": "40",
+        "fraction_of_equivalence": "1.6",
+        "region": "excess-base",
+        "pH": "12.363178",
+        "pH_display": "12.36",
+        "hydronium_M": "0.000000000000433333"
+      },
+      {
+        "volume_mL": "50",
+        "volume_mL_display": "50",
+        "fraction_of_equivalence": "2.0",
+        "region": "excess-base",
+        "pH": "12.522879",
+        "pH_display": "12.52",
+        "hydronium_M": "0.0000000000003"
+      }
+    ],
+    "landmarks": {
+      "initial": {
+        "volume_mL": "0",
+        "volume_mL_display": "0",
+        "pH": "2.8752771",
+        "pH_display": "2.88",
+        "region": "initial"
+      },
+      "half_equivalence": {
+        "volume_mL": "12.5",
+        "volume_mL_display": "12.5",
+        "pH": "4.745196",
+        "pH_display": "4.75",
+        "region": "buffer"
+      },
+      "equivalence": {
+        "volume_mL": "25",
+        "volume_mL_display": "25",
+        "pH": "8.7218259",
+        "pH_display": "8.72",
+        "region": "equivalence"
+      }
+    }
+  },
+  "result": {
+    "hydronium_M": "0.00133267097308",
+    "hydronium_M_display": "0.00133",
+    "pH": "2.8752771",
+    "pH_display": "2.88",
+    "pH_half_equivalence_display": "4.75",
+    "pH_equivalence_display": "8.72",
+    "pKa_display": "4.74"
+  },
+  "misconception": {
+    "claim": "At the equivalence point the acid is exactly neutralized, so the pH is 7.",
+    "refuted_by": "weak_acid_equivalence_is_basic"
+  },
+  "reference_links": [
+    "titration",
+    "buffer",
+    "ph",
+    "chemical-equilibrium",
+    "reaction-acid-base"
+  ],
+  "checks": {
+    "ice_identity": true,
+    "mass_action_satisfied": true,
+    "extent_physical": true,
+    "ph_consistent": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "ionization_constants": "openstax-chemistry-2e",
+      "ion_charge": "openstax-chemistry-2e"
+    }
+  }
+}

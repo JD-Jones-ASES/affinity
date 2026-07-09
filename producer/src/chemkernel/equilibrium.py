@@ -929,3 +929,225 @@ def build_polyprotic_lesson(spec: dict, data, acidbase, ctx: str = "") -> dict:
             },
         },
     }
+
+
+# the fractions of the equivalence volume at which the titration curve is sampled — denser near the equivalence
+# point (0.9–1.1) so the steep pH jump is resolved; always includes 0 (initial), 0.5 (half-equivalence, pH=pKₐ),
+# and 1.0 (equivalence). Deterministic (no Date/random — the gate re-derives every point from the same list).
+_TITRATION_FRACTIONS = ["0", "0.2", "0.4", "0.5", "0.6", "0.8", "0.9", "0.96", "1.0", "1.04", "1.1", "1.2",
+                        "1.4", "1.6", "2.0"]
+
+
+def _titration_point(c_acid, v_acid, c_base, v_base, ka, kw, anion_id, acid_formula, ctx):
+    """pH at one point of a weak-acid/strong-base titration, by region — the same reversible-extent solver at each.
+    Returns (pH Decimal, region str, hydronium Decimal). n = C·V in mmol; V_total in mL (the units cancel in the
+    ratios, so concentrations are mmol/mL = mol/L)."""
+    n_acid = c_acid * v_acid
+    n_base = c_base * v_base
+    v_tot = v_acid + v_base
+    fh = parse_formula("H^+", ctx)
+    fa = parse_formula(acid_formula, ctx)
+    fan = parse_formula(anion_id, ctx)
+    if n_base < n_acid:
+        # before equivalence: some HA converted to A⁻ by the strong base — a weak acid (V_b=0) or a buffer.
+        ha0 = (n_acid - n_base) / v_tot
+        a0 = n_base / v_tot
+        species = [
+            {"id": acid_formula, "latex": fa.latex, "nu": -1, "initial_M": ha0, "role": "reactant"},
+            {"id": "H^+", "latex": fh.latex, "nu": 1, "initial_M": Decimal(0), "role": "product"},
+            {"id": anion_id, "latex": fan.latex, "nu": 1, "initial_M": a0, "role": "product"},
+        ]
+        x = solve_equilibrium(species, ka, ctx)["extent"]
+        hplus = x                                              # [H⁺] = the ionization extent (initial [H⁺] = 0)
+        region = "initial" if n_base == 0 else "buffer"
+    elif n_base == n_acid:
+        # equivalence: all HA is now A⁻, which hydrolyses as a weak base A⁻ + H₂O ⇌ HA + OH⁻ (K_b = K_w/K_a).
+        a0 = n_acid / v_tot
+        kb = kw / ka
+        foh = parse_formula("OH^-", ctx)
+        fw = parse_formula("H2O", ctx)
+        species = [
+            {"id": anion_id, "latex": fan.latex, "nu": -1, "initial_M": a0, "role": "reactant"},
+            {"id": "H2O", "latex": fw.latex, "nu": -1, "initial_M": Decimal(0), "in_quotient": False, "role": "reactant"},
+            {"id": acid_formula, "latex": fa.latex, "nu": 1, "initial_M": Decimal(0), "role": "product"},
+            {"id": "OH^-", "latex": foh.latex, "nu": 1, "initial_M": Decimal(0), "role": "product"},
+        ]
+        oh = solve_equilibrium(species, kb, ctx)["extent"]
+        hplus = kw / oh                                        # the K_w bridge
+        region = "equivalence"
+    else:
+        # after equivalence: excess strong base sets [OH⁻]; the A⁻ hydrolysis is negligible beside it.
+        oh = (n_base - n_acid) / v_tot
+        hplus = kw / oh
+        region = "excess-base"
+    with localcontext() as lc:
+        lc.prec = 40
+        pH = -(hplus.log10())
+    return pH, region, hplus
+
+
+def build_titration_lesson(spec: dict, data, acidbase, ctx: str = "") -> dict:
+    """An authored titration-curve lesson → the verified `*.equilibrium.json` object, subtype `titration` (ADR-0048).
+    A **weak acid titrated by a strong base** — the ledger *marched* as titrant is added: at each added volume the
+    ICE is re-solved by the appropriate region (a weak acid / a buffer / the conjugate-base weak-base solve at
+    equivalence / excess strong base), and the sequence of (volume, pH) points IS the titration curve. Every point
+    reuses `solve_equilibrium`. The top-level ice is the **initial** point (the pure weak acid, V_b = 0), so the
+    schema's required fields stay meaningful + the existing ICE renderer shows the starting solution; the `titration`
+    block carries the curve + the three landmarks (initial, half-equivalence where pH = pKₐ, equivalence — basic for
+    a weak acid). The acid + Kₐ come from `acids-bases.toml`/`ionization-constants.toml`, the titrant is a curated
+    STRONG base; the producer REFUSES a strong or polyprotic acid, or a non-strong titrant (ADR-0008)."""
+    for key in ("id", "title", "slug", "topic", "scenario", "acid", "acid_molarity_M", "acid_volume_mL",
+                "titrant", "titrant_molarity_M", "misconception"):
+        if key not in spec:
+            raise BuildError(f"{ctx}: titration lesson missing required key '{key}'")
+
+    acid_formula = spec["acid"]
+    acid = acidbase.acids.get(acid_formula)
+    if acid is None:
+        raise BuildError(f"{ctx}: acid '{acid_formula}' is not in data/acids-bases.toml")
+    if acid.get("strength") != "weak":
+        raise BuildError(f"{ctx}: '{acid_formula}' is not a weak acid — this titration curve is a weak acid vs a "
+                         f"strong base (a strong acid gives a featureless curve, no buffer region / pKₐ)")
+    if int(acid.get("protons", 0)) != 1:
+        raise BuildError(f"{ctx}: '{acid_formula}' is polyprotic — this titration lesson is monoprotic")
+    anion_id = acid["anion"]
+    if data.ions.get(anion_id) is None:
+        raise BuildError(f"{ctx}: acid '{acid_formula}' names anion '{anion_id}' absent from the ion table")
+    titrant_formula = spec["titrant"]
+    titrant = acidbase.bases.get(titrant_formula)
+    if titrant is None:
+        raise BuildError(f"{ctx}: titrant '{titrant_formula}' is not in data/acids-bases.toml")
+    if titrant.get("strength") != "strong":
+        raise BuildError(f"{ctx}: titrant '{titrant_formula}' is not a strong base — the titrant must ionize "
+                         f"completely so the added moles of OH⁻ are exact")
+
+    ka = data.ionization_constant(acid_formula)["ka"]
+    kw = data.water_ion_product()
+    c_acid = Decimal(str(spec["acid_molarity_M"]))
+    v_acid = Decimal(str(spec["acid_volume_mL"]))
+    c_base = Decimal(str(spec["titrant_molarity_M"]))
+    if c_acid <= 0 or v_acid <= 0 or c_base <= 0:
+        raise BuildError(f"{ctx}: acid molarity/volume and titrant molarity must be positive")
+
+    v_eq = c_acid * v_acid / c_base                                   # equivalence volume (mL): n_acid = n_base
+    v_half = v_eq / 2
+
+    fa = parse_formula(acid_formula, ctx)
+    fan = parse_formula(anion_id, ctx)
+    fh = parse_formula("H^+", ctx)
+    ft = parse_formula(titrant_formula, ctx)
+
+    # the curve: pH at each sampled volume (a fraction of the equivalence volume). Deterministic + machine-checkable.
+    curve = []
+    for frac in _TITRATION_FRACTIONS:
+        v_base = v_eq * Decimal(frac)
+        pH, region, hplus = _titration_point(c_acid, v_acid, c_base, v_base, ka, kw, anion_id, acid_formula, ctx)
+        curve.append({
+            "volume_mL": _sig_str(v_base, 6), "volume_mL_display": _sig_str(v_base, 4),
+            "fraction_of_equivalence": frac, "region": region,
+            "pH": _sig_str(pH, 8), "pH_display": format(pH.quantize(Decimal("0.01"), ROUND_HALF_UP), "f"),
+            "hydronium_M": _sig_str(hplus, 6),
+        })
+
+    def _landmark(v_base):
+        pH, region, hplus = _titration_point(c_acid, v_acid, c_base, v_base, ka, kw, anion_id, acid_formula, ctx)
+        return {"volume_mL": _sig_str(v_base, 6), "volume_mL_display": _sig_str(v_base, 4),
+                "pH": _sig_str(pH, 8), "pH_display": format(pH.quantize(Decimal("0.01"), ROUND_HALF_UP), "f"),
+                "region": region}
+    initial = _landmark(Decimal(0))
+    half = _landmark(v_half)
+    equivalence = _landmark(v_eq)
+
+    with localcontext() as lc:
+        lc.prec = 40
+        pKa = -(ka.log10())
+
+    # the top-level ICE = the INITIAL point (the pure weak acid, before any titrant): HA ⇌ H⁺ + A⁻, [HA]₀ = C_a.
+    ice_species = [
+        {"id": acid_formula, "latex": fa.latex, "nu": -1, "initial_M": c_acid, "role": "reactant"},
+        {"id": "H^+", "latex": fh.latex, "nu": 1, "initial_M": Decimal(0), "role": "product"},
+        {"id": anion_id, "latex": fan.latex, "nu": 1, "initial_M": Decimal(0), "role": "product"},
+    ]
+    x0 = _round_sig(solve_equilibrium(ice_species, ka, ctx)["extent"], 12)
+    ice_rows = []
+    for s in ice_species:
+        change = s["nu"] * x0
+        eqm = s["initial_M"] + change
+        ice_rows.append({
+            "id": s["id"], "latex": s["latex"], "phase": "aq", "role": s["role"], "nu": s["nu"],
+            "initial_M": _sig_str(s["initial_M"], 12),
+            "change_M": ("+" if change >= 0 else "") + _sig_str(change, 12),
+            "equilibrium_M": _sig_str(eqm, 12), "equilibrium_M_display": _sig_str(eqm, 3),
+        })
+    committed = [Decimal(r["equilibrium_M"]) for r in ice_rows]
+    Q0 = _quotient(committed, [-1, 1, 1])
+    residual0 = abs(Q0 - ka) / ka
+
+    def _num(latex, power):
+        return f"[{latex}]" + (f"^{{{power}}}" if power != 1 else "")
+    expression = (r"K_a = \dfrac{" + _num(fh.latex, 1) + _num(fan.latex, 1) + "}{" + _num(fa.latex, 1) + "}")
+    reaction_latex = f"{fa.latex} \\rightleftharpoons {fh.latex} + {fan.latex}"
+    reaction_text = f"{acid_formula} <=> H^+ + {anion_id}"
+    neutralization_latex = f"{fa.latex} + \\mathrm{{OH^-}} \\rightarrow {fan.latex} + \\mathrm{{H_2O}}"
+
+    return {
+        "kind": "equilibrium",
+        "subtype": "titration",
+        "id": spec["id"],
+        "title": spec["title"],
+        "slug": spec["slug"],
+        "topic": spec["topic"],
+        "tags": spec.get("tags", []),
+        "scenario": spec["scenario"],
+        "regimes": _regimes("titration curve (pH vs added base)"),
+        "assumptions": spec.get("assumptions", []),
+        "reaction": {
+            "acid": acid_formula, "acid_name": acid.get("name", acid_formula), "acid_latex": fa.latex,
+            "text": reaction_text, "latex": reaction_latex, "conjugate_base": anion_id,
+        },
+        "equilibrium_constant": {
+            "symbol": "K_a", "value": format(ka, "f"), "expression_latex": expression,
+            "source": data.sources.get("ionization_constants", ""),
+        },
+        "ice": {"extent_symbol": "x", "extent_M": _sig_str(x0, 12), "extent_M_display": _sig_str(x0, 3),
+                "species": ice_rows},
+        "mass_action": {"quotient_symbol": "Q", "quotient_at_equilibrium": _sig_str(Q0, 6),
+                        "residual_relative": _sig_str(residual0, 2)},
+        "titration": {
+            "titrant": titrant_formula, "titrant_name": titrant.get("name", titrant_formula), "titrant_latex": ft.latex,
+            "titrant_molarity_M": format(c_base, "f"),
+            "acid_molarity_M": format(c_acid, "f"), "acid_volume_mL": format(v_acid, "f"),
+            "neutralization_latex": neutralization_latex,
+            "kw": format(kw, "f"), "pKa": _sig_str(pKa, 8),
+            "pKa_display": format(pKa.quantize(Decimal("0.01"), ROUND_HALF_UP), "f"),
+            "equivalence_volume_mL": _sig_str(v_eq, 6), "equivalence_volume_mL_display": _sig_str(v_eq, 4),
+            "half_equivalence_volume_mL": _sig_str(v_half, 6), "half_equivalence_volume_mL_display": _sig_str(v_half, 4),
+            "curve": curve,
+            "landmarks": {"initial": initial, "half_equivalence": half, "equivalence": equivalence},
+        },
+        "result": {
+            "hydronium_M": _sig_str(x0, 12), "hydronium_M_display": _sig_str(x0, 3),
+            "pH": initial["pH"], "pH_display": initial["pH_display"],
+            "pH_half_equivalence_display": half["pH_display"], "pH_equivalence_display": equivalence["pH_display"],
+            "pKa_display": format(pKa.quantize(Decimal("0.01"), ROUND_HALF_UP), "f"),
+        },
+        "misconception": spec["misconception"],
+        "reference_links": spec.get("reference_links", []),
+        "checks": {
+            "ice_identity": True,           # the initial point: c = c₀ + ν·x (exact algebra)
+            "mass_action_satisfied": True,  # the initial point: Q(committed) = Kₐ
+            "extent_physical": True,        # 0 < x < [HA]₀
+            "ph_consistent": True,          # every curve point's pH re-derived by its region (buffer / weak base / excess)
+        },
+        "provenance": {
+            "producer": "chemkernel",
+            "version": __version__,
+            "python": platform.python_version(),
+            "author": spec.get("author", "Affinity"),
+            "created": spec.get("created", ""),
+            "sources": {
+                "ionization_constants": data.sources.get("ionization_constants", ""),
+                "ion_charge": data.sources.get("ion_charge", ""),
+            },
+        },
+    }

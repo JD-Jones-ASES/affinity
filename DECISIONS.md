@@ -1665,3 +1665,26 @@ validate-reference = **68** (+1 concept); check-katex **702** (+59); **37 pages*
 tamper-tested** (a stage extent; the chain link; the pH; a ladder concentration; the accumulated hydronium). In-browser:
 stage-1 ICE + the later-ionizations table + the species ladder (10⁻² → 10⁻¹⁸) + the ≈Kₐ2 payoff render; 0 KaTeX errors. The
 `equilibrium` kind now has **five subtypes**.
+
+**Update (8th increment, same day) — the `titration` subtype: the ledger marched, and the tier's first plot.** A weak acid
+titrated by a strong base — the equilibrium tier's remaining marquee. The insight the whole tier builds to: a titration curve
+is nothing but the **species ledger solved over and over** as titrant is added, the region deciding which equilibrium
+dominates. `build_titration_lesson` samples the added-base volume at fractions of the equivalence volume and computes the pH
+at each by region — a **weak-acid/buffer solve** before equivalence (HA ⇌ H⁺ + A⁻ with [A⁻] from the neutralized acid), the
+**conjugate base's weak-base solve** at equivalence (A⁻ + H₂O ⇌ HA + OH⁻, Kᵦ = K_w/Kₐ → the K_w bridge to pH), and **excess
+strong base** past it — each reusing `solve_equilibrium`. The SIXTH subtype. Reuses only existing curated data (acetic acid's
+Kₐ + NaOH as a curated strong base — **no new data**). Schema: the top-level ice = the **initial** point (the pure weak acid,
+so the required fields + the existing ICE renderer stay meaningful), plus a top-level **`titration` block** (the (volume, pH)
+curve + the three landmarks + the equivalence/half-equivalence volumes + pKₐ). The player draws a **build-time SVG** of the
+verified points (no client chemistry — the "dumb stepper" plots, it does not compute) — the tier's first chart. The opener:
+**`equilibrium/acetic-acid-titration`** — 25.0 mL 0.100 M acetic acid + 0.100 M NaOH → the classic curve: initial **pH 2.88**,
+a buffer region flattest at half-equivalence (12.5 mL) where **pH = pKₐ = 4.74**, a steep jump through the **equivalence point**
+(25.0 mL, **pH 8.72 — basic**, the conjugate base hydrolysing), then excess base. The misconception is expecting pH 7 at
+equivalence (true only for strong+strong); it fails against the machine's basic result. A new **`titration` concept**. Gate
+`equilibriumcheck.mjs` **recomputes the entire curve** independently (region + pH per point, from the titrant/acid inputs +
+Kₐ + K_w) and re-checks the landmarks (half-eq pH ≈ pKₐ, equivalence > 7). **383 tests** (+7); validate-solutions = 6 + 2
+structure + 1 comparison + **7 equilibrium** (16 ids); validate-reference = **69** (+1 concept); check-katex **716** (+14);
+**38 pages** (+1); `derived/` byte-stable. **5-way tamper-tested** (a curve pH; a curve region label; the equivalence pH
+forced acidic; the equivalence volume; the half-equivalence pH). In-browser: the SVG curve renders the textbook shape
+(buffer plateau → equivalence jump → excess-base tail) with the three landmark markers + a pH-7 reference line; 0 KaTeX
+errors. The `equilibrium` kind now has **six subtypes**.

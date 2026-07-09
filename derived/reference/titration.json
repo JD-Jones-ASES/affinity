@@ -1,0 +1,30 @@
+{
+  "kind": "concept",
+  "id": "titration",
+  "title": "Titration curves (weak acid vs. strong base)",
+  "term": "titration",
+  "definition": "A **titration** adds a base of known concentration to an acid and tracks the pH; the plot of pH against added volume is the **titration curve**. For a weak acid titrated by a strong base it has four parts, each just the species ledger solved by whichever equilibrium dominates: at the **start** it is the pure weak acid; adding base converts some acid to its conjugate base, giving a **buffer** whose pH creeps up slowly — flattest at the **half-equivalence point**, where equal amounts of acid and conjugate base make $\\mathrm{pH} = \\mathrm{p}K_a$ (the curve *reads off* $\\mathrm{p}K_a$); at the **equivalence point** all the acid has become its conjugate base, a weak base, so the pH jumps steeply and lands **above 7** (basic — not 7, which is the strong-acid/strong-base case); past equivalence the **excess strong base** sets the pH. The equivalence *volume* comes from stoichiometry ($n_\\text{acid} = n_\\text{base}$); the pH at every point comes from the equilibrium.",
+  "related": [
+    {
+      "to": "buffer",
+      "type": "depends-on"
+    },
+    {
+      "to": "ph",
+      "type": "depends-on"
+    },
+    {
+      "to": "chemical-equilibrium",
+      "type": "instance-of"
+    },
+    {
+      "to": "reaction-acid-base",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [
+    "acetic-acid-titration"
+  ],
+  "regime": "model-exact",
+  "latex": "\\text{at half-equivalence: } \\mathrm{pH} = \\mathrm{p}K_a; \\quad \\text{at equivalence: } \\mathrm{pH} > 7"
+}

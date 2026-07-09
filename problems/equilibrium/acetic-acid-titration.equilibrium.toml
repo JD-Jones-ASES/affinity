@@ -1,0 +1,41 @@
+# Equilibrium lesson, subtype `titration` (ADR-0048). A weak acid titrated by a strong base — the ledger *marched*
+# as titrant is added. At each added volume the ICE is re-solved by its region (a weak acid, then a buffer, then
+# the conjugate base's weak-base hydrolysis at equivalence, then excess strong base), and the (volume, pH) points
+# ARE the titration curve. Every point reuses `solve_equilibrium`. The acid + Kₐ are DRY-sourced; the titrant is a
+# curated strong base. TOML trap #4: every bare key precedes the [[assumptions]] / [misconception] headers.
+
+id = "acetic-acid-titration"
+title = "Watching the pH climb: titrating acetic acid with NaOH"
+slug = "acetic-acid-titration"
+topic = "equilibrium"
+tags = ["equilibrium", "titration", "buffer", "pKa", "equivalence point", "acid-base"]
+
+# the weak acid being titrated (Kₐ from ionization-constants.toml, dissociation DRY-sourced from acids-bases.toml)
+acid = "HC2H3O2"
+acid_molarity_M = "0.100"
+acid_volume_mL = "25.0"
+# the strong-base titrant (must be a strong base in acids-bases.toml, so its added OH⁻ moles are exact)
+titrant = "NaOH"
+titrant_molarity_M = "0.100"
+
+scenario = "Add sodium hydroxide, a **strong** base, drop by drop to 25.0 mL of 0.100 M acetic acid and watch the pH. Each drop neutralizes a little acid, $\\mathrm{HC_2H_3O_2 + OH^- \\rightarrow C_2H_3O_2^- + H_2O}$ — but the *pH* at every moment is still set by the acetic-acid equilibrium $\\mathrm{HC_2H_3O_2 \\rightleftharpoons H^+ + C_2H_3O_2^-}$. So the whole curve is just the ICE table **marched**: a weak acid at the start, a **buffer** through the middle (flattest right where half the acid is neutralized — there $\\mathrm{pH} = \\mathrm{p}K_a$), a jump through the **equivalence point** (where all the acid has become acetate, a weak base — so the equivalence pH is *above* 7), and excess strong base after."
+
+reference_links = ["titration", "buffer", "ph", "chemical-equilibrium", "reaction-acid-base"]
+
+author = "Affinity"
+created = "2026-07-08"
+
+# modeling assumptions — disclosed (ADR-0003, the model-assumed badge). The ICE accounting at each point is exact;
+# the curve rides on these idealizations.
+[[assumptions]]
+claim = "Each region is solved by the dominant equilibrium — the weak acid / buffer before equivalence, the conjugate base's hydrolysis at equivalence, excess $\\mathrm{OH^-}$ after — the standard treatment; the strong base is taken as fully dissociated, so the added $\\mathrm{OH^-}$ moles are exact."
+kind = "model"
+
+[[assumptions]]
+claim = "Volumes are additive (the total is the acid volume plus the added titrant volume), and activities are approximated by molar concentrations — the ideal-dilute-solution model."
+kind = "model"
+
+# the canonical wrong move: expecting the equivalence point at pH 7 (true only for strong-acid/strong-base).
+[misconception]
+claim = "At the equivalence point the acid is exactly neutralized, so the pH is 7."
+refuted_by = "weak_acid_equivalence_is_basic"

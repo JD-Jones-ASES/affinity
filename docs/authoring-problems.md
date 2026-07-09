@@ -419,6 +419,29 @@ refuted_by = "later_stages_negligible"            # the player renders the stage
 
 See [`problems/equilibrium/phosphoric-acid-ph.equilibrium.toml`](../problems/equilibrium/phosphoric-acid-ph.equilibrium.toml).
 
+The **titration subtype** adds a `titrant` (a **strong base** in `data/acids-bases.toml`, e.g. `NaOH`) with its molarity, plus
+the acid's molarity and volume. The `titrant` key alone routes the build to the titration builder. The producer samples the
+added-base volume at fixed fractions of the equivalence volume, computes the pH at each by region (a weak-acid/buffer solve, the
+conjugate base's weak-base solve at equivalence, excess base after), and emits the whole curve + the three landmarks; the player
+draws a build-time SVG. It refuses a strong or polyprotic acid, or a non-strong titrant. Use `refuted_by =
+"weak_acid_equivalence_is_basic"` for the player's titration refutation:
+
+```toml
+topic = "equilibrium"
+acid = "HC2H3O2"                                  # a monoprotic weak acid
+acid_molarity_M = "0.100"
+acid_volume_mL = "25.0"
+titrant = "NaOH"                                  # a strong base (→ the titration subtype)
+titrant_molarity_M = "0.100"
+scenario = "…"
+
+[misconception]
+claim = "…"
+refuted_by = "weak_acid_equivalence_is_basic"     # the player renders the basic-equivalence refutation for this key
+```
+
+See [`problems/equilibrium/acetic-acid-titration.equilibrium.toml`](../problems/equilibrium/acetic-acid-titration.equilibrium.toml).
+
 ### Other optional keys
 
 `tags` (array), `reference_links` (array of Atlas ids — they become links as the Atlas is built),

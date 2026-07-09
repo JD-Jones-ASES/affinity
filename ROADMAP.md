@@ -9,18 +9,19 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 
 - **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed. Phase 2 (the
   model-bearing tier) has landed its **gases + thermochemistry** tiers, its **bonding & structure** tier (engine + Atlas +
-  gym + 3 lessons + IMFs), and has **opened equilibrium & acid-base**, now with five subtypes + a gym. Landed: the
+  gym + 3 lessons + IMFs), and has **opened equilibrium & acid-base**, now with six subtypes + a gym. Landed: the
   **formula/equation sheet** (ADR-0039), **`gas_laws_v1` gym** (ADR-0040), **gas-stoichiometry lesson** (ADR-0041),
   **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043), the **bonding tier** (ADR-0044), the **`structure`
   lesson kind** (ADR-0045), **intermolecular forces** (ADR-0046), the **IMF comparison lesson** (ADR-0047 — a third lesson
   shape), and the **equilibrium tier** (ADR-0048 — the reversible-extent solver + the `equilibrium` lesson kind, a
-  fourth shape, with **five subtypes**: weak-acid pH · buffer (common-ion + Henderson–Hasselbalch) · weak-base pH via Kw ·
-  Ksp solubility (incl. a **common-ion** variant) · **polyprotic** (staged Kₐ) + the **`weak_acid_ph_v1` gym** (the tier's
-  drill instrument). **Next inside Phase 2:** the rest of equilibrium & acid-base (titration, Q-vs-Ksp precipitation
-  prediction), then kinetics and electrochemistry, each opening with its stress scenario. Counters live in `AGENTS.md ## Current state`;
+  fourth shape, with **six subtypes**: weak-acid pH · buffer (common-ion + Henderson–Hasselbalch) · weak-base pH via Kw ·
+  Ksp solubility (incl. a **common-ion** variant) · **polyprotic** (staged Kₐ) · **titration** (a weak-acid/strong-base curve,
+  a build-time SVG) + the **`weak_acid_ph_v1` gym** (the tier's drill instrument). **Next inside Phase 2:** the rest of
+  equilibrium & acid-base (Q-vs-Ksp precipitation prediction, the K/pH/Kw formula-sheet entries), then kinetics and
+  electrochemistry, each opening with its stress scenario. Counters live in `AGENTS.md ## Current state`;
   per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are
   the plan of record.
-- **Equilibrium & acid-base — OPENED, five subtypes + a gym** (2026-07-08, ADR-0048): the thesis made literal — *the ICE
+- **Equilibrium & acid-base — OPENED, six subtypes + a gym** (2026-07-08, ADR-0048): the thesis made literal — *the ICE
   table is the species ledger with the extent solved from mass action* ($Q=K$), not driven to a limiting reagent. The
   **reversible-extent solver** (`chemkernel.equilibrium.solve_equilibrium`) finds the extent by **bisection to high
   precision** (exact Decimal, general beyond the quadratic); the root is model-exact-then-rounded, the machine-check the
@@ -44,13 +45,17 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   `equilibrium/phosphoric-acid-ph` (0.100 M H₃PO₄ ionizing in stages Kₐ1≫Kₐ2≫Kₐ3 → **pH 1.62**; the solver run once per stage
   on the previous stage's output, top-level ice = stage 1 + `result.later_stages`; the [H⁺]-tracks-stage-1 and [HPO₄²⁻]≈Kₐ2
   payoffs fall out of the solve; two new ion-table anions + a `[polyprotic]` data table, composition machine-checked on load;
-  a `polyprotic-acid` concept). Triple-badged; gate `equilibriumcheck.mjs` re-derives the spine (weak-acid quadratic + buffer
-  + weak-base + Ksp cubic + common-ion + polyprotic stages) in Node; concepts `chemical-equilibrium`/`ph`/`solubility-product`/
-  `water-autoionization`/`buffer`/`common-ion-effect`/`polyprotic-acid`; 32-way tamper-tested. The tier's **`weak_acid_ph_v1`
-  gym** landed too — pH-of-a-weak-acid drills, the gate re-solving the mass-action root in pure Node (reusing `solveEquilibrium`
-  from `equilibriumcheck.mjs` — one solver, four call sites). **Deferred (the rest of the tier):** titration curves, the
-  $K$/pH/$K_w$ formula-sheet entries (need the activity treatment); $Q$-vs-$K_{sp}$ precipitation prediction (the common-ion
-  machinery is now in place).
+  a `polyprotic-acid` concept). And a **titration** subtype → `equilibrium/acetic-acid-titration` (25.0 mL 0.100 M acetic acid
+  titrated with 0.100 M NaOH — the ledger *marched* by region: weak acid/buffer → the conjugate base's weak-base solve at
+  equivalence → excess base; the classic curve, initial pH 2.88, **pH = pKₐ = 4.74 at half-equivalence**, **basic at
+  equivalence (pH 8.72)**; the player draws a **build-time SVG** of the verified points — the tier's first plot; reuses acetic
+  acid's Kₐ + NaOH, no new data; a `titration` concept). Triple-badged; gate `equilibriumcheck.mjs` re-derives the spine
+  (weak-acid quadratic + buffer + weak-base + Ksp cubic + common-ion + polyprotic stages + the whole titration curve) in Node;
+  concepts `chemical-equilibrium`/`ph`/`solubility-product`/`water-autoionization`/`buffer`/`common-ion-effect`/`polyprotic-acid`/
+  `titration`; 37-way tamper-tested. The tier's **`weak_acid_ph_v1` gym** landed too — pH-of-a-weak-acid drills, the gate
+  re-solving the mass-action root in pure Node (reusing `solveEquilibrium` from `equilibriumcheck.mjs` — one solver, four call
+  sites). **Deferred (the rest of the tier):** the $K$/pH/$K_w$ formula-sheet entries (need the activity treatment);
+  $Q$-vs-$K_{sp}$ precipitation prediction (the common-ion machinery is now in place); a titration slider interactive.
 - **IMF comparison lesson — LANDED** (2026-07-08, ADR-0047): the bonding capstone + a **third lesson shape** (`comparison`).
   `bonding/boiling-points-and-imfs` lines up CH₄ ≪ NH₃ ≪ H₂O (equal-mass hydrides, so size is controlled) and the
   machine-checked payoff is the trend itself: sorted by boiling point, the dominant-IMF rank is **non-decreasing** (the
@@ -453,11 +458,15 @@ for the contrast; the `common-ion-effect` concept. The **polyprotic** subtype la
 `equilibrium/phosphoric-acid-ph` — 0.100 M H₃PO₄ ionizing in stages Kₐ1≫Kₐ2≫Kₐ3, the solver run **once per stage** on the
 previous stage's equilibrium (the successive treatment; top-level ice = stage 1, `result.later_stages` the rest) → **pH 1.62**;
 the [H⁺]-tracks-stage-1 and amphiprotic-[HPO₄²⁻]≈Kₐ2 payoffs fall out of the solve; a `[polyprotic]` data table + two new
-ion-table anions (composition machine-checked on load) + a `polyprotic-acid` concept. **Five subtypes now** (dispatched by
-`salt`/`base`/`acid`, + `conjugate_base_molarity_M` → buffer, ≥2 protons → polyprotic). **Next in-tier:** **titration curves**
-(a march of extent as titrant is added — the ledger updated); $Q$-vs-$K_{sp}$ precipitation prediction (the common-ion
-machinery is now in place — a *prediction* face on top of it); the $K$/pH/$K_w$ formula-sheet entries (they need the
-*activity* — dimensionless — treatment so the dimension engine stays homogeneous).
+ion-table anions (composition machine-checked on load) + a `polyprotic-acid` concept. A **titration** subtype landed too (8th
+increment): `equilibrium/acetic-acid-titration` — a weak acid (acetic) titrated by a strong base (NaOH), the ledger *marched*
+by region (weak acid/buffer → the conjugate base's weak-base solve at equivalence → excess base), each point reusing
+`solve_equilibrium`; the top-level ice = the initial point, a `titration` block carries the (volume, pH) curve + landmarks;
+the player draws a **build-time SVG** (the tier's first plot) — initial pH 2.88, pH = pKₐ = 4.74 at half-equivalence, basic at
+equivalence (pH 8.72); reuses acetic acid's Kₐ + NaOH (no new data); a `titration` concept; the gate recomputes the whole
+curve. **Six subtypes now** (+ `titrant` → titration). **Next in-tier:** $Q$-vs-$K_{sp}$ precipitation prediction (the
+common-ion machinery is now in place — a *prediction* face on top of it); the $K$/pH/$K_w$ formula-sheet entries (they need the
+*activity* — dimensionless — treatment so the dimension engine stays homogeneous); optionally a titration slider interactive.
 
 **Then (each its own increment, sketch):** the rest of bonding (above) + the rest of equilibrium & acid-base (above);
 kinetics ($d\xi/dt$, rate laws, integrated rate laws, half-life); electrochemistry (oxidation numbers — completing the

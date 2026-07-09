@@ -25,7 +25,7 @@ from . import BuildError, __version__
 from .balance import balance
 from .data import ChemData
 from .equilibrium import (build_buffer_lesson, build_equilibrium_lesson, build_polyprotic_lesson,
-                          build_solubility_lesson, build_weak_base_lesson)
+                          build_solubility_lesson, build_titration_lesson, build_weak_base_lesson)
 from .extent import solve_extent, species_mass_g, to_decimal
 from .formula import Formula, parse_formula
 from .gym import generate_gym
@@ -602,9 +602,12 @@ def build_equilibrium(path: Path, root: Path) -> tuple[dict, str]:
         acidbase = AcidBase.load(root)
         acidbase.validate(data)  # regime-1 composition self-check of the sourced acid/base table
         acid = acidbase.acids.get(spec["acid"])
-        # the acid's proton count fully determines the route: a polyprotic acid (≥2 protons) ionizes in stages;
-        # a monoprotic acid is a weak-acid pH, or a buffer if its conjugate base is also present.
-        if acid is not None and int(acid.get("protons", 0)) >= 2:
+        # `titrant` (a strong base being added) → a titration curve. Otherwise the acid's proton count decides:
+        # a polyprotic acid (≥2 protons) ionizes in stages; a monoprotic acid is a weak-acid pH, or a buffer if
+        # its conjugate base is also present.
+        if "titrant" in spec:
+            lesson = build_titration_lesson(spec, data, acidbase, ctx)
+        elif acid is not None and int(acid.get("protons", 0)) >= 2:
             lesson = build_polyprotic_lesson(spec, data, acidbase, ctx)
         elif "conjugate_base_molarity_M" in spec:   # a buffer: HA + its conjugate base A⁻ both present
             lesson = build_buffer_lesson(spec, data, acidbase, ctx)
