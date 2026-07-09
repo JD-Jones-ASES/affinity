@@ -1,5 +1,8 @@
 <script>
-  // The Valence Table flagship (brief §8, ADR-0033): four modes over one committed, machine-verified table.
+  // The Valence Table flagship (brief §8, ADR-0033/0052): four modes over one committed, machine-verified
+  // table that now spans all 118 elements in a standard IUPAC layout — DEPTH for the common elements
+  // (ions + machine-verified salts), BREADTH for the rest (name, position, and whatever sourced lens values
+  // they carry — an honest gap where a value isn't curated, never a fabricated one).
   //   • Explore — the grid with five LENSES (ion charge, valence electrons, electronegativity, covalent
   //     radius, first ionization energy). Each lens colors the sourced values and opens a pattern panel
   //     (what pattern / why / exceptions / where) — the "why" renders under the interpretive marker
@@ -17,17 +20,26 @@
   const t = table;
 
   const bySym = Object.fromEntries(t.elements.map((e) => [e.symbol, e]));
+  const TOTAL = t.elements.length; // 118
 
   // Atomic-weight cell text: a numeric standard weight, else the bracketed longest-lived mass number ("[98]")
   // for the no-standard-weight radioactive elements (ADR-0052). Never fed to Number().
   const awText = (e) => (e.atomic_weight != null ? e.atomic_weight : e.mass_number != null ? `[${e.mass_number}]` : "");
-  // f-block inset placement (ADR-0052): the fourteen f-block elements carry no group, so they get an explicit
-  // grid cell in a dedicated inset row (Ce–Lu row 8, Th–Lr row 9, columns 3–16) instead of scattering into the
-  // sparse main grid. A later wave redesigns the layout; this keeps the 118-element table coherent + green.
-  const fCol = (e) => e.Z - (e.period === 6 ? 58 : 90) + 3;
-  const fRow = (e) => (e.period === 6 ? 8 : 9);
-  const cellCol = (e) => (e.group != null ? e.group : fCol(e));
-  const cellRow = (e) => (e.group != null ? e.period : fRow(e));
+
+  // Layout (ADR-0052): standard 18-column IUPAC table. Main-group + d-block (incl. La/Ac, which sit in
+  // group 3) place at their group×period; the 28 group-less f-block elements (Ce–Lu, Th–Lr) are drawn as the
+  // two conventional DETACHED rows below the main body — Ce–Lu on f-row 1, Th–Lr on f-row 2, columns 3–16.
+  const mainElements = t.elements.filter((e) => e.group != null);
+  const fElements = t.elements.filter((e) => e.group == null);
+  const GROUPS = Array.from({ length: 18 }, (_, i) => i + 1);
+  const fCol = (e) => e.Z - (e.period === 6 ? 58 : 90) + 3; // Ce/Th → col 3 … Lu/Lr → col 16
+  const fRow = (e) => (e.period === 6 ? 1 : 2);              // row WITHIN the detached f-grid
+
+  // Depth = a common monatomic ion + the full charge-balance (salt) coverage. These get a corner mark and
+  // the salts panel; every other element gets the honest breadth mini-panel (no fabricated ions/salts).
+  const isDepth = (e) => e.common_ion != null;
+  const depthCount = t.elements.filter((e) => e.common_ion).length;
+  const isHi = (sym) => t.highlight.includes(sym); // the lesson-linked pair (Ca, Na) — an extra ring on top
 
   // ---------- modes ----------
   const MODES = [
@@ -42,6 +54,12 @@
   let lensId = $state("ion-charge");
   const lens = $derived(t.lenses.find((l) => l.id === lensId));
   const numericLens = $derived(lens.property !== "common_ion");
+  // how many of the 118 carry the current lens value (honest coverage, shown in the legend)
+  const lensCount = $derived(
+    lens.property === "common_ion"
+      ? depthCount
+      : t.elements.filter((e) => e[lens.property] != null).length
+  );
 
   // color intensity: normalize the lens property across the elements that carry it (presentation only)
   const lensStats = $derived.by(() => {
@@ -63,7 +81,6 @@
   const selPoly = $derived(sel.type === "poly" ? t.polyatomic.find((p) => p.id === sel.key) : null);
   const selIonId = $derived(selElement?.common_ion?.id ?? selPoly?.id ?? null);
   const salts = $derived(selIonId ? t.charge_balance.filter((c) => c.cation === selIonId || c.anion === selIonId) : []);
-  const isHi = (sym) => t.highlight.includes(sym);
 
   // ---------- trends ----------
   const TREND_PROPS = [
@@ -77,7 +94,7 @@
     ...[...new Set(t.elements.map((e) => e.group))].filter((n) => n != null).sort((a, b) => a - b)
       .filter((n) => t.elements.filter((e) => e.group === n).length >= 2)
       .map((n) => ({ kind: "group", n, label: `Group ${n}` })),
-  ].filter((s) => s.kind === "group" || t.elements.filter((e) => e.period === s.n).length >= 2);
+  ];
   let trendProp = $state("first_ionization_kj_mol");
   let seriesKey = $state("period|2");
   const series = $derived(SERIES.find((s) => `${s.kind}|${s.n}` === seriesKey) ?? SERIES[0]);
@@ -86,8 +103,11 @@
 
   const CHART = { w: 560, h: 230, padX: 40, padTop: 26, padBottom: 34 };
   const trendData = $derived.by(() => {
+    // Period trends walk the MAIN-BODY row left→right by group; the detached f-block (group=null, ADR-0052)
+    // is EXCLUDED — its 14 elements aren't part of the period's group-ordered trend and mostly carry no
+    // curated property. Group trends walk down by period. A missing value renders as a gap, never interpolated.
     const members = t.elements
-      .filter((e) => (series.kind === "period" ? e.period === series.n : e.group === series.n))
+      .filter((e) => (series.kind === "period" ? (e.period === series.n && e.group != null) : e.group === series.n))
       .sort((a, b) => (series.kind === "period" ? a.group - b.group : a.period - b.period));
     const defined = members.filter((e) => e[trendProp] != null);
     const vals = defined.map((e) => Number(e[trendProp]));
@@ -105,7 +125,12 @@
     });
     return { points, polyline: points.filter((p) => p.has).map((p) => `${p.x},${p.y}`).join(" ") };
   });
-  const partialPeriod = $derived(series.kind === "period" && series.n === 4);
+  // fraction of this series that carries the curated property (the honest caveat now is sparse PROPERTY
+  // coverage, not missing elements — period 4 is complete, ADR-0052 retired the old "partial period" note).
+  const trendCoverage = $derived.by(() => {
+    const pts = trendData.points;
+    return { have: pts.filter((p) => p.has).length, total: pts.length };
+  });
 
   // ---------- formula builder ----------
   const seen = new Set();
@@ -119,6 +144,7 @@
   const built = $derived(t.charge_balance.find((c) => c.cation === pickCat && c.anion === pickAn));
 
   // ---------- bonding ----------
+  // 71 elements now carry electronegativity — a <select> keeps the two element pickers usable at that scale.
   const enElements = t.elements.filter((e) => e.enCents != null);
   let bondA = $state("H");
   let bondB = $state("O");
@@ -157,27 +183,51 @@
       {/each}
     </div>
 
-    <div class="grid" role="grid" aria-label="Periodic table (the elements in this dataset)">
-      {#each t.elements as e}
-        {@const shade = numericLens ? lensShade(e) : null}
-        <button
-          class="cell {isHi(e.symbol) ? 'hi' : ''} {sel.type === 'element' && sel.key === e.symbol ? 'sel' : ''} {numericLens ? '' : `b-${e.block}`}"
-          style={`grid-column:${cellCol(e)}; grid-row:${cellRow(e)};` + (shade != null ? ` background: color-mix(in srgb, var(--accent) ${shade}%, var(--paper-2));` : "")}
-          onclick={() => (sel = { type: "element", key: e.symbol })}
-          aria-label={`${e.name}, ${e.common_ion ? "common ion " + chargeLabel(e.common_ion.charge) : "no simple ion"}`}>
-          <span class="z">{e.Z}</span>
-          {#if !numericLens && e.common_ion}<span class="ch">{chargeLabel(e.common_ion.charge)}</span>{/if}
-          <span class="sym">{e.symbol}</span>
-          <span class="aw">{numericLens ? (lensValue(e) ?? "—") : awText(e)}</span>
-        </button>
-      {/each}
-      <div class="legend" style="grid-column:3 / 13; grid-row:1 / 3;">
-        <p class="blurb">{numericLens ? `${lens.label}${lens.unit ? ` (${lens.unit})` : ""} — darker is higher. Blank cells carry no curated value.` : t.blurb}</p>
-        {#if !numericLens}
-          <div class="blocks"><span class="sw b-s"></span>s-block<span class="sw b-p"></span>p-block</div>
-        {/if}
+    <div class="lens-legend">
+      {#if numericLens}
+        <span>{lens.label}{lens.unit ? ` (${lens.unit})` : ""} — darker is higher · <strong>{lensCount} of {TOTAL}</strong> sourced (blank = no curated value)</span>
+      {:else}
+        <span class="blocks"><span class="sw b-s"></span>s<span class="sw b-p"></span>p<span class="sw b-d"></span>d<span class="sw b-f"></span>f</span>
+        <span><strong>{lensCount} of {TOTAL}</strong> carry a common monatomic ion</span>
+      {/if}
+    </div>
+
+    {#snippet ptCell(e)}
+      {@const shade = numericLens ? lensShade(e) : null}
+      {@const col = e.group != null ? e.group : fCol(e)}
+      {@const row = e.group != null ? e.period : fRow(e)}
+      <button
+        class="cell {isDepth(e) ? 'depth' : ''} {isHi(e.symbol) ? 'hi' : ''} {sel.type === 'element' && sel.key === e.symbol ? 'sel' : ''} {numericLens ? '' : `b-${e.block}`}"
+        style={`grid-column:${col}; grid-row:${row};` + (shade != null ? ` background: color-mix(in srgb, var(--accent) ${shade}%, var(--paper-2));` : "")}
+        onclick={() => (sel = { type: "element", key: e.symbol })}
+        aria-label={`${e.name}, atomic number ${e.Z}, ${e.block}-block${e.group != null ? `, group ${e.group}` : ""}, period ${e.period}${e.common_ion ? `, common ion ${chargeLabel(e.common_ion.charge)}` : ""}`}>
+        <span class="z">{e.Z}</span>
+        {#if !numericLens && e.common_ion}<span class="ch">{chargeLabel(e.common_ion.charge)}</span>{/if}
+        <span class="sym">{e.symbol}</span>
+        <span class="aw">{numericLens ? (lensValue(e) ?? "·") : awText(e)}</span>
+      </button>
+    {/snippet}
+
+    <div class="pt-scroll">
+      <div class="ptable">
+        <div class="pt-head" aria-hidden="true">
+          {#each GROUPS as g}<span class="ghead" style={`grid-column:${g}`}>{g}</span>{/each}
+        </div>
+        <div class="grid pt-main" role="grid" aria-label="Periodic table, main body (periods 1–7)">
+          {#each mainElements as e}{@render ptCell(e)}{/each}
+        </div>
+        <div class="grid pt-f" role="grid" aria-label="f-block: lanthanides (58–71) and actinides (90–103)">
+          <span class="frow-label" style="grid-column:1 / 3; grid-row:1;" aria-hidden="true">58–71</span>
+          <span class="frow-label" style="grid-column:1 / 3; grid-row:2;" aria-hidden="true">90–103</span>
+          {#each fElements as e}{@render ptCell(e)}{/each}
+        </div>
       </div>
     </div>
+
+    <p class="pt-note faint">La and Ac sit in group 3; the 28 f-block elements (58–71 lanthanides, 90–103 actinides)
+      are drawn as the two detached rows, as on a standard periodic table. A corner mark flags the {depthCount}
+      elements that carry a common ion and full charge-balance coverage — click one for its salts. Every other
+      cell shows the sourced values it has and nothing it doesn't.</p>
 
     <div class="panel">
       <p class="panel-head">
@@ -205,12 +255,15 @@
     <div class="detail">
       {#if selElement}
         <div class="d-head">
-          <span class="d-sym">{selElement.symbol}</span>
+          <span class="d-sym {isDepth(selElement) ? 'is-depth' : ''}">{selElement.symbol}</span>
           <div>
             <div class="d-name">{selElement.name}</div>
-            <div class="d-meta">Z = {selElement.Z} · {awText(selElement)}{selElement.atomic_weight != null ? " g/mol" : ""} · {selElement.group != null ? `group ${selElement.group}, ` : ""}period {selElement.period}{selElement.valence_electrons ? ` · ${selElement.valence_electrons} valence e⁻` : ""}</div>
+            <div class="d-meta">Z = {selElement.Z} · {awText(selElement)}{selElement.atomic_weight != null ? " g/mol" : ""} · {selElement.block}-block · {selElement.group != null ? `group ${selElement.group}, ` : ""}period {selElement.period}{selElement.valence_electrons ? ` · ${selElement.valence_electrons} valence e⁻` : ""}</div>
           </div>
         </div>
+        {#if selElement.mass_number != null}
+          <p class="mass-note faint">[{selElement.mass_number}] — no standard atomic weight; the value shown is the mass number of the longest-lived isotope.</p>
+        {/if}
         {#if selElement.common_ion}
           <p class="d-ion">Common ion: <strong>{@html selElement.common_ion.latexHtml}</strong> ({selElement.common_ion.name}) —
             charge <strong>{chargeLabel(selElement.common_ion.charge)}</strong>.
@@ -220,7 +273,9 @@
             <span class="badge sourced tiny"><span class="dot"></span>rule-sourced ({t.sources.ion_charge})</span></p>
           <p class="d-why muted">{t.group_charge_note}</p>
         {:else}
-          <p class="d-ion muted">No simple monatomic ion in this dataset — {selElement.symbol} appears in polyatomic ions and covalent compounds instead.</p>
+          <p class="d-ion muted">{selElement.name} has no simple monatomic ion in Affinity's set — it isn't part of a
+            lesson or the charge-balance builder yet. It's here for completeness (breadth for the less-common elements);
+            the values below are only what's sourced, with no fabricated ions or salts.</p>
         {/if}
 
         {#if selElement.first_ionization_kj_mol || selElement.electronegativity || selElement.covalent_radius_pm}
@@ -237,7 +292,7 @@
                 <div class="prop"><span class="pk">First ionization energy</span><span class="pv">{selElement.first_ionization_kj_mol} kJ/mol</span><span class="ps">{t.sources.ionization_energy}</span></div>
               {/if}
             </div>
-            {#if !selElement.electronegativity}<p class="prop-note faint">Electronegativity is undefined for the noble gases on the Pauling scale.</p>{/if}
+            {#if !selElement.electronegativity}<p class="prop-note faint">{selElement.group === 18 ? "Electronegativity is undefined for the noble gases on the Pauling scale." : `Electronegativity isn't curated for ${selElement.name} in this dataset.`}</p>{/if}
           </div>
         {/if}
       {:else if selPoly}
@@ -306,9 +361,8 @@
       </svg>
       <p class="chart-note muted">{trendLens.panel.pattern}
         {#if trendData.points.some((p) => !p.has)}
-          <span class="faint">Blank marks carry no curated value ({trendProp === "electronegativity" ? "Pauling electronegativity is undefined for the noble gases" : "transition-metal covalent radii are spin-state-dependent and not yet curated"}) — shown as gaps, never interpolated.</span>
+          <span class="faint">Only {trendCoverage.have} of the {trendCoverage.total} elements in {series.label} carry a curated {trendMeta.label.toLowerCase()} ({trendProp === "electronegativity" ? "Pauling electronegativity is undefined for the noble gases" : trendProp === "covalent_radius_pm" ? "transition-metal covalent radii are spin-state-dependent and not yet curated" : "the heaviest elements have no measured value"}) — the rest show as gaps, never interpolated.</span>
         {/if}
-        {#if partialPeriod}<span class="faint">Period 4 is partial — only the curated elements (K, Ca, Fe, Cu, Zn) are shown.</span>{/if}
       </p>
     </div>
 
@@ -355,23 +409,19 @@
   {:else if mode === "bonding"}
     <p class="fm-lede muted">Pick two elements. The difference in their Pauling electronegativities (ΔEN)
       estimates how the bonding electrons are shared — the thresholds are OpenStax's, and OpenStax's own
-      caution comes with them.</p>
+      caution comes with them. All {enElements.length} electronegativity-bearing elements are pickable.</p>
     <div class="pickers">
       <div class="picker">
-        <p class="picker-label">Element A</p>
-        <div class="picker-chips">
-          {#each enElements as e}
-            <button class="chip small {bondA === e.symbol ? 'sel' : ''}" onclick={() => (bondA = e.symbol)}>{e.symbol}</button>
-          {/each}
-        </div>
+        <p class="picker-label"><label for="bondA">Element A</label></p>
+        <select id="bondA" class="pt-select" bind:value={bondA}>
+          {#each enElements as e}<option value={e.symbol}>{e.symbol} — {e.name} ({e.electronegativity})</option>{/each}
+        </select>
       </div>
       <div class="picker">
-        <p class="picker-label">Element B</p>
-        <div class="picker-chips">
-          {#each enElements as e}
-            <button class="chip small {bondB === e.symbol ? 'sel' : ''}" onclick={() => (bondB = e.symbol)}>{e.symbol}</button>
-          {/each}
-        </div>
+        <p class="picker-label"><label for="bondB">Element B</label></p>
+        <select id="bondB" class="pt-select" bind:value={bondB}>
+          {#each enElements as e}<option value={e.symbol}>{e.symbol} — {e.name} ({e.electronegativity})</option>{/each}
+        </select>
       </div>
     </div>
     <div class="built">
@@ -408,27 +458,50 @@
   .lenses { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
   .lens-cap { font-size: 0.8rem; color: var(--ink-faint); margin-right: 0.15rem; }
 
+  .lens-legend { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--ink-2); margin: -0.3rem 0 0; }
+  .lens-legend strong { color: var(--ink); }
+
+  /* ---- the periodic table ---- */
+  /* Horizontal-scroll container so 375px never forces PAGE overflow (QC C6): the grid keeps ≥24px cells and
+     scrolls internally. .ptable widens to a min so cells stay legible + tappable; on wide screens it fills. */
+  .pt-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-bottom: 0.15rem; }
+  .ptable { width: max(100%, 34rem); display: grid; gap: 0.5rem; }
+
+  .pt-head { display: grid; grid-template-columns: repeat(18, minmax(0, 1fr)); gap: 3px; margin-bottom: -0.35rem; }
+  .ghead { text-align: center; font-size: 0.55rem; color: var(--ink-faint); font-family: var(--font-mono); }
+
   .grid { display: grid; grid-template-columns: repeat(18, minmax(0, 1fr)); gap: 3px; }
+  .pt-f { margin-top: 0.15rem; }
+  .frow-label { display: flex; align-items: center; justify-content: flex-end; padding-right: 0.35rem; font-size: 0.55rem; color: var(--ink-faint); font-family: var(--font-mono); }
+
   .cell {
     position: relative; aspect-ratio: 1; min-width: 0; border: 1px solid var(--line); border-radius: 6px;
     background: var(--paper-2); cursor: pointer; font: inherit; color: var(--ink); padding: 2px; overflow: hidden;
     display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1;
   }
-  .cell.b-s { background: color-mix(in srgb, var(--ion-na) 12%, var(--paper-2)); }
-  .cell.b-p { background: color-mix(in srgb, var(--ion-co3) 12%, var(--paper-2)); }
+  .cell.b-s { background: color-mix(in srgb, var(--ion-na) 14%, var(--paper-2)); }
+  .cell.b-p { background: color-mix(in srgb, var(--ion-co3) 14%, var(--paper-2)); }
+  .cell.b-d { background: color-mix(in srgb, var(--ion-cl) 14%, var(--paper-2)); }
+  .cell.b-f { background: color-mix(in srgb, var(--ion-ca) 16%, var(--paper-2)); }
   .cell:hover { border-color: var(--accent); }
+  /* depth = common ion + full salt coverage: a small accent corner "dog-ear", visible under any lens */
+  .cell.depth::after { content: ""; position: absolute; right: 0; bottom: 0; width: 0; height: 0;
+    border-style: solid; border-width: 0 0 8px 8px; border-color: transparent transparent var(--accent) transparent; }
   .cell.hi { border-color: var(--ion-ca); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ion-ca) 45%, transparent); }
-  .cell.sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
-  .cell .sym { font-weight: 700; font-size: clamp(0.7rem, 2.2vw, 1.1rem); }
-  .cell .z { position: absolute; top: 2px; left: 3px; font-size: 0.55rem; color: var(--ink-faint); }
-  .cell .ch { position: absolute; top: 2px; right: 3px; font-size: 0.6rem; font-weight: 700; color: var(--accent); }
-  .cell .aw { font-size: 0.5rem; color: var(--ink-faint); font-family: var(--font-mono); }
-  .legend { align-self: center; padding: 0 0.5rem; }
-  .legend .blurb { margin: 0; font-size: clamp(0.62rem, 1.4vw, 0.85rem); color: var(--ink-2); line-height: 1.35; }
-  .blocks { display: flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; color: var(--ink-faint); margin-top: 0.3rem; flex-wrap: wrap; }
+  .cell.sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); z-index: 1; }
+  .cell .sym { font-weight: 700; font-size: clamp(0.7rem, 2.2vw, 1.05rem); }
+  .cell .z { position: absolute; top: 2px; left: 3px; font-size: 0.5rem; color: var(--ink-faint); }
+  .cell .ch { position: absolute; top: 2px; right: 3px; font-size: 0.56rem; font-weight: 700; color: var(--accent); }
+  .cell .aw { font-size: 0.48rem; color: var(--ink-faint); font-family: var(--font-mono); }
+
+  .pt-note { margin: 0; font-size: 0.78rem; line-height: 1.4; max-width: 52rem; }
+
+  .blocks { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; color: var(--ink-faint); flex-wrap: wrap; }
   .blocks .sw { width: 0.7rem; height: 0.7rem; border-radius: 3px; display: inline-block; margin-left: 0.5rem; }
-  .blocks .sw.b-s { background: color-mix(in srgb, var(--ion-na) 40%, var(--paper-2)); margin-left: 0; }
-  .blocks .sw.b-p { background: color-mix(in srgb, var(--ion-co3) 40%, var(--paper-2)); }
+  .blocks .sw.b-s { background: color-mix(in srgb, var(--ion-na) 42%, var(--paper-2)); margin-left: 0; }
+  .blocks .sw.b-p { background: color-mix(in srgb, var(--ion-co3) 42%, var(--paper-2)); }
+  .blocks .sw.b-d { background: color-mix(in srgb, var(--ion-cl) 42%, var(--paper-2)); }
+  .blocks .sw.b-f { background: color-mix(in srgb, var(--ion-ca) 46%, var(--paper-2)); }
 
   .panel { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.85rem 1.05rem; }
   .panel-head { margin: 0 0 0.55rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
@@ -444,12 +517,17 @@
   .chip .pn { font-size: 0.78rem; color: var(--ink-2); }
   .chip.small { padding: 0.18rem 0.6rem; font-size: 0.85rem; }
 
+  .pt-select { font: inherit; width: 100%; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 0.4rem 0.55rem; color: var(--ink); cursor: pointer; }
+  .pt-select:hover, .pt-select:focus { border-color: var(--accent); outline: none; }
+
   .detail { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.15rem; }
   .d-head { display: flex; align-items: center; gap: 0.9rem; }
-  .d-sym { font-size: 2rem; font-weight: 700; color: var(--accent); min-width: 2.2rem; text-align: center; }
-  .d-sym.poly-sym { font-size: 1.4rem; }
+  .d-sym { font-size: 2rem; font-weight: 700; color: var(--ink-2); min-width: 2.2rem; text-align: center; }
+  .d-sym.is-depth { color: var(--accent); }
+  .d-sym.poly-sym { font-size: 1.4rem; color: var(--accent); }
   .d-name { font-weight: 600; text-transform: capitalize; }
   .d-meta { font-size: 0.82rem; color: var(--ink-faint); font-family: var(--font-mono); }
+  .mass-note { margin: 0.5rem 0 0; font-size: 0.8rem; }
   .d-ion { margin: 0.7rem 0 0; }
   .d-why { margin: 0.4rem 0 0; font-size: 0.88rem; }
   .badge.tiny { font-size: 0.66rem; padding: 0.04rem 0.4rem; }

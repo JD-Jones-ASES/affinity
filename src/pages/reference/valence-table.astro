@@ -11,7 +11,11 @@ const view = renderValenceTable(table);
 <Base title="The Valence Table — Affinity" description="The periodic table as a charge machine: click an element for its common ion, click a polyatomic ion to see how neutral formulas follow from charge balance.">
   <p class="crumb faint"><a href={withBase("/reference/")}>Reference</a> · Valence Table</p>
   <h1>{table.title}</h1>
-  <p class="muted intro">{table.blurb} Four modes: <strong>Explore</strong> the grid through five lenses
+  <p class="muted intro">{table.blurb} The grid is the full periodic table — all 118 elements in their
+    standard IUPAC positions, with the lanthanides and actinides as the two detached f-block rows.{" "}
+    <strong>Depth</strong> for the common elements (a sourced ion and every machine-verified salt) and{" "}
+    <strong>breadth</strong> for the rest (name, position, and whatever properties are sourced — an honest gap
+    where a value isn't). Four modes: <strong>Explore</strong> the grid through five lenses
     (each with its pattern, its why, and its exceptions), graph the <strong>Trends</strong> across a period
     or down a group, build any salt in the <strong>Formula builder</strong> (every pair machine-verified and
     named), and compare two elements in <strong>Bonding</strong> (ΔEN → polarity, with OpenStax's own
