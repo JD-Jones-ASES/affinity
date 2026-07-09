@@ -13,10 +13,7 @@ const speciesEntries = all.filter((r) => r.kind === "species");
 const moleculeEntries = all.filter((r) => r.kind === "molecule");
 const formulaEntries = all.filter((r) => r.kind === "formula");
 
-const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
-const structs = import.meta.glob("../../../derived/**/*.structure.json", { eager: true });
-const cmps = import.meta.glob("../../../derived/**/*.comparison.json", { eager: true });
-const lessonTitle = Object.fromEntries([...Object.values(sols), ...Object.values(structs), ...Object.values(cmps)].map((m) => [m.default.slug, m.default.title]));
+import { lessonTitles as lessonTitle } from "../../lib/lessonTitles.js";  // slug→title over all 7 lesson kinds (QC C3)
 const conceptTitle = Object.fromEntries(concepts.map((c) => [c.id, c.title]));
 ---
 

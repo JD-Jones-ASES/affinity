@@ -89,6 +89,10 @@ for (const { rel, obj } of entries) {
   if (obj.kind === "concept") {
     for (const e of obj.related) if (!ids.has(e.to)) fail(rel, `related edge → '${e.to}' resolves to no reference`);
     for (const s of obj.lessons) if (!slugs.has(s)) fail(rel, `lesson '${s}' is not a real lesson slug`);
+    // [[concept-slug]] inline cross-refs in the definition are rendered as same-page anchor links (view.js
+    // wikilinks) — every target must resolve to a real reference id, else the link is dead (QC 2026-07-09 C2)
+    for (const m of (obj.definition ?? "").matchAll(/\[\[([a-z0-9-]+)\]\]/g))
+      if (!ids.has(m[1])) fail(rel, `definition [[${m[1]}]] cross-ref resolves to no reference`);
     // the honesty model (ADR-0003): a rule-sourced concept must cite its source
     if (obj.regime === "rule-sourced" && !obj.source) fail(rel, `rule-sourced concept has no source`);
     if (obj.source && !registeredSources.has(obj.source)) fail(rel, `source '${obj.source}' is not registered in docs/SOURCES.md`);

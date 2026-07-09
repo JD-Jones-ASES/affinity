@@ -1,7 +1,7 @@
 // Build-time view prep: deep-render the verified solution's LaTeX to HTML so the player islands receive
 // ready-to-display HTML and never ship KaTeX to the browser (ADR-0001). Presentation only — every value
 // came from ChemKernel; this layer renders, it does not compute chemistry.
-import { inline, tex } from "./katex.js";
+import { inline, tex, wikilinks } from "./katex.js";
 
 const SUB = { "0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄", "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉" };
 const SUP = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "+": "⁺", "-": "⁻" };
@@ -482,11 +482,12 @@ export function renderElectrochemistryLesson(lesson) {
   return s;
 }
 
-// Render a concept entry (definition may carry inline $…$; latex is a standalone display formula).
+// Render a concept entry (definition may carry inline $…$ math and [[concept-slug]] cross-refs; latex is a
+// standalone display formula). [[…]] resolves to same-page anchor links (concepts live together on /reference/).
 export function renderConcept(c) {
   return {
     ...c,
-    definitionHtml: inline(c.definition),
+    definitionHtml: wikilinks(inline(c.definition)),
     latexHtml: c.latex ? tex(c.latex) : null,
     termPretty: prettyIon(c.term),
   };

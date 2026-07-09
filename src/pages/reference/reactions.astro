@@ -15,10 +15,7 @@ const families = all
   .sort((a, b) => ORDER.indexOf(a.family) - ORDER.indexOf(b.family));
 
 const conceptTitle = Object.fromEntries(all.map((r) => [r.id, r.title]));
-const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
-const structs = import.meta.glob("../../../derived/**/*.structure.json", { eager: true });
-const cmps = import.meta.glob("../../../derived/**/*.comparison.json", { eager: true });
-const lessonTitle = Object.fromEntries([...Object.values(sols), ...Object.values(structs), ...Object.values(cmps)].map((m) => [m.default.slug, m.default.title]));
+import { lessonTitles as lessonTitle } from "../../lib/lessonTitles.js";  // slug→title over all 7 lesson kinds (QC C3)
 ---
 
 <Base title="Reaction families — Affinity" description="The first-course reaction families, each with a general form, misconceptions, and machine-verified example reactions — balanced and classified by ChemKernel, with the net-ionic particle view.">

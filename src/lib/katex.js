@@ -30,6 +30,16 @@ export function plain(s) {
     .replace(/\*([^*]+)\*/g, "$1");
 }
 
+// Resolve [[concept-slug]] cross-references in already-rendered concept-definition HTML into same-page anchor
+// links (concepts all live on /reference/, each an <article id="slug">). The link text is the humanized slug
+// ("electron ledger"). Only used for concept definitions, where the target anchors exist; the check:reference
+// gate proves every target resolves (QC 2026-07-09 C2). Bracket chars survive escapeHtml(), so this runs after.
+export function wikilinks(html) {
+  if (html == null) return html;
+  return String(html).replace(/\[\[([a-z0-9-]+)\]\]/g,
+    (_, slug) => `<a class="wikilink" href="#${slug}">${slug.replace(/-/g, " ")}</a>`);
+}
+
 // Render a prose string that may contain inline math delimited by $...$, returning HTML. Math segments become
 // inline KaTeX; the surrounding text is HTML-escaped and gets markdown emphasis. Used for scenarios, claims,
 // notes, labels — anywhere math may sit inside a sentence.
