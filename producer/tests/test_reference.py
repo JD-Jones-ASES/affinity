@@ -63,7 +63,7 @@ def test_valence_table_carries_sourced_periodic_properties():
     assert "covalent_radius_pm" not in by["Fe"]
     assert by["Ar"]["first_ionization_kj_mol"] == "1520.6"   # every element keeps its ionization energy
     # every property source is threaded through for the badges
-    assert t["sources"]["electronegativity"] == "openstax-chemistry-2e"
+    assert t["sources"]["electronegativity"] == "allred-1961-electronegativity"
     assert t["sources"]["covalent_radius"] == "cordero-2008-covalent-radii"
     assert t["sources"]["ionization_energy"] == "nist-ionization-energies"
 

@@ -135,7 +135,7 @@ def test_property_optionality_matches_where_defined():
 
 def test_property_sources_registered():
     d = data()
-    assert d.sources["electronegativity"] == "openstax-chemistry-2e"
+    assert d.sources["electronegativity"] == "allred-1961-electronegativity"
     assert d.sources["covalent_radius"] == "cordero-2008-covalent-radii"
     assert d.sources["ionization_energy"] == "nist-ionization-energies"
 
@@ -163,7 +163,7 @@ def test_boiling_points_loaded_and_sourced():
     from decimal import Decimal
     d = data()
     # the sourced boiling-point evidence (ADR-0046) for the intermolecular-forces concept, keyed by formula
-    assert d.sources["boiling_points"] == "openstax-chemistry-2e"
+    assert d.sources["boiling_points"] == "nist-webbook-boiling-points"
     assert d.boiling_points["H2O"]["temperature_c"] == Decimal("100.0")
     assert d.boiling_points["H2O"]["phase_change"] == "boiling"
     assert d.boiling_points["CO2"]["phase_change"] == "sublimation"   # no liquid at 1 atm

@@ -14,7 +14,7 @@
   "scenario": "Milk of magnesia is a suspension of solid **magnesium hydroxide**, Mg(OH)2 — the textbook “insoluble” base. So surely mixing a magnesium salt with a hydroxide makes the solid appear? Stir 50.0 mL of 0.00010 M Mg(NO3)2 (magnesium nitrate) into 50.0 mL of 0.00010 M NaOH — both perfectly clear. The dissolution equilibrium is $\\mathrm{Mg(OH)_2(s)} \\rightleftharpoons \\mathrm{Mg^{2+}(aq)} + 2\\,\\mathrm{OH^-(aq)}$, and whether a solid forms is decided by the **reaction quotient**: dilute each ion into the combined 100.0 mL, evaluate $Q = [\\mathrm{Mg^{2+}}][\\mathrm{OH^-}]^2$, and compare it to $K_{sp}$. If $Q < K_{sp}$ the solution is **unsaturated** and stays clear — however “insoluble” the compound is called.",
   "regimes": [
     {
-      "facet": "ICE ledger (species accounting)",
+      "facet": "dilution + reaction quotient Q (species accounting)",
       "regime": "ledger-exact"
     },
     {
@@ -55,7 +55,7 @@
   },
   "equilibrium_constant": {
     "symbol": "K_sp",
-    "value": "0.00000000000561",
+    "value": "0.0000000000089",
     "expression_latex": "K_{sp} = [\\mathrm{Mg}^{2+}][\\mathrm{OH}^{-}]^{2}",
     "source": "openstax-chemistry-2e"
   },
@@ -102,8 +102,8 @@
     "forms_precipitate": false,
     "comparison_symbol": "<",
     "q_value_display": "0.000000000000125",
-    "ksp_value_display": "0.00000000000561",
-    "margin_display": "44.9",
+    "ksp_value_display": "0.0000000000089",
+    "margin_display": "71.2",
     "margin_direction": "below"
   },
   "misconception": {

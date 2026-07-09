@@ -43,7 +43,7 @@
     "reactant_latex": "\\mathrm{NH_{3}}",
     "equation_text": "2 NH3 -> N2 + 3 H2",
     "equation_latex": "2\\,\\mathrm{NH_{3}} \\rightarrow \\mathrm{N_{2}} + 3\\,\\mathrm{H_{2}}",
-    "conditions": "on a hot tungsten (W) surface"
+    "conditions": "on a hot tungsten (W) surface (source states no temperature)"
   },
   "rate_law": {
     "order": 0,

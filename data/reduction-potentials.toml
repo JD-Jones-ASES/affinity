@@ -7,6 +7,10 @@
 # the ion's charge (the composition is regime-1 verified; the E° value + the sign convention are the regime-3
 # sourced datum). Read as Decimal (never float — ADR-0013). Values: OpenStax Chemistry 2e, Appendix L (Standard
 # Electrode (Half-Cell) Potentials), CC BY 4.0 — see docs/SOURCES.md.
+#
+# CONDITIONS: these are STANDARD potentials — measured at the standard state, 25 °C (298.15 K), 1 M solutes,
+# 1 atm gases, relative to the SHE. That 25 °C is definitional for every E° here (the whole table), so it is
+# stated once, in this header, rather than per couple (like the Kₐ/K_b/K_w/Kₛₚ files' shared 25 °C).
 
 source = "openstax-chemistry-2e"
 
@@ -53,7 +57,7 @@ electrons = 2
 e_standard_V = "-0.7618"
 
 [couples."Al^3+"]
-name = "aluminium(III)/aluminium"
+name = "aluminum(III)/aluminum"
 oxidized = "Al^3+"
 reduced = "Al"
 electrons = 3

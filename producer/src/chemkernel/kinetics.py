@@ -1,8 +1,10 @@
 """Kinetics — the ledger in time (ADR-0049). Orders 0, 1, 2.
 
 The thesis (AGENTS.md): the **species ledger over reaction extent** is the pivot. Kinetics is that same ledger with
-the extent **evolving in time** — dξ/dt is the *rate* of reaction. For a reactant A consumed with rate law
-rate = k[A]ⁿ, the **integrated rate law** and **half-life** depend on the order n:
+the extent **evolving in time**. For a reactant A consumed with rate law rate = k[A]ⁿ — where **rate is the
+per-species rate of disappearance** −d[A]/dt, so the sourced k is A's disappearance constant (it differs from the
+extent-normalized dξ/dt by the coefficient a; the reaction-rate concept discloses both conventions) — the
+**integrated rate law** and **half-life** depend on the order n:
 
     order 0:  [A] = [A]₀ − kt              t½ = [A]₀ / (2k)      (the half-life SHRINKS as [A] falls)
     order 1:  [A] = [A]₀ · e^(−kt)         t½ = ln 2 / k         (the half-life is CONSTANT — no [A]₀)

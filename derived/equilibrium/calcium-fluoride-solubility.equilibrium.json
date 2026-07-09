@@ -48,14 +48,14 @@
   },
   "equilibrium_constant": {
     "symbol": "K_sp",
-    "value": "0.0000000000345",
+    "value": "0.000000000040",
     "expression_latex": "K_{sp} = [\\mathrm{Ca}^{2+}][\\mathrm{F}^{-}]^{2}",
     "source": "openstax-chemistry-2e"
   },
   "ice": {
     "extent_symbol": "s",
-    "extent_M": "0.000205078296485",
-    "extent_M_display": "0.000205",
+    "extent_M": "0.000215443469003",
+    "extent_M_display": "0.000215",
     "species": [
       {
         "id": "CaF2",
@@ -73,9 +73,9 @@
         "nu": 1,
         "in_quotient": true,
         "initial_M": "0",
-        "change_M": "+0.000205078296485",
-        "equilibrium_M": "0.000205078296485",
-        "equilibrium_M_display": "0.000205"
+        "change_M": "+0.000215443469003",
+        "equilibrium_M": "0.000215443469003",
+        "equilibrium_M_display": "0.000215"
       },
       {
         "id": "F^-",
@@ -85,26 +85,26 @@
         "nu": 2,
         "in_quotient": true,
         "initial_M": "0",
-        "change_M": "+0.00041015659297",
-        "equilibrium_M": "0.00041015659297",
-        "equilibrium_M_display": "0.00041"
+        "change_M": "+0.000430886938006",
+        "equilibrium_M": "0.000430886938006",
+        "equilibrium_M_display": "0.000431"
       }
     ]
   },
   "mass_action": {
     "quotient_symbol": "Q",
-    "quotient_at_equilibrium": "0.0000000000345",
-    "residual_relative": "0.0000000000017"
+    "quotient_at_equilibrium": "0.00000000004",
+    "residual_relative": "0.0000000000026"
   },
   "result": {
-    "molar_solubility_M": "0.000205078296485",
-    "molar_solubility_M_display": "0.000205",
-    "solubility_g_per_L": "0.0160113",
-    "solubility_g_per_L_display": "0.016",
+    "molar_solubility_M": "0.000215443469003",
+    "molar_solubility_M_display": "0.000215",
+    "solubility_g_per_L": "0.0168205",
+    "solubility_g_per_L_display": "0.0168",
     "molar_mass_g_per_mol": "78.074"
   },
   "misconception": {
-    "claim": "Ksp is small (3.45e-11) and Ksp = s^2, so the molar solubility is s = sqrt(Ksp).",
+    "claim": "Ksp is small (4.0e-11) and Ksp = s^2, so the molar solubility is s = sqrt(Ksp).",
     "refuted_by": "stoichiometry_in_ksp"
   },
   "reference_links": [

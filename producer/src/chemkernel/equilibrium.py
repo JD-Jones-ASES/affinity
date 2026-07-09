@@ -36,12 +36,14 @@ from decimal import ROUND_HALF_UP, Decimal, localcontext
 from . import BuildError, __version__
 from .formula import parse_formula
 
-# regime facets an equilibrium lesson always carries — the ICE accounting is machine-checked (regime-1), the
+# regime facets an equilibrium lesson always carries — the species accounting is machine-checked (regime-1), the
 # equilibrium constant is sourced (regime-3), the equilibrium position (pH / solubility) is a disclosed model
-# (regime-2). Fixed: it IS the lesson's honesty shape (mirrors structure.py's _STRUCTURE_REGIMES).
-def _regimes(position_facet: str) -> list[dict]:
+# (regime-2). Fixed: it IS the lesson's honesty shape (mirrors structure.py's _STRUCTURE_REGIMES). The regime-1
+# facet is the ICE ledger for a genuine solve, but a *prediction* runs no ICE table — it dilutes and computes Q —
+# so its accounting facet is overridden (ADR-0048 9th increment; QC 2026-07-09).
+def _regimes(position_facet: str, accounting_facet: str = "ICE ledger (species accounting)") -> list[dict]:
     return [
-        {"facet": "ICE ledger (species accounting)", "regime": "ledger-exact"},
+        {"facet": accounting_facet, "regime": "ledger-exact"},
         {"facet": "equilibrium constant", "regime": "rule-sourced"},
         {"facet": position_facet, "regime": "model-exact"},
     ]
@@ -775,7 +777,7 @@ def build_polyprotic_lesson(spec: dict, data, acidbase, ctx: str = "") -> dict:
     entirely). The acid + its ordered (acid, Kₐ, anion) stages come from `data/ionization-constants.toml`
     `[polyprotic]` (each stage's composition machine-checked on load); the producer REFUSES a non-polyprotic or
     strong acid, or an unphysical extent (ADR-0008). The payoff is checkable, not asserted: [H⁺] tracks stage 1,
-    and the amphiprotic middle anion sits at ≈ Kₐ2."""
+    and the twice-deprotonated anion (the second ionization's product, HPO₄²⁻) sits at ≈ Kₐ2."""
     for key in ("id", "title", "slug", "topic", "scenario", "acid", "initial_molarity_M", "misconception"):
         if key not in spec:
             raise BuildError(f"{ctx}: polyprotic lesson missing required key '{key}'")
@@ -1264,7 +1266,8 @@ def build_prediction_lesson(spec: dict, data, ctx: str = "") -> dict:
         "topic": spec["topic"],
         "tags": spec.get("tags", []),
         "scenario": spec["scenario"],
-        "regimes": _regimes("precipitation prediction (Q vs Ksp)"),
+        "regimes": _regimes("precipitation prediction (Q vs Ksp)",
+                            accounting_facet="dilution + reaction quotient Q (species accounting)"),
         "assumptions": spec.get("assumptions", []),
         "reaction": {
             "salt": salt_formula, "salt_name": rec["name"], "salt_latex": fs.latex,

@@ -43,7 +43,7 @@
     "reactant_latex": "\\mathrm{H_{2}O_{2}}",
     "equation_text": "2 H2O2 -> 2 H2O + O2",
     "equation_latex": "2\\,\\mathrm{H_{2}O_{2}} \\rightarrow 2\\,\\mathrm{H_{2}O} + \\mathrm{O_{2}}",
-    "conditions": "dilute aqueous solution"
+    "conditions": "dilute aqueous solution at 40 °C"
   },
   "rate_law": {
     "order": 1,

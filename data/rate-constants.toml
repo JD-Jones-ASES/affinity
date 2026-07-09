@@ -10,6 +10,10 @@
 # unit; the balanced equation is verified by the balancer in the kinetics builder (engine-checked, not asserted),
 # and the builder cross-checks the unit family against the order. Values: OpenStax Chemistry 2e §12.4 (Integrated
 # Rate Laws), CC BY 4.0 — see docs/SOURCES.md.
+#
+# TEMPERATURE: k is strongly temperature-dependent, so `conditions` records the temperature the source states.
+# OpenStax gives 40 °C for the H2O2 example; for the butadiene and ammonia examples the source states no
+# temperature, and `conditions` says so rather than inventing one (honesty — a missing T is disclosed, not hidden).
 
 source = "openstax-chemistry-2e"
 
@@ -20,7 +24,7 @@ order = 1
 k = "3.21e-5"
 k_unit = "1/s"               # first order → k carries inverse-time units (s⁻¹)
 equation = "2 H2O2 -> 2 H2O + O2"
-conditions = "dilute aqueous solution"
+conditions = "dilute aqueous solution at 40 °C"
 
 [reactions."C4H6"]           # butadiene dimerization — the OpenStax SECOND-ORDER example (§12.4, "Second-Order Reactions")
 name = "dimerization of butadiene"
@@ -29,7 +33,7 @@ order = 2
 k = "5.76e-2"
 k_unit = "1/(M*min)"         # second order → k carries M⁻¹ time⁻¹ units (here per minute, as OpenStax reports it)
 equation = "2 C4H6 -> C8H12"
-conditions = "gas phase"
+conditions = "gas phase (source states no temperature)"
 
 [reactions."NH3"]            # ammonia decomposition on hot tungsten — the OpenStax ZERO-ORDER example (§12.4, "Zero-Order Reactions")
 name = "decomposition of ammonia on a tungsten surface"
@@ -38,4 +42,4 @@ order = 0
 k = "1.3e-6"
 k_unit = "M/s"               # zero order → k carries concentration/time units (M s⁻¹); rate independent of [NH3]
 equation = "2 NH3 -> N2 + 3 H2"
-conditions = "on a hot tungsten (W) surface"
+conditions = "on a hot tungsten (W) surface (source states no temperature)"

@@ -109,7 +109,7 @@
   },
   "summary": "Eight valence electrons: three N–H bonding pairs and one lone pair on nitrogen. Four electron domains make the electron geometry tetrahedral, but with one lone pair the molecular shape is trigonal pyramidal — a tripod with the lone pair on top. The pyramid is not symmetric top-to-bottom, so the three polar N–H dipoles plus the lone pair give a net dipole: ammonia is polar. Contrast the ammonium ion, where a fourth N–H bond replaces the lone pair and the shape becomes a symmetric tetrahedron.",
   "source": "openstax-chemistry-2e",
-  "en_source": "openstax-chemistry-2e",
+  "en_source": "allred-1961-electronegativity",
   "bonding_source": "openstax-chemistry-2e",
   "related": [
     {
@@ -140,6 +140,6 @@
     "h_bond_donor": true,
     "boiling_point_c": "-33.3",
     "phase_change": "boiling",
-    "boiling_source": "openstax-chemistry-2e"
+    "boiling_source": "nist-webbook-boiling-points"
   }
 }

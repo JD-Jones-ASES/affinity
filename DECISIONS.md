@@ -1775,7 +1775,7 @@ tell). The producer refuses a non-first-order reaction sent to this builder, an 
 
 **Consequences.** The tier opens on **`kinetics/hydrogen-peroxide-decomposition`** — 2 H₂O₂ → 2 H₂O + O₂, first order, k =
 3.21×10⁻⁵ s⁻¹ → **t½ = 6.00 h**, decaying 1.000 → 0.500 → 0.250 → 0.125 M each 6.00 h. The misconception is the shrinking-half-life
-error (true for higher orders, not first): refuted because t½ = ln2/k carries **no concentration**, so every half-life is the same
+error (true for order < 1 — zero order — not first; higher orders make t½ *grow*): refuted because t½ = ln2/k carries **no concentration**, so every half-life is the same
 clock — machine-checked. Three concepts: `reaction-rate` (the ledger's time derivative dξ/dt — the tier's gateway), `rate-law`
 (rate = k[A]ⁿ, the order empirical, not the coefficient — an explicit `contrast` edge to `balancing-equations`), `half-life` (the
 first-order signature). `data/rate-constants.toml` is the new curated dataset (k + order + the balanced equation, machine-checked
@@ -1872,3 +1872,44 @@ with oxidation numbers, both half-reactions, E°cell 1.099 V, ΔG° −212 kJ/mo
 equation (E away from standard conditions — the `galvanic` subtype extends to nonstandard), a `ΔG = −nFE` / Nernst formula-sheet
 entry, and possibly a redox-balancing gym or more cells (concentration cell, electrolytic). This is the last Phase-2 tier to open —
 a **Phase-2 definition of done** can now be firmed up.
+
+## ADR-0051 — v1.0.0 QC pass, work package A: chemistry & source-provenance corrections (2026-07-09)
+
+**Context.** A pre-v1.0.0 quality-control sweep (15-dimension multi-agent review, logged in `docs/sessions/2026-07-09.md`)
+surfaced three high-severity learner-facing chemistry/honesty defects and a cluster of provenance mismatches — for a project
+whose *product is the verification system*, a data-sourced badge whose named source contradicts the shipped value is a headline
+defect. The owner resolved four decisions (O1–O4) before implementation; this ADR records the honesty-model-touching calls in
+work package A (the rest of A is prose/label fixes needing no ADR). None changed a schema, the badge set, or house conventions.
+
+**Decision.** (1) **Ksp source (O1):** adopt the OpenStax Appendix J values the file *claimed* to cite — CaF₂ 3.45×10⁻¹¹ → **4.0×10⁻¹¹**,
+Mg(OH)₂ 5.61×10⁻¹² → **8.9×10⁻¹²** (the shipped CRC values were correct chemistry but not in the cited source). Single-source
+coherence over a second authority; both prediction verdicts stay robust (CaF₂ 3600× above, Mg(OH)₂ 71× below). (2) **Electronegativity
+source (O2):** the shipped values are the **revised-Pauling (Allred 1961)** scale, which OpenStax Fig 7.6 (classic single-decimal
+Pauling, F 4.0) does not carry; keep the values, register **`allred-1961-electronegativity`** and repoint `data/elements.toml`. (3)
+**Boiling points:** §10.1 teaches the CH₄≪NH₃≪H₂O trend (Fig 10.12) but prints no precise values, so the VALUES move to a new
+**`nist-webbook-boiling-points`** source while §10.1 remains the trend's teaching source (the concept). (4) **Specific heats:** silver
+(0.233, *absent* from the cited Table 5.1) is replaced by **silicon 0.712** (present in the table), keeping the dataset genuinely
+single-sourced; Table 5.1 re-located §5.2 → §5.1. (5) **Oxidation-number concept regime:** its definitional core is the assignment
+**rule hierarchy** (regime-3), so it is rebadged `ledger-exact` → **`rule-sourced`** + a registered source (OpenStax §4.1), matching
+the `vsepr` precedent (ADR-0044) and `docs/regime-map.md`; the sum-to-charge accounting stays exact (regime-1) at the lesson level
+(ADR-0050 unchanged), disclosed in the definition. (6) **Prediction regimes facet:** the shared `_regimes()` helper hardcoded "ICE
+ledger" as the regime-1 facet, but a prediction runs no ICE solve — its accounting facet is overridden to **"dilution + reaction
+quotient Q"**. (7) Two rendered chemistry-error fixes needing no source change: the first-order **half-life misconception** refutation
+was inverted (a shrinking t½ signals order **< 1**, not higher order); and the **reaction-rate** concept vs the kinetics lessons used
+two rate conventions differing by the coefficient a — now both disclose the per-species rate −d[A]/dt = k[A]ⁿ (k is A's disappearance
+constant), matching OpenStax §12.4's own integration convention. (8) Temperatures recorded where the source states them (H₂O₂ k at
+40 °C; the reduction-potential table's definitional 25 °C) and honestly disclosed absent where the source gives none.
+
+**Why on-thesis.** The honesty model's core promise is "no claim ships unsourced or mislabeled, and every source resolves." A source
+citation the named reference contradicts, or a rule-convention wearing a ledger-exact badge, breaks that promise as surely as a wrong
+number would. These are honesty-layer corrections, not chemistry-content changes — every value stays chemically correct; what changes
+is *what it is attributed to and how it is labeled*.
+
+**Consequences.** Two new sources registered (`allred-1961-electronegativity`, `nist-webbook-boiling-points`); the `openstax-chemistry-2e`
+register row shed electronegativity + boiling-point values and gained the §4.1 oxidation-number rules. 23 derived files regenerated
+(deterministic); all **7 gates green**, **45 pages**, **427 producer tests** (8 value/source assertions updated to match). CaF₂ molar
+solubility 2.05×10⁻⁴ → **2.15×10⁻⁴ M**, common-ion suppression 59 400× → **53 900×**, prediction margin 4170× → **3600×** — all still
+comfortably one-directional. A new completeness-refutation branch in `SolutionPlayer` (`neutralization_leaves_excess`) makes the
+"both reactants fully consumed" misconception fail in the ledger (limiting → 0, excess keeps 0.5 mmol) instead of rendering the
+unrelated volume rebuttal. No schema, badge, or house-convention change. **Next:** work packages B (verification/gate hardening),
+C (navigability), D (doc compression), then the Phase-2 depth (Arrhenius, Nernst) before the v1.0.0 tag.

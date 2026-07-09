@@ -14,7 +14,7 @@
   "scenario": "Two clear solutions sit on the bench — **calcium nitrate**, Ca(NO3)2, and **sodium fluoride**, NaF. Neither holds a speck of solid; both are perfectly transparent. Pour 40.0 mL of 0.010 M Ca(NO3)2 into 60.0 mL of 0.010 M NaF and *does anything happen?* Calcium fluoride is the sparingly soluble pair here — $\\mathrm{CaF_2(s)} \\rightleftharpoons \\mathrm{Ca^{2+}(aq)} + 2\\,\\mathrm{F^-(aq)}$ — but nothing says a solid **must** appear. The test is the **reaction quotient**: mix, dilute each ion into the combined 100.0 mL, evaluate $Q = [\\mathrm{Ca^{2+}}][\\mathrm{F^-}]^2$ at that instant, and compare it to $K_{sp}$. If $Q > K_{sp}$ the solution is supersaturated and $\\mathrm{CaF_2}$ crashes out; if $Q < K_{sp}$ it stays clear. No ICE table to solve — one comparison decides it.",
   "regimes": [
     {
-      "facet": "ICE ledger (species accounting)",
+      "facet": "dilution + reaction quotient Q (species accounting)",
       "regime": "ledger-exact"
     },
     {
@@ -55,7 +55,7 @@
   },
   "equilibrium_constant": {
     "symbol": "K_sp",
-    "value": "0.0000000000345",
+    "value": "0.000000000040",
     "expression_latex": "K_{sp} = [\\mathrm{Ca}^{2+}][\\mathrm{F}^{-}]^{2}",
     "source": "openstax-chemistry-2e"
   },
@@ -102,8 +102,8 @@
     "forms_precipitate": true,
     "comparison_symbol": ">",
     "q_value_display": "0.000000144",
-    "ksp_value_display": "0.0000000000345",
-    "margin_display": "4170",
+    "ksp_value_display": "0.00000000004",
+    "margin_display": "3600",
     "margin_direction": "above"
   },
   "misconception": {

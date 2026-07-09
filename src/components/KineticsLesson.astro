@@ -184,8 +184,9 @@ const cGrid = [0, 0.25, 0.5, 0.75, 1].map((f) => ({ c: (f * c0).toPrecision(3), 
             half-life <span set:html={hl.relationHtml} /> depends <strong>only on k</strong>, not on how much is left. So the last
             half takes exactly as long as the first: {lesson.integrated.initial_molarity_display} M → {concs.join(" M → ")} M, each
             drop the same <strong>{t12} h</strong>. The <em>rate</em> does slow as [{reactant}] falls (rate = k[{reactant}]), but
-            the concentration and the time-to-halve fall together, so the clock never changes. A shrinking half-life would signal a
-            <em> higher</em>-order reaction.</Fragment>
+            the concentration and the time-to-halve fall together, so the clock never changes. A <em>growing</em> half-life would
+            signal a <em>higher</em>-order reaction (second order), and a <em>shrinking</em> one an order <em>below</em> first
+            (zero order) — the two cases this tier's other lessons show.</Fragment>
           : order === 2
           ? <Fragment>That would be true for a <strong>first-order</strong> reaction — but this one is <strong>second order</strong>.
             Here <span set:html={hl.relationHtml} /> grows as [{reactant}]₀ falls, so each successive half takes <strong>longer</strong>,

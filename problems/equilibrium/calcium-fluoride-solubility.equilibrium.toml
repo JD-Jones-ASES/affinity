@@ -32,5 +32,5 @@ kind = "model"
 
 # the canonical wrong move: forgetting the fluoride coefficient and treating every salt as 1:1 (Ksp = s²).
 [misconception]
-claim = "Ksp is small (3.45e-11) and Ksp = s^2, so the molar solubility is s = sqrt(Ksp)."
+claim = "Ksp is small (4.0e-11) and Ksp = s^2, so the molar solubility is s = sqrt(Ksp)."
 refuted_by = "stoichiometry_in_ksp"

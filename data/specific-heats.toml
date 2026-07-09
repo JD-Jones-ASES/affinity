@@ -1,5 +1,7 @@
 # Specific heat capacities c in J/(g·°C) at about 25 °C, 1 atm — a sourced empirical dataset (ADR-0006).
-# Curated from OpenStax *Chemistry 2e* Table 5.1 (§5.2), already a registered source. A specific heat is a
+# Curated from OpenStax *Chemistry 2e* Table 5.1 (§5.1, Energy Basics), already a registered source. Every
+# substance below is one Table 5.1 actually lists (silver, absent from that table, was replaced by silicon —
+# ADR/QC 2026-07-09 — to keep the dataset genuinely single-sourced). A specific heat is a
 # MEASURED value that varies with temperature and purity, so it is a rounded, data-sourced datum (regime-3) —
 # carried under the data/rule-sourced badge, never dressed up as exact. J/(g·°C) and J/(g·K) are the same number
 # (c multiplies a temperature DIFFERENCE, where a change of 1 °C equals a change of 1 K). Read as Decimal
@@ -27,10 +29,10 @@ name = "copper"
 phase = "s"
 specific_heat = "0.385"
 
-[substances.silver]
-name = "silver"
+[substances.silicon]
+name = "silicon"
 phase = "s"
-specific_heat = "0.233"
+specific_heat = "0.712"
 
 [substances.gold]
 name = "gold"

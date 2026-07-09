@@ -183,7 +183,9 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
       <p class="hhnote">
         <span class="badge machine tiny"><span class="dot"></span>Read the curve</span>
         The gentle stretch is the <strong>buffer</strong> region — flattest at <strong>{lesson.titration.half_equivalence_volume_mL_display} mL</strong>
-        (half the acid neutralized), where <strong>pH = pK<sub>a</sub> = {lesson.titration.pKa_display}</strong>. The steep jump is the
+        (half the acid neutralized), where <strong>pH ≈ pK<sub>a</sub> = {lesson.titration.pKa_display}</strong> — the buffer
+        identity, exact under Henderson–Hasselbalch; the exact solve gives {res.pH_half_equivalence_display}, a hair above pK<sub>a</sub>
+        because a little more acid ionizes (the small gap is just rounding either side of their shared value). The steep jump is the
         {" "}<strong>equivalence point</strong> at <strong>{lesson.titration.equivalence_volume_mL_display} mL</strong>: all the acid has become
         {" "}<span set:html={lesson.reaction.conjugateBasePretty} /> — a weak base — so the pH there is <strong>{res.pH_equivalence_display}</strong>, well above 7.
       </p>
@@ -280,7 +282,7 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
       <div class="card headline">
         <span class="k">half-equivalence</span>
         <span class="v big">pH {res.pH_half_equivalence_display}</span>
-        <span class="sub">= pK<sub>a</sub> = {res.pKa_display}</span>
+        <span class="sub">≈ pK<sub>a</sub> = {res.pKa_display}</span>
       </div>
       <div class="card">
         <span class="k">equivalence</span>
@@ -401,7 +403,7 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
       <li><span class="tick">✓</span> Every equilibrium concentration = initial + ν·{xSym} <span class="tier">[ICE identity]</span></li>
       <li><span class="tick">✓</span> The extent {xSym} re-solved independently (bisection) reproduces Q = <Fragment set:html={kHtml} /> <span class="tier">[mass-action root]</span></li>
       <li><span class="tick">✓</span> {isKsp ? "The pure solid is excluded from Q; s > 0" : isBase ? `Water is excluded from Q; 0 < ${xSym} < [${lesson.reaction.basePretty}]₀` : `0 < ${xSym} < [${lesson.reaction.acidPretty}]₀`} — no concentration goes negative <span class="tier">[extent physical]</span></li>
-      <li><span class="tick">✓</span> {isKsp ? "solubility (g/L) = s × molar mass" : isBase ? "[H⁺] = K_w/[OH⁻]; pH = −log₁₀[H⁺]; pH + pOH = pK_w" : isBuffer ? "pH = pK_a + log₁₀([A⁻]/[HA]) = −log₁₀[H⁺]" : isTitration ? "every curve point's pH re-derived by its region; pH = pK_a at half-equivalence; equivalence is basic" : "pH = −log₁₀[H⁺]"} <span class="tier">[{isKsp ? "solubility consistent" : isBase ? "K_w bridge" : isBuffer ? "Henderson–Hasselbalch" : isTitration ? "curve re-derived" : "log consistent"}]</span></li>
+      <li><span class="tick">✓</span> {isKsp ? "solubility (g/L) = s × molar mass" : isBase ? "[H⁺] = K_w/[OH⁻]; pH = −log₁₀[H⁺]; pH + pOH = pK_w" : isBuffer ? "pH = pK_a + log₁₀([A⁻]/[HA]) = −log₁₀[H⁺]" : isTitration ? "every curve point's pH re-derived by its region; pH ≈ pK_a at half-equivalence; equivalence is basic" : "pH = −log₁₀[H⁺]"} <span class="tier">[{isKsp ? "solubility consistent" : isBase ? "K_w bridge" : isBuffer ? "Henderson–Hasselbalch" : isTitration ? "curve re-derived" : "log consistent"}]</span></li>
     </ul>
   </div>
 

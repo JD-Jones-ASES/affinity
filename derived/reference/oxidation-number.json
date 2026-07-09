@@ -21,6 +21,7 @@
   "lessons": [
     "daniell-cell"
   ],
-  "regime": "ledger-exact",
+  "regime": "rule-sourced",
+  "source": "openstax-chemistry-2e",
   "latex": "\\textstyle\\sum_i (\\text{oxidation number})_i \\times (\\text{count})_i = \\text{charge}"
 }

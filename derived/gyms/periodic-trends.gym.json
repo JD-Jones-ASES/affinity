@@ -504,7 +504,7 @@
       "atomic_weight": "ciaaw-2021-atomic-weights",
       "position": "iupac-periodic-table",
       "ion_charge": "openstax-chemistry-2e",
-      "electronegativity": "openstax-chemistry-2e",
+      "electronegativity": "allred-1961-electronegativity",
       "covalent_radius": "cordero-2008-covalent-radii",
       "ionization_energy": "nist-ionization-energies"
     }

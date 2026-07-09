@@ -344,7 +344,8 @@ def test_trends_shape_and_kind_rotation():
     src = g["provenance"]["sources"]
     assert src["ionization_energy"] == "nist-ionization-energies"
     assert src["covalent_radius"] == "cordero-2008-covalent-radii"
-    assert src["electronegativity"] == "openstax-chemistry-2e" == src["ion_charge"]
+    assert src["electronegativity"] == "allred-1961-electronegativity"
+    assert src["ion_charge"] == "openstax-chemistry-2e"
     for p in g["problems"]:
         _assert_choice_menu(p)                             # comparisons/ions/orderings are categorical
 

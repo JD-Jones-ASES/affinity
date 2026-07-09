@@ -4,14 +4,18 @@
 # IUPAC/CIAAW *abridged* standard atomic weights (Atomic Weights 2021 report, table rev. 2024) — SOURCES id
 # `ciaaw-2021-atomic-weights`. The values are scientific facts (not copyrightable); CIAAW is cited as the
 # authority + access date. Stored as strings, read as Decimal so precision/sig-figs survive and no float ever
-# enters the pipeline (ADR-0013). Interval elements (Li, B, Si, S, Ar, …) carry the abridged single value with
-# no conventional uncertainty — `uncertainty` is omitted, exactly as for N/P before.
+# enters the pipeline (ADR-0013). Most elements carry the abridged `uncertainty`; a few interval elements
+# (Li, B, N, Si, P, S, Ar) omit it this pass as a deferred backfill — NOT because they lack one (CIAAW's
+# abridged table does list interval-element uncertainties, e.g. Li 6.94 ± 0.06). The stored weight is always
+# the abridged single value; `uncertainty` is provenance metadata, unused in any calculation.
 #
 # ── Positions ─────────────────────────────────────────────────────────────────────────────────────────
 # group/period/block are the definitional IUPAC periodic-table positions — source `iupac-periodic-table`.
 #
 # ── Periodic properties (ADR-0031, Phase 1 item 5a) ─────────────────────────────────────────────────────
-# electronegativity        Pauling scale — source `openstax-chemistry-2e` (Fig 7.6). Undefined for the noble
+# electronegativity        revised-Pauling scale (Allred 1961) — source `allred-1961-electronegativity`. These
+#                          are the two-decimal values in the CRC Handbook (F 3.98, O 3.44, …), NOT OpenStax
+#                          Fig 7.6's single-decimal classic-Pauling table (F 4.0). Undefined for the noble
 #                          gases (He, Ne, Ar): omitted, never written as 0.
 # covalent_radius_pm       single-bond covalent radius (Cordero et al., Dalton Trans. 2008) — source
 #                          `cordero-2008-covalent-radii`. Main-group Z ≤ 20 only; the transition metals
@@ -32,7 +36,7 @@
 
 source = "ciaaw-2021-atomic-weights"
 position_source = "iupac-periodic-table"
-electronegativity_source = "openstax-chemistry-2e"
+electronegativity_source = "allred-1961-electronegativity"
 covalent_radius_source = "cordero-2008-covalent-radii"
 ionization_energy_source = "nist-ionization-energies"
 

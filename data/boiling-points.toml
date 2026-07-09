@@ -1,12 +1,15 @@
 # Normal boiling points (°C at 1 atm) — a sourced empirical dataset (ADR-0006/0046) for the intermolecular-forces
 # concept. IMF strength shows up in the boiling point: the stronger the dominant force between molecules, the more
 # thermal energy it takes to pull them apart into a gas. The canonical teaching comparison is the small hydrides of
-# similar mass — CH₄ (dispersion only) ≪ NH₃ (hydrogen bonding) ≪ H₂O (hydrogen bonding, two donors + two acceptors)
-# — which OpenStax *Chemistry 2e* §10.1 uses directly. A boiling point is a MEASURED, rounded value (regime-3),
-# carried under the data/rule-sourced badge, never dressed up as exact. Some substances have no liquid at 1 atm and
-# SUBLIME instead (CO₂ at −78.5 °C) — labeled honestly with `phase_change`. Keyed by phase-less formula; read as
-# Decimal (ADR-0013). The bare `source` key precedes the [substances] tables (TOML trap #4).
-source = "openstax-chemistry-2e"
+# similar mass — CH₄ (dispersion only) ≪ NH₃ (hydrogen bonding) ≪ H₂O (hydrogen bonding, two donors + two acceptors).
+# OpenStax *Chemistry 2e* §10.1 teaches exactly this comparison (Fig 10.12, the hydride-boiling-point trend), but it
+# shows the trend as a graph and does not print these precise values — so the VALUES here are sourced to the NIST
+# Chemistry WebBook (public-domain standard reference), while §10.1 remains the source of the pedagogical trend (cited
+# by the intermolecular-forces concept). A boiling point is a MEASURED, rounded value (regime-3), carried under the
+# data/rule-sourced badge, never dressed up as exact. Some substances have no liquid at 1 atm and SUBLIME instead
+# (CO₂ at −78.5 °C) — labeled honestly with `phase_change`. Keyed by phase-less formula; read as Decimal (ADR-0013).
+# The bare `source` key precedes the [substances] tables (TOML trap #4).
+source = "nist-webbook-boiling-points"
 
 [substances.H2O]
 name = "water"

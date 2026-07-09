@@ -35,6 +35,9 @@
   // numbers — the real values (ΔH_rxn, q, ξ) all came from the producer.
   const energyScaleTrap = isEnergy && s.misconception?.refuted_by === "enthalpy_scales_with_extent";
   const naiveHeat = isEnergy ? Math.abs(Number(energy.delta_h_rxn_kj_per_mol)) : null;
+  // the "both reactants are fully consumed" trap: one runs out first, the other keeps a leftover — read off
+  // the verified ledger (limiting row → 0, excess row → its final_mol). Only an exact-ratio mix cancels both.
+  const bothConsumedTrap = s.misconception?.refuted_by === "neutralization_leaves_excess";
 
   // Data-driven refutation of the misconception, read straight off the verified ledger — never re-derived here.
   const fmtMmol = (mol) => {
@@ -341,6 +344,12 @@
           <strong>RT/P = {gas.molar_volume_L_per_mol_display} L/mol</strong>, so {@html gas.symbolHtml} occupies
           <strong>{gas.volume_L_display} L</strong> — not {wrong224} L. Whenever you are not at STP, use
           <strong>PV = nRT</strong> at the actual pressure and temperature.
+        {:else if bothConsumedTrap && limRow && excRow}
+          Only when the amounts match the ratio exactly. Here one reactant runs out first and the other is left
+          over: <strong>{limRow.idPretty}</strong> reaches 0 (all {fmtMmol(limRow.initial_mol)} mmol consumed),
+          but <strong>{excRow.idPretty}</strong> keeps <strong>{fmtMmol(excRow.final_mol)} mmol</strong>
+          unreacted — so both are <em>not</em> used up. Neutralization stops when the <strong>limiting</strong>
+          reactant hits 0; whatever the other started with above the matching amount stays in solution.
         {:else if coeffStory}
           Divide each reactant's amount by its coefficient — that capacity is what runs out.
           <strong>{limRow.idPretty}</strong>: {fmtMmol(limRow.initial_mol)} mmol ÷ {Math.abs(limRow.nu)} =

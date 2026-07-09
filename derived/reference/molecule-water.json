@@ -91,7 +91,7 @@
   },
   "summary": "Eight valence electrons: two O–H bonding pairs and two lone pairs on oxygen. Four electron domains around O make the electron geometry tetrahedral, but the two lone pairs push the two bonds together into a bent molecule. Because the shape is bent, the two polar O–H bond dipoles do not cancel — water is the archetypal polar molecule, and that net dipole is why it dissolves salts and boils far higher than its mass predicts.",
   "source": "openstax-chemistry-2e",
-  "en_source": "openstax-chemistry-2e",
+  "en_source": "allred-1961-electronegativity",
   "bonding_source": "openstax-chemistry-2e",
   "related": [
     {
@@ -127,6 +127,6 @@
     "h_bond_donor": true,
     "boiling_point_c": "100.0",
     "phase_change": "boiling",
-    "boiling_source": "openstax-chemistry-2e"
+    "boiling_source": "nist-webbook-boiling-points"
   }
 }

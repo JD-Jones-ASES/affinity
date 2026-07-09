@@ -68,7 +68,7 @@
     {
       "kind": "calorimetry",
       "mode": "numeric",
-      "prompt": "Using q = m·c·ΔT: a 75 g sample of silver, the specific heat of silver is c = 0.233 J/(g·°C), and its temperature changes by 30 °C. Then how much heat does it absorb (J)?",
+      "prompt": "Using q = m·c·ΔT: a 75 g sample of silicon, the specific heat of silicon is c = 0.712 J/(g·°C), and its temperature changes by 30 °C. Then how much heat does it absorb (J)?",
       "chain": [
         {
           "value": "q = m·c·ΔT",
@@ -76,24 +76,24 @@
           "note": "rearrange q = m·c·ΔT"
         },
         {
-          "value": "524",
+          "value": "1600",
           "unit": "J",
           "note": "solve for q"
         }
       ],
       "target_unit": "J",
       "answer": {
-        "value": "524.3",
+        "value": "1602",
         "unit": "J",
-        "display": "524 J"
+        "display": "1600 J"
       },
       "derivation": {
         "kind": "calorimetry",
         "calorimetry": {
           "solve_for": "q",
-          "substance": "silver",
+          "substance": "silicon",
           "m": "75",
-          "c": "0.233",
+          "c": "0.712",
           "dT": "30"
         }
       },
@@ -101,15 +101,15 @@
         {
           "value": "2250",
           "unit": "J",
-          "misconception": "Left out the specific heat — q = m·c·ΔT, not m·ΔT. Multiply by c = 0.233 J/(g·°C) too."
+          "misconception": "Left out the specific heat — q = m·c·ΔT, not m·ΔT. Multiply by c = 0.712 J/(g·°C) too."
         },
         {
           "value": "1010",
           "unit": "J",
-          "misconception": "Used the specific heat of another substance (0.449) — silver has its own, c = 0.233 J/(g·°C)."
+          "misconception": "Used the specific heat of another substance (0.449) — silicon has its own, c = 0.712 J/(g·°C)."
         }
       ],
-      "explain": "q = m·c·ΔT rearranges to q = m·c·ΔT. Substituting the sourced c gives 524 J.",
+      "explain": "q = m·c·ΔT rearranges to q = m·c·ΔT. Substituting the sourced c gives 1600 J.",
       "id": "q2"
     },
     {

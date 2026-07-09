@@ -127,7 +127,7 @@
   },
   "summary": "Eight valence electrons: four C–H bonding pairs, no lone pairs. Four electron domains and no lone pairs give a symmetric tetrahedron, bond angles 109.5°. The C–H bond is barely polar (ΔEN 0.35, on the nonpolar side of the guideline), and the four identical bonds point to the corners of a tetrahedron, so their small dipoles cancel — methane is nonpolar twice over: nearly nonpolar bonds arranged symmetrically.",
   "source": "openstax-chemistry-2e",
-  "en_source": "openstax-chemistry-2e",
+  "en_source": "allred-1961-electronegativity",
   "bonding_source": "openstax-chemistry-2e",
   "related": [
     {
@@ -152,6 +152,6 @@
     "h_bond_donor": false,
     "boiling_point_c": "-161.5",
     "phase_change": "boiling",
-    "boiling_source": "openstax-chemistry-2e"
+    "boiling_source": "nist-webbook-boiling-points"
   }
 }

@@ -43,7 +43,7 @@
     "reactant_latex": "\\mathrm{C_{4}H_{6}}",
     "equation_text": "2 C4H6 -> C8H12",
     "equation_latex": "2\\,\\mathrm{C_{4}H_{6}} \\rightarrow \\mathrm{C_{8}H_{12}}",
-    "conditions": "gas phase"
+    "conditions": "gas phase (source states no temperature)"
   },
   "rate_law": {
     "order": 2,

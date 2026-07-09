@@ -89,7 +89,7 @@
   },
   "summary": "Sixteen valence electrons: two C=O double bonds and two lone pairs on each oxygen. Carbon has two electron domains (the two double bonds) and no lone pairs, so the molecule is linear. Each C=O bond is polar (ΔEN 0.89), but the two bond dipoles point in exactly opposite directions along the linear axis and cancel — so CO2 has polar bonds yet is a nonpolar molecule. That is the lesson water inverts: shape decides.",
   "source": "openstax-chemistry-2e",
-  "en_source": "openstax-chemistry-2e",
+  "en_source": "allred-1961-electronegativity",
   "bonding_source": "openstax-chemistry-2e",
   "related": [
     {
@@ -122,6 +122,6 @@
     "h_bond_donor": false,
     "boiling_point_c": "-78.5",
     "phase_change": "sublimation",
-    "boiling_source": "openstax-chemistry-2e"
+    "boiling_source": "nist-webbook-boiling-points"
   }
 }

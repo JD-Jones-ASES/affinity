@@ -30,7 +30,8 @@ kind = "model"
 claim = "The rate constant is constant over the run — fixed temperature, dilute solution, unchanging conditions — so the integrated rate law and half-life hold throughout."
 kind = "model"
 
-# the canonical wrong move: thinking the half-life shrinks as the reactant runs low (true for higher orders, NOT first).
+# the canonical wrong move: thinking the half-life shrinks as the reactant runs low (true for order < 1 — zero order —
+# NOT first; higher orders make the half-life GROW).
 [misconception]
 claim = "As the peroxide runs low there is less of it, so the last half disappears faster than the first — the half-life shrinks as the reaction proceeds."
 refuted_by = "first_order_half_life_constant"

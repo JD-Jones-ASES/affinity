@@ -115,7 +115,7 @@
   },
   "summary": "Twelve valence electrons: two C–H single bonds, one C=O double bond, and two lone pairs on oxygen. Carbon has three electron domains (two single bonds and one double bond count as three domains) and no lone pairs, so the molecule is trigonal planar, angles near 120°. Unlike carbon dioxide, the three bonds are not identical: the strong C=O dipole (ΔEN 0.89) is not balanced by the two weak C–H dipoles (ΔEN 0.35), so the flat molecule has a net dipole toward oxygen — it is polar. Geometry alone does not settle polarity; the bonds have to match too.",
   "source": "openstax-chemistry-2e",
-  "en_source": "openstax-chemistry-2e",
+  "en_source": "allred-1961-electronegativity",
   "bonding_source": "openstax-chemistry-2e",
   "related": [
     {

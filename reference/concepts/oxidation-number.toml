@@ -1,10 +1,14 @@
 # Chemical Atlas concept entry (ADR-0005, ADR-0050). Oxidation number: a per-atom bookkeeping charge that makes
-# electron transfer countable. The assignment RULES are a sourced convention; the sum-to-charge accounting is exact.
+# electron transfer countable. The concept's definitional core is the assignment RULE HIERARCHY — a sourced
+# convention (regime-3, rule-sourced badge), so it cites its source (ADR-0003). The sum-to-charge accounting on
+# top of the rules is exact integer arithmetic (machine-checked at the lesson level, ADR-0050) — disclosed in the
+# definition. Badged rule-sourced to match the dominant regime + regime-map, like the `vsepr` concept (ADR-0044).
 id = "oxidation-number"
 kind = "concept"
 title = "Oxidation number (oxidation state)"
 term = "oxidation number"
-regime = "ledger-exact"
+regime = "rule-sourced"
+source = "openstax-chemistry-2e"
 definition = "An **oxidation number** is the charge an atom *would* have if every bond were fully ionic — a bookkeeping device that makes **electron transfer countable**. It is assigned by a rule hierarchy (a free element is 0; a monatomic ion is its charge; fluorine −1; a group-1 metal +1, group-2 +2; hydrogen +1; oxygen −2), and the one remaining element is fixed by the requirement that **the numbers sum to the species' charge** — that sum is exact integer accounting, machine-checked. An element whose oxidation number **rises** is **oxidized** (it loses electrons); one that **falls** is **reduced**. This is what completes the free-element redox flag (see [[redox]]): the numbers say not just *that* electrons moved but *how many*. The rules are a sourced convention (a few molecules — peroxides, hydrides — take named exceptions); the accounting on top of them is a theorem."
 latex = "\\textstyle\\sum_i (\\text{oxidation number})_i \\times (\\text{count})_i = \\text{charge}"
 related = [

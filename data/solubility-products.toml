@@ -18,12 +18,12 @@ source = "openstax-chemistry-2e"
 
 [salts."CaF2"]        # calcium fluoride (fluorite) — the canonical 1:2 Kₛₚ; Kₛₚ = [Ca²⁺][F⁻]² = 4s³ (a CUBIC)
 name = "calcium fluoride"
-ksp = "3.45e-11"
+ksp = "4.0e-11"
 cation = "Ca^2+"
 anion = "F^-"
 
 [salts."Mg(OH)2"]     # magnesium hydroxide (milk of magnesia) — another 1:2 cubic; Kₛₚ = [Mg²⁺][OH⁻]²
 name = "magnesium hydroxide"
-ksp = "5.61e-12"
+ksp = "8.9e-12"
 cation = "Mg^2+"
 anion = "OH^-"

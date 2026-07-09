@@ -128,7 +128,7 @@
   },
   "summary": "A polyatomic cation, eight valence electrons: nitrogen contributes five and four hydrogens one each, minus one for the +1 charge. Four N–H bonds, no lone pairs — a symmetric tetrahedron. The formal charge tells the story: nitrogen owns half of four bonding pairs (4 electrons) against its 5 group electrons, so its formal charge is 5 − 4 = +1, and every hydrogen is 0 — the ion's +1 sits on nitrogen. This is ammonia with its lone pair donated to a proton, turning the pyramid into a tetrahedron.",
   "source": "openstax-chemistry-2e",
-  "en_source": "openstax-chemistry-2e",
+  "en_source": "allred-1961-electronegativity",
   "bonding_source": "openstax-chemistry-2e",
   "related": [
     {

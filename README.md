@@ -16,7 +16,7 @@ the ICE table is the species ledger with the extent solved from **mass action** 
 Ksp the pure solid is excluded from Q, so it is a cubic, and the machine-check is the residual — with a **common-ion variant**
 where dissolving calcium fluoride into a fluoride solution suppresses its solubility 59 400-fold; and **polyprotic** phosphoric
 acid, whose three protons come off in stages Kₐ1 ≫ Kₐ2 ≫ Kₐ3 — the same solver run once per stage, so the first ionization
-sets the pH and the amphiprotic middle anion sits at ≈ Kₐ2; and a **titration curve** — acetic acid titrated by NaOH, the
+sets the pH and the twice-deprotonated anion (HPO₄²⁻) sits at ≈ Kₐ2; and a **titration curve** — acetic acid titrated by NaOH, the
 ledger marched drop by drop into a build-time SVG that reads pKₐ off the half-equivalence plateau and lands basic at
 equivalence), **two precipitation-prediction lessons** (a different kind — the **reaction quotient** Q, compared to Ksp,
 decides whether a solid forms: calcium fluoride crashes out of a millimolar mix, while dilute magnesium hydroxide stays clear

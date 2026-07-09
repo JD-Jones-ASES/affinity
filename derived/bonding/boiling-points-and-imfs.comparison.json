@@ -53,7 +53,7 @@
       "imf_rank": 1,
       "boiling_point_c": "-161.5",
       "phase_change": "boiling",
-      "boiling_source": "openstax-chemistry-2e"
+      "boiling_source": "nist-webbook-boiling-points"
     },
     {
       "ref_id": "molecule-ammonia",
@@ -71,7 +71,7 @@
       "imf_rank": 3,
       "boiling_point_c": "-33.3",
       "phase_change": "boiling",
-      "boiling_source": "openstax-chemistry-2e"
+      "boiling_source": "nist-webbook-boiling-points"
     },
     {
       "ref_id": "molecule-water",
@@ -90,7 +90,7 @@
       "imf_rank": 3,
       "boiling_point_c": "100.0",
       "phase_change": "boiling",
-      "boiling_source": "openstax-chemistry-2e"
+      "boiling_source": "nist-webbook-boiling-points"
     }
   ],
   "trend": {
@@ -121,7 +121,7 @@
     "author": "Affinity",
     "created": "2026-07-08",
     "sources": {
-      "boiling_points": "openstax-chemistry-2e"
+      "boiling_points": "nist-webbook-boiling-points"
     }
   }
 }

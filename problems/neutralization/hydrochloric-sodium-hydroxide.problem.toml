@@ -51,7 +51,7 @@ kind = "model"
 
 [misconception]
 claim = "Neutralization uses up both the acid and the base completely."
-refuted_by = "moles_and_extent_limits"
+refuted_by = "neutralization_leaves_excess"
 
 [[visualizations]]
 kind = "extent_bar"

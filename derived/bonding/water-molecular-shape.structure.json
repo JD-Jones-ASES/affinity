@@ -133,7 +133,7 @@
     },
     "polarity": "polar",
     "polarity_reason": "The molecule is bent, so the two polar O–H bond dipoles (ΔEN 1.24) add rather than cancel — a net dipole points from the H side toward oxygen.",
-    "en_source": "openstax-chemistry-2e",
+    "en_source": "allred-1961-electronegativity",
     "bonding_source": "openstax-chemistry-2e"
   },
   "steps": [
@@ -188,7 +188,7 @@
     "sources": {
       "valence_electrons": "iupac-periodic-table",
       "geometry": "openstax-chemistry-2e",
-      "electronegativity": "openstax-chemistry-2e",
+      "electronegativity": "allred-1961-electronegativity",
       "bonding": "openstax-chemistry-2e"
     }
   }

@@ -232,14 +232,14 @@ def test_builds_calcium_fluoride_lesson():
                                  "misconception": {"claim": "c", "refuted_by": "stoichiometry_in_ksp"}}, data, "t")
     assert L["subtype"] == "solubility"
     assert L["equilibrium_constant"]["symbol"] == "K_sp"
-    assert L["equilibrium_constant"]["value"] == "0.0000000000345"
+    assert L["equilibrium_constant"]["value"] == "0.000000000040"
     assert L["reaction"]["text"] == "CaF2(s) <=> Ca^2+(aq) + 2 F^-(aq)"
     # the solid row is present, excluded from Q, and carries no concentration
     solid = L["ice"]["species"][0]
     assert solid["id"] == "CaF2" and solid["in_quotient"] is False and "equilibrium_M" not in solid
-    # the molar solubility ≈ 2.05e-4, solubility ≈ 0.016 g/L
-    assert L["result"]["molar_solubility_M_display"] == "0.000205"
-    assert L["result"]["solubility_g_per_L_display"] == "0.016"
+    # the molar solubility ≈ 2.15e-4, solubility ≈ 0.0168 g/L (OpenStax App-J Ksp 4.0e-11, QC 2026-07-09)
+    assert L["result"]["molar_solubility_M_display"] == "0.000215"
+    assert L["result"]["solubility_g_per_L_display"] == "0.0168"
     assert all(L["checks"].values())
 
 
@@ -264,7 +264,7 @@ def test_refuses_unknown_salt():
 def test_solubility_products_loaded():
     data = ChemData.load(ROOT)
     rec = data.solubility_product("CaF2")
-    assert rec["ksp"] == Decimal("3.45e-11")
+    assert rec["ksp"] == Decimal("4.0e-11")
     assert rec["n_cation"] == 1 and rec["n_anion"] == 2       # crossover derived + composition machine-checked
     assert data.sources["solubility_products"] == "openstax-chemistry-2e"
 
@@ -320,9 +320,9 @@ def test_common_ion_suppresses_solubility():
     assert fluoride["initial_M"] == "0.10" and calcium["initial_M"] == "0"
     # solubility is far below the pure-water value, and the contrast is emitted
     assert Decimal(L["result"]["molar_solubility_M"]) < Decimal(L["result"]["molar_solubility_pure_water_M"])
-    assert L["result"]["molar_solubility_M_display"] == "0.00000000345"
-    assert L["result"]["molar_solubility_pure_water_M_display"] == "0.000205"
-    # suppression = s(pure) / s(common ion), ~5.9e4-fold
+    assert L["result"]["molar_solubility_M_display"] == "0.000000004"
+    assert L["result"]["molar_solubility_pure_water_M_display"] == "0.000215"
+    # suppression = s(pure) / s(common ion), ~5.4e4-fold
     supp = Decimal(L["result"]["molar_solubility_pure_water_M"]) / Decimal(L["result"]["molar_solubility_M"])
     assert Decimal("5e4") < supp < Decimal("7e4")
     assert all(L["checks"].values())
@@ -716,12 +716,12 @@ def test_prediction_mixing_dilution_exact():
 
 
 def test_prediction_quotient_and_margin():
-    """Q = [Ca2+][F-]^2 = (0.004)(0.006)^2 = 1.44e-7, ≈ 4174× above Ksp = 3.45e-11."""
+    """Q = [Ca2+][F-]^2 = (0.004)(0.006)^2 = 1.44e-7, = 3600× above Ksp = 4.0e-11 (OpenStax App-J, QC 2026-07-09)."""
     data = ChemData.load(ROOT)
     L = build_prediction_lesson(_pred_spec(), data, "t")
     assert Decimal(L["quotient"]["value"]) == Decimal("1.44e-7")
-    margin = Decimal("1.44e-7") / Decimal("3.45e-11")
-    assert Decimal("4100") < Decimal(L["result"]["margin_display"]) < Decimal("4250")
+    margin = Decimal("1.44e-7") / Decimal("4.0e-11")
+    assert Decimal("3500") < Decimal(L["result"]["margin_display"]) < Decimal("3700")
     assert abs(margin - Decimal(L["result"]["margin_display"])) / margin < Decimal("0.01")
     assert L["result"]["margin_direction"] == "above"
 
