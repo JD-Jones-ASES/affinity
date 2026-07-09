@@ -1,0 +1,204 @@
+---
+// The precipitation-prediction player (ADR-0048, 9th increment): the Q-vs-Kₛₚ SNAPSHOT. Not an equilibrium solve
+// (no ICE table) — two solutions are mixed, each ion diluted into the combined volume, the reaction quotient Q
+// evaluated and compared to Kₛₚ to predict whether a precipitate forms. A fully STATIC Astro component. Every value
+// came from ChemKernel and was re-verified (equilibriumcheck.mjs → verifyPrediction).
+const { lesson } = Astro.props;
+const kc = lesson.equilibrium_constant;
+const mx = lesson.mixing;
+const cat = mx.cation_source, an = mx.anion_source;
+const res = lesson.result;
+const forms = res.forms_precipitate;
+
+// the Q substitution, built from the mixed concentrations + the salt's ion coefficients: (·)ᵃ(·)ᵇ
+const SUP = { "2": "²", "3": "³", "4": "⁴" };
+const pow = (n) => (n === 1 ? "" : (SUP[n] ?? `^${n}`));
+const qSubst = `(${cat.mixed_M_display})${pow(lesson.reaction.n_cation)}(${an.mixed_M_display})${pow(lesson.reaction.n_anion)}`;
+const sources = [cat, an];
+---
+
+<section class="player">
+  <header class="head">
+    <div class="badges">
+      <span class="badge machine"><span class="dot"></span>Ion accounting machine-checked — mixing dilution + the quotient Q</span>
+      <span class="badge sourced"><span class="dot"></span>K<sub>sp</sub> data-sourced ({kc.source})</span>
+      <span class="badge model"><span class="dot"></span>{lesson.assumptions.length} modeling assumption{lesson.assumptions.length === 1 ? "" : "s"} (disclosed)</span>
+    </div>
+    <p class="scenario" set:html={lesson.scenarioHtml} />
+  </header>
+
+  <!-- the dissolution equilibrium whose Ksp the mixed quotient is tested against -->
+  <div class="reaction">
+    <div class="rxn" set:html={lesson.reaction.latexHtml} />
+    <div class="ka">
+      <span class="expr" set:html={kc.expressionHtml} />
+      <span class="eq">=</span>
+      <span class="kaval">{kc.valueSci}</span>
+      <span class="kalabel">at 25 °C</span>
+    </div>
+  </div>
+
+  <!-- step 1: mix the two solutions and dilute each ion into the combined volume -->
+  <div class="tablewrap">
+    <table class="mix">
+      <thead>
+        <tr>
+          <th>Source solution</th>
+          <th class="num">Added</th>
+          <th class="num">Provides</th>
+          <th class="num">After mixing (M)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {sources.map((src) => (
+          <tr>
+            <td class="sym"><span set:html={src.formulaPretty} /> <span class="phase">{src.name}</span></td>
+            <td class="num">{src.volume_mL} mL · {src.molarity_M} M</td>
+            <td class="num">[<span set:html={src.ionPretty} />] = {src.ion_source_M_display}</td>
+            <td class="num eqm">[<span set:html={src.ionPretty} />] = {src.mixed_M_display}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="ledger-note">
+    <span class="badge machine tiny"><span class="dot"></span>machine-checked</span>
+    Combined volume <strong>{mx.volume_total_mL_display} mL</strong>. Each ion is diluted by
+    <span class="mono">V<sub>source</sub> / V<sub>total</sub></span> — the same dimensional-analysis move as any
+    dilution. Nothing has reacted yet; these are the concentrations at the instant of mixing.
+  </p>
+
+  <!-- step 2: the reaction quotient at that instant (same form as Ksp, arbitrary composition) -->
+  <div class="proof massaction">
+    <div class="proof-head">
+      <span class="badge machine"><span class="dot"></span>The reaction quotient</span>
+      <strong>Q has the same form as K<sub>sp</sub> — evaluated now, not at equilibrium.</strong>
+    </div>
+    <p class="subst">
+      <span class="expr" set:html={lesson.quotient.expressionHtml} />
+      <span class="eq">=</span>
+      <span class="nums mono">{qSubst}</span>
+      <span class="eq">=</span>
+      <span class="kaval">{lesson.quotient.valueSci}</span>
+    </p>
+  </div>
+
+  <!-- step 3: the verdict — Q vs Ksp -->
+  <div class={`verdict ${forms ? "forms" : "clear"}`}>
+    <div class="compare mono">
+      <span class="q">Q = {res.qSci}</span>
+      <span class="op">{res.comparison_symbol}</span>
+      <span class="k">K<sub>sp</sub> = {res.kspSci}</span>
+    </div>
+    <div class="call">
+      <span class="mark">{forms ? "✓" : "—"}</span>
+      <strong>{forms ? "A precipitate forms." : "No precipitate — the solution stays clear."}</strong>
+    </div>
+    <p class="margin">
+      {forms
+        ? <>Q exceeds K<sub>sp</sub> by about <strong>{res.margin_display}×</strong>, so the solution is
+            supersaturated in {lesson.reaction.saltPretty} and solid crashes out until Q falls back to K<sub>sp</sub>.</>
+        : <>Q is about <strong>{res.margin_display}×</strong> below K<sub>sp</sub>, so the solution is unsaturated —
+            {lesson.reaction.saltPretty} could still dissolve, and none precipitates.</>}
+    </p>
+  </div>
+
+  <!-- the machine-checked facts, SHOWN not asserted -->
+  <div class="proof">
+    <div class="proof-head">
+      <span class="badge machine"><span class="dot"></span>Verification</span>
+      <strong>Proven at build time — not asserted.</strong>
+    </div>
+    <ul class="checks">
+      <li><span class="tick">✓</span> Each mixed concentration = [ion]<sub>source</sub> × V<sub>source</sub> / V<sub>total</sub> <span class="tier">[mixing dilution]</span></li>
+      <li><span class="tick">✓</span> Q = [{cat.ionPretty}]<sup>{lesson.reaction.n_cation}</sup>[{an.ionPretty}]<sup>{lesson.reaction.n_anion}</sup> at the mixed concentrations <span class="tier">[quotient computed]</span></li>
+      <li><span class="tick">✓</span> The verdict follows the comparison: a precipitate forms exactly when Q &gt; K<sub>sp</sub> <span class="tier">[verdict consistent]</span></li>
+    </ul>
+  </div>
+
+  <!-- misconception register -->
+  {lesson.misconception && (
+    <div class="misconception">
+      <div class="mis-claim"><span class="x">✗</span> Common misconception: “<span set:html={lesson.misconception.claimHtml} />”</div>
+      <p class="mis-fix">
+        The clarity or dilution of each beaker on its own decides <strong>nothing</strong> — neither holds any
+        {" "}{lesson.reaction.saltPretty} to begin with. What matters is the <strong>ion product of the mixture</strong>
+        {" "}versus K<sub>sp</sub>. Here Q = <strong>{res.qSci}</strong> lands about <strong>{res.margin_display}×</strong>
+        {" "}above K<sub>sp</sub> = {res.kspSci}, because K<sub>sp</sub> is so tiny that even millimolar
+        {" "}[{cat.ionPretty}] and [{an.ionPretty}] blow past it. So {lesson.reaction.saltPretty} precipitates — the
+        {" "}Q-vs-K<sub>sp</sub> test, not the look of the parts, is what predicts it.
+      </p>
+    </div>
+  )}
+
+  <!-- assumptions, disclosed not discharged (ADR-0003) -->
+  <details class="assumptions">
+    <summary><span class="badge model"><span class="dot"></span>Modeling assumptions</span> — author-asserted, disclosed not discharged</summary>
+    <ul>
+      {lesson.assumptions.map((a) => (
+        <li><span class={`akind ${a.kind}`}>{a.kind}</span> <span set:html={a.claimHtml} /></li>
+      ))}
+    </ul>
+  </details>
+</section>
+
+<style>
+  .player { display: grid; gap: 1.1rem; }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .scenario { font-size: 1.05rem; margin: 0.6rem 0 0; line-height: 1.6; }
+  .badge.tiny { font-size: 0.66rem; padding: 0.03rem 0.35rem; }
+
+  .reaction { display: grid; gap: 0.5rem; background: var(--paper-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem; }
+  .rxn { font-size: 1.15rem; overflow-x: auto; }
+  .ka { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; font-size: 0.95rem; }
+  .ka .eq { color: var(--ink-faint); }
+  .ka .kaval { font-family: var(--font-mono); font-weight: 600; color: var(--sourced); }
+  .ka .kalabel { color: var(--ink-faint); font-size: 0.8rem; }
+
+  .tablewrap { overflow-x: auto; }
+  table.mix { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+  table.mix th, table.mix td { padding: 0.5rem 0.7rem; text-align: left; border-bottom: 1px solid var(--line); }
+  table.mix th.num, table.mix td.num { text-align: right; font-family: var(--font-mono); white-space: nowrap; }
+  table.mix thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); font-weight: 600; }
+  table.mix .sym { font-size: 1.02rem; }
+  table.mix .phase { color: var(--ink-faint); font-size: 0.8rem; }
+  table.mix td.eqm { font-weight: 600; color: var(--ink); }
+  .ledger-note { margin: 0; font-size: 0.9rem; color: var(--ink-2); display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; line-height: 1.55; }
+  .mono { font-family: var(--font-mono); }
+
+  .proof { border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: var(--radius); padding: 0.6rem 0.9rem 0.9rem; }
+  .proof-head { display: flex; align-items: center; gap: 0.7rem; padding: 0.3rem 0; flex-wrap: wrap; }
+  .massaction { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: color-mix(in srgb, var(--accent) 5%, transparent); }
+  .subst { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; margin: 0.3rem 0; font-size: 0.98rem; }
+  .subst .eq { color: var(--ink-faint); }
+  .subst .nums { color: var(--ink-2); }
+  .subst .kaval { font-family: var(--font-mono); font-weight: 600; color: var(--accent); }
+  .checks { list-style: none; padding: 0; margin: 0.3rem 0; display: grid; gap: 0.35rem; }
+  .checks li { font-size: 0.92rem; }
+  .tick { color: var(--accent); font-weight: 700; }
+  .tier { color: var(--ink-faint); font-family: var(--font-mono); font-size: 0.76rem; }
+
+  /* the verdict banner: Q vs Ksp → forms / stays clear */
+  .verdict { border-radius: var(--radius); padding: 0.9rem 1.1rem; display: grid; gap: 0.5rem; border: 1px solid var(--line); }
+  .verdict.forms { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .verdict.clear { border-color: var(--line); background: var(--paper-sunk); }
+  .verdict .compare { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap; font-size: 1.05rem; }
+  .verdict .compare .op { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+  .verdict .compare .q { color: var(--ink); font-weight: 600; }
+  .verdict .compare .k { color: var(--sourced); font-weight: 600; }
+  .verdict .call { display: flex; align-items: baseline; gap: 0.5rem; font-size: 1.25rem; }
+  .verdict.forms .call { color: var(--accent); }
+  .verdict .call .mark { font-weight: 700; }
+  .verdict .margin { margin: 0; font-size: 0.9rem; color: var(--ink-2); line-height: 1.55; }
+
+  .misconception { background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); border-radius: var(--radius); padding: 0.8rem 1rem; }
+  .mis-claim { font-weight: 600; color: var(--warn); }
+  .mis-claim .x { font-weight: 700; }
+  .mis-fix { margin: 0.4rem 0 0; color: var(--ink-2); font-size: 0.95rem; line-height: 1.6; }
+
+  .assumptions summary { cursor: pointer; color: var(--ink-2); }
+  .assumptions ul { color: var(--ink-2); font-size: 0.93rem; }
+  .akind { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; padding: 0.05rem 0.35rem; border-radius: 5px; margin-right: 0.3rem; }
+  .akind.model { background: var(--model-soft); color: var(--model); }
+  .akind.rule { background: var(--sourced-soft); color: var(--sourced); }
+</style>

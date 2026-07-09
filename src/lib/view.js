@@ -407,6 +407,36 @@ export function renderEquilibriumLesson(lesson) {
   return s;
 }
 
+// Render a precipitation-prediction lesson (ADR-0048, 9th increment): the Q-vs-Kₛₚ snapshot. The dissolution
+// reaction (⇌) + the Kₛₚ and Q expressions render from the producer's upright LaTeX; the source formulas + ions
+// get Unicode subscripts; the scenario / assumptions / misconception get their formula tokens subscripted + inline
+// $…$ rendered. Q, Kₛₚ, and the mixed concentrations are numeric (used as-is by the static player).
+export function renderPredictionLesson(lesson) {
+  const s = structuredClone(lesson);
+  const toks = [s.reaction.salt, s.reaction.cation, s.reaction.anion,
+                s.mixing.cation_source.formula, s.mixing.anion_source.formula].filter(Boolean);
+  s.scenarioHtml = inline(prettyText(s.scenario, toks));
+  delete s.scenario;
+  s.reaction.latexHtml = tex(s.reaction.latex, false);
+  s.reaction.saltPretty = prettyIon(s.reaction.salt);
+  s.reaction.cationPretty = prettyIon(s.reaction.cation);
+  s.reaction.anionPretty = prettyIon(s.reaction.anion);
+  s.equilibrium_constant.expressionHtml = tex(s.equilibrium_constant.expression_latex, false);
+  s.equilibrium_constant.valueSci = toSci(s.equilibrium_constant.value);
+  s.quotient.expressionHtml = tex(s.quotient.expression_latex, false);
+  s.quotient.valueSci = toSci(s.quotient.value_display);
+  for (const key of ["cation_source", "anion_source"]) {
+    const src = s.mixing[key];
+    src.formulaPretty = prettyIon(src.formula);
+    src.ionPretty = prettyIon(src.ion);
+  }
+  s.result.qSci = toSci(s.result.q_value_display);
+  s.result.kspSci = toSci(s.result.ksp_value_display);
+  s.assumptions = (s.assumptions ?? []).map((a) => ({ ...a, claimHtml: inline(prettyText(a.claim, toks)) }));
+  if (s.misconception) s.misconception.claimHtml = inline(prettyText(s.misconception.claim, toks));
+  return s;
+}
+
 // Render a concept entry (definition may carry inline $…$; latex is a standalone display formula).
 export function renderConcept(c) {
   return {

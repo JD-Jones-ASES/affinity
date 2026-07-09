@@ -14,6 +14,10 @@
       "type": "see-also"
     },
     {
+      "to": "reaction-quotient",
+      "type": "see-also"
+    },
+    {
       "to": "precipitation",
       "type": "quantifies"
     },
@@ -28,7 +32,8 @@
   ],
   "lessons": [
     "calcium-fluoride-solubility",
-    "calcium-fluoride-common-ion"
+    "calcium-fluoride-common-ion",
+    "calcium-fluoride-precipitation"
   ],
   "regime": "model-exact",
   "latex": "K_{sp} = [\\mathrm{M}^{n+}]^a\\,[\\mathrm{X}^{m-}]^b"

@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://affinity/schemas/prediction-lesson.schema.json",
+  "title": "Affinity precipitation-prediction lesson",
+  "description": "One verified precipitation-prediction lesson (ADR-0048, 9th increment): the *prediction* face on the Kₛₚ machinery. Unlike the six `equilibrium` subtypes (which SOLVE the ICE table for an extent where Q=K), this is a SNAPSHOT COMPARISON — two solutions are mixed, each ion is diluted into the combined volume, the reaction quotient Q = [cation]ᵃ[anion]ᵇ is evaluated at that instant, and Q is compared to Kₛₚ to predict whether a precipitate forms (Q>Kₛₚ → yes; Q<Kₛₚ → no; Q=Kₛₚ → exactly saturated). No equilibrium extent is solved, so this carries no ICE table — a distinct, compact schema keeps the equilibrium-lesson schema pristine (the same reason structure/comparison/equilibrium each got their own). Honesty is layered (the three badges, ADR-0003): the ion accounting (mixing dilution + Q) is machine-checked (regime-1); Kₛₚ is sourced (regime-3); the verdict is the disclosed model prediction (regime-2). additionalProperties:false everywhere.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind", "id", "title", "slug", "topic", "scenario", "regimes", "assumptions",
+    "reaction", "equilibrium_constant", "mixing", "quotient", "result", "misconception", "checks", "provenance"
+  ],
+  "$defs": {
+    "decimalString": { "type": "string", "pattern": "^[+-]?(?:[0-9]+\\.?[0-9]*|\\.[0-9]+)$" },
+    "mixingSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One source solution: a soluble salt (`formula`) at `molarity_M`, `volume_mL` of it added to the mix, releasing `per_formula` of the target `ion`. ion_source_M = molarity × per_formula (before mixing); mixed_M = ion_source_M × volume / V_total (after dilution). The gate re-derives both.",
+      "required": ["formula", "formula_latex", "name", "molarity_M", "volume_mL", "per_formula",
+        "ion", "ion_latex", "ion_source_M", "ion_source_M_display", "mixed_M", "mixed_M_display"],
+      "properties": {
+        "formula": { "type": "string", "minLength": 1 },
+        "formula_latex": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "molarity_M": { "$ref": "#/$defs/decimalString" },
+        "volume_mL": { "$ref": "#/$defs/decimalString" },
+        "per_formula": { "type": "integer", "minimum": 1, "$comment": "how many of the target ion each formula unit releases (Ca(NO₃)₂ → 1 Ca²⁺; machine-checked for a monatomic ion)" },
+        "ion": { "type": "string", "minLength": 1 },
+        "ion_latex": { "type": "string", "minLength": 1 },
+        "ion_source_M": { "$ref": "#/$defs/decimalString" },
+        "ion_source_M_display": { "$ref": "#/$defs/decimalString" },
+        "mixed_M": { "$ref": "#/$defs/decimalString" },
+        "mixed_M_display": { "$ref": "#/$defs/decimalString" }
+      }
+    }
+  },
+  "properties": {
+    "kind": { "const": "prediction" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "topic": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "scenario": { "type": "string", "minLength": 1 },
+    "regimes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["facet", "regime"],
+        "properties": {
+          "facet": { "type": "string" },
+          "regime": { "enum": ["ledger-exact", "model-exact", "rule-sourced", "mechanistic"] }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim", "kind"],
+        "properties": {
+          "claim": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["model", "rule"] }
+        }
+      }
+    },
+    "reaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The dissolution equilibrium of the target salt, MₐXᵦ(s) ⇌ a Mⁿ⁺ + b Xᵐ⁻ — the reaction whose Kₛₚ the mixed quotient is tested against.",
+      "required": ["salt", "salt_name", "salt_latex", "cation", "cation_latex", "anion", "anion_latex",
+        "n_cation", "n_anion", "text", "latex"],
+      "properties": {
+        "salt": { "type": "string", "minLength": 1 },
+        "salt_name": { "type": "string", "minLength": 1 },
+        "salt_latex": { "type": "string", "minLength": 1 },
+        "cation": { "type": "string", "minLength": 1 },
+        "cation_latex": { "type": "string", "minLength": 1 },
+        "anion": { "type": "string", "minLength": 1 },
+        "anion_latex": { "type": "string", "minLength": 1 },
+        "n_cation": { "type": "integer", "minimum": 1 },
+        "n_anion": { "type": "integer", "minimum": 1 },
+        "text": { "type": "string", "minLength": 1, "$comment": "house ASCII with the <=> equilibrium arrow" },
+        "latex": { "type": "string", "minLength": 1 }
+      }
+    },
+    "equilibrium_constant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["symbol", "value", "expression_latex", "source"],
+      "properties": {
+        "symbol": { "const": "K_sp" },
+        "value": { "$ref": "#/$defs/decimalString" },
+        "expression_latex": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1, "$comment": "must resolve in docs/SOURCES.md (data-sourced badge)" }
+      }
+    },
+    "mixing": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The two source solutions mixed and each ion diluted into the combined volume. This is the ion accounting the prediction rests on — the gate re-derives every mixed concentration.",
+      "required": ["volume_total_mL", "volume_total_mL_display", "cation_source", "anion_source"],
+      "properties": {
+        "volume_total_mL": { "$ref": "#/$defs/decimalString" },
+        "volume_total_mL_display": { "$ref": "#/$defs/decimalString" },
+        "cation_source": { "$ref": "#/$defs/mixingSource" },
+        "anion_source": { "$ref": "#/$defs/mixingSource" }
+      }
+    },
+    "quotient": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The reaction quotient Q = [cation]ᵃ[anion]ᵇ evaluated at the mixed concentrations — the SAME expression as Kₛₚ, but at this arbitrary (non-equilibrium) instant. Compared to Kₛₚ in `result`.",
+      "required": ["symbol", "expression_latex", "value", "value_display"],
+      "properties": {
+        "symbol": { "const": "Q" },
+        "expression_latex": { "type": "string", "minLength": 1 },
+        "value": { "$ref": "#/$defs/decimalString" },
+        "value_display": { "$ref": "#/$defs/decimalString" }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The verdict: Q vs Kₛₚ. forms_precipitate ⇔ Q > Kₛₚ (the gate re-derives it from an independent Q). margin_display is the many-fold Q/Kₛₚ (above) or Kₛₚ/Q (below).",
+      "required": ["verdict", "forms_precipitate", "comparison_symbol", "q_value_display", "ksp_value_display",
+        "margin_display", "margin_direction"],
+      "properties": {
+        "verdict": { "enum": ["precipitate", "no-precipitate", "saturated"] },
+        "forms_precipitate": { "type": "boolean" },
+        "comparison_symbol": { "enum": [">", "<", "="] },
+        "q_value_display": { "$ref": "#/$defs/decimalString" },
+        "ksp_value_display": { "$ref": "#/$defs/decimalString" },
+        "margin_display": { "$ref": "#/$defs/decimalString" },
+        "margin_direction": { "enum": ["above", "below", "equal"] }
+      }
+    },
+    "misconception": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "refuted_by"],
+      "properties": {
+        "claim": { "type": "string", "minLength": 1 },
+        "refuted_by": { "type": "string" }
+      }
+    },
+    "reference_links": { "type": "array", "items": { "type": "string" } },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "the machine-checked facts, SHOWN not asserted. All const true — the producer refuses to emit otherwise (ADR-0008), and the gate re-derives each independently.",
+      "required": ["mixing_dilution", "quotient_computed", "verdict_consistent"],
+      "properties": {
+        "mixing_dilution": { "const": true },
+        "quotient_computed": { "const": true },
+        "verdict_consistent": { "const": true }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer", "version", "author", "created", "sources"],
+      "properties": {
+        "producer": { "const": "chemkernel" },
+        "version": { "type": "string" },
+        "python": { "type": "string" },
+        "author": { "type": "string" },
+        "created": { "type": "string" },
+        "sources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["solubility_products", "ion_charge"],
+          "properties": {
+            "solubility_products": { "type": "string", "minLength": 1 },
+            "ion_charge": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,6 +4,10 @@
 // module re-derives the whole spine independently of the Python engine — the ICE identity, an INDEPENDENT
 // bisection re-solve of the root, the residual Q(committed)=K, the pH, and the percent ionization — so CI
 // re-verifies the equilibrium with no Python. Shared (like structurecheck.mjs), used by validate-solutions.
+// Also carries `verifyPrediction` (ADR-0048, 9th increment) — the Q-vs-Kₛₚ precipitation SNAPSHOT (no solve):
+// re-derive the mixing dilution + the reaction quotient + the verdict independently.
+
+import { parseFormula } from "./formula.mjs";
 
 // The mass-action reaction quotient Q = ∏ c_i^{ν_i} (ν signed: products multiply, reactants divide via a
 // negative power). A species with inQ[i] false is a pure solid (activity 1, excluded from Q — the Ksp case,
@@ -313,4 +317,66 @@ export function verifyEquilibrium(rel, les, fail) {
   } else {
     fail(rel, `unknown equilibrium subtype '${les.subtype}'`);
   }
+}
+
+// Re-derive + verify one precipitation-PREDICTION lesson (ADR-0048, 9th increment). This is NOT a solve — it is a
+// snapshot: two solutions mixed, each ion diluted into the combined volume, the reaction quotient Q evaluated and
+// compared to Kₛₚ. The gate re-derives the whole spine in pure Node — the source composition (neutral formula +
+// monatomic-ion multiplicity), the mixing dilution, Q = [cation]ᵃ[anion]ᵇ, and the verdict (forms_precipitate ⇔
+// Q > Kₛₚ) — so a tampered concentration, quotient, verdict, or margin is caught. `fail(rel, msg)` exits.
+export function verifyPrediction(rel, les, fail) {
+  const rc = (g, w, t = 1e-6) => Math.abs(g - w) <= t * Math.abs(w) + 1e-12;
+  const ksp = Number(les.equilibrium_constant.value);
+  if (!(ksp > 0)) fail(rel, `Ksp ${les.equilibrium_constant.value} is not positive`);
+  const nCat = les.reaction.n_cation, nAn = les.reaction.n_anion;
+  if (!(Number.isInteger(nCat) && nCat >= 1 && Number.isInteger(nAn) && nAn >= 1))
+    fail(rel, "reaction n_cation / n_anion must be positive integers");
+
+  const mx = les.mixing;
+  const vTot = Number(mx.volume_total_mL);
+  const vCat = Number(mx.cation_source.volume_mL), vAn = Number(mx.anion_source.volume_mL);
+  if (!(vTot > 0)) fail(rel, `volume_total_mL ${mx.volume_total_mL} is not positive`);
+  if (!rc(vTot, vCat + vAn)) fail(rel, `volume_total_mL ${mx.volume_total_mL} != cation + anion volumes ${vCat + vAn}`);
+
+  // one source: neutral salt formula; the monatomic-ion multiplicity; ion_source_M = molarity × per; the dilution.
+  const checkSource = (src, ionId, which) => {
+    const f = parseFormula(src.formula);
+    if (f.charge !== 0) fail(rel, `${which} source ${src.formula} is not a neutral compound (charge ${f.charge})`);
+    const ion = parseFormula(ionId);
+    const els = Object.keys(ion.counts);
+    if (els.length === 1 && ion.counts[els[0]] === 1) {          // monatomic ion — the element count = per_formula
+      const got = f.counts[els[0]] || 0;
+      if (got !== src.per_formula)
+        fail(rel, `${which} source ${src.formula} contains ${got} ${els[0]}, but per_formula = ${src.per_formula} for ${ionId}`);
+    }
+    const molarity = Number(src.molarity_M), per = src.per_formula, vol = Number(src.volume_mL);
+    if (!(molarity > 0 && vol > 0 && Number.isInteger(per) && per >= 1))
+      fail(rel, `${which} source molarity/volume must be positive and per_formula a positive integer`);
+    const ionSrc = molarity * per;
+    if (!rc(ionSrc, Number(src.ion_source_M))) fail(rel, `${which} ion_source_M ${src.ion_source_M} != molarity×per_formula = ${ionSrc}`);
+    const mixed = (ionSrc * vol) / vTot;                         // dilution into the combined volume
+    if (!rc(mixed, Number(src.mixed_M))) fail(rel, `${which} mixed_M ${src.mixed_M} != ion_source × V/V_total = ${mixed}`);
+    return mixed;
+  };
+  const catMixed = checkSource(mx.cation_source, les.reaction.cation, "cation");
+  const anMixed = checkSource(mx.anion_source, les.reaction.anion, "anion");
+
+  // Q = [cation]ᵃ[anion]ᵇ at the mixed concentrations (both ions in the quotient) — the same expression as Kₛₚ
+  const Q = reactionQuotient([catMixed, anMixed], [nCat, nAn], [true, true]);
+  if (!rc(Q, Number(les.quotient.value), 1e-4)) fail(rel, `quotient.value ${les.quotient.value} != recomputed Q ${Q}`);
+  if (!rc(Q, Number(les.result.q_value_display), 5e-3)) fail(rel, `result.q_value_display ${les.result.q_value_display} != Q ${Q}`);
+  if (!rc(ksp, Number(les.result.ksp_value_display), 5e-3)) fail(rel, `result.ksp_value_display ${les.result.ksp_value_display} != Ksp ${ksp}`);
+
+  // the verdict: forms_precipitate ⇔ Q > Kₛₚ; the comparison symbol, direction, and many-fold margin re-derived
+  const r = les.result;
+  const shouldForm = Q > ksp;
+  if (r.forms_precipitate !== shouldForm) fail(rel, `result.forms_precipitate ${r.forms_precipitate} != (Q > Ksp) ${shouldForm}`);
+  const verdict = Q > ksp ? "precipitate" : Q < ksp ? "no-precipitate" : "saturated";
+  if (r.verdict !== verdict) fail(rel, `result.verdict ${r.verdict} != recomputed ${verdict}`);
+  const sym = Q > ksp ? ">" : Q < ksp ? "<" : "=";
+  if (r.comparison_symbol !== sym) fail(rel, `result.comparison_symbol ${r.comparison_symbol} != ${sym} (Q vs Ksp)`);
+  const dir = Q > ksp ? "above" : Q < ksp ? "below" : "equal";
+  if (r.margin_direction !== dir) fail(rel, `result.margin_direction ${r.margin_direction} != ${dir}`);
+  const margin = Q > ksp ? Q / ksp : Q < ksp ? ksp / Q : 1;
+  if (!rc(margin, Number(r.margin_display), 5e-3)) fail(rel, `result.margin_display ${r.margin_display} != Q/Ksp (or Ksp/Q) = ${margin}`);
 }

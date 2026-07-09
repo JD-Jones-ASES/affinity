@@ -1,0 +1,18 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0048 9th increment). The reaction quotient Q: the same form as the
+# equilibrium constant, evaluated anywhere — the instrument that predicts which way a reaction moves, and (vs Ksp)
+# whether a precipitate forms. Model-exact (the prediction rides the equilibrium model). No [[array-of-tables]].
+id = "reaction-quotient"
+kind = "concept"
+title = "Reaction quotient (Q) and predicting change"
+term = "reaction quotient"
+regime = "model-exact"
+definition = "The **reaction quotient** $Q$ has the *same algebraic form* as the equilibrium constant $K$ — products over reactants, each raised to its coefficient, $Q = \\prod_i [\\text{species}_i]^{\\nu_i}$ — but evaluated at **any** composition, not only at equilibrium. Comparing $Q$ to $K$ tells you which way the reaction must move to reach equilibrium: $Q < K$ shifts **forward** (toward products), $Q > K$ shifts **reverse**, $Q = K$ is already there. For a dissolving salt the test is $Q$ against $K_{sp}$: mix two solutions, compute $Q = [\\text{cation}]^a[\\text{anion}]^b$ at the instant of mixing, and if $Q > K_{sp}$ the solution is supersaturated and a **precipitate forms** — the quantitative form of the Phase-0 'will it precipitate?' rules. $Q$ is the snapshot; $K$ is the destination."
+latex = "Q = [\\mathrm{Ca^{2+}}][\\mathrm{F^-}]^2 \\quad\\text{vs}\\quad K_{sp}"
+related = [
+  { to = "chemical-equilibrium", type = "instance-of" },
+  { to = "solubility-product", type = "see-also" },
+  { to = "precipitation", type = "predicts" },
+  { to = "common-ion-effect", type = "see-also" },
+  { to = "extent-of-reaction", type = "extends" },
+]
+lessons = ["calcium-fluoride-precipitation"]

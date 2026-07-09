@@ -2,7 +2,7 @@
 
 **A beginning-chemistry portal where the verification system is the product.**
 
-**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — sixteen machine-verified lessons (precipitation,
+**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — seventeen machine-verified lessons (precipitation,
 percent yield, acid-base neutralization, **gas stoichiometry** — a weighed metal + acid whose hydrogen volume falls
 out of the ledger via PV=nRT — the **energy ledger** — burning methane, whose heat q = ΔH_rxn·ξ falls out of
 the ledger via Hess's law over sourced formation enthalpies — two **single-molecule structure lessons** (why water is
@@ -18,7 +18,8 @@ where dissolving calcium fluoride into a fluoride solution suppresses its solubi
 acid, whose three protons come off in stages Kₐ1 ≫ Kₐ2 ≫ Kₐ3 — the same solver run once per stage, so the first ionization
 sets the pH and the amphiprotic middle anion sits at ≈ Kₐ2; and a **titration curve** — acetic acid titrated by NaOH, the
 ledger marched drop by drop into a build-time SVG that reads pKₐ off the half-equivalence plateau and lands basic at
-equivalence), twelve procedural gyms (dimensional analysis, nomenclature,
+equivalence), **plus a precipitation-prediction lesson** (a different kind — mix calcium and fluoride solutions, and the
+**reaction quotient** Q, compared to Ksp, decides whether calcium fluoride crashes out: a snapshot, not a solve), twelve procedural gyms (dimensional analysis, nomenclature,
 balancing, the full stoichiometry suite, periodic trends, reaction families, gas laws, calorimetry, **Lewis
 structures** — valence electrons, electron domains, molecular shape, counted exactly — and **weak-acid pH** — the ICE table's
 mass-action root, solved not approximated), the Chemical Atlas — five reference surfaces: a typed concept graph + **7 reaction
@@ -31,7 +32,8 @@ force** derived from the structure: why CO₂ is nonpolar but H₂O is not, and 
 at −161 °C) — and generated practice. Phase 2 has landed its gas + thermochemistry tiers, its **bonding & structure**
 tier (engine, gym, three lessons, and intermolecular forces), and has **opened equilibrium & acid-base** (the
 reversible-extent solver + the `equilibrium` lesson kind with six subtypes — weak-acid pH, buffer, weak-base pH, Ksp
-solubility incl. a common-ion variant, polyprotic staged ionization, and titration curves); see [`ROADMAP.md`](./ROADMAP.md). See [`AGENTS.md`](./AGENTS.md) to work the repo.
+solubility incl. a common-ion variant, polyprotic staged ionization, and titration curves — plus a `prediction` lesson kind
+(Q vs Ksp: does a precipitate form?)); see [`ROADMAP.md`](./ROADMAP.md). See [`AGENTS.md`](./AGENTS.md) to work the repo.
 
 ## The idea in three lines
 

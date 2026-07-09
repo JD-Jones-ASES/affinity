@@ -5,12 +5,14 @@ import { inline } from "../../lib/katex.js";
 import { prettyText } from "../../lib/view.js";
 
 // all lesson shapes list here (ADR-0045/0047/0048): reaction (*.solution.json), structure (*.structure.json —
-// a single molecule's electron ledger), comparison (*.comparison.json), and equilibrium (*.equilibrium.json —
-// the ICE table). Each carries a title, topic, slug, and scenario.
+// a single molecule's electron ledger), comparison (*.comparison.json), equilibrium (*.equilibrium.json —
+// the ICE table), and prediction (*.prediction.json — the Q-vs-Kₛₚ precipitation snapshot). Each carries a title,
+// topic, slug, and scenario.
 const mods = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
 const structs = import.meta.glob("../../../derived/**/*.structure.json", { eager: true });
 const cmps = import.meta.glob("../../../derived/**/*.comparison.json", { eager: true });
 const eqs = import.meta.glob("../../../derived/**/*.equilibrium.json", { eager: true });
+const preds = import.meta.glob("../../../derived/**/*.prediction.json", { eager: true });
 // scenario typography: subscript each lesson's known formula tokens (ADR-0025 / brief §6.1)
 const stripPhase = (id) => String(id).replace(/\((?:s|l|g|aq)\)$/, "");
 const tokensOf = (l) => [
@@ -19,8 +21,10 @@ const tokensOf = (l) => [
   l.molecule?.formula,                    // structure lessons carry a molecule, not a reaction
   ...(l.rows ?? []).map((r) => r.formula), // comparison lessons carry several molecules
   l.reaction?.acid, l.reaction?.conjugate_base, // equilibrium lessons carry the acid + conjugate base
+  l.reaction?.salt, l.reaction?.cation, l.reaction?.anion, // Ksp/prediction lessons carry the salt + its ions
+  l.mixing?.cation_source?.formula, l.mixing?.anion_source?.formula, // prediction lessons carry the source salts
 ];
-const lessons = [...Object.values(mods), ...Object.values(structs), ...Object.values(cmps), ...Object.values(eqs)]
+const lessons = [...Object.values(mods), ...Object.values(structs), ...Object.values(cmps), ...Object.values(eqs), ...Object.values(preds)]
   .map((m) => m.default)
   .map((l) => ({ ...l, scenarioHtml: inline(prettyText(l.scenario, tokensOf(l))) }));
 

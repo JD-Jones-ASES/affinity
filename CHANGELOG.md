@@ -3,6 +3,31 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — equilibrium: Q-vs-Kₛₚ precipitation prediction — the `prediction` lesson kind (ADR-0048, 9th increment)
+
+The flagged remaining equilibrium item, and the first face that is **not** a solve: *will a precipitate form when two solutions
+are mixed?* is decided by the **reaction quotient**. Mix, dilute each ion into the combined volume, evaluate
+Q = [cation]ᵃ[anion]ᵇ at that instant, and compare to Kₛₚ — Q > Kₛₚ ⇒ supersaturated ⇒ a precipitate forms. A **snapshot**, not
+an equilibrium solve, so it gets its own compact shape: a new **`prediction` lesson kind** (the fifth lesson shape).
+
+- **Lesson `equilibrium/calcium-fluoride-precipitation`** — 40.0 mL 0.010 M Ca(NO₃)₂ + 60.0 mL 0.010 M NaF → [Ca²⁺] = 0.0040 M,
+  [F⁻] = 0.0060 M, **Q = 1.44×10⁻⁷ ≫ Kₛₚ = 3.45×10⁻¹¹ (≈ 4170×)** → **a precipitate forms**. The **third view of CaF₂**
+  (dissolve it / suppress it / **predict** it — reuses the same curated Kₛₚ, **no new data**). The misconception — "both
+  solutions are clear and only 0.010 M, so nothing precipitates" — fails: it is the ion product of the *mixture* vs. the tiny
+  Kₛₚ that decides, not the look of the parts.
+- **A new kind, not a subtype.** No ICE table, no solved extent, Q ≠ K by design — so a distinct tight
+  `schemas/prediction-lesson.schema.json` + `build_prediction_lesson` (reuses `_quotient` + the Ksp data) + a static
+  `PredictionLesson.astro`, dispatched by the `*.prediction.toml` → `*.prediction.json` extension. Same three-badge honesty:
+  ion accounting machine-checked (regime-1), Kₛₚ sourced (regime-3), the verdict the disclosed model prediction (regime-2).
+- **New concept `reaction-quotient`** — Q has K's form, evaluated anywhere; Q vs K predicts the direction of change (and, vs
+  Kₛₚ, precipitation — the quantitative form of the Phase-0 rules).
+- **Gate:** `equilibriumcheck.mjs` gains `verifyPrediction` — re-derives the mixing dilution + Q + verdict + the source
+  composition (neutral formula, monatomic-ion multiplicity) in pure Node, reusing `parseFormula` + `reactionQuotient`.
+- **Verification:** **392 producer tests** (+9); 7 Node gates green (**validate-solutions = 7 equilibrium + 1 prediction / 17
+  ids**, **validate-reference = 70**, check-katex **752**); **astro build = 39 pages** (+1); `derived/` byte-stable (2 new
+  files). 5-way tamper-tested (verdict / dilution / Q / margin / source per_formula). In-browser: the mixing table + Q
+  substitution + the "✓ A precipitate forms" verdict banner render; 0 KaTeX errors; all 5 concept chips resolve.
+
 ## Phase 2 — 2026-07-08 — equilibrium: titration curves — the ledger marched, and the tier's first plot (ADR-0048, 8th increment)
 
 The equilibrium tier's remaining marquee, and the payoff of the whole "ICE = ledger" thesis: a **titration curve is the

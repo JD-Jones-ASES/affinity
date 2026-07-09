@@ -7,19 +7,21 @@ import { join } from "node:path";
 import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { verifyElectronLedger, ledgerTables, classifyIMF } from "./structurecheck.mjs";
-import { verifyEquilibrium } from "./equilibriumcheck.mjs";
+import { verifyEquilibrium, verifyPrediction } from "./equilibriumcheck.mjs";
 
 const ROOT = process.cwd();
 const schema = JSON.parse(readFileSync(join(ROOT, "schemas", "solution.schema.json"), "utf8"));
 const structureSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "structure-lesson.schema.json"), "utf8"));
 const comparisonSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "comparison-lesson.schema.json"), "utf8"));
 const equilibriumSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "equilibrium-lesson.schema.json"), "utf8"));
+const predictionSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "prediction-lesson.schema.json"), "utf8"));
 const ajv = new Ajv({ allErrors: true, strict: true });
 addFormats(ajv);
 const validate = ajv.compile(schema);
 const validateStructure = ajv.compile(structureSchema);
 const validateComparison = ajv.compile(comparisonSchema);
 const validateEquilibrium = ajv.compile(equilibriumSchema);
+const validatePrediction = ajv.compile(predictionSchema);
 const IMF_RANK = { "london-dispersion": 1, "dipole-dipole": 2, "hydrogen-bonding": 3 };
 
 // walk derived/ for lesson files matching a suffix (*.solution.json reactions, *.structure.json structures)
@@ -331,4 +333,34 @@ for (const file of equilibriumFiles) {
   verifyEquilibrium(rel, les, fail);
 }
 
-console.log(`validate-solutions: ${files.length} solution(s) + ${structureFiles.length} structure + ${comparisonFiles.length} comparison + ${equilibriumFiles.length} equilibrium lesson(s) valid; ${ids.size} unique id(s).`);
+// ── prediction lessons (ADR-0048, 9th increment): the Q-vs-Kₛₚ precipitation SNAPSHOT (a distinct, compact kind —
+// no ICE table, no solved extent). Two solutions are mixed, each ion diluted into the combined volume, the reaction
+// quotient Q compared to Kₛₚ. The gate re-derives the mixing dilution + Q + verdict in pure Node (verifyPrediction).
+// Same three-badge honesty shape as the equilibrium lessons: the ion accounting is machine-checked (regime-1), Kₛₚ
+// is sourced (regime-3), the verdict is the disclosed model prediction (regime-2).
+const predictionFiles = walkSuffix(derived, ".prediction.json");
+for (const file of predictionFiles) {
+  const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
+  const les = JSON.parse(readFileSync(file, "utf8"));
+
+  if (!validatePrediction(les)) fail(rel, ajv.errorsText(validatePrediction.errors, { separator: "; " }));
+
+  const expected = `derived/${les.topic}/${les.slug}.prediction.json`;
+  if (rel !== expected) fail(rel, `path does not match topic/slug (expected ${expected})`);
+  if (ids.has(les.id)) fail(rel, `duplicate id ${les.id}`);
+  ids.add(les.id);
+  for (const [k, v] of Object.entries(les.checks)) if (v !== true) fail(rel, `check ${k} is not true`);
+
+  // honesty shape: all three regimes present; a model assumption disclosed (the verdict is regime-2); the Kₛₚ source.
+  for (const r of ["ledger-exact", "rule-sourced", "model-exact"])
+    if (!les.regimes.some((x) => x.regime === r)) fail(rel, `prediction lesson missing a ${r} regime`);
+  if (!les.assumptions.some((a) => a.kind === "model"))
+    fail(rel, "prediction lesson discloses no model assumption (the precipitation verdict is model-assumed)");
+  if (!les.equilibrium_constant.source) fail(rel, "equilibrium_constant.source (the Kₛₚ data source) is missing");
+  for (const [k, v] of Object.entries(les.provenance.sources)) if (!v) fail(rel, `provenance.sources.${k} is empty`);
+
+  // the machine-checked core: re-derive the mixing dilution + reaction quotient + verdict independently of Python
+  verifyPrediction(rel, les, fail);
+}
+
+console.log(`validate-solutions: ${files.length} solution(s) + ${structureFiles.length} structure + ${comparisonFiles.length} comparison + ${equilibriumFiles.length} equilibrium + ${predictionFiles.length} prediction lesson(s) valid; ${ids.size} unique id(s).`);

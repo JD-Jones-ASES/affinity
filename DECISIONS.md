@@ -1688,3 +1688,35 @@ structure + 1 comparison + **7 equilibrium** (16 ids); validate-reference = **69
 forced acidic; the equivalence volume; the half-equivalence pH). In-browser: the SVG curve renders the textbook shape
 (buffer plateau → equivalence jump → excess-base tail) with the three landmark markers + a pH-7 reference line; 0 KaTeX
 errors. The `equilibrium` kind now has **six subtypes**.
+
+**Update (9th increment, same day) — the `prediction` lesson KIND: Q vs Kₛₚ, the precipitation face (a snapshot, not a
+solve).** The flagged remaining equilibrium item, and the first face that is **not** an equilibrium *solve*. "Will a
+precipitate form when two solutions are mixed?" is answered by the **reaction quotient**, not the solver: mix, dilute each ion
+into the combined volume, evaluate $Q = [\text{cation}]^a[\text{anion}]^b$ at that instant, and compare to $K_{sp}$ —
+$Q > K_{sp}$ ⇒ supersaturated ⇒ a precipitate forms; $Q < K_{sp}$ ⇒ stays clear; $Q = K_{sp}$ ⇒ exactly saturated. Because there
+is no extent to solve (no ICE table, and $Q \neq K$ by design), it does **not** fit the equilibrium-lesson schema (whose `ice`
+requires a solved extent and whose `mass_action_satisfied` check would be a lie for a snapshot). Following the house pattern
+(structure/comparison/equilibrium each got their own tight schema, not a bent union — the same reasoning as Q5/ADR-0020), it is
+a **new `prediction` lesson kind**: `schemas/prediction-lesson.schema.json`, `build_prediction_lesson` (in `equilibrium.py`,
+reusing `_quotient` + the sourced Ksp data), dispatched by the `*.prediction.toml` extension → `*.prediction.json`, its own
+static `PredictionLesson.astro`. The honesty shape is unchanged (the three badges/regimes): the ion accounting (mixing dilution
++ Q) is machine-checked (regime-1), $K_{sp}$ sourced (regime-3), the verdict the disclosed model prediction (regime-2 — the
+thermodynamic prediction, no metastable supersaturation). Machine-checked facts: `mixing_dilution` ($[\text{ion}]$ after mixing
+$= [\text{ion}]_{\text{source}} \times V_{\text{source}}/V_{\text{total}}$), `quotient_computed` (Q at the mixed
+concentrations), `verdict_consistent` (`forms_precipitate` ⇔ $Q > K_{sp}$, an **exact Decimal comparison**). The source→ion
+multiplicity is machine-checked for a **monatomic ion** (its element appears `per_formula` times in the neutral source
+formula — Ca(NO₃)₂ really has one Ca; NaF one F), with the strong-electrolyte full dissociation the disclosed model
+assumption. The opener: **`equilibrium/calcium-fluoride-precipitation`** — 40.0 mL 0.010 M Ca(NO₃)₂ + 60.0 mL 0.010 M NaF →
+[Ca²⁺] = 0.0040 M, [F⁻] = 0.0060 M, **Q = 1.44×10⁻⁷ ≫ Kₛₚ = 3.45×10⁻¹¹ (≈ 4170×)** → **a precipitate forms**. The **third view
+of CaF₂** (dissolve it / suppress it / **predict** it — reuses the same curated Ksp, no new data). The misconception is judging
+by the clarity/dilution of the *parts* ("both clear and only 0.010 M → nothing happens"), refuted because it is the ion product
+of the *mixture* vs. the tiny Ksp that decides. A new **`reaction-quotient` concept** (Q has K's form, evaluated anywhere; Q vs
+K predicts the direction of change). Gate `equilibriumcheck.mjs` gains `verifyPrediction` (re-derives the dilution + Q + verdict
++ source composition in pure Node, reusing `parseFormula` + `reactionQuotient`); the check-katex / validate-reference
+lesson-slug / lesson-route walks gained the `.prediction.json` suffix. **392 tests** (+9); validate-solutions = 6 + 2 structure
++ 1 comparison + 7 equilibrium + **1 prediction** (17 ids); validate-reference = **70** (+1 concept); check-katex **752**
+(+36); **39 pages** (+1); `derived/` byte-stable (2 new files). **5-way tamper-tested** (the verdict flipped against Q; a mixed
+concentration; Q; the margin; the source `per_formula`). In-browser: the mixing table + Q substitution + the verdict banner
+("✓ A precipitate forms", Q > Kₛₚ ≈ 4170×) render, 0 KaTeX errors, all 5 concept chips resolve. Lessons now come in **five
+shapes** (reaction · structure · comparison · equilibrium · prediction); the equilibrium tier spans **six `equilibrium`
+subtypes + the `prediction` kind** — the ledger solved to equilibrium, and now the ledger's quotient tested against it.

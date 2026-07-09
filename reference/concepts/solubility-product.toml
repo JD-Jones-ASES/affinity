@@ -11,8 +11,9 @@ latex = "K_{sp} = [\\mathrm{M}^{n+}]^a\\,[\\mathrm{X}^{m-}]^b"
 related = [
   { to = "chemical-equilibrium", type = "instance-of" },
   { to = "common-ion-effect", type = "see-also" },
+  { to = "reaction-quotient", type = "see-also" },
   { to = "precipitation", type = "quantifies" },
   { to = "solubility-rules", type = "quantifies" },
   { to = "extent-of-reaction", type = "extends" },
 ]
-lessons = ["calcium-fluoride-solubility", "calcium-fluoride-common-ion"]
+lessons = ["calcium-fluoride-solubility", "calcium-fluoride-common-ion", "calcium-fluoride-precipitation"]

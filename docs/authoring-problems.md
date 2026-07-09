@@ -24,9 +24,11 @@ Most of this guide covers the **reaction** lesson (`*.problem.toml` → a specie
 lesson shapes have their own spec + schema: a single-**molecule** lesson (`*.structure.toml`, Lewis structure → VSEPR →
 polarity — [Structure lessons](#structure-lessons--a-single-molecule-structuretoml-adr-0045) below), a
 **multi-molecule comparison** (`*.comparison.toml`, several molecules vs. a property — [Comparison
-lessons](#comparison-lessons--several-molecules-vs-a-property-comparisontoml-adr-0047) below), and an **equilibrium**
+lessons](#comparison-lessons--several-molecules-vs-a-property-comparisontoml-adr-0047) below), an **equilibrium**
 lesson (`*.equilibrium.toml`, the ICE table solved by mass action — a weak acid's pH, a buffer, a weak base's pH, or a Ksp
-solubility — [Equilibrium lessons](#equilibrium-lessons--a-weak-acids-ph-equilibriumtoml-adr-0048) below).
+solubility — [Equilibrium lessons](#equilibrium-lessons--a-weak-acids-ph-equilibriumtoml-adr-0048) below), and a **prediction**
+lesson (`*.prediction.toml`, Q vs Ksp — does a precipitate form?, a snapshot not a solve — [Prediction
+lessons](#prediction-lessons--q-vs-ksp-does-a-precipitate-form-predictiontoml-adr-0048) below).
 
 ## The one TOML gotcha
 
@@ -441,6 +443,43 @@ refuted_by = "weak_acid_equivalence_is_basic"     # the player renders the basic
 ```
 
 See [`problems/equilibrium/acetic-acid-titration.equilibrium.toml`](../problems/equilibrium/acetic-acid-titration.equilibrium.toml).
+
+### Prediction lessons — Q vs Ksp: does a precipitate form? (`*.prediction.toml`, ADR-0048)
+
+A **prediction lesson** is a *different lesson kind* from the equilibrium subtypes above — it does **not** solve for an
+equilibrium. It answers the snapshot question *"will a precipitate form when two solutions are mixed?"* with the **reaction
+quotient**: mix, dilute each ion into the combined volume, compute $Q = [\text{cation}]^a[\text{anion}]^b$ at that instant, and
+compare it to $K_{sp}$ ($Q > K_{sp}$ ⇒ supersaturated ⇒ a precipitate forms). Its own extension (`*.prediction.toml` →
+`*.prediction.json`) and its own tight schema — no ICE table, no solved extent.
+
+Author the target `salt` (curated in `data/solubility-products.toml`) plus a `[cation_source]` and `[anion_source]`, each a
+soluble salt providing that ion: its `formula`, `molarity_M`, `volume_mL`, and `per_formula` (how many of the target ion each
+formula unit releases, default 1 — machine-checked for a monatomic ion). The mixing dilution, the reaction quotient, and the
+verdict are all machine-set. Use `refuted_by = "q_exceeds_ksp"` for the player's refutation:
+
+```toml
+topic = "equilibrium"
+salt = "CaF2"                                     # the sparingly soluble product (→ Ksp + ion composition, sourced)
+scenario = "…"
+
+[cation_source]                                   # a soluble salt providing the cation
+formula = "Ca(NO3)2"
+molarity_M = "0.010"
+volume_mL = "40.0"
+per_formula = 1                                   # one Ca²⁺ per formula unit (machine-checked for a monatomic ion)
+
+[anion_source]                                    # a soluble salt providing the anion
+formula = "NaF"
+molarity_M = "0.010"
+volume_mL = "60.0"
+per_formula = 1
+
+[misconception]
+claim = "…"
+refuted_by = "q_exceeds_ksp"                      # the player renders the Q-exceeds-Ksp refutation for this key
+```
+
+See [`problems/equilibrium/calcium-fluoride-precipitation.prediction.toml`](../problems/equilibrium/calcium-fluoride-precipitation.prediction.toml).
 
 ### Other optional keys
 

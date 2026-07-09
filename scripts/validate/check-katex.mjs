@@ -14,7 +14,7 @@ function walk(dir) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (statSync(p).isDirectory()) out.push(...walk(p));
-    else if (name.endsWith(".solution.json") || name.endsWith(".structure.json") || name.endsWith(".comparison.json") || name.endsWith(".equilibrium.json")) out.push(p);
+    else if (name.endsWith(".solution.json") || name.endsWith(".structure.json") || name.endsWith(".comparison.json") || name.endsWith(".equilibrium.json") || name.endsWith(".prediction.json")) out.push(p);
   }
   return out;
 }
@@ -75,6 +75,25 @@ function equilibriumLatex(les) {
   if (les.reaction?.latex) out.push(["reaction.latex", les.reaction.latex]);
   if (les.equilibrium_constant?.expression_latex) out.push(["equilibrium_constant.expression_latex", les.equilibrium_constant.expression_latex]);
   (les.ice?.species ?? []).forEach((s, i) => s.latex && out.push([`ice.species[${i}].latex`, s.latex]));
+  out.push(...inlineMath("scenario", les.scenario));
+  (les.assumptions ?? []).forEach((a, i) => out.push(...inlineMath(`assumptions[${i}].claim`, a.claim)));
+  if (les.misconception?.claim) out.push(...inlineMath("misconception.claim", les.misconception.claim));
+  return out;
+}
+
+// Collect LaTeX in a prediction lesson (ADR-0048, 9th increment): the dissolution reaction (⇌) display, the Kₛₚ
+// and Q expressions, each source's formula + ion symbol, plus any inline $…$ in the scenario/assumptions/misconception.
+function predictionLatex(les) {
+  const out = [];
+  if (les.reaction?.latex) out.push(["reaction.latex", les.reaction.latex]);
+  for (const k of ["salt_latex", "cation_latex", "anion_latex"]) if (les.reaction?.[k]) out.push([`reaction.${k}`, les.reaction[k]]);
+  if (les.equilibrium_constant?.expression_latex) out.push(["equilibrium_constant.expression_latex", les.equilibrium_constant.expression_latex]);
+  if (les.quotient?.expression_latex) out.push(["quotient.expression_latex", les.quotient.expression_latex]);
+  for (const s of ["cation_source", "anion_source"]) {
+    const src = les.mixing?.[s];
+    if (src?.formula_latex) out.push([`mixing.${s}.formula_latex`, src.formula_latex]);
+    if (src?.ion_latex) out.push([`mixing.${s}.ion_latex`, src.ion_latex]);
+  }
   out.push(...inlineMath("scenario", les.scenario));
   (les.assumptions ?? []).forEach((a, i) => out.push(...inlineMath(`assumptions[${i}].claim`, a.claim)));
   if (les.misconception?.claim) out.push(...inlineMath("misconception.claim", les.misconception.claim));
@@ -155,7 +174,8 @@ for (const file of files) {
   const obj = JSON.parse(readFileSync(file, "utf8"));
   const strings = file.endsWith(".structure.json") ? structureLatex(obj)
     : file.endsWith(".comparison.json") ? comparisonLatex(obj)
-    : file.endsWith(".equilibrium.json") ? equilibriumLatex(obj) : latexStrings(obj);
+    : file.endsWith(".equilibrium.json") ? equilibriumLatex(obj)
+    : file.endsWith(".prediction.json") ? predictionLatex(obj) : latexStrings(obj);
   for (const [where, latex] of strings) render(rel, where, latex);
 }
 for (const file of refFiles) {

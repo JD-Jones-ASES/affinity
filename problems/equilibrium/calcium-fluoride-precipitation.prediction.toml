@@ -1,0 +1,58 @@
+# Prediction lesson, the `prediction` kind (ADR-0048, 9th increment) — Q vs Ksp: does a precipitate form? This is
+# the *prediction* face on the Ksp machinery: NOT an equilibrium solve (the six equilibrium subtypes), but a
+# SNAPSHOT. Two clear solutions are mixed; each ion is diluted into the combined volume; the reaction quotient
+# Q = [Ca2+][F-]^2 is compared to Ksp. Q > Ksp ⇒ supersaturated ⇒ CaF2 precipitates. The salt + its ions + Ksp
+# come from data/solubility-products.toml (reused — the third view of CaF2: dissolve it / suppress it / predict it).
+# TOML trap #4: every bare key precedes the [cation_source] / [anion_source] / [[assumptions]] / [misconception] headers.
+
+id = "calcium-fluoride-precipitation"
+title = "Will it precipitate? Mixing calcium and fluoride solutions"
+slug = "calcium-fluoride-precipitation"
+topic = "equilibrium"
+tags = ["equilibrium", "precipitation", "reaction quotient", "Q vs Ksp", "solubility"]
+
+# the sparingly soluble product; Ksp + the ion composition are curated + machine-checked in solubility-products.toml
+salt = "CaF2"
+
+scenario = "Two clear solutions sit on the bench — **calcium nitrate**, Ca(NO3)2, and **sodium fluoride**, NaF. Neither holds a speck of solid; both are perfectly transparent. Pour 40.0 mL of 0.010 M Ca(NO3)2 into 60.0 mL of 0.010 M NaF and *does anything happen?* Calcium fluoride is the sparingly soluble pair here — $\\mathrm{CaF_2(s)} \\rightleftharpoons \\mathrm{Ca^{2+}(aq)} + 2\\,\\mathrm{F^-(aq)}$ — but nothing says a solid **must** appear. The test is the **reaction quotient**: mix, dilute each ion into the combined 100.0 mL, evaluate $Q = [\\mathrm{Ca^{2+}}][\\mathrm{F^-}]^2$ at that instant, and compare it to $K_{sp}$. If $Q > K_{sp}$ the solution is supersaturated and $\\mathrm{CaF_2}$ crashes out; if $Q < K_{sp}$ it stays clear. No ICE table to solve — one comparison decides it."
+
+reference_links = ["reaction-quotient", "solubility-product", "chemical-equilibrium", "precipitation", "molarity"]
+
+author = "Affinity"
+created = "2026-07-08"
+
+# solution A: the cation source. Ca(NO3)2 is a soluble strong electrolyte releasing one Ca2+ per formula unit
+# (machine-checked: one Ca in the formula); NO3- is a spectator. molarity of the SALT + how much is added.
+[cation_source]
+formula = "Ca(NO3)2"
+name = "calcium nitrate"
+molarity_M = "0.010"
+volume_mL = "40.0"
+per_formula = 1
+
+# solution B: the anion source. NaF releases one F- per formula unit; Na+ is a spectator.
+[anion_source]
+formula = "NaF"
+name = "sodium fluoride"
+molarity_M = "0.010"
+volume_mL = "60.0"
+per_formula = 1
+
+# modeling assumptions — disclosed (ADR-0003, the model-assumed badge). The ion accounting (dilution + Q) is exact;
+# the verdict rides on these idealizations.
+[[assumptions]]
+claim = "Both source salts are soluble strong electrolytes that dissociate completely, and volumes are additive — so mixing 40.0 mL and 60.0 mL simply dilutes each ion into the combined 100.0 mL. The spectators $\\mathrm{Na^+}$ and $\\mathrm{NO_3^-}$ take no part."
+kind = "model"
+
+[[assumptions]]
+claim = "Activities are approximated by molar concentrations (the ideal-dilute-solution model), which is why $Q$ and $K_{sp}$ are written with concentrations."
+kind = "model"
+
+[[assumptions]]
+claim = "The thermodynamic prediction is taken to hold: $Q > K_{sp}$ means the solid will actually form, with no metastable supersaturation delaying it."
+kind = "model"
+
+# the canonical wrong move: judging by the appearance/dilution of the parts instead of the ion product of the mix.
+[misconception]
+claim = "Both solutions are clear and only 0.010 M — far too dilute for anything to precipitate when you pour them together."
+refuted_by = "q_exceeds_ksp"

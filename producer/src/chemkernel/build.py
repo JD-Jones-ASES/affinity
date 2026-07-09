@@ -25,7 +25,8 @@ from . import BuildError, __version__
 from .balance import balance
 from .data import ChemData
 from .equilibrium import (build_buffer_lesson, build_equilibrium_lesson, build_polyprotic_lesson,
-                          build_solubility_lesson, build_titration_lesson, build_weak_base_lesson)
+                          build_prediction_lesson, build_solubility_lesson, build_titration_lesson,
+                          build_weak_base_lesson)
 from .extent import solve_extent, species_mass_g, to_decimal
 from .formula import Formula, parse_formula
 from .gym import generate_gym
@@ -619,6 +620,18 @@ def build_equilibrium(path: Path, root: Path) -> tuple[dict, str]:
     return lesson, f"{spec['topic']}/{spec['slug']}.equilibrium.json"
 
 
+def build_prediction(path: Path, root: Path) -> tuple[dict, str]:
+    """An authored precipitation-prediction lesson (ADR-0048, 9th increment) → the `prediction` lesson kind: mix
+    two solutions, dilute each ion into the combined volume, evaluate the reaction quotient Q = [cation]ᵃ[anion]ᵇ
+    and compare it to Kₛₚ → does a precipitate form? A **snapshot comparison**, not an equilibrium solve — its own
+    compact `*.prediction.json` shape. The salt's Kₛₚ + ion composition come from data/solubility-products.toml."""
+    spec = tomllib.loads(path.read_text(encoding="utf-8"))
+    ctx = spec.get("id", path.stem)
+    data = ChemData.load(root)
+    lesson = build_prediction_lesson(spec, data, ctx)
+    return lesson, f"{spec['topic']}/{spec['slug']}.prediction.json"
+
+
 def build_reference_main(argv: list[str] | None = None) -> int:
     """Build the Chemical Atlas: the Valence Table (from data/) + authored concept and reaction-family
     entries (reference/**). Reaction-family examples are balanced + classified by the engine (ADR-0035)."""
@@ -699,26 +712,30 @@ def build_gyms_main(argv: list[str] | None = None) -> int:
 
 
 def build_problems_main(argv: list[str] | None = None) -> int:
-    """Build every authored lesson under problems/ (ADR-0019/0045/0047/0048). Four lesson shapes, dispatched by
+    """Build every authored lesson under problems/ (ADR-0019/0045/0047/0048). Five lesson shapes, dispatched by
     file extension: a **reaction** lesson `*.problem.toml` → `build_problem` (equations + species ledger over
     extent + a reported product); a **structure** lesson `*.structure.toml` → `build_structure` (a single
     molecule's Lewis electron ledger, stepped valence → shape → polarity); a **comparison** lesson
     `*.comparison.toml` → `build_comparison` (several molecules vs. a property, the IMF-strength trend
-    machine-verified); and an **equilibrium** lesson `*.equilibrium.toml` → `build_equilibrium` (the ICE table =
-    the species ledger with the extent solved from mass action, ADR-0048). All write verified derived JSON."""
+    machine-verified); an **equilibrium** lesson `*.equilibrium.toml` → `build_equilibrium` (the ICE table =
+    the species ledger with the extent solved from mass action, ADR-0048); and a **prediction** lesson
+    `*.prediction.toml` → `build_prediction` (Q vs Kₛₚ — does a precipitate form?, ADR-0048). All write verified
+    derived JSON."""
     root = Path.cwd()
     reactions = sorted((root / "problems").glob("**/*.problem.toml"))
     structures = sorted((root / "problems").glob("**/*.structure.toml"))
     comparisons = sorted((root / "problems").glob("**/*.comparison.toml"))
     equilibria = sorted((root / "problems").glob("**/*.equilibrium.toml"))
-    if not reactions and not structures and not comparisons and not equilibria:
-        print("no *.problem.toml / *.structure.toml / *.comparison.toml / *.equilibrium.toml found under problems/",
-              file=sys.stderr)
+    predictions = sorted((root / "problems").glob("**/*.prediction.toml"))
+    if not reactions and not structures and not comparisons and not equilibria and not predictions:
+        print("no *.problem.toml / *.structure.toml / *.comparison.toml / *.equilibrium.toml / *.prediction.toml "
+              "found under problems/", file=sys.stderr)
         return 1
     lessons = ([(p, build_problem) for p in reactions]
                + [(p, build_structure) for p in structures]
                + [(p, build_comparison) for p in comparisons]
-               + [(p, build_equilibrium) for p in equilibria])
+               + [(p, build_equilibrium) for p in equilibria]
+               + [(p, build_prediction) for p in predictions])
     for path, builder in lessons:
         try:
             obj, out_rel = builder(path, root)

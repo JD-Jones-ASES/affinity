@@ -14,8 +14,9 @@ from chemkernel import BuildError
 from chemkernel.build import build_equilibrium
 from chemkernel.data import ChemData
 from chemkernel.equilibrium import (build_buffer_lesson, build_equilibrium_lesson, build_polyprotic_lesson,
-                                    build_solubility_lesson, build_titration_lesson, build_weak_base_lesson,
-                                    solve_equilibrium, _quotient)
+                                    build_prediction_lesson, build_solubility_lesson, build_titration_lesson,
+                                    build_weak_base_lesson, solve_equilibrium, _quotient)
+from chemkernel.build import build_prediction
 from chemkernel.reactivity import AcidBase
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -26,6 +27,7 @@ SPEC_POLY = ROOT / "problems" / "equilibrium" / "phosphoric-acid-ph.equilibrium.
 SPEC_TITRATION = ROOT / "problems" / "equilibrium" / "acetic-acid-titration.equilibrium.toml"
 SPEC_BASE = ROOT / "problems" / "equilibrium" / "ammonia-ph.equilibrium.toml"
 SPEC_BUFFER = ROOT / "problems" / "equilibrium" / "acetate-buffer.equilibrium.toml"
+SPEC_PREDICTION = ROOT / "problems" / "equilibrium" / "calcium-fluoride-precipitation.prediction.toml"
 
 
 def _acid_system(c0, hplus=Decimal(0)):
@@ -678,3 +680,94 @@ def test_buffer_refuses_nonpositive_conjugate_base():
     data, ab = _data_ab()
     with pytest.raises(BuildError, match="positive acid and conjugate-base"):
         build_buffer_lesson(_buffer_spec(conjugate_base_molarity_M="0"), data, ab, "t")
+
+
+# ── prediction (the 9th increment — Q vs Ksp: a SNAPSHOT comparison, not a solve; the `prediction` lesson kind) ──
+
+def _pred_spec(**over):
+    spec = {"id": "t", "title": "t", "slug": "t", "topic": "equilibrium", "scenario": "s", "salt": "CaF2",
+            "cation_source": {"formula": "Ca(NO3)2", "molarity_M": "0.010", "volume_mL": "40.0", "per_formula": 1},
+            "anion_source": {"formula": "NaF", "molarity_M": "0.010", "volume_mL": "60.0", "per_formula": 1},
+            "misconception": {"claim": "c", "refuted_by": "q_exceeds_ksp"}}
+    spec.update(over)
+    return spec
+
+
+def test_prediction_builds_and_forms_precipitate():
+    """The canonical case: mixing 0.010 M sources gives Q ≫ Ksp → a precipitate forms (the `prediction` kind)."""
+    data = ChemData.load(ROOT)
+    L = build_prediction_lesson(_pred_spec(), data, "t")
+    assert L["kind"] == "prediction"
+    assert L["result"]["verdict"] == "precipitate"
+    assert L["result"]["forms_precipitate"] is True
+    assert L["result"]["comparison_symbol"] == ">"
+    assert L["equilibrium_constant"]["symbol"] == "K_sp"
+    assert all(L["checks"].values())
+
+
+def test_prediction_mixing_dilution_exact():
+    """40.0 mL of 0.010 M into 100.0 mL total → 0.00400; 60.0 mL → 0.00600 (each diluted by V_source/V_total)."""
+    data = ChemData.load(ROOT)
+    L = build_prediction_lesson(_pred_spec(), data, "t")
+    assert L["mixing"]["volume_total_mL"] == "100"
+    assert Decimal(L["mixing"]["cation_source"]["mixed_M"]) == Decimal("0.004")
+    assert Decimal(L["mixing"]["anion_source"]["mixed_M"]) == Decimal("0.006")
+
+
+def test_prediction_quotient_and_margin():
+    """Q = [Ca2+][F-]^2 = (0.004)(0.006)^2 = 1.44e-7, ≈ 4174× above Ksp = 3.45e-11."""
+    data = ChemData.load(ROOT)
+    L = build_prediction_lesson(_pred_spec(), data, "t")
+    assert Decimal(L["quotient"]["value"]) == Decimal("1.44e-7")
+    margin = Decimal("1.44e-7") / Decimal("3.45e-11")
+    assert Decimal("4100") < Decimal(L["result"]["margin_display"]) < Decimal("4250")
+    assert abs(margin - Decimal(L["result"]["margin_display"])) / margin < Decimal("0.01")
+    assert L["result"]["margin_direction"] == "above"
+
+
+def test_prediction_dilute_mix_stays_clear():
+    """Verdict FLIPS when the ions are dilute enough: Q < Ksp → no precipitate (the verdict tracks Q vs Ksp)."""
+    data = ChemData.load(ROOT)
+    L = build_prediction_lesson(_pred_spec(
+        cation_source={"formula": "Ca(NO3)2", "molarity_M": "0.00002", "volume_mL": "50.0", "per_formula": 1},
+        anion_source={"formula": "NaF", "molarity_M": "0.00002", "volume_mL": "50.0", "per_formula": 1},
+    ), data, "t")
+    assert L["result"]["verdict"] == "no-precipitate"
+    assert L["result"]["forms_precipitate"] is False
+    assert L["result"]["comparison_symbol"] == "<"
+    assert L["result"]["margin_direction"] == "below"
+
+
+def test_prediction_refuses_unknown_salt():
+    data = ChemData.load(ROOT)
+    with pytest.raises(BuildError, match="no solubility product"):
+        build_prediction_lesson(_pred_spec(salt="NaCl"), data, "t")
+
+
+def test_prediction_refuses_source_without_its_ion():
+    """The cation source must actually contain the cation the right number of times (monatomic, machine-checked)."""
+    data = ChemData.load(ROOT)
+    with pytest.raises(BuildError, match="does not release that many"):
+        build_prediction_lesson(_pred_spec(
+            cation_source={"formula": "NaCl", "molarity_M": "0.010", "volume_mL": "40.0", "per_formula": 1}), data, "t")
+
+
+def test_prediction_refuses_nonneutral_source():
+    data = ChemData.load(ROOT)
+    with pytest.raises(BuildError, match="not a neutral compound"):
+        build_prediction_lesson(_pred_spec(
+            cation_source={"formula": "Ca^2+", "molarity_M": "0.010", "volume_mL": "40.0", "per_formula": 1}), data, "t")
+
+
+def test_prediction_refuses_nonpositive_volume():
+    data = ChemData.load(ROOT)
+    with pytest.raises(BuildError, match="volumes must be positive"):
+        build_prediction_lesson(_pred_spec(
+            anion_source={"formula": "NaF", "molarity_M": "0.010", "volume_mL": "0", "per_formula": 1}), data, "t")
+
+
+def test_prediction_round_trip():
+    lesson, out_rel = build_prediction(SPEC_PREDICTION, ROOT)
+    assert out_rel == "equilibrium/calcium-fluoride-precipitation.prediction.json"
+    assert lesson["kind"] == "prediction"
+    assert lesson["result"]["forms_precipitate"] is True

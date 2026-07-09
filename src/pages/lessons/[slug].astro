@@ -4,24 +4,29 @@ import SolutionPlayer from "../../islands/SolutionPlayer.svelte";
 import StructureLesson from "../../components/StructureLesson.astro";
 import ComparisonLesson from "../../components/ComparisonLesson.astro";
 import EquilibriumLesson from "../../components/EquilibriumLesson.astro";
+import PredictionLesson from "../../components/PredictionLesson.astro";
 import { withBase } from "../../lib/withBase.js";
-import { renderSolution, renderStructureLesson, renderComparisonLesson, renderEquilibriumLesson } from "../../lib/view.js";
+import { renderSolution, renderStructureLesson, renderComparisonLesson, renderEquilibriumLesson, renderPredictionLesson } from "../../lib/view.js";
 import { plain } from "../../lib/katex.js";
 
-// One page per committed lesson JSON. Three lesson shapes share the /lessons/<slug>/ route: a reaction lesson
+// One page per committed lesson JSON. Five lesson shapes share the /lessons/<slug>/ route: a reaction lesson
 // (*.solution.json → SolutionPlayer, the extent ledger), a structure lesson (*.structure.json → StructureLesson,
-// the single-molecule electron ledger, ADR-0045), and a comparison lesson (*.comparison.json → ComparisonLesson,
-// several molecules vs. a property, ADR-0047). The producer is the source of truth; this page only renders.
+// the single-molecule electron ledger, ADR-0045), a comparison lesson (*.comparison.json → ComparisonLesson,
+// several molecules vs. a property, ADR-0047), an equilibrium lesson (*.equilibrium.json → EquilibriumLesson, the
+// ICE table, ADR-0048), and a prediction lesson (*.prediction.json → PredictionLesson, the Q-vs-Kₛₚ precipitation
+// snapshot, ADR-0048). The producer is the source of truth; this page only renders.
 export function getStaticPaths() {
   const sols = import.meta.glob("../../../derived/**/*.solution.json", { eager: true });
   const structs = import.meta.glob("../../../derived/**/*.structure.json", { eager: true });
   const cmps = import.meta.glob("../../../derived/**/*.comparison.json", { eager: true });
   const eqs = import.meta.glob("../../../derived/**/*.equilibrium.json", { eager: true });
+  const preds = import.meta.glob("../../../derived/**/*.prediction.json", { eager: true });
   return [
     ...Object.values(sols).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "reaction" } })),
     ...Object.values(structs).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "structure" } })),
     ...Object.values(cmps).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "comparison" } })),
     ...Object.values(eqs).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "equilibrium" } })),
+    ...Object.values(preds).map((m) => ({ params: { slug: m.default.slug }, props: { lesson: m.default, kind: "prediction" } })),
   ];
 }
 
@@ -29,7 +34,9 @@ const { lesson, kind } = Astro.props;
 const isStructure = kind === "structure";
 const isComparison = kind === "comparison";
 const isEquilibrium = kind === "equilibrium";
-const view = isEquilibrium ? renderEquilibriumLesson(lesson)
+const isPrediction = kind === "prediction";
+const view = isPrediction ? renderPredictionLesson(lesson)
+  : isEquilibrium ? renderEquilibriumLesson(lesson)
   : isComparison ? renderComparisonLesson(lesson)
   : isStructure ? renderStructureLesson(lesson) : renderSolution(lesson);
 
@@ -59,7 +66,9 @@ const concepts = (lesson.reference_links ?? []).map((id) => {
   <p class="crumb faint"><a href={withBase("/lessons/")}>Lessons</a> · {lesson.topic}</p>
   <h1>{lesson.title}</h1>
 
-  {isEquilibrium
+  {isPrediction
+    ? <PredictionLesson lesson={view} />
+    : isEquilibrium
     ? <EquilibriumLesson lesson={view} />
     : isComparison
     ? <ComparisonLesson lesson={view} />

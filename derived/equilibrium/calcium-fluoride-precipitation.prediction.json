@@ -1,0 +1,136 @@
+{
+  "kind": "prediction",
+  "id": "calcium-fluoride-precipitation",
+  "title": "Will it precipitate? Mixing calcium and fluoride solutions",
+  "slug": "calcium-fluoride-precipitation",
+  "topic": "equilibrium",
+  "tags": [
+    "equilibrium",
+    "precipitation",
+    "reaction quotient",
+    "Q vs Ksp",
+    "solubility"
+  ],
+  "scenario": "Two clear solutions sit on the bench — **calcium nitrate**, Ca(NO3)2, and **sodium fluoride**, NaF. Neither holds a speck of solid; both are perfectly transparent. Pour 40.0 mL of 0.010 M Ca(NO3)2 into 60.0 mL of 0.010 M NaF and *does anything happen?* Calcium fluoride is the sparingly soluble pair here — $\\mathrm{CaF_2(s)} \\rightleftharpoons \\mathrm{Ca^{2+}(aq)} + 2\\,\\mathrm{F^-(aq)}$ — but nothing says a solid **must** appear. The test is the **reaction quotient**: mix, dilute each ion into the combined 100.0 mL, evaluate $Q = [\\mathrm{Ca^{2+}}][\\mathrm{F^-}]^2$ at that instant, and compare it to $K_{sp}$. If $Q > K_{sp}$ the solution is supersaturated and $\\mathrm{CaF_2}$ crashes out; if $Q < K_{sp}$ it stays clear. No ICE table to solve — one comparison decides it.",
+  "regimes": [
+    {
+      "facet": "ICE ledger (species accounting)",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "equilibrium constant",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "precipitation prediction (Q vs Ksp)",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "Both source salts are soluble strong electrolytes that dissociate completely, and volumes are additive — so mixing 40.0 mL and 60.0 mL simply dilutes each ion into the combined 100.0 mL. The spectators $\\mathrm{Na^+}$ and $\\mathrm{NO_3^-}$ take no part.",
+      "kind": "model"
+    },
+    {
+      "claim": "Activities are approximated by molar concentrations (the ideal-dilute-solution model), which is why $Q$ and $K_{sp}$ are written with concentrations.",
+      "kind": "model"
+    },
+    {
+      "claim": "The thermodynamic prediction is taken to hold: $Q > K_{sp}$ means the solid will actually form, with no metastable supersaturation delaying it.",
+      "kind": "model"
+    }
+  ],
+  "reaction": {
+    "salt": "CaF2",
+    "salt_name": "calcium fluoride",
+    "salt_latex": "\\mathrm{CaF_{2}}",
+    "cation": "Ca^2+",
+    "cation_latex": "\\mathrm{Ca}^{2+}",
+    "anion": "F^-",
+    "anion_latex": "\\mathrm{F}^{-}",
+    "n_cation": 1,
+    "n_anion": 2,
+    "text": "CaF2(s) <=> Ca^2+(aq) + 2 F^-(aq)",
+    "latex": "\\mathrm{CaF_{2}}\\,\\text{(s)} \\rightleftharpoons \\mathrm{Ca}^{2+}\\,\\text{(aq)} + 2\\,\\mathrm{F}^{-}\\,\\text{(aq)}"
+  },
+  "equilibrium_constant": {
+    "symbol": "K_sp",
+    "value": "0.0000000000345",
+    "expression_latex": "K_{sp} = [\\mathrm{Ca}^{2+}][\\mathrm{F}^{-}]^{2}",
+    "source": "openstax-chemistry-2e"
+  },
+  "mixing": {
+    "volume_total_mL": "100",
+    "volume_total_mL_display": "100",
+    "cation_source": {
+      "formula": "Ca(NO3)2",
+      "formula_latex": "\\mathrm{Ca(NO_{3})_{2}}",
+      "name": "calcium nitrate",
+      "molarity_M": "0.010",
+      "volume_mL": "40.0",
+      "per_formula": 1,
+      "ion": "Ca^2+",
+      "ion_latex": "\\mathrm{Ca}^{2+}",
+      "ion_source_M": "0.01",
+      "ion_source_M_display": "0.01",
+      "mixed_M": "0.004",
+      "mixed_M_display": "0.004"
+    },
+    "anion_source": {
+      "formula": "NaF",
+      "formula_latex": "\\mathrm{NaF}",
+      "name": "sodium fluoride",
+      "molarity_M": "0.010",
+      "volume_mL": "60.0",
+      "per_formula": 1,
+      "ion": "F^-",
+      "ion_latex": "\\mathrm{F}^{-}",
+      "ion_source_M": "0.01",
+      "ion_source_M_display": "0.01",
+      "mixed_M": "0.006",
+      "mixed_M_display": "0.006"
+    }
+  },
+  "quotient": {
+    "symbol": "Q",
+    "expression_latex": "Q = [\\mathrm{Ca}^{2+}][\\mathrm{F}^{-}]^{2}",
+    "value": "0.000000144",
+    "value_display": "0.000000144"
+  },
+  "result": {
+    "verdict": "precipitate",
+    "forms_precipitate": true,
+    "comparison_symbol": ">",
+    "q_value_display": "0.000000144",
+    "ksp_value_display": "0.0000000000345",
+    "margin_display": "4170",
+    "margin_direction": "above"
+  },
+  "misconception": {
+    "claim": "Both solutions are clear and only 0.010 M — far too dilute for anything to precipitate when you pour them together.",
+    "refuted_by": "q_exceeds_ksp"
+  },
+  "reference_links": [
+    "reaction-quotient",
+    "solubility-product",
+    "chemical-equilibrium",
+    "precipitation",
+    "molarity"
+  ],
+  "checks": {
+    "mixing_dilution": true,
+    "quotient_computed": true,
+    "verdict_consistent": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "solubility_products": "openstax-chemistry-2e",
+      "ion_charge": "openstax-chemistry-2e"
+    }
+  }
+}

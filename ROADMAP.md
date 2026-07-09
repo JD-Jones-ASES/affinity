@@ -9,19 +9,21 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 
 - **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed. Phase 2 (the
   model-bearing tier) has landed its **gases + thermochemistry** tiers, its **bonding & structure** tier (engine + Atlas +
-  gym + 3 lessons + IMFs), and has **opened equilibrium & acid-base**, now with six subtypes + a gym. Landed: the
+  gym + 3 lessons + IMFs), and has **opened equilibrium & acid-base**, now with six subtypes + a gym + a Q-vs-Kₛₚ prediction
+  kind. Landed: the
   **formula/equation sheet** (ADR-0039), **`gas_laws_v1` gym** (ADR-0040), **gas-stoichiometry lesson** (ADR-0041),
   **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043), the **bonding tier** (ADR-0044), the **`structure`
   lesson kind** (ADR-0045), **intermolecular forces** (ADR-0046), the **IMF comparison lesson** (ADR-0047 — a third lesson
   shape), and the **equilibrium tier** (ADR-0048 — the reversible-extent solver + the `equilibrium` lesson kind, a
   fourth shape, with **six subtypes**: weak-acid pH · buffer (common-ion + Henderson–Hasselbalch) · weak-base pH via Kw ·
   Ksp solubility (incl. a **common-ion** variant) · **polyprotic** (staged Kₐ) · **titration** (a weak-acid/strong-base curve,
-  a build-time SVG) + the **`weak_acid_ph_v1` gym** (the tier's drill instrument). **Next inside Phase 2:** the rest of
-  equilibrium & acid-base (Q-vs-Ksp precipitation prediction, the K/pH/Kw formula-sheet entries), then kinetics and
+  a build-time SVG) + the **`weak_acid_ph_v1` gym** (the tier's drill instrument) + the **`prediction` lesson kind** (Q vs Kₛₚ —
+  does a precipitate form?, a fifth lesson shape, ADR-0048 9th increment). **Next inside Phase 2:** the rest of
+  equilibrium & acid-base (the K/pH/Kw formula-sheet entries), then kinetics and
   electrochemistry, each opening with its stress scenario. Counters live in `AGENTS.md ## Current state`;
   per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are
   the plan of record.
-- **Equilibrium & acid-base — OPENED, six subtypes + a gym** (2026-07-08, ADR-0048): the thesis made literal — *the ICE
+- **Equilibrium & acid-base — OPENED, six subtypes + a gym + a prediction kind** (2026-07-08, ADR-0048): the thesis made literal — *the ICE
   table is the species ledger with the extent solved from mass action* ($Q=K$), not driven to a limiting reagent. The
   **reversible-extent solver** (`chemkernel.equilibrium.solve_equilibrium`) finds the extent by **bisection to high
   precision** (exact Decimal, general beyond the quadratic); the root is model-exact-then-rounded, the machine-check the
@@ -54,8 +56,15 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   concepts `chemical-equilibrium`/`ph`/`solubility-product`/`water-autoionization`/`buffer`/`common-ion-effect`/`polyprotic-acid`/
   `titration`; 37-way tamper-tested. The tier's **`weak_acid_ph_v1` gym** landed too — pH-of-a-weak-acid drills, the gate
   re-solving the mass-action root in pure Node (reusing `solveEquilibrium` from `equilibriumcheck.mjs` — one solver, four call
-  sites). **Deferred (the rest of the tier):** the $K$/pH/$K_w$ formula-sheet entries (need the activity treatment);
-  $Q$-vs-$K_{sp}$ precipitation prediction (the common-ion machinery is now in place); a titration slider interactive.
+  sites). The **`prediction` lesson kind** landed too (9th increment): the *prediction* face on the Ksp machinery — mix two
+  solutions, dilute each ion into the combined volume, evaluate the **reaction quotient** $Q=[\text{cat}]^a[\text{an}]^b$ at the
+  mixed concentrations, and compare to $K_{sp}$ → *does a precipitate form?* A **snapshot, not a solve** (no ICE table, $Q\ne K$),
+  so a distinct compact kind (`*.prediction.json`, `build_prediction_lesson`, its own tight schema + static `PredictionLesson.astro`);
+  `equilibrium/calcium-fluoride-precipitation` — 40.0 mL 0.010 M Ca(NO₃)₂ + 60.0 mL 0.010 M NaF → $Q=1.44\times10^{-7}\gg
+  K_{sp}=3.45\times10^{-11}$ (≈4170×) → **precipitates** (the **third view of CaF₂** — dissolve/suppress/**predict**, no new
+  data); a `reaction-quotient` concept; the gate's `verifyPrediction` re-derives the dilution + $Q$ + verdict in Node.
+  **Deferred (the rest of the tier):** the $K$/pH/$K_w$ formula-sheet entries (need the activity treatment); a titration slider
+  interactive.
 - **IMF comparison lesson — LANDED** (2026-07-08, ADR-0047): the bonding capstone + a **third lesson shape** (`comparison`).
   `bonding/boiling-points-and-imfs` lines up CH₄ ≪ NH₃ ≪ H₂O (equal-mass hydrides, so size is controlled) and the
   machine-checked payoff is the trend itself: sorted by boiling point, the dominant-IMF rank is **non-decreasing** (the
@@ -464,9 +473,10 @@ by region (weak acid/buffer → the conjugate base's weak-base solve at equivale
 `solve_equilibrium`; the top-level ice = the initial point, a `titration` block carries the (volume, pH) curve + landmarks;
 the player draws a **build-time SVG** (the tier's first plot) — initial pH 2.88, pH = pKₐ = 4.74 at half-equivalence, basic at
 equivalence (pH 8.72); reuses acetic acid's Kₐ + NaOH (no new data); a `titration` concept; the gate recomputes the whole
-curve. **Six subtypes now** (+ `titrant` → titration). **Next in-tier:** $Q$-vs-$K_{sp}$ precipitation prediction (the
-common-ion machinery is now in place — a *prediction* face on top of it); the $K$/pH/$K_w$ formula-sheet entries (they need the
-*activity* — dimensionless — treatment so the dimension engine stays homogeneous); optionally a titration slider interactive.
+curve. **Six subtypes now** (+ `titrant` → titration), **plus the `prediction` lesson kind** (Q vs $K_{sp}$ — a snapshot, not a
+solve; 9th increment: `equilibrium/calcium-fluoride-precipitation`, a `reaction-quotient` concept, `verifyPrediction` in the
+gate). **Next in-tier:** the $K$/pH/$K_w$ formula-sheet entries (they need the *activity* — dimensionless — treatment so the
+dimension engine stays homogeneous); optionally a titration slider interactive; a weak-base/buffer gym extension.
 
 **Then (each its own increment, sketch):** the rest of bonding (above) + the rest of equilibrium & acid-base (above);
 kinetics ($d\xi/dt$, rate laws, integrated rate laws, half-life); electrochemistry (oxidation numbers — completing the

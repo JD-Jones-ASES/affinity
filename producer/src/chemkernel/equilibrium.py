@@ -1151,3 +1151,160 @@ def build_titration_lesson(spec: dict, data, acidbase, ctx: str = "") -> dict:
             },
         },
     }
+
+
+def _mix_source(sp: dict, ion_id: str, ion_f, v_total: Decimal, ctx: str, which: str) -> tuple[dict, Decimal]:
+    """One mixing source of a precipitation-prediction lesson (ADR-0048): a soluble salt (`formula`) at
+    `molarity_M`, `volume_mL` of it added to the mix, releasing `per_formula` (default 1) of the target ion.
+    Returns (emit dict, [ion] AFTER mixing as a Decimal). The source must be a NEUTRAL compound; for a monatomic
+    ion the multiplicity is machine-checked against the source formula (Ca(NO₃)₂ really has one Ca; NaF one F).
+    The full dissociation of the strong-electrolyte source into that many ions is the disclosed model assumption."""
+    for k in ("formula", "molarity_M", "volume_mL"):
+        if k not in sp:
+            raise BuildError(f"{ctx}: {which}_source is missing required key '{k}'")
+    src_formula = sp["formula"]
+    fsrc = parse_formula(src_formula, ctx)
+    if fsrc.charge != 0:
+        raise BuildError(f"{ctx}: {which} source '{src_formula}' is not a neutral compound (charge {fsrc.charge}) "
+                         f"— a source solution is made from a neutral salt")
+    molarity = Decimal(str(sp["molarity_M"]))
+    volume = Decimal(str(sp["volume_mL"]))
+    per = int(sp.get("per_formula", 1))
+    if molarity <= 0 or volume <= 0:
+        raise BuildError(f"{ctx}: {which} source molarity and volume must be positive (got {molarity}, {volume})")
+    if per < 1:
+        raise BuildError(f"{ctx}: {which} source per_formula must be a positive integer (got {per})")
+    # machine-check the multiplicity for a MONATOMIC ion: its single element must appear `per` times in the source
+    # (Ca in Ca(NO3)2 = 1; F in NaF = 1; Cl in CaCl2 = 2). A polyatomic ion rides the disclosed dissociation model.
+    if len(ion_f.counts) == 1 and next(iter(ion_f.counts.values())) == 1:
+        element = next(iter(ion_f.counts))
+        got = fsrc.counts.get(element, 0)
+        if got != per:
+            raise BuildError(f"{ctx}: {which} source '{src_formula}' contains {got} {element}, but per_formula={per} "
+                             f"for {ion_id} — the source does not release that many of the ion")
+    ion_source_M = molarity * per                       # [ion] in the source before mixing (full dissociation)
+    mixed_M = ion_source_M * volume / v_total           # after mixing: diluted into the combined volume
+    emit = {
+        "formula": src_formula, "formula_latex": fsrc.latex, "name": sp.get("name", src_formula),
+        "molarity_M": format(molarity, "f"), "volume_mL": format(volume, "f"), "per_formula": per,
+        "ion": ion_id, "ion_latex": ion_f.latex,
+        "ion_source_M": _sig_str(ion_source_M, 12), "ion_source_M_display": _sig_str(ion_source_M, 3),
+        "mixed_M": _sig_str(mixed_M, 12), "mixed_M_display": _sig_str(mixed_M, 3),
+    }
+    return emit, mixed_M
+
+
+def build_prediction_lesson(spec: dict, data, ctx: str = "") -> dict:
+    """An authored precipitation-prediction lesson → the verified `*.prediction.json` object, a new **`prediction`
+    lesson kind** (ADR-0048, 9th increment). This is the *prediction* face on the Ksp machinery: NOT a solve for
+    equilibrium (like the six `equilibrium` subtypes), but a **snapshot comparison**. Two solutions are mixed; each
+    ion is diluted into the combined volume; the **reaction quotient** Q = [cation]ᵃ[anion]ᵇ is evaluated at that
+    instant and compared to Kₛₚ:
+
+        Q > Kₛₚ  → the solution is supersaturated → a precipitate forms;
+        Q < Kₛₚ  → unsaturated → no precipitate;
+        Q = Kₛₚ  → exactly saturated (on the verge).
+
+    Because there is no equilibrium extent to solve, this wants its own compact shape — a distinct schema, not the
+    ICE table. The salt + its ions + Kₛₚ come from `data/solubility-products.toml` (the composition machine-checked
+    on load); the ion accounting (mixing dilution, Q) is exact (regime-1); the verdict is the model-assumed
+    prediction (regime-2). The producer REFUSES an unknown salt, a source that does not contain its ion, a
+    non-positive input, or a non-neutral source (ADR-0008)."""
+    for key in ("id", "title", "slug", "topic", "scenario", "salt", "cation_source", "anion_source", "misconception"):
+        if key not in spec:
+            raise BuildError(f"{ctx}: prediction lesson missing required key '{key}'")
+
+    salt_formula = spec["salt"]
+    rec = data.solubility_product(salt_formula)                     # raises if absent (sourced Ksp + machine-checked)
+    ksp = rec["ksp"]
+    cation_id, anion_id = rec["cation"], rec["anion"]
+    n_cat, n_an = rec["n_cation"], rec["n_anion"]
+    fs = parse_formula(salt_formula, ctx)
+    fc = parse_formula(cation_id, ctx)
+    fan = parse_formula(anion_id, ctx)
+
+    cat_spec, an_spec = spec["cation_source"], spec["anion_source"]
+    v_cat = Decimal(str(cat_spec.get("volume_mL", 0)))
+    v_an = Decimal(str(an_spec.get("volume_mL", 0)))
+    if v_cat <= 0 or v_an <= 0:
+        raise BuildError(f"{ctx}: both source volumes must be positive (got {v_cat}, {v_an})")
+    v_total = v_cat + v_an
+
+    with localcontext() as lc:
+        lc.prec = 60
+        cat_src, cat_mixed = _mix_source(cat_spec, cation_id, fc, v_total, ctx, "cation")
+        an_src, an_mixed = _mix_source(an_spec, anion_id, fan, v_total, ctx, "anion")
+        # the reaction quotient at the moment of mixing, in the SAME form as Kₛₚ (both ions in the quotient)
+        Q = _quotient([cat_mixed, an_mixed], [n_cat, n_an])
+        if Q <= 0:
+            raise BuildError(f"{ctx}: reaction quotient is not positive — check the mixing concentrations")
+        # Q vs Kₛₚ decides. The comparison is exact (both Decimals); the many-fold margin is a display value.
+        if Q > ksp:
+            verdict, forms, sym, direction, margin = "precipitate", True, ">", "above", Q / ksp
+        elif Q < ksp:
+            verdict, forms, sym, direction, margin = "no-precipitate", False, "<", "below", ksp / Q
+        else:
+            verdict, forms, sym, direction, margin = "saturated", False, "=", "equal", Decimal(1)
+
+    def _br(latex, power):
+        return f"[{latex}]" + (f"^{{{power}}}" if power != 1 else "")
+    ksp_expr = "K_{sp} = " + _br(fc.latex, n_cat) + _br(fan.latex, n_an)
+    q_expr = "Q = " + _br(fc.latex, n_cat) + _br(fan.latex, n_an)
+    reaction_latex = (f"{fs.latex}\\,\\text{{(s)}} \\rightleftharpoons "
+                      f"{_coeff_latex(n_cat)}{fc.latex}\\,\\text{{(aq)}} + "
+                      f"{_coeff_latex(n_an)}{fan.latex}\\,\\text{{(aq)}}")
+    coeff = lambda n: "" if n == 1 else f"{n} "
+    reaction_text = f"{salt_formula}(s) <=> {coeff(n_cat)}{cation_id}(aq) + {coeff(n_an)}{anion_id}(aq)"
+
+    return {
+        "kind": "prediction",
+        "id": spec["id"],
+        "title": spec["title"],
+        "slug": spec["slug"],
+        "topic": spec["topic"],
+        "tags": spec.get("tags", []),
+        "scenario": spec["scenario"],
+        "regimes": _regimes("precipitation prediction (Q vs Ksp)"),
+        "assumptions": spec.get("assumptions", []),
+        "reaction": {
+            "salt": salt_formula, "salt_name": rec["name"], "salt_latex": fs.latex,
+            "cation": cation_id, "cation_latex": fc.latex, "anion": anion_id, "anion_latex": fan.latex,
+            "n_cation": n_cat, "n_anion": n_an, "text": reaction_text, "latex": reaction_latex,
+        },
+        "equilibrium_constant": {
+            "symbol": "K_sp", "value": format(ksp, "f"), "expression_latex": ksp_expr,
+            "source": data.sources.get("solubility_products", ""),
+        },
+        "mixing": {
+            "volume_total_mL": _sig_str(v_total, 6), "volume_total_mL_display": _sig_str(v_total, 4),
+            "cation_source": cat_src, "anion_source": an_src,
+        },
+        "quotient": {
+            "symbol": "Q", "expression_latex": q_expr,
+            "value": _sig_str(Q, 12), "value_display": _sig_str(Q, 3),
+        },
+        "result": {
+            "verdict": verdict, "forms_precipitate": forms, "comparison_symbol": sym,
+            "q_value_display": _sig_str(Q, 3), "ksp_value_display": _sig_str(ksp, 3),
+            "margin_display": _sig_str(margin, 3), "margin_direction": direction,
+        },
+        "misconception": spec["misconception"],
+        "reference_links": spec.get("reference_links", []),
+        # the machine-checked facts, SHOWN not asserted (the gate re-derives all three, ADR-0008).
+        "checks": {
+            "mixing_dilution": True,     # each [ion] after mixing = [ion]_source × V_source / V_total (exact)
+            "quotient_computed": True,   # Q = [cation]ᵃ[anion]ᵇ at the mixed concentrations (exact)
+            "verdict_consistent": True,  # forms_precipitate ⇔ Q > Kₛₚ (an exact Decimal comparison)
+        },
+        "provenance": {
+            "producer": "chemkernel",
+            "version": __version__,
+            "python": platform.python_version(),
+            "author": spec.get("author", "Affinity"),
+            "created": spec.get("created", ""),
+            "sources": {
+                "solubility_products": data.sources.get("solubility_products", ""),
+                "ion_charge": data.sources.get("ion_charge", ""),
+            },
+        },
+    }
