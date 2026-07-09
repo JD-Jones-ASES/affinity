@@ -28,6 +28,7 @@ from .equilibrium import (build_buffer_lesson, build_equilibrium_lesson, build_p
                           build_prediction_lesson, build_solubility_lesson, build_titration_lesson,
                           build_weak_base_lesson)
 from .kinetics import build_kinetics_lesson
+from .redox import build_electrochemistry_lesson
 from .extent import solve_extent, species_mass_g, to_decimal
 from .formula import Formula, parse_formula
 from .gym import generate_gym
@@ -644,6 +645,18 @@ def build_kinetics(path: Path, root: Path) -> tuple[dict, str]:
     return lesson, f"{spec['topic']}/{spec['slug']}.kinetics.json"
 
 
+def build_electrochemistry(path: Path, root: Path) -> tuple[dict, str]:
+    """An authored electrochemistry lesson (ADR-0050) → the `electrochemistry` lesson kind: the species ledger with
+    ELECTRONS tracked. A galvanic cell from two sourced metal-ion/metal couples — oxidation numbers, half-reactions,
+    the electron ledger (n), E°cell = E°(cathode) − E°(anode), and ΔG° = −nFE°. Data from
+    data/reduction-potentials.toml + the Faraday constant in data/constants.toml (sourced)."""
+    spec = tomllib.loads(path.read_text(encoding="utf-8"))
+    ctx = spec.get("id", path.stem)
+    data = ChemData.load(root)
+    lesson = build_electrochemistry_lesson(spec, data, ctx)
+    return lesson, f"{spec['topic']}/{spec['slug']}.electrochemistry.json"
+
+
 def build_reference_main(argv: list[str] | None = None) -> int:
     """Build the Chemical Atlas: the Valence Table (from data/) + authored concept and reaction-family
     entries (reference/**). Reaction-family examples are balanced + classified by the engine (ADR-0035)."""
@@ -740,16 +753,18 @@ def build_problems_main(argv: list[str] | None = None) -> int:
     equilibria = sorted((root / "problems").glob("**/*.equilibrium.toml"))
     predictions = sorted((root / "problems").glob("**/*.prediction.toml"))
     kinetics = sorted((root / "problems").glob("**/*.kinetics.toml"))
-    if not reactions and not structures and not comparisons and not equilibria and not predictions and not kinetics:
+    electrochem = sorted((root / "problems").glob("**/*.electrochemistry.toml"))
+    if not (reactions or structures or comparisons or equilibria or predictions or kinetics or electrochem):
         print("no *.problem.toml / *.structure.toml / *.comparison.toml / *.equilibrium.toml / *.prediction.toml / "
-              "*.kinetics.toml found under problems/", file=sys.stderr)
+              "*.kinetics.toml / *.electrochemistry.toml found under problems/", file=sys.stderr)
         return 1
     lessons = ([(p, build_problem) for p in reactions]
                + [(p, build_structure) for p in structures]
                + [(p, build_comparison) for p in comparisons]
                + [(p, build_equilibrium) for p in equilibria]
                + [(p, build_prediction) for p in predictions]
-               + [(p, build_kinetics) for p in kinetics])
+               + [(p, build_kinetics) for p in kinetics]
+               + [(p, build_electrochemistry) for p in electrochem])
     for path, builder in lessons:
         try:
             obj, out_rel = builder(path, root)

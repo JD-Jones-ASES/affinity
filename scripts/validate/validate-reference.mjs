@@ -55,7 +55,8 @@ const slugs = new Set();
     const p = join(d, n);
     if (statSync(p).isDirectory()) walk(p);
     else if (n.endsWith(".solution.json") || n.endsWith(".structure.json") || n.endsWith(".comparison.json")
-             || n.endsWith(".equilibrium.json") || n.endsWith(".prediction.json") || n.endsWith(".kinetics.json"))
+             || n.endsWith(".equilibrium.json") || n.endsWith(".prediction.json") || n.endsWith(".kinetics.json")
+             || n.endsWith(".electrochemistry.json"))
       slugs.add(JSON.parse(readFileSync(p, "utf8")).slug);
   }
 })(join(ROOT, "derived"));

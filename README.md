@@ -2,7 +2,7 @@
 
 **A beginning-chemistry portal where the verification system is the product.**
 
-**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — twenty-one machine-verified lessons (precipitation,
+**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — twenty-two machine-verified lessons (precipitation,
 percent yield, acid-base neutralization, **gas stoichiometry** — a weighed metal + acid whose hydrogen volume falls
 out of the ledger via PV=nRT — the **energy ledger** — burning methane, whose heat q = ΔH_rxn·ξ falls out of
 the ledger via Hess's law over sourced formation enthalpies — two **single-molecule structure lessons** (why water is
@@ -25,7 +25,9 @@ the three reaction **orders** — the order sets the clock: hydrogen peroxide de
 ($[\mathrm{A}]=[\mathrm{A}]_0 e^{-kt}$, $t_{1/2}=\ln 2/k=6$ h), butadiene dimerizes second-order with a half-life that **grows** as
 it thins out ($1/[\mathrm{A}]=1/[\mathrm{A}]_0+kt$, 1.45→2.89→5.79 h), and ammonia on hot tungsten decomposes zero-order with a
 half-life that **shrinks**, running out **completely** at a finite time ($[\mathrm{A}]=[\mathrm{A}]_0-kt$, 1.07→0.534→0.267 h) —
-each a decay curve, the contrast machine-checked), thirteen procedural gyms (dimensional analysis, nomenclature,
+each a decay curve, the contrast machine-checked), and a **galvanic-cell** lesson (the electron ledger — the zinc–copper Daniell
+cell: oxidation numbers track what is oxidized and reduced, the two half-reactions balance the electrons, and E°cell = 1.10 V gives
+the free energy ΔG° = −nFE° = −212 kJ/mol, spontaneous — all machine-checked), thirteen procedural gyms (dimensional analysis, nomenclature,
 balancing, the full stoichiometry suite, periodic trends, reaction families, gas laws, calorimetry, **Lewis
 structures** — valence electrons, electron domains, molecular shape, counted exactly — **weak-acid pH** — the ICE table's
 mass-action root, solved not approximated — and **kinetics** — apply the order's integrated law for [A](t), its half-life, and
@@ -41,8 +43,10 @@ at −161 °C) — and generated practice. Phase 2 has landed its gas + thermoch
 tier (engine, gym, three lessons, and intermolecular forces), and has **opened equilibrium & acid-base** (the
 reversible-extent solver + the `equilibrium` lesson kind with six subtypes — weak-acid pH, buffer, weak-base pH, Ksp
 solubility incl. a common-ion variant, polyprotic staged ionization, and titration curves — plus a `prediction` lesson kind
-(Q vs Ksp: does a precipitate form?) and the K/Kw/Ksp formula sheet), and has now **opened kinetics** (the ledger in time —
-decay of orders 0/1/2 on one order-general engine, the `kinetics` lesson kind); see [`ROADMAP.md`](./ROADMAP.md). See [`AGENTS.md`](./AGENTS.md) to work the repo.
+(Q vs Ksp: does a precipitate form?) and the K/Kw/Ksp formula sheet), has **opened kinetics** (the ledger in time —
+decay of orders 0/1/2 on one order-general engine + the `kinetics` gym), and has **opened electrochemistry** (the electron ledger —
+oxidation numbers, half-reactions, E°cell, and ΔG = −nFE on the Daniell cell, the `electrochemistry` lesson kind — the seventh
+lesson shape). **All Phase-2 tiers are now open.** See [`ROADMAP.md`](./ROADMAP.md). See [`AGENTS.md`](./AGENTS.md) to work the repo.
 
 ## The idea in three lines
 

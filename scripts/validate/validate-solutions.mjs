@@ -9,6 +9,7 @@ import addFormats from "ajv-formats";
 import { verifyElectronLedger, ledgerTables, classifyIMF } from "./structurecheck.mjs";
 import { verifyEquilibrium, verifyPrediction } from "./equilibriumcheck.mjs";
 import { verifyKinetics } from "./kineticscheck.mjs";
+import { verifyElectrochemistry } from "./electrochemistrycheck.mjs";
 
 const ROOT = process.cwd();
 const schema = JSON.parse(readFileSync(join(ROOT, "schemas", "solution.schema.json"), "utf8"));
@@ -17,6 +18,7 @@ const comparisonSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "comparis
 const equilibriumSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "equilibrium-lesson.schema.json"), "utf8"));
 const predictionSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "prediction-lesson.schema.json"), "utf8"));
 const kineticsSchema = JSON.parse(readFileSync(join(ROOT, "schemas", "kinetics-lesson.schema.json"), "utf8"));
+const electrochemistrySchema = JSON.parse(readFileSync(join(ROOT, "schemas", "electrochemistry-lesson.schema.json"), "utf8"));
 const ajv = new Ajv({ allErrors: true, strict: true });
 addFormats(ajv);
 const validate = ajv.compile(schema);
@@ -25,6 +27,7 @@ const validateComparison = ajv.compile(comparisonSchema);
 const validateEquilibrium = ajv.compile(equilibriumSchema);
 const validatePrediction = ajv.compile(predictionSchema);
 const validateKinetics = ajv.compile(kineticsSchema);
+const validateElectrochemistry = ajv.compile(electrochemistrySchema);
 const IMF_RANK = { "london-dispersion": 1, "dipole-dipole": 2, "hydrogen-bonding": 3 };
 
 // walk derived/ for lesson files matching a suffix (*.solution.json reactions, *.structure.json structures)
@@ -396,4 +399,32 @@ for (const file of kineticsFiles) {
   verifyKinetics(rel, les, fail);
 }
 
-console.log(`validate-solutions: ${files.length} solution(s) + ${structureFiles.length} structure + ${comparisonFiles.length} comparison + ${equilibriumFiles.length} equilibrium + ${predictionFiles.length} prediction + ${kineticsFiles.length} kinetics lesson(s) valid; ${ids.size} unique id(s).`);
+// ── electrochemistry lessons (ADR-0050): the species ledger with ELECTRONS tracked. A galvanic cell — oxidation
+// numbers, the two half-reactions, the electron ledger (n), E°cell = E°cathode − E°anode, ΔG° = −nFE°. The gate
+// re-derives the whole spine in pure Node (electrochemistrycheck.mjs). Three-badge honesty: the electron ledger +
+// oxidation numbers are machine-checked (regime-1), E° is sourced (regime-3), the cell model is disclosed (regime-2).
+const electrochemistryFiles = walkSuffix(derived, ".electrochemistry.json");
+for (const file of electrochemistryFiles) {
+  const rel = file.slice(ROOT.length + 1).replaceAll("\\", "/");
+  const les = JSON.parse(readFileSync(file, "utf8"));
+
+  if (!validateElectrochemistry(les)) fail(rel, ajv.errorsText(validateElectrochemistry.errors, { separator: "; " }));
+
+  const expected = `derived/${les.topic}/${les.slug}.electrochemistry.json`;
+  if (rel !== expected) fail(rel, `path does not match topic/slug (expected ${expected})`);
+  if (ids.has(les.id)) fail(rel, `duplicate id ${les.id}`);
+  ids.add(les.id);
+  for (const [k, v] of Object.entries(les.checks)) if (v !== true) fail(rel, `check ${k} is not true`);
+
+  // honesty shape: all three regimes present; a model assumption disclosed (the cell model is regime-2); the E° source.
+  for (const r of ["ledger-exact", "rule-sourced", "model-exact"])
+    if (!les.regimes.some((x) => x.regime === r)) fail(rel, `electrochemistry lesson missing a ${r} regime`);
+  if (!les.assumptions.some((a) => a.kind === "model"))
+    fail(rel, "electrochemistry lesson discloses no model assumption (the standard-state cell model is model-assumed)");
+  for (const [k, v] of Object.entries(les.provenance.sources)) if (!v) fail(rel, `provenance.sources.${k} is empty`);
+
+  // the machine-checked core: re-derive oxidation numbers + half-reactions + electron ledger + E°cell + ΔG=−nFE
+  verifyElectrochemistry(rel, les, fail);
+}
+
+console.log(`validate-solutions: ${files.length} solution(s) + ${structureFiles.length} structure + ${comparisonFiles.length} comparison + ${equilibriumFiles.length} equilibrium + ${predictionFiles.length} prediction + ${kineticsFiles.length} kinetics + ${electrochemistryFiles.length} electrochemistry lesson(s) valid; ${ids.size} unique id(s).`);

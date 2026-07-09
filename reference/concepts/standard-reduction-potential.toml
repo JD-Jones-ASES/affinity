@@ -1,0 +1,15 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0050). Standard reduction potential E°: the sourced voltage a
+# reduction half-reaction drives vs. the standard hydrogen electrode (0 V by definition). Rule-sourced.
+id = "standard-reduction-potential"
+kind = "concept"
+title = "Standard reduction potential E°"
+term = "standard reduction potential"
+regime = "rule-sourced"
+source = "openstax-chemistry-2e"
+definition = "A **standard reduction potential** $E^\\circ$ is the voltage a reduction half-reaction ($\\mathrm{M}^{n+} + n\\,e^- \\rightarrow \\mathrm{M}$) drives at standard conditions, measured against the **standard hydrogen electrode** (SHE), which is *defined* as exactly 0 V. A **more positive** $E^\\circ$ means a stronger pull on electrons — that couple is reduced (it is the **cathode**); the couple with the lower $E^\\circ$ is forced to run backwards as oxidation (the **anode**). Only **differences** are physical: the zero point (the SHE) is an arbitrary reference, so a single $E^\\circ$ is meaningful only relative to another. The values are a sourced, tabulated measured dataset (regime-3); the cell voltage built from them, $E^\\circ_\\text{cell} = E^\\circ_\\text{cathode} - E^\\circ_\\text{anode}$, is exact given the table (see [[cell-potential]])."
+latex = "\\mathrm{M}^{n+} + n\\,e^- \\rightarrow \\mathrm{M}, \\quad E^\\circ\\ \\text{vs. SHE} = 0"
+related = [
+  { to = "cell-potential", type = "extends" },
+  { to = "half-reaction", type = "see-also" },
+]
+lessons = ["daniell-cell"]

@@ -1826,3 +1826,49 @@ is shared with the weak-acid gym). **Consequences:** **417 producer tests** (+6)
 **44 pages** (+1, `/gym/kinetics/`); check-katex 895 (gym prompts are Unicode prose, not KaTeX); the gym gate **6-way tamper-tested**;
 browser-verified (a numeric drill checks "✓ Correct — 0.0075 M", 0 KaTeX errors). Gym family #13. **Next in-tier:** **Arrhenius**
 (k = A·e^(−Eₐ/RT) — a formula-sheet entry with a sourced activation energy + a lesson), then **electrochemistry**.
+
+## ADR-0050 — Open electrochemistry: the electron ledger (oxidation numbers → cell potential → ΔG = −nFE) (2026-07-09)
+
+**Context.** The last Phase-2 tier. The brief (§) frames electrochemistry as *electron bookkeeping plus free energy per charge* —
+the species ledger with **electrons** as the tracked quantity. ADR-0035 deferred oxidation numbers to Phase 2, flagging redox only
+by the free-element signature; a real electrochemistry tier needs them, plus half-reactions, cell potentials, and the ΔG bridge.
+Opening a tier needs its hardest single stress scenario (the ROADMAP method), a new engine, sourced data, and a lesson kind. The
+owner authorized opening electrochemistry (via an AskUserQuestion at the kinetics-core-complete boundary).
+
+**Decision.** (1) Open on the canonical **galvanic (Daniell) cell** — Zn(s) + Cu²⁺ → Zn²⁺ + Cu — the stress scenario that
+exercises every piece: oxidation numbers, two half-reactions, the electron ledger, E°cell, and ΔG°. (2) A new **`chemkernel.redox`**
+module with two engines: **`oxidation_states`** assigns each atom its oxidation number by the first-course rule hierarchy (free
+element 0; monatomic ion = charge; F −1, group-1 +1, group-2 +2, H +1, O −2) and **solves the one remaining element by the
+sum-to-charge constraint** — the rules are a sourced convention (regime-3), the accounting exact (regime-1), machine-checked; it
+**refuses** a formula with more than one rule-unknown element (honest over guessing — this *completes* the ADR-0035 free-element
+flag). And **`build_electrochemistry_lesson`** takes two sourced metal-ion/metal couples, assigns the cathode (higher E°) and anode
+(lower E°), writes the half-reactions, balances the **electron ledger** (n = lcm of the electron counts, the halves scaled so
+electrons cancel and the overall reaction balances atoms + charge), reads E°cell = E°(cathode) − E°(anode), and computes
+**ΔG° = −nFE°** (model-exact-then-rounded; F exact, E° sourced). (3) A new **`electrochemistry` lesson kind** (the **7th lesson
+shape** — own tight `electrochemistry-lesson.schema.json`, `*.electrochemistry.json`), like every model-bearing tier before it
+(equilibrium/kinetics got their own kinds rather than bending the reaction lesson). (4) Two sourced data: **standard reduction
+potentials** E° (`data/reduction-potentials.toml`, OpenStax Appendix L — 7 couples; the composition machine-checked on load: the
+oxidized form is a cation, the reduced form the neutral same element, `electrons` = the ion charge) and the **Faraday constant**
+F = 96485.33212 C/mol (`data/constants.toml`, exact since 2019 SI — F = N_A·e). (5) Honesty, layered (the three badges, **no new
+badge**): the electron ledger + oxidation numbers are machine-checked (regime-1); E° is sourced (regime-3); the cell potential +
+free energy ride the disclosed standard-state model (regime-2). (6) The gate `electrochemistrycheck.mjs` re-derives the whole spine
+in pure Node — each species' oxidation numbers (re-run the rule solver, check the sum), each half-reaction's atom+charge+electron
+balance, the electron ledger (n lost = n gained), the overall balance, E°cell = E°cathode − E°anode > 0, and ΔG° = −nFE°. The
+producer refuses equal potentials (no cell), an unknown couple, or a non-balancing overall reaction (ADR-0008).
+
+**Why on-thesis.** The reaction extent ξ, static in a finished ledger and solved-from-mass-action in equilibrium, is now measured in
+**moles of electrons, n**: "for redox, the ledger adds an electron ledger" (brief §). E°cell is **intensive** (energy per charge —
+it does not scale with the coefficients, a machine-tested property), and ΔG° = −nFE° is the bridge from voltage to the same free
+energy the thermochemistry tier computes.
+
+**Consequences.** The tier opens on **`electrochemistry/daniell-cell`** — E°cell = 1.10 V, n = 2, ΔG° = −212 kJ/mol, spontaneous;
+the misconception (the cell direction is a matter of how you write it) is refuted because the reduction potentials fix it (Cu²⁺/Cu at
++0.337 V sits above Zn²⁺/Zn at −0.7618 V → Cu²⁺ reduced, Zn oxidized; E°cell > 0). Six concepts — `redox` (the gateway, filling a
+real Atlas gap — redox had only the ADR-0035 flag), `oxidation-number`, `half-reaction`, `electron-ledger`, `cell-potential`,
+`standard-reduction-potential`. **427 producer tests** (+10); validate-solutions = **+1 electrochemistry** (22 ids); validate-reference
+= **85** (+6 concepts); check-katex = **937**; **45 pages** (+1); the gate **9-way tamper-tested**; browser-verified (the cell renders
+with oxidation numbers, both half-reactions, E°cell 1.099 V, ΔG° −212 kJ/mol, 0 KaTeX errors). Lessons now come in **seven shapes**
+(reaction · structure · comparison · equilibrium · prediction · kinetics · **electrochemistry**). **Next in-tier:** the Nernst
+equation (E away from standard conditions — the `galvanic` subtype extends to nonstandard), a `ΔG = −nFE` / Nernst formula-sheet
+entry, and possibly a redox-balancing gym or more cells (concentration cell, electrolytic). This is the last Phase-2 tier to open —
+a **Phase-2 definition of done** can now be firmed up.

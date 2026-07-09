@@ -1,0 +1,15 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0050). Half-reaction: one side of a redox process — either the
+# oxidation or the reduction — written with the electrons explicit. Mass + charge conserved. Ledger-exact.
+id = "half-reaction"
+kind = "concept"
+title = "Half-reaction"
+term = "half-reaction"
+regime = "ledger-exact"
+definition = "A **half-reaction** shows one half of a redox process with its **electrons written explicitly**: the **oxidation** half loses them ($\\mathrm{Zn} \\rightarrow \\mathrm{Zn^{2+}} + 2\\,e^-$, at the anode), the **reduction** half gains them ($\\mathrm{Cu^{2+}} + 2\\,e^- \\rightarrow \\mathrm{Cu}$, at the cathode). Each half is balanced for **both atoms and charge** (the electrons carry the charge). To combine them into the overall reaction you scale each half so the **electrons cancel** — the number transferred is $n = \\operatorname{lcm}$ of the two electron counts (see [[electron-ledger]]). Splitting a reaction this way is what lets you read a cell's voltage off a table of standard potentials, one half at a time (see [[standard-reduction-potential]])."
+latex = "\\mathrm{Zn} \\rightarrow \\mathrm{Zn^{2+}} + 2\\,e^- \\quad\\text{(oxidation)}"
+related = [
+  { to = "oxidation-number", type = "see-also" },
+  { to = "electron-ledger", type = "extends" },
+  { to = "standard-reduction-potential", type = "see-also" },
+]
+lessons = ["daniell-cell"]

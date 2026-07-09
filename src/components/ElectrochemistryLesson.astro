@@ -1,0 +1,222 @@
+---
+// The electrochemistry-lesson player (ADR-0050): the species ledger with ELECTRONS as the tracked quantity. A
+// galvanic cell — oxidation numbers, the two half-reactions, the electron ledger (n), the cell potential E°cell,
+// and the free energy ΔG° = −nFE°. A fully STATIC Astro component. Every value came from ChemKernel and was
+// re-verified (electrochemistrycheck.mjs).
+const { lesson } = Astro.props;
+const ox = lesson.oxidation_states, hr = lesson.half_reactions, cell = lesson.cell, res = lesson.result;
+const anode = hr.oxidation, cathode = hr.reduction;
+---
+
+<section class="player">
+  <header class="head">
+    <div class="badges">
+      <span class="badge machine"><span class="dot"></span>Electron ledger + oxidation numbers machine-checked</span>
+      <span class="badge sourced"><span class="dot"></span>E° data-sourced ({lesson.provenance.sources.reduction_potentials})</span>
+      <span class="badge model"><span class="dot"></span>{lesson.assumptions.length} modeling assumption{lesson.assumptions.length === 1 ? "" : "s"} (disclosed)</span>
+    </div>
+    <p class="scenario" set:html={lesson.scenarioHtml} />
+  </header>
+
+  <!-- the overall redox reaction + the electrons it moves -->
+  <div class="reaction">
+    <div class="rxn" set:html={lesson.reaction.equationHtml} />
+    <div class="ka">
+      <span class="kaval">{lesson.reaction.electrons_transferred} e⁻ transferred</span>
+      <span class="kalabel">{cell.anode_name.split("/")[1]} is oxidized · {cell.cathode_name.split("/")[1]} is reduced</span>
+    </div>
+  </div>
+
+  <!-- oxidation numbers: watch the numbers change (the tell for what's oxidized / reduced) -->
+  <div class="proof massaction">
+    <div class="proof-head">
+      <span class="badge machine"><span class="dot"></span>Oxidation numbers</span>
+      <strong>Track the numbers — they must sum to each species' charge, and the ones that change reveal the electron transfer.</strong>
+    </div>
+    <div class="oxrow">
+      {ox.species.map((sp) => (
+        <div class="oxsp">
+          <span class="oxf" set:html={sp.latexHtml} />
+          <span class="oxnums">{sp.atoms.map((a) => (
+            <span class={`oxnum ${(a.element === ox.oxidized.element || a.element === ox.reduced.element) ? "changed" : ""}`}>{a.element} <b>{a.ox_display}</b></span>
+          ))}</span>
+        </div>
+      ))}
+    </div>
+    <p class="resid">
+      <strong>{ox.oxidized.element}</strong> rises {ox.oxidized.from} → {ox.oxidized.to} (loses electrons — <em>oxidized</em>),
+      while <strong>{ox.reduced.element}</strong> falls {ox.reduced.from} → {ox.reduced.to} (gains electrons — <em>reduced</em>).
+      That change is the electron transfer, made countable.
+    </p>
+  </div>
+
+  <!-- the two half-reactions, each with its sourced standard reduction potential -->
+  <div class="halves">
+    <div class="half anode">
+      <div class="half-tag">Anode — oxidation</div>
+      <div class="half-eq" set:html={anode.equationHtml} />
+      <div class="half-sub">
+        <span class="couple">{anode.couple_name}</span>
+        <span class="e0">E° = {anode.e_standard_display} V</span>
+      </div>
+    </div>
+    <div class="half cathode">
+      <div class="half-tag">Cathode — reduction</div>
+      <div class="half-eq" set:html={cathode.equationHtml} />
+      <div class="half-sub">
+        <span class="couple">{cathode.couple_name}</span>
+        <span class="e0">E° = {cathode.e_standard_display} V</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- the electron ledger: n electrons lost = n gained -->
+  <div class="proof">
+    <div class="proof-head">
+      <span class="badge machine"><span class="dot"></span>The electron ledger</span>
+      <strong>Electrons lost at the anode = electrons gained at the cathode — the ledger closes.</strong>
+    </div>
+    <p class="resid mono">{lesson.electron_ledger.note}</p>
+  </div>
+
+  <!-- the cell: notation + potential + free energy -->
+  <div class="reaction cellnote">
+    <div class="rxn" set:html={cell.notationHtml} />
+    <div class="ka"><span class="kalabel">cell notation — anode | anode ion ‖ cathode ion | cathode</span></div>
+  </div>
+
+  <div class="results">
+    <div class="card headline">
+      <span class="k">cell potential E°cell</span>
+      <span class="v big">{res.e_cell_display} V</span>
+      <span class="sub">= E°(cathode) − E°(anode)</span>
+    </div>
+    <div class="card">
+      <span class="k">free energy ΔG° = −nFE°</span>
+      <span class="v">{res.delta_g_display} kJ/mol</span>
+      <span class="sub">n = {res.n_electrons}, F = 96485 C/mol</span>
+    </div>
+    <div class="card spont">
+      <span class="k">spontaneous?</span>
+      <span class="v">Yes ✓</span>
+      <span class="sub">E°cell &gt; 0 ⇔ ΔG° &lt; 0</span>
+    </div>
+  </div>
+
+  <p class="hhnote">
+    <span class="badge machine tiny"><span class="dot"></span>Free energy per charge</span>
+    The cell potential is <strong>free energy per unit charge</strong>: multiply the {res.e_cell_display} V by the charge moved,
+    <span class="mono">n·F = {res.n_electrons} × 96485 C</span>, and you get the work the reaction can do —
+    <strong>ΔG° = −nFE° = {res.delta_g_display} kJ/mol</strong>. Because E°cell is positive, ΔG° is negative: the reaction runs on its
+    own, and the electrons flow from the {cell.anode_metal} anode through the wire to the {cell.cathode_metal} cathode.
+  </p>
+
+  <!-- the machine-checked facts, SHOWN not asserted -->
+  <div class="proof">
+    <div class="proof-head">
+      <span class="badge machine"><span class="dot"></span>Verification</span>
+      <strong>Proven at build time — not asserted.</strong>
+    </div>
+    <ul class="checks">
+      <li><span class="tick">✓</span> Every species' oxidation numbers sum to its charge <span class="tier">[oxidation states]</span></li>
+      <li><span class="tick">✓</span> Each half-reaction conserves atoms and charge (electrons included) <span class="tier">[half-reactions balanced]</span></li>
+      <li><span class="tick">✓</span> {res.n_electrons} e⁻ lost at the anode = {res.n_electrons} e⁻ gained at the cathode <span class="tier">[electrons cancel]</span></li>
+      <li><span class="tick">✓</span> E°cell = E°(cathode) − E°(anode) = {res.e_cell_display} V &gt; 0 <span class="tier">[cell potential]</span></li>
+      <li><span class="tick">✓</span> ΔG° = −nFE° = {res.delta_g_display} kJ/mol — re-derived independently <span class="tier">[ΔG = −nFE]</span></li>
+    </ul>
+  </div>
+
+  <!-- misconception register -->
+  {lesson.misconception && (
+    <div class="misconception">
+      <div class="mis-claim"><span class="x">✗</span> Common misconception: “<span set:html={lesson.misconception.claimHtml} />”</div>
+      <p class="mis-fix">
+        The direction is <strong>not</strong> a matter of how you write it — the <strong>standard reduction potentials decide</strong>.
+        {cathode.couple_name} sits at <strong>{cathode.e_standard_display} V</strong>, above {anode.couple_name} at
+        <strong> {anode.e_standard_display} V</strong>, so the {cell.cathode_metal.replace(/\d.*/, "")}²⁺ is reduced and the
+        {cell.anode_metal} electrode dissolves — never the reverse. The machine confirms it: E°cell = {res.e_cell_display} V is
+        <strong> positive</strong>, so ΔG° = {res.delta_g_display} kJ/mol is negative and this is the spontaneous direction. Running it
+        backwards would require <em>supplying</em> {res.e_cell_display} V (an electrolytic cell).
+      </p>
+    </div>
+  )}
+
+  <!-- assumptions, disclosed not discharged (ADR-0003) -->
+  <details class="assumptions">
+    <summary><span class="badge model"><span class="dot"></span>Modeling assumptions</span> — author-asserted, disclosed not discharged</summary>
+    <ul>
+      {lesson.assumptions.map((a) => (
+        <li><span class={`akind ${a.kind}`}>{a.kind}</span> <span set:html={a.claimHtml} /></li>
+      ))}
+    </ul>
+  </details>
+</section>
+
+<style>
+  .player { display: grid; gap: 1.1rem; }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .scenario { font-size: 1.05rem; margin: 0.6rem 0 0; line-height: 1.6; }
+  .badge.tiny { font-size: 0.66rem; padding: 0.03rem 0.35rem; }
+
+  .reaction { display: grid; gap: 0.5rem; background: var(--paper-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem; }
+  .rxn { font-size: 1.15rem; overflow-x: auto; }
+  .ka { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; font-size: 0.95rem; }
+  .ka .kaval { font-family: var(--font-mono); font-weight: 600; color: var(--accent); }
+  .ka .kalabel { color: var(--ink-faint); font-size: 0.8rem; }
+  .cellnote .rxn { font-size: 1.05rem; }
+
+  .proof { border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: var(--radius); padding: 0.6rem 0.9rem 0.9rem; }
+  .proof-head { display: flex; align-items: center; gap: 0.7rem; padding: 0.3rem 0; flex-wrap: wrap; }
+  .massaction { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: color-mix(in srgb, var(--accent) 5%, transparent); }
+  .resid { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--ink-2); line-height: 1.55; }
+  .mono { font-family: var(--font-mono); }
+  .checks { list-style: none; padding: 0; margin: 0.3rem 0; display: grid; gap: 0.35rem; }
+  .checks li { font-size: 0.92rem; }
+  .tick { color: var(--accent); font-weight: 700; }
+  .tier { color: var(--ink-faint); font-family: var(--font-mono); font-size: 0.76rem; }
+
+  /* oxidation-number row */
+  .oxrow { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.4rem; }
+  .oxsp { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.5rem 0.8rem; display: grid; gap: 0.25rem; }
+  .oxf { font-size: 1.05rem; }
+  .oxnums { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .oxnum { font-size: 0.8rem; color: var(--ink-faint); font-family: var(--font-mono); }
+  .oxnum b { color: var(--ink-2); }
+  .oxnum.changed { color: var(--accent); }
+  .oxnum.changed b { color: var(--accent); }
+
+  /* the two half-reactions */
+  .halves { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+  .half { flex: 1; min-width: 15rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 0.9rem; display: grid; gap: 0.4rem; }
+  .half.anode { border-color: color-mix(in srgb, var(--warn) 40%, var(--line)); background: color-mix(in srgb, var(--warn) 5%, transparent); }
+  .half.cathode { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); background: color-mix(in srgb, var(--accent) 5%, transparent); }
+  .half-tag { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); font-weight: 600; }
+  .half-eq { font-size: 1.1rem; overflow-x: auto; }
+  .half-sub { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.82rem; flex-wrap: wrap; }
+  .half-sub .couple { color: var(--ink-faint); }
+  .half-sub .e0 { font-family: var(--font-mono); font-weight: 600; color: var(--sourced); }
+
+  .results { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+  .card { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 1rem; display: grid; gap: 0.15rem; min-width: 9rem; flex: 1; }
+  .card .k { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); }
+  .card .v { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+  .card .v.big { font-size: 1.7rem; }
+  .card .sub { font-size: 0.78rem; color: var(--ink-faint); }
+  .card.headline { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+  .card.spont { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+  .card.spont .v { color: var(--accent); }
+
+  .hhnote { margin: 0; font-size: 0.9rem; color: var(--ink-2); line-height: 1.6; background: var(--paper-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
+  .hhnote .badge { margin-right: 0.35rem; }
+
+  .misconception { background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); border-radius: var(--radius); padding: 0.8rem 1rem; }
+  .mis-claim { font-weight: 600; color: var(--warn); }
+  .mis-claim .x { font-weight: 700; }
+  .mis-fix { margin: 0.4rem 0 0; color: var(--ink-2); font-size: 0.95rem; line-height: 1.6; }
+
+  .assumptions summary { cursor: pointer; color: var(--ink-2); }
+  .assumptions ul { color: var(--ink-2); font-size: 0.93rem; }
+  .akind { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; padding: 0.05rem 0.35rem; border-radius: 5px; margin-right: 0.3rem; }
+  .akind.model { background: var(--model-soft); color: var(--model); }
+  .akind.rule { background: var(--sourced-soft); color: var(--sourced); }
+</style>

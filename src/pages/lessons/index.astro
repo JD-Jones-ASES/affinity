@@ -14,6 +14,7 @@ const cmps = import.meta.glob("../../../derived/**/*.comparison.json", { eager: 
 const eqs = import.meta.glob("../../../derived/**/*.equilibrium.json", { eager: true });
 const preds = import.meta.glob("../../../derived/**/*.prediction.json", { eager: true });
 const kins = import.meta.glob("../../../derived/**/*.kinetics.json", { eager: true });
+const echem = import.meta.glob("../../../derived/**/*.electrochemistry.json", { eager: true });
 // scenario typography: subscript each lesson's known formula tokens (ADR-0025 / brief §6.1)
 const stripPhase = (id) => String(id).replace(/\((?:s|l|g|aq)\)$/, "");
 const tokensOf = (l) => [
@@ -25,8 +26,9 @@ const tokensOf = (l) => [
   l.reaction?.salt, l.reaction?.cation, l.reaction?.anion, // Ksp/prediction lessons carry the salt + its ions
   l.mixing?.cation_source?.formula, l.mixing?.anion_source?.formula, // prediction lessons carry the source salts
   l.reaction?.reactant, // kinetics lessons carry a decaying reactant
+  ...(l.oxidation_states?.species ?? []).map((s) => s.formula), // electrochemistry lessons carry redox species
 ];
-const lessons = [...Object.values(mods), ...Object.values(structs), ...Object.values(cmps), ...Object.values(eqs), ...Object.values(preds), ...Object.values(kins)]
+const lessons = [...Object.values(mods), ...Object.values(structs), ...Object.values(cmps), ...Object.values(eqs), ...Object.values(preds), ...Object.values(kins), ...Object.values(echem)]
   .map((m) => m.default)
   .map((l) => ({ ...l, scenarioHtml: inline(prettyText(l.scenario, tokensOf(l))) }));
 

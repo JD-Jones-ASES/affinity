@@ -198,24 +198,26 @@ reversible-extent solver + **six `equilibrium` subtypes** (weak-acid pH · buffe
 polyprotic · titration) + a gym + a Q-vs-Kₛₚ **`prediction`** kind (both verdicts) + the K/K_w/K_sp **formula-sheet** entries as
 dimensionless activity relations); and the **kinetics tier is OPEN** (ADR-0049 — the ledger in time: the `kinetics` lesson kind),
 now with **all three orders** on one order-general engine — first (t½ constant), second (t½ grows), zero (t½ shrinks, reaches 0) —
-the contrast that makes "constant t½" mean something (each a build-time decay curve), plus the **`kinetics_v1` gym**. **Next:**
-Arrhenius, then electrochemistry. History
+the contrast that makes "constant t½" mean something (each a build-time decay curve), plus the **`kinetics_v1` gym**; and the
+**electrochemistry tier is OPEN** (ADR-0050 — the electron ledger: the Daniell cell, oxidation numbers → half-reactions → E°cell →
+ΔG=−nFE, a **seventh lesson shape**). **All Phase-2 tiers are open. Next:** the rest of each (Arrhenius, Nernst) + a Phase-2 DoD. History
 in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
 [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
 **Counters:** 21 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
 3 bonding (2 structure + 1 IMF comparison) + **7 equilibrium** (weak-acid pH + buffer + weak-base pH + Ksp solubility +
 common-ion Ksp + polyprotic + titration) + **2 prediction** (Q-vs-Ksp precipitation — CaF₂ forms, dilute Mg(OH)₂ stays clear),
-ADR-0048 + **3 kinetics** (first/second/zero-order decay — the ledger in time, t½ constant/grows/shrinks, ADR-0049)) · 13 gyms / 130 verified problems (dimensional analysis · ionic
+ADR-0048 + **3 kinetics** (first/second/zero-order decay — the ledger in time, t½ constant/grows/shrinks, ADR-0049) +
+**1 electrochemistry** (the Daniell cell — the electron ledger: oxidation numbers → half-reactions → E°cell → ΔG=−nFE, ADR-0050)) · 13 gyms / 130 verified problems (dimensional analysis · ionic
 nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas
 laws · calorimetry · Lewis structures · weak-acid pH · **kinetics** ([A](t)/t½/read-the-order, ADR-0049)) · 1 Valence Table (23 elements; four modes; 182 named + machine-verified
-salts) · 37 concept entries (8 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species
+salts) · 43 concept entries (9 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species
 entries + 6 molecule structure entries (Lewis ledger + VSEPR + dominant IMF, ADR-0044/0046) + 14 formula-sheet entries
-(ADR-0039/0043/0048 — incl. Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w as **dimensionless activity** relations) · 79 Atlas reference objects · 7 Node gates + CI + live Pages · 417 producer tests · astro build = 44 pages.
+(ADR-0039/0043/0048 — incl. Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w as **dimensionless activity** relations) · 85 Atlas reference objects · 7 Node gates + CI + live Pages · 427 producer tests · astro build = 45 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; honesty = three badges
 (regime-4 → model-assumed badge + an "interpretive" marker, ADR-0033); numeric practice free-entry (diagnostics), categorical
-a menu (ADR-0032). Lessons come in **six shapes** (each a tight schema; dispatched by extension in `build_problems_main`):
+a menu (ADR-0032). Lessons come in **seven shapes** (each a tight schema; dispatched by extension in `build_problems_main`):
 a **reaction lesson** (`*.solution.json`, `build_problem`) with **four reported-product shapes** — precipitate /
 neutralization water (ADR-0037) / gas via PV=nRT (ADR-0041) / energy via Hess (`result.energy`, no product mass, ADR-0043);
 a **`structure` lesson** (`*.structure.json`, ADR-0045): a single molecule, no reaction, pivoting on the **Lewis electron
@@ -244,8 +246,15 @@ hits 0 at $[\mathrm{A}]_0/k$), first $[\mathrm{A}]_0e^{-kt}$ ($\ln2/k$ constant 
 ($1/k[\mathrm{A}]_0$ grows); the successive-half-life **progression** (constant/doubles/halves) is the order's machine-checked
 fingerprint; a build-time decay-curve SVG; k sourced from `data/rate-constants.toml` in its **native units** (the unit encodes the
 order + time base, min→60 s), the rate law + order model-assumed (the order is measured, **not** the coefficient), the balance +
-every curve point + the t½ relation + landmark segments + progression machine-checked (`kineticscheck.mjs`).
-`mass_g`→moles supported; a fully molecular reaction omits the ionic equations; redox = the free-element signature (Phase 2).
+every curve point + the t½ relation + landmark segments + progression machine-checked (`kineticscheck.mjs`). And an
+**`electrochemistry` lesson** (`*.electrochemistry.json`, ADR-0050): the ledger with **electrons** tracked (the extent = moles of
+electrons **n**) — a galvanic cell from two sourced metal-ion/metal couples (`chemkernel.redox`), stepping oxidation numbers
+(the rule hierarchy + the sum-to-charge solve, `oxidation_states`) → the two half-reactions → the electron ledger (n = lcm, halves
+scaled so electrons cancel + the overall balance) → E°cell = E°(cathode) − E°(anode) → **ΔG° = −nFE°** (F exact, E° sourced,
+model-exact-then-rounded); triple-badged (ledger + oxidation numbers machine-checked / E° sourced / cell model assumed), the whole
+spine re-derived in Node (`electrochemistrycheck.mjs`). E° from `data/reduction-potentials.toml` (Appendix L); F from `data/constants.toml`.
+`mass_g`→moles supported; a fully molecular reaction omits the ionic equations; **oxidation numbers now complete the free-element
+redox flag** (ADR-0035→0050 — full assignment, machine-checked).
 The Atlas carries all four brief-§10 kinds (lens, concepts, reactions, species ADR-0038, formula sheet ADR-0039 — machine-checked
 **dimensional homogeneity** via `chemkernel.dimension`, separate from Decimal `units.py` per ADR-0015) **plus a fifth structural
 surface**, the **`molecule` kind** (ADR-0044/0046): the Lewis electron ledger (valence total → octet → formal charge, exact
@@ -278,8 +287,12 @@ verdicts + the K reference surface). Optional leftovers: a titration **slider in
 shape; `chemkernel.kinetics` + `data/rate-constants.toml` + `kineticscheck.mjs` + a build-time decay curve), now with **all three
 orders** (first/second/zero — t½ constant/grows/shrinks — on one order-general engine, ADR-0049 2nd increment) + the **`kinetics_v1`
 gym** ([A](t) / t½ / read-the-order, ADR-0049 3rd increment). **Next in kinetics:** the **Arrhenius** temperature dependence
-of k. Then the last Phase-2 tier: **electrochemistry** (oxidation numbers → completing the free-element redox flag from ADR-0035
-→ the electron ledger, ΔG=−nFE, Nernst). Bonding corpus-depth deferrals: octet exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻), more structure
+of k. And the **electrochemistry tier is OPEN** (ADR-0050 — the electron ledger: the Daniell cell, oxidation numbers → half-reactions
+→ E°cell → ΔG=−nFE, the **7th lesson shape**; `chemkernel.redox` + `data/reduction-potentials.toml` + the Faraday constant +
+`electrochemistrycheck.mjs`; oxidation numbers **completed** the ADR-0035 free-element redox flag). **Next in electrochemistry:** the
+**Nernst** equation (E away from standard conditions — the `galvanic` subtype extends), a ΔG=−nFE/Nernst formula-sheet entry, more
+cells (concentration/electrolytic), a redox-balancing gym. **All Phase-2 tiers are now open — a Phase-2 definition of done can be
+firmed up.** Bonding corpus-depth deferrals: octet exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻), more structure
 lessons (NH₃/CH₄), more comparison axes, a "which IMF dominates?" gym drill. Smaller/optional: endothermic / multi-step
 Hess-cycle lessons; the gas lesson's **slider interactive**. Always in season inside settled contracts: Atlas breadth-fill,
 further lessons, docs-only sessions. **Opening the later Phase-2 tiers** proceeds inside the open phase.

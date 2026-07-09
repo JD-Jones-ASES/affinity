@@ -24,9 +24,12 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   **all three orders** — first-order decay (`hydrogen-peroxide-decomposition`, t½=ln2/k constant), **second-order**
   (`butadiene-dimerization`, t½=1/k[A]₀ grows) and **zero-order** (`ammonia-decomposition`, t½=[A]₀/2k shrinks, reaches 0 at a
   finite time) on one order-general engine (ADR-0049 2nd increment) — the contrast that makes "constant t½" mean something — plus
-  the **`kinetics_v1` gym** ([A](t) / t½ / read-the-order, ADR-0049 3rd increment).
-  **Next inside Phase 2:** Arrhenius (k = A·e^(−Eₐ/RT)), then electrochemistry, each
-  opening with its stress scenario. Counters live in `AGENTS.md ## Current state`;
+  the **`kinetics_v1` gym** ([A](t) / t½ / read-the-order, ADR-0049 3rd increment). And the **electrochemistry tier is OPEN**
+  (ADR-0050 — the electron ledger, a **seventh lesson shape**), opened on the **Daniell cell** (`electrochemistry/daniell-cell`,
+  Zn + Cu²⁺ → Zn²⁺ + Cu: oxidation numbers → half-reactions → the electron ledger (n=2) → E°cell=1.10 V → ΔG°=−nFE°=−212 kJ/mol,
+  spontaneous). **All Phase-2 tiers are now open.**
+  **Next inside Phase 2:** the rest of each tier (Arrhenius; the Nernst equation), then a **Phase-2 definition of done**.
+  Counters live in `AGENTS.md ## Current state`;
   per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are
   the plan of record.
 - **Kinetics tier — OPEN, all three orders** (2026-07-08, ADR-0049): the thesis's time extension — *the species ledger with the
@@ -46,6 +49,21 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   order's t½, and **read the order** off three successive half-lives (constant/doubling/halving); both badges, the gate re-deriving
   each answer per order in pure Node with the same engine (`concAt`/`halfLife`/`timeToReach` exported from `kineticscheck.mjs`).
   **Next in-tier:** the **Arrhenius** temperature dependence of k (k = A·e^(−Eₐ/RT) — a formula-sheet entry + a lesson).
+- **Electrochemistry tier — OPEN, the Daniell cell** (2026-07-09, ADR-0050): the last Phase-2 tier — the species ledger with
+  **electrons** as the tracked quantity (*electron bookkeeping plus free energy per charge*), the reaction extent measured in moles
+  of electrons **n**. A new **`chemkernel.redox`** engine: **`oxidation_states`** assigns each atom its oxidation number by the
+  first-course rule hierarchy + the sum-to-charge solve (machine-checked; **completes** the ADR-0035 free-element redox flag), and
+  **`build_electrochemistry_lesson`** turns two sourced metal-ion/metal couples into a galvanic cell — cathode (higher E°)/anode
+  roles, the two half-reactions, the **electron ledger** (n = lcm, halves scaled so electrons cancel + the overall reaction
+  balances), E°cell = E°(cathode) − E°(anode), and **ΔG° = −nFE°**. A new **`electrochemistry` lesson kind** (the **seventh lesson
+  shape** — own tight schema, `*.electrochemistry.json`). Opener **`electrochemistry/daniell-cell`** — Zn + Cu²⁺ → Zn²⁺ + Cu,
+  E°cell = 1.10 V, n = 2, ΔG° = −212 kJ/mol, spontaneous; the "direction is how you write it" misconception refuted by the
+  reduction potentials. Triple-badged (electron ledger + oxidation numbers machine-checked / E° sourced / cell model assumed); the
+  gate `electrochemistrycheck.mjs` re-derives the oxidation numbers + half-reaction balance + electron cancellation + E°cell + ΔG in
+  Node. New data `data/reduction-potentials.toml` (E°, OpenStax Appendix L — 7 couples) + the **Faraday constant** F (exact, 2019
+  SI). Six concepts (`redox`/`oxidation-number`/`half-reaction`/`electron-ledger`/`cell-potential`/`standard-reduction-potential`).
+  **Next in-tier:** the **Nernst** equation (E away from standard conditions), a `ΔG = −nFE`/Nernst formula-sheet entry, more cells
+  (concentration/electrolytic), a redox-balancing gym.
 - **Equilibrium & acid-base — OPENED, six subtypes + a gym + a prediction kind** (2026-07-08, ADR-0048): the thesis made literal — *the ICE
   table is the species ledger with the extent solved from mass action* ($Q=K$), not driven to a limiting reagent. The
   **reversible-extent solver** (`chemkernel.equilibrium.solve_equilibrium`) finds the extent by **bisection to high
@@ -509,8 +527,9 @@ is now OPEN** (ADR-0049 — first-, second-, and zero-order decay; see the Statu
 
 **Then (each its own increment, sketch):** the rest of bonding (above) + the rest of equilibrium & acid-base (above);
 **kinetics is open** (ADR-0049 — first-, second-, and zero-order decay + the `kinetics_v1` gym landed on one order-general engine;
-next: Arrhenius); electrochemistry (oxidation numbers — completing the free-element redox flag from ADR-0035 — electron ledger, $E^\circ$,
-$\Delta G=-nFE$, Nernst). Further formula-sheet entries ($\Delta G=\Delta H-T\Delta S$, Nernst) land with their topics.
+next: Arrhenius); **electrochemistry is open** (ADR-0050 — oxidation numbers *completed* the free-element redox flag from ADR-0035;
+the electron ledger + E°cell + $\Delta G=-nFE$ landed on the Daniell cell; next: the Nernst equation). **All Phase-2 tiers are now
+open.** Further formula-sheet entries ($\Delta G=\Delta H-T\Delta S$, Arrhenius, Nernst) land with their topics.
 
 **Definition of done (a reviewable Phase-2 boundary):** deferred to the opening tier's close — at minimum the
 gas/thermo tier lands its gym(s) + at least one gas or calorimetry lesson (misconception register + ledger view

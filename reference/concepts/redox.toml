@@ -1,0 +1,15 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0050). Redox: a reaction that transfers electrons — oxidation
+# (electron loss) and reduction (electron gain) always paired. The gateway to electrochemistry. Ledger-exact.
+id = "redox"
+kind = "concept"
+title = "Redox — oxidation and reduction"
+term = "redox reaction"
+regime = "ledger-exact"
+definition = "A **redox** (reduction–oxidation) reaction **transfers electrons** from one species to another. The two always come paired: whatever is **oxidized** (loses electrons — its oxidation number rises) hands them to whatever is **reduced** (gains electrons — its oxidation number falls), so *there is no oxidation without reduction*. You can spot redox without any numbers when a **free element** becomes combined or vice versa (a neutral element must change oxidation state) — the reaction classifier already flags this (see [[reaction-families]]). Assigning **oxidation numbers** (see [[oxidation-number]]) then makes the transfer quantitative: *how many* electrons move, $n$. Combustion, single-replacement, corrosion, respiration, and every battery are redox. Splitting the electron flow into two half-reactions is the whole of electrochemistry (see [[electron-ledger]])."
+latex = "\\underbrace{\\mathrm{Zn}}_{0 \\to +2\\ \\text{(ox)}} + \\underbrace{\\mathrm{Cu^{2+}}}_{+2 \\to 0\\ \\text{(red)}} \\rightarrow \\mathrm{Zn^{2+}} + \\mathrm{Cu}"
+related = [
+  { to = "oxidation-number", type = "extends" },
+  { to = "electron-ledger", type = "see-also" },
+  { to = "extent-of-reaction", type = "see-also" },
+]
+lessons = ["daniell-cell"]

@@ -459,6 +459,29 @@ export function renderKineticsLesson(lesson) {
   return s;
 }
 
+// Render a galvanic-cell electrochemistry lesson (ADR-0050): the ledger with electrons tracked. The overall
+// reaction (→), the two half-reactions, the cell notation, and each species' formula render from the producer's
+// upright LaTeX; the scenario / assumptions / misconception get their formula tokens subscripted + inline $…$
+// rendered. The oxidation numbers, half-reaction E°, electron ledger, and ΔG° are numeric (used as-is).
+export function renderElectrochemistryLesson(lesson) {
+  const s = structuredClone(lesson);
+  // tokens for prose subscripting: every species in the reaction + the cell electrodes/ions
+  const toks = [...new Set([
+    ...s.oxidation_states.species.map((sp) => sp.formula),
+    s.cell.anode_metal, s.cell.anode_ion, s.cell.cathode_metal, s.cell.cathode_ion,
+  ])];
+  s.scenarioHtml = inline(prettyText(s.scenario, toks));
+  delete s.scenario;
+  s.reaction.equationHtml = tex(s.reaction.equation_latex, false);
+  s.half_reactions.oxidation.equationHtml = tex(s.half_reactions.oxidation.equation_latex, false);
+  s.half_reactions.reduction.equationHtml = tex(s.half_reactions.reduction.equation_latex, false);
+  s.cell.notationHtml = tex(s.cell.notation_latex, false);
+  s.oxidation_states.species = s.oxidation_states.species.map((sp) => ({ ...sp, latexHtml: tex(sp.latex, false) }));
+  s.assumptions = (s.assumptions ?? []).map((a) => ({ ...a, claimHtml: inline(prettyText(a.claim, toks)) }));
+  if (s.misconception) s.misconception.claimHtml = inline(prettyText(s.misconception.claim, toks));
+  return s;
+}
+
 // Render a concept entry (definition may carry inline $…$; latex is a standalone display formula).
 export function renderConcept(c) {
   return {

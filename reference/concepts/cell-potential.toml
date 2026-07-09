@@ -1,0 +1,15 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0050). Cell potential: the voltage a galvanic cell drives, E°cell =
+# E°(cathode) − E°(anode), and the free-energy bridge ΔG° = −nFE°. Model-exact (standard-state).
+id = "cell-potential"
+kind = "concept"
+title = "Cell potential and ΔG° = −nFE°"
+term = "cell potential"
+regime = "model-exact"
+definition = "The **standard cell potential** is the voltage a galvanic cell drives at standard conditions: $E^\\circ_\\text{cell} = E^\\circ_\\text{cathode} - E^\\circ_\\text{anode}$, read straight off the table of standard reduction potentials (see [[standard-reduction-potential]]). It is **intensive** — it does *not* scale when you multiply the equation through, because it is energy *per unit charge*. A **positive** $E^\\circ_\\text{cell}$ means the reaction is spontaneous as written; the two are linked by $\\Delta G^\\circ = -nFE^\\circ$, where $n$ is the moles of electrons (see [[electron-ledger]]) and $F$ the Faraday constant. So $E^\\circ_\\text{cell} > 0 \\Leftrightarrow \\Delta G^\\circ < 0$: the cell runs on its own and can do electrical work. Away from standard conditions the Nernst equation corrects $E$. The relation is exact inside the standard-state model; $E^\\circ$ is a sourced measured value."
+latex = "\\Delta G^\\circ = -nFE^\\circ_\\text{cell}"
+related = [
+  { to = "standard-reduction-potential", type = "extends" },
+  { to = "electron-ledger", type = "see-also" },
+  { to = "reaction-enthalpy", type = "see-also" },
+]
+lessons = ["daniell-cell"]

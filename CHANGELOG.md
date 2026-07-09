@@ -3,6 +3,36 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-09 — ELECTROCHEMISTRY TIER OPENED: the electron ledger — the Daniell cell (ADR-0050)
+
+The last Phase-2 tier (owner-authorized). Electrochemistry is the species ledger with **electrons** as the tracked quantity —
+*electron bookkeeping plus free energy per charge*. Opened on the canonical galvanic cell, a new **`electrochemistry` lesson kind**
+(the 7th lesson shape).
+
+- **Lesson `electrochemistry/daniell-cell`** — Zn(s) + Cu²⁺ → Zn²⁺ + Cu. Oxidation numbers (Zn 0→+2 oxidized, Cu +2→0 reduced), the
+  two half-reactions (Zn → Zn²⁺ + 2e⁻ at the anode; Cu²⁺ + 2e⁻ → Cu at the cathode), the electron ledger (**n = 2** e⁻ transferred,
+  lost = gained), the cell potential **E°cell = E°(cathode) − E°(anode) = 0.337 − (−0.7618) = 1.10 V**, and the free energy
+  **ΔG° = −nFE° = −212 kJ/mol** → spontaneous. The misconception (the cell direction is just how you write it) is refuted by the
+  reduction potentials.
+- **Oxidation-number engine** (`chemkernel.redox.oxidation_states`): the first-course rule hierarchy (free element 0; monatomic ion
+  = charge; F −1, group-1 +1, group-2 +2, H +1, O −2) with the one remaining element **solved by the sum-to-charge constraint** —
+  machine-checked, and it refuses a formula it cannot resolve (SO₄²⁻→S+6, MnO₄⁻→Mn+7 work; SiC is refused). This **completes the
+  free-element redox flag** of ADR-0035.
+- **Cell engine** (`build_electrochemistry_lesson`): two sourced couples → cathode (higher E°) / anode assignment, half-reactions,
+  the electron ledger (n = lcm of the electron counts, halves scaled so electrons cancel + the overall reaction balances), E°cell,
+  and ΔG° = −nFE°. E°cell is **intensive** (machine-tested: it does not scale with coefficients).
+- **Data (sourced):** `data/reduction-potentials.toml` (standard reduction potentials E°, OpenStax Appendix L — 7 couples, the
+  composition machine-checked on load) + the **Faraday constant** F = 96485.33212 C/mol (exact, 2019 SI) in `data/constants.toml`.
+- **Honesty (no new badge):** the electron ledger + oxidation numbers are machine-checked (regime-1); E° is sourced (regime-3); the
+  cell potential + free energy ride the disclosed standard-state model (regime-2). Six concepts: `redox`, `oxidation-number`,
+  `half-reaction`, `electron-ledger`, `cell-potential`, `standard-reduction-potential`.
+- **Gate:** `electrochemistrycheck.mjs` re-derives the whole spine in pure Node — oxidation numbers, each half-reaction's
+  atom+charge+electron balance, the electron ledger, the overall balance, E°cell, and ΔG° = −nFE°.
+- **Verification:** **427 producer tests** (+10); 7 gates green (**validate-solutions +1 electrochemistry / 22 ids**,
+  validate-reference **85** +6 concepts, check-katex **937**); **astro build = 45 pages** (+1). The gate **9-way tamper-tested**;
+  browser-verified (the cell renders with oxidation numbers, both half-reactions, E°cell 1.099 V, ΔG° −212 kJ/mol, 0 KaTeX errors).
+  Lessons now come in **seven shapes**.
+
 ## Phase 2 — 2026-07-09 — kinetics: the `kinetics_v1` gym — the tier's drill instrument (ADR-0049, 3rd increment)
 
 Every model-bearing tier gets its gym. The kinetics gym drills the three orders on the **same order-general engine** the lessons

@@ -56,7 +56,7 @@ class ChemData:
                  boiling_points: dict | None = None, ionization_constants: dict | None = None,
                  solubility_products: dict | None = None, base_ionization_constants: dict | None = None,
                  water_kw: Decimal | None = None, polyprotic_constants: dict | None = None,
-                 rate_constants: dict | None = None):
+                 rate_constants: dict | None = None, reduction_potentials: dict | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
@@ -100,6 +100,10 @@ class ChemData:
         # a disclosed MODEL (the order is empirical), and the integrated rate law + half-life follow exactly (the
         # engine computes c(t) = c₀·e^(−kt), t½ = ln2/k, model-exact-then-rounded).
         self.rate_constants = rate_constants or {}
+        # standard reduction potentials E° (ADR-0050), keyed by the oxidized (ion) formula ->
+        # {name, oxidized, reduced, electrons (int), e_standard (Decimal, volts)}. The electrochemistry tier's
+        # sourced datum (regime-3): a cell's E°cell = E°(cathode) − E°(anode) and ΔG° = −nFE° follow exactly.
+        self.reduction_potentials = reduction_potentials or {}
 
     @property
     def avogadro(self) -> Decimal:
@@ -107,6 +111,20 @@ class ChemData:
         if "avogadro" not in self.constants:
             raise BuildError("Avogadro constant not loaded — is data/constants.toml present?")
         return self.constants["avogadro"]
+
+    @property
+    def faraday(self) -> Decimal:
+        """The Faraday constant F in C/mol, from data/constants.toml (exact, ADR-0006/0013/0050)."""
+        if "faraday" not in self.constants:
+            raise BuildError("Faraday constant not loaded — is data/constants.toml present?")
+        return self.constants["faraday"]
+
+    def reduction_potential(self, ion: str) -> dict:
+        """The standard reduction potential of a metal-ion/metal couple by the oxidized (ion) formula, from
+        data/reduction-potentials.toml (ADR-0050). Raises if absent — the electrochemistry engine refuses to guess."""
+        if ion not in self.reduction_potentials:
+            raise BuildError(f"no standard reduction potential for '{ion}' in data/reduction-potentials.toml")
+        return self.reduction_potentials[ion]
 
     def constant_unit(self, key: str) -> str:
         """The unit label a curated constant carries in data/constants.toml (e.g. R's L*atm/(mol*K))."""
@@ -473,6 +491,34 @@ class ChemData:
                 except (KeyError, ArithmeticError) as exc:
                     raise BuildError(f"data/rate-constants.toml: bad entry for '{formula}': {exc}") from exc
 
+        # standard reduction potentials E° (ADR-0050): the sourced datum of the electrochemistry tier. Machine-check
+        # the composition on load — `oxidized` is an ion, `reduced` is the neutral SAME element, and `electrons`
+        # equals the ion's charge (regime-1); the E° value + its sign convention are the regime-3 sourced datum.
+        reduction_potentials: dict = {}
+        rp_source = ""
+        rp_path = d / "reduction-potentials.toml"
+        if rp_path.exists():
+            rp_doc = tomllib.loads(rp_path.read_text(encoding="utf-8"))
+            rp_source = rp_doc.get("source", "")
+            for ion, v in rp_doc.get("couples", {}).items():
+                try:
+                    e0 = Decimal(v["e_standard_V"])
+                    electrons = int(v["electrons"])
+                    ox = parse_formula(v["oxidized"], ctx=f"data/reduction-potentials.toml '{ion}' oxidized")
+                    red = parse_formula(v["reduced"], ctx=f"data/reduction-potentials.toml '{ion}' reduced")
+                    if ox.charge <= 0:
+                        raise BuildError(f"data/reduction-potentials.toml: '{ion}' oxidized form must be a cation")
+                    if electrons != ox.charge:
+                        raise BuildError(f"data/reduction-potentials.toml: '{ion}' electrons {electrons} != ion "
+                                         f"charge {ox.charge}")
+                    if red.charge != 0 or list(red.counts) != list(ox.counts):
+                        raise BuildError(f"data/reduction-potentials.toml: '{ion}' reduced '{v['reduced']}' must be "
+                                         f"the neutral same element as the ion")
+                    reduction_potentials[ion] = {"name": v["name"], "oxidized": v["oxidized"],
+                                                 "reduced": v["reduced"], "electrons": electrons, "e_standard": e0}
+                except (KeyError, ArithmeticError) as exc:
+                    raise BuildError(f"data/reduction-potentials.toml: bad entry for '{ion}': {exc}") from exc
+
         sources = {
             "atomic_weight": el_doc.get("source", ""),
             "position": el_doc.get("position_source", ""),
@@ -489,10 +535,11 @@ class ChemData:
             "ionization_constants": ic_source,
             "solubility_products": sp_source,
             "rate_constants": rc_source,
+            "reduction_potentials": rp_source,
         }
         obj = cls(elements, ions, sources, constants, bonding, constant_units, specific_heats,
                   formation_enthalpies, vsepr, boiling_points, ionization_constants, solubility_products,
-                  base_ionization_constants, water_kw, polyprotic_constants, rate_constants)
+                  base_ionization_constants, water_kw, polyprotic_constants, rate_constants, reduction_potentials)
         obj.validate()
         return obj
 

@@ -1,0 +1,60 @@
+# Standard reduction (electrode) potentials E° (ADR-0050). Regime-3 sourced data — the empirical voltage a
+# reduction half-reaction drives against the standard hydrogen electrode (SHE, defined as exactly 0 V). A cell's
+# E°cell = E°(cathode) − E°(anode) reads directly off this table, and ΔG° = −nFE° follows exactly (model-exact).
+#
+# Each couple is a metal-ion / metal reduction Mⁿ⁺ + n e⁻ → M: the key is the oxidized (ion) form. On load, data.py
+# machine-checks that `oxidized` parses to an ion, `reduced` to the neutral SAME element, and `electrons` equals
+# the ion's charge (the composition is regime-1 verified; the E° value + the sign convention are the regime-3
+# sourced datum). Read as Decimal (never float — ADR-0013). Values: OpenStax Chemistry 2e, Appendix L (Standard
+# Electrode (Half-Cell) Potentials), CC BY 4.0 — see docs/SOURCES.md.
+
+source = "openstax-chemistry-2e"
+
+[couples."Ag^+"]
+name = "silver(I)/silver"
+oxidized = "Ag^+"
+reduced = "Ag"
+electrons = 1
+e_standard_V = "0.7996"
+
+[couples."Cu^2+"]
+name = "copper(II)/copper"
+oxidized = "Cu^2+"
+reduced = "Cu"
+electrons = 2
+e_standard_V = "0.337"
+
+[couples."Pb^2+"]
+name = "lead(II)/lead"
+oxidized = "Pb^2+"
+reduced = "Pb"
+electrons = 2
+e_standard_V = "-0.1262"
+
+[couples."Ni^2+"]
+name = "nickel(II)/nickel"
+oxidized = "Ni^2+"
+reduced = "Ni"
+electrons = 2
+e_standard_V = "-0.257"
+
+[couples."Fe^2+"]
+name = "iron(II)/iron"
+oxidized = "Fe^2+"
+reduced = "Fe"
+electrons = 2
+e_standard_V = "-0.447"
+
+[couples."Zn^2+"]
+name = "zinc(II)/zinc"
+oxidized = "Zn^2+"
+reduced = "Zn"
+electrons = 2
+e_standard_V = "-0.7618"
+
+[couples."Al^3+"]
+name = "aluminium(III)/aluminium"
+oxidized = "Al^3+"
+reduced = "Al"
+electrons = 3
+e_standard_V = "-1.662"

@@ -1,0 +1,26 @@
+{
+  "kind": "concept",
+  "id": "electron-ledger",
+  "title": "The electron ledger",
+  "term": "electron ledger",
+  "definition": "Electrochemistry is the **species ledger with electrons as the tracked quantity** — *electron bookkeeping plus free energy per charge*. The reaction extent is measured in **moles of electrons transferred, $n$**: the electrons lost by the species oxidized are exactly the electrons gained by the species reduced, so charge is conserved and the two half-reactions close (see [[half-reaction]]). It is the same conserved-but-changing ledger as [[extent-of-reaction]], now counting electrons instead of atoms. Two quantities hang off $n$: the charge moved, $nF$ (with the Faraday constant $F$ = charge per mole of electrons), and the free energy, $\\Delta G^\\circ = -nFE^\\circ$ — the bridge from the cell voltage to thermochemistry (see [[cell-potential]]).",
+  "related": [
+    {
+      "to": "extent-of-reaction",
+      "type": "extends"
+    },
+    {
+      "to": "half-reaction",
+      "type": "see-also"
+    },
+    {
+      "to": "cell-potential",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [
+    "daniell-cell"
+  ],
+  "regime": "ledger-exact",
+  "latex": "n\\,e^-_\\text{lost (anode)} = n\\,e^-_\\text{gained (cathode)}"
+}

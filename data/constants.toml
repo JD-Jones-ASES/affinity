@@ -22,3 +22,13 @@ value = "0.0820573660809596"
 unit = "L*atm/(mol*K)"
 name = "universal gas constant"
 exact = false
+
+# The Faraday constant, F = N_A * e (the charge of one mole of electrons). Both factors are exact defined
+# constants since the 2019 SI redefinition (N_A = 6.02214076e23 mol^-1, e = 1.602176634e-19 C), so F is EXACT:
+# F = 96485.33212... C/mol. Used by the electrochemistry tier's ΔG° = -nFE° (ADR-0050). Read as Decimal (ADR-0013).
+[faraday]
+symbol = "F"
+value = "96485.33212"
+unit = "C/mol"
+name = "Faraday constant"
+exact = true

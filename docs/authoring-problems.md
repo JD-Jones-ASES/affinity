@@ -29,7 +29,8 @@ lesson (`*.equilibrium.toml`, the ICE table solved by mass action — a weak aci
 solubility — [Equilibrium lessons](#equilibrium-lessons--a-weak-acids-ph-equilibriumtoml-adr-0048) below), a **prediction**
 lesson (`*.prediction.toml`, Q vs Ksp — does a precipitate form?, a snapshot not a solve — [Prediction
 lessons](#prediction-lessons--q-vs-ksp-does-a-precipitate-form-predictiontoml-adr-0048) below), and a **kinetics**
-lesson (`*.kinetics.toml`, decay of orders 0/1/2 — the ledger in time — [Kinetics lessons](#kinetics-lessons--decay-of-orders-0-1-2-kineticstoml-adr-0049) below).
+lesson (`*.kinetics.toml`, decay of orders 0/1/2 — the ledger in time — [Kinetics lessons](#kinetics-lessons--decay-of-orders-0-1-2-kineticstoml-adr-0049) below), and an **electrochemistry**
+lesson (`*.electrochemistry.toml`, a galvanic cell — the electron ledger — [Electrochemistry lessons](#electrochemistry-lessons--a-galvanic-cell-electrochemistrytoml-adr-0050) below).
 
 ## The one TOML gotcha
 
@@ -515,6 +516,34 @@ refuted_by = "second_order_half_life_grows"       # a semantic label; the refuta
 See [`problems/kinetics/hydrogen-peroxide-decomposition.kinetics.toml`](../problems/kinetics/hydrogen-peroxide-decomposition.kinetics.toml)
 (first), [`butadiene-dimerization`](../problems/kinetics/butadiene-dimerization.kinetics.toml) (second), and
 [`ammonia-decomposition`](../problems/kinetics/ammonia-decomposition.kinetics.toml) (zero).
+
+### Electrochemistry lessons — a galvanic cell (`*.electrochemistry.toml`, ADR-0050)
+
+An **electrochemistry lesson** is a *different lesson kind* — the species ledger with **electrons** as the tracked quantity. From
+two metal-ion/metal **couples** the producer assigns the cathode (higher $E^\circ$) and anode, writes the two half-reactions,
+balances the **electron ledger** ($n$ = lcm of the electron counts), and computes $E^\circ_\text{cell} = E^\circ_\text{cathode} -
+E^\circ_\text{anode}$ and $\Delta G^\circ = -nFE^\circ$. Its own extension (`*.electrochemistry.toml` → `*.electrochemistry.json`)
+and its own tight schema.
+
+Author only the two `couples` (by their ion formula — the $E^\circ$ values live in `data/reduction-potentials.toml`, sourced +
+machine-checked; the Faraday constant is in `data/constants.toml`) and the scenario/misconception. The producer decides which is the
+cathode, assigns the oxidation numbers, and machine-checks the whole spine; it refuses equal potentials (no cell) or an unknown couple:
+
+```toml
+topic = "electrochemistry"
+couples = ["Zn^2+", "Cu^2+"]                       # two ions; the producer assigns cathode (higher E°) / anode
+scenario = "…"
+
+[[assumptions]]                                    # disclose the standard-state cell model (E° holds only at 1 M, 25 °C, 1 bar)
+claim = "…"
+kind = "model"
+
+[misconception]
+claim = "…"
+refuted_by = "reduction_potential_sets_direction" # a semantic label; the refutation is built from E°
+```
+
+See [`problems/electrochemistry/daniell-cell.electrochemistry.toml`](../problems/electrochemistry/daniell-cell.electrochemistry.toml).
 
 ### Other optional keys
 

@@ -14,7 +14,7 @@ function walk(dir) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (statSync(p).isDirectory()) out.push(...walk(p));
-    else if (name.endsWith(".solution.json") || name.endsWith(".structure.json") || name.endsWith(".comparison.json") || name.endsWith(".equilibrium.json") || name.endsWith(".prediction.json") || name.endsWith(".kinetics.json")) out.push(p);
+    else if (name.endsWith(".solution.json") || name.endsWith(".structure.json") || name.endsWith(".comparison.json") || name.endsWith(".equilibrium.json") || name.endsWith(".prediction.json") || name.endsWith(".kinetics.json") || name.endsWith(".electrochemistry.json")) out.push(p);
   }
   return out;
 }
@@ -115,6 +115,21 @@ function kineticsLatex(les) {
   return out;
 }
 
+// Collect LaTeX in an electrochemistry lesson (ADR-0050): the overall reaction (→), the two half-reactions, the
+// oxidation-number species symbols, the cell notation, plus any inline $…$ in the scenario/assumptions/misconception.
+function electrochemistryLatex(les) {
+  const out = [];
+  if (les.reaction?.equation_latex) out.push(["reaction.equation_latex", les.reaction.equation_latex]);
+  if (les.half_reactions?.oxidation?.equation_latex) out.push(["half_reactions.oxidation", les.half_reactions.oxidation.equation_latex]);
+  if (les.half_reactions?.reduction?.equation_latex) out.push(["half_reactions.reduction", les.half_reactions.reduction.equation_latex]);
+  (les.oxidation_states?.species ?? []).forEach((s, i) => out.push([`oxidation_states.species[${i}].latex`, s.latex]));
+  if (les.cell?.notation_latex) out.push(["cell.notation_latex", les.cell.notation_latex]);
+  out.push(...inlineMath("scenario", les.scenario));
+  (les.assumptions ?? []).forEach((a, i) => out.push(...inlineMath(`assumptions[${i}].claim`, a.claim)));
+  if (les.misconception?.claim) out.push(...inlineMath("misconception.claim", les.misconception.claim));
+  return out;
+}
+
 // Collect LaTeX in a reference object (concept entry or valence table).
 function referenceLatex(ref) {
   const out = [];
@@ -191,7 +206,8 @@ for (const file of files) {
     : file.endsWith(".comparison.json") ? comparisonLatex(obj)
     : file.endsWith(".equilibrium.json") ? equilibriumLatex(obj)
     : file.endsWith(".prediction.json") ? predictionLatex(obj)
-    : file.endsWith(".kinetics.json") ? kineticsLatex(obj) : latexStrings(obj);
+    : file.endsWith(".kinetics.json") ? kineticsLatex(obj)
+    : file.endsWith(".electrochemistry.json") ? electrochemistryLatex(obj) : latexStrings(obj);
   for (const [where, latex] of strings) render(rel, where, latex);
 }
 for (const file of refFiles) {

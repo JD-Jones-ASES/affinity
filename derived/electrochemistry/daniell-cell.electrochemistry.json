@@ -1,0 +1,188 @@
+{
+  "kind": "electrochemistry",
+  "subtype": "galvanic",
+  "id": "daniell-cell",
+  "title": "Electrons for hire: the zinc–copper (Daniell) cell",
+  "slug": "daniell-cell",
+  "topic": "electrochemistry",
+  "tags": [
+    "electrochemistry",
+    "galvanic cell",
+    "redox",
+    "cell potential",
+    "oxidation numbers",
+    "free energy"
+  ],
+  "scenario": "Dip a strip of zinc into a zinc-sulfate solution and a strip of copper into a copper-sulfate solution, then connect the two metals with a wire and bridge the beakers with a salt bridge. A current flows — the cell does electrical work — and the reason is **redox**: one metal gives up electrons and the other takes them. This is the species ledger again, but now the quantity that moves is **electrons**. Which way do they go? Track the **oxidation numbers**: zinc goes from 0 in the metal to +2 in solution (it is **oxidized** — it loses electrons, at the *anode*), while copper(II) goes from +2 to 0 (it is **reduced** — it gains electrons, at the *cathode*). The two **standard reduction potentials** decide the direction and the voltage, and the free energy follows from $\\Delta G^\\circ = -nFE^\\circ$.",
+  "regimes": [
+    {
+      "facet": "electron ledger + oxidation-number accounting",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "standard reduction potentials E°",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "cell potential + free energy (standard-state model)",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "Standard conditions: every dissolved species is at 1 M (unit activity), any gas at 1 bar, and the temperature is 25 °C. The tabulated $E^\\circ$ values — and so $E^\\circ_\\text{cell}$ and $\\Delta G^\\circ$ — hold only there; away from standard conditions the Nernst equation corrects the voltage.",
+      "kind": "model"
+    },
+    {
+      "claim": "The standard reduction potentials are measured against the standard hydrogen electrode (defined as exactly 0 V) — a sourced convention. Only differences $E^\\circ_\\text{cathode} - E^\\circ_\\text{anode}$ are physically meaningful (the zero point is arbitrary).",
+      "kind": "rule"
+    }
+  ],
+  "reaction": {
+    "equation_text": "Zn + Cu^2+ -> Zn^2+ + Cu",
+    "equation_latex": "\\mathrm{Zn} + \\mathrm{Cu}^{2+} \\rightarrow \\mathrm{Zn}^{2+} + \\mathrm{Cu}",
+    "electrons_transferred": 2
+  },
+  "oxidation_states": {
+    "species": [
+      {
+        "formula": "Zn",
+        "latex": "\\mathrm{Zn}",
+        "atoms": [
+          {
+            "element": "Zn",
+            "ox_number": "0",
+            "ox_display": "0"
+          }
+        ]
+      },
+      {
+        "formula": "Cu^2+",
+        "latex": "\\mathrm{Cu}^{2+}",
+        "atoms": [
+          {
+            "element": "Cu",
+            "ox_number": "2",
+            "ox_display": "+2"
+          }
+        ]
+      },
+      {
+        "formula": "Zn^2+",
+        "latex": "\\mathrm{Zn}^{2+}",
+        "atoms": [
+          {
+            "element": "Zn",
+            "ox_number": "2",
+            "ox_display": "+2"
+          }
+        ]
+      },
+      {
+        "formula": "Cu",
+        "latex": "\\mathrm{Cu}",
+        "atoms": [
+          {
+            "element": "Cu",
+            "ox_number": "0",
+            "ox_display": "0"
+          }
+        ]
+      }
+    ],
+    "oxidized": {
+      "element": "Zn",
+      "from": "0",
+      "to": "+2"
+    },
+    "reduced": {
+      "element": "Cu",
+      "from": "+2",
+      "to": "0"
+    }
+  },
+  "half_reactions": {
+    "oxidation": {
+      "role": "anode",
+      "couple_name": "zinc(II)/zinc",
+      "equation_latex": "\\mathrm{Zn} \\rightarrow \\mathrm{Zn}^{2+} + 2\\,\\mathrm{e^-}",
+      "electrons": 2,
+      "multiplier": 1,
+      "e_standard_V": "-0.7618",
+      "e_standard_display": "-0.7618",
+      "element": "Zn",
+      "ox_from": "0",
+      "ox_to": "+2"
+    },
+    "reduction": {
+      "role": "cathode",
+      "couple_name": "copper(II)/copper",
+      "equation_latex": "\\mathrm{Cu}^{2+} + 2\\,\\mathrm{e^-} \\rightarrow \\mathrm{Cu}",
+      "electrons": 2,
+      "multiplier": 1,
+      "e_standard_V": "0.337",
+      "e_standard_display": "0.337",
+      "element": "Cu",
+      "ox_from": "+2",
+      "ox_to": "0"
+    }
+  },
+  "electron_ledger": {
+    "n": 2,
+    "balanced": true,
+    "note": "1×(2 e⁻) lost = 1×(2 e⁻) gained = 2 e⁻ transferred"
+  },
+  "cell": {
+    "anode_ion": "Zn^2+",
+    "anode_metal": "Zn",
+    "anode_name": "zinc(II)/zinc",
+    "cathode_ion": "Cu^2+",
+    "cathode_metal": "Cu",
+    "cathode_name": "copper(II)/copper",
+    "notation_text": "Zn(s) | Zn^2+(aq) || Cu^2+(aq) | Cu(s)",
+    "notation_latex": "\\mathrm{Zn}(s)\\;\\vert\\;\\mathrm{Zn}^{2+}(aq)\\;\\Vert\\;\\mathrm{Cu}^{2+}(aq)\\;\\vert\\;\\mathrm{Cu}(s)",
+    "e_cell_V": "1.0988",
+    "e_cell_display": "1.099",
+    "spontaneous": true
+  },
+  "result": {
+    "e_cell_display": "1.099",
+    "e_cell_V": "1.0988",
+    "n_electrons": 2,
+    "delta_g_kJ_per_mol": "-212.036165866912",
+    "delta_g_display": "-212",
+    "faraday": "96485.33212",
+    "spontaneous": true
+  },
+  "misconception": {
+    "claim": "A cell reaction and its reverse are just two ways of writing the same thing, so the cell could run either direction — maybe the copper dissolves and the zinc plates out.",
+    "refuted_by": "reduction_potential_sets_direction"
+  },
+  "reference_links": [
+    "oxidation-number",
+    "half-reaction",
+    "electron-ledger",
+    "cell-potential",
+    "standard-reduction-potential",
+    "extent-of-reaction"
+  ],
+  "checks": {
+    "oxidation_states_sum": true,
+    "half_reactions_balanced": true,
+    "electrons_cancel": true,
+    "cell_potential": true,
+    "delta_g_relation": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-09",
+    "sources": {
+      "reduction_potentials": "openstax-chemistry-2e",
+      "constants": "bipm-si-2019",
+      "atomic_weight": "ciaaw-2021-atomic-weights"
+    }
+  }
+}
