@@ -3,6 +3,7 @@ import Base from "../../layouts/Base.astro";
 import DimensionalGym from "../../islands/DimensionalGym.svelte";
 import { withBase } from "../../lib/withBase.js";
 import { renderGym } from "../../lib/view.js";
+import { gymLessons } from "../../lib/curriculum.js";
 
 // One page per committed gym (ADR-0024). The producer is the source of truth; this page renders it — no
 // chemistry happens here. The only view transform is typography: renderGym subscripts the substance tokens.
@@ -37,6 +38,21 @@ const concepts = (gym.reference_links ?? []).map((id) => ({
 // (ADR-0035); the gas-laws gym on the sourced gas constant (ADR-0040); the calorimetry gym on the sourced
 // specific heats (ADR-0042); every other family on sourced molar masses.
 const gymSources = gym.provenance?.sources ?? {};
+
+// Related-lesson cross-links (QC 2026-07-09 C1): the lessons this gym drills, from the curriculum map. Titles
+// come from the lesson JSON across all seven kinds.
+const lessonMods = {
+  ...import.meta.glob("../../../derived/**/*.solution.json", { eager: true }),
+  ...import.meta.glob("../../../derived/**/*.structure.json", { eager: true }),
+  ...import.meta.glob("../../../derived/**/*.comparison.json", { eager: true }),
+  ...import.meta.glob("../../../derived/**/*.equilibrium.json", { eager: true }),
+  ...import.meta.glob("../../../derived/**/*.prediction.json", { eager: true }),
+  ...import.meta.glob("../../../derived/**/*.kinetics.json", { eager: true }),
+  ...import.meta.glob("../../../derived/**/*.electrochemistry.json", { eager: true }),
+};
+const lessonTitle = Object.fromEntries(Object.values(lessonMods).map((m) => [m.default.slug, m.default.title]));
+const relatedLessons = (gymLessons[gym.slug] ?? []).map((slug) => ({ slug, title: lessonTitle[slug] ?? slug }));
+
 const isTrends = gym.family === "periodic_trends_v1";
 const isFamilies = gym.family === "reaction_families_v1";
 const isGas = gym.family === "gas_laws_v1";
@@ -86,6 +102,18 @@ const assumptions = gym.assumptions ?? [];
     </ul>
   </section>
 
+  {relatedLessons.length > 0 && (
+    <section class="practice">
+      <h2>Lessons that use this</h2>
+      <p class="muted">See these skills worked in depth on a single scenario:</p>
+      <ul class="gymlinks">
+        {relatedLessons.map((l) => (
+          <li><a href={withBase(`/lessons/${l.slug}/`)}>{l.title} →</a></li>
+        ))}
+      </ul>
+    </section>
+  )}
+
   <style>
     h1 { font-size: 1.9rem; }
     .crumb { margin-bottom: 0.3rem; }
@@ -93,6 +121,11 @@ const assumptions = gym.assumptions ?? [];
     .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.6rem 0 1.2rem; }
     .assume { max-width: 48rem; font-size: 0.9rem; color: var(--ink-2); background: var(--paper-2); border: 1px solid var(--line); border-left: 3px solid var(--badge-model, #b8860b); border-radius: 6px; padding: 0.6rem 0.85rem; margin: 0 0 1.2rem; }
     .links { margin-top: 2.5rem; }
+    .practice { margin-top: 1.8rem; }
+    .practice h2 { font-size: 1.15rem; }
+    .gymlinks { list-style: none; padding: 0; display: grid; gap: 0.5rem; }
+    .gymlinks a { display: block; background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.6rem 0.9rem; color: var(--accent); font-weight: 600; }
+    .gymlinks a:hover { text-decoration: none; border-color: var(--accent); }
     .chips { list-style: none; padding: 0; display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .chip { background: var(--paper-sunk); color: var(--ink-2); padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.85rem; }
   </style>

@@ -3,6 +3,7 @@ import Base from "../../layouts/Base.astro";
 import { withBase } from "../../lib/withBase.js";
 import { inline } from "../../lib/katex.js";
 import { prettyText } from "../../lib/view.js";
+import { TIERS, assertComplete } from "../../lib/curriculum.js";
 
 // all lesson shapes list here (ADR-0045/0047/0048): reaction (*.solution.json), structure (*.structure.json —
 // a single molecule's electron ledger), comparison (*.comparison.json), equilibrium (*.equilibrium.json —
@@ -32,14 +33,14 @@ const lessons = [...Object.values(mods), ...Object.values(structs), ...Object.va
   .map((m) => m.default)
   .map((l) => ({ ...l, scenarioHtml: inline(prettyText(l.scenario, tokensOf(l))) }));
 
-// Group by topic; topics render alphabetically, lessons by title within each. Resilient to any count — a new
-// derived/ file appears here automatically.
-const topics = [...new Set(lessons.map((l) => l.topic))].sort();
-const groups = topics.map((t) => ({
-  topic: t,
-  lessons: lessons.filter((l) => l.topic === t).sort((a, b) => a.title.localeCompare(b.title)),
-}));
-const titleCase = (s) => s.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+// Group by CURRICULUM TIER, in the learning progression (src/lib/curriculum.js) — not alphabetically, so a
+// learner meets the mole before the buffer (QC 2026-07-09 C1). The gyms are globbed only to run the shared
+// build-time completeness check: any lesson/gym not placed in a tier fails the build (nothing silently drops).
+const gymSlugs = Object.values(import.meta.glob("../../../derived/gyms/*.json", { eager: true })).map((m) => m.default.slug);
+assertComplete(lessons.map((l) => l.slug), gymSlugs);
+const bySlug = Object.fromEntries(lessons.map((l) => [l.slug, l]));
+const groups = TIERS.map((t) => ({ ...t, items: t.lessons.map((s) => bySlug[s]).filter(Boolean) }))
+  .filter((g) => g.items.length > 0);
 ---
 
 <Base title="Lessons — Affinity">
@@ -47,16 +48,19 @@ const titleCase = (s) => s.split("-").map((w) => w[0].toUpperCase() + w.slice(1)
   <p class="muted lede">
     {lessons.length} lesson{lessons.length === 1 ? "" : "s"}, each built and verified end to end by
     ChemKernel — balanced, charge-conserved, extent-checked, and sourced. The reaction chemistry is machine
-    proof; the modeling assumptions are disclosed.
+    proof; the modeling assumptions are disclosed. They are ordered as a course: <strong>start at the top</strong> and
+    work down — each tier builds on the ledger the tier before it laid down. New here? The <a href={withBase("/gym/")}>Gym</a>
+    drills the foundation skills.
   </p>
 
   {groups.map((g) => (
     <section class="topic">
       <div class="topic-head">
-        <h2 id={g.topic}>{titleCase(g.topic)}</h2>
+        <h2 id={g.id}>{g.title}</h2>
+        <p class="tier-blurb">{g.blurb}</p>
       </div>
       <ul class="lessons">
-        {g.lessons.map((l) => (
+        {g.items.map((l) => (
           <li>
             <a href={withBase(`/lessons/${l.slug}/`)}>
               <div class="row">
@@ -75,8 +79,9 @@ const titleCase = (s) => s.split("-").map((w) => w[0].toUpperCase() + w.slice(1)
     h1 { font-size: 1.9rem; }
     .lede { max-width: 48rem; }
     .topic { margin-top: 1.8rem; }
-    .topic-head { border-bottom: 1px solid var(--line); padding-bottom: 0.3rem; margin-bottom: 0.8rem; }
+    .topic-head { border-bottom: 1px solid var(--line); padding-bottom: 0.4rem; margin-bottom: 0.8rem; }
     .topic-head h2 { font-size: 1.25rem; margin: 0; scroll-margin-top: 1rem; }
+    .tier-blurb { color: var(--ink-2); font-size: 0.9rem; margin: 0.3rem 0 0; max-width: 52rem; }
     .lessons { list-style: none; padding: 0; display: grid; gap: 0.7rem; }
     .lessons a { display: block; background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem; color: inherit; }
     .lessons a:hover { text-decoration: none; border-color: var(--accent); }

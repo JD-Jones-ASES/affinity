@@ -51,7 +51,21 @@ const example = tex(String.raw`\begin{aligned}
     <a class="btn ghost" href={withBase("/verification/")}>How it is verified</a>
   </div>
 
+  <div class="card start">
+    <h2>New here? Start at the top.</h2>
+    <p class="muted">
+      The <a href={withBase("/lessons/")}>lessons</a> are ordered as a course — six tiers from the mole up through
+      electrochemistry — so work top to bottom. Build fluency in the <a href={withBase("/gym/")}>Gym</a>, where the
+      foundation drills (converting amounts, naming compounds, balancing) live and every problem is generated fresh
+      and machine-checked. And the <a href={withBase("/reference/valence-table/")}>Valence Table</a> is an interactive
+      periodic table with four modes — trends, bonding, ion charges, and 182 machine-verified salt names.
+    </p>
+  </div>
+
   <style>
+    .start { margin: 1.5rem 0; }
+    .start h2 { font-size: 1.2rem; margin: 0 0 0.4rem; }
+    .start p { margin: 0; max-width: 48rem; }
     h1 { font-size: 2.1rem; letter-spacing: -0.02em; }
     .lede { font-size: 1.15rem; max-width: 46rem; }
     .math-hero { margin: 1.5rem 0; }

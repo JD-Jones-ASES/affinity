@@ -1,16 +1,16 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { withBase } from "../../lib/withBase.js";
+import { TIERS } from "../../lib/curriculum.js";
 
-// One card per committed gym (ADR-0024). A new derived/gyms/*.gym.json appears here automatically.
+// One card per committed gym (ADR-0024), grouped by CURRICULUM TIER in learning order (src/lib/curriculum.js),
+// not alphabetically — the foundation drills come first (QC 2026-07-09 C1). Completeness of the tier map is
+// checked in the lessons index (assertComplete), which fails the build if a gym is missing from a tier.
 const mods = import.meta.glob("../../../derived/gyms/*.gym.json", { eager: true });
 const gyms = Object.values(mods).map((m) => m.default);
-const topics = [...new Set(gyms.map((g) => g.topic))].sort();
-const titleCase = (s) => s.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
-const groups = topics.map((t) => ({
-  topic: t,
-  gyms: gyms.filter((g) => g.topic === t).sort((a, b) => a.title.localeCompare(b.title)),
-}));
+const bySlug = Object.fromEntries(gyms.map((g) => [g.slug, g]));
+const groups = TIERS.map((t) => ({ ...t, items: t.gyms.map((s) => bySlug[s]).filter(Boolean) }))
+  .filter((g) => g.items.length > 0);
 ---
 
 <Base title="Gym — Affinity" description="Procedural drills: endless generated, machine-verified chemistry problems with visible unit cancellation.">
@@ -24,9 +24,9 @@ const groups = topics.map((t) => ({
 
   {groups.map((g) => (
     <section class="topic">
-      <div class="topic-head"><h2 id={g.topic}>{titleCase(g.topic)}</h2></div>
+      <div class="topic-head"><h2 id={g.id}>{g.title}</h2><p class="tier-blurb">{g.blurb}</p></div>
       <ul class="gyms">
-        {g.gyms.map((gy) => (
+        {g.items.map((gy) => (
           <li>
             <a href={withBase(`/gym/${gy.slug}/`)}>
               <div class="row">
@@ -46,8 +46,9 @@ const groups = topics.map((t) => ({
     h1 { font-size: 1.9rem; }
     .lede { max-width: 48rem; }
     .topic { margin-top: 1.8rem; }
-    .topic-head { border-bottom: 1px solid var(--line); padding-bottom: 0.3rem; margin-bottom: 0.8rem; }
-    .topic-head h2 { font-size: 1.25rem; margin: 0; }
+    .topic-head { border-bottom: 1px solid var(--line); padding-bottom: 0.4rem; margin-bottom: 0.8rem; }
+    .topic-head h2 { font-size: 1.25rem; margin: 0; scroll-margin-top: 1rem; }
+    .tier-blurb { color: var(--ink-2); font-size: 0.9rem; margin: 0.3rem 0 0; max-width: 52rem; }
     .gyms { list-style: none; padding: 0; display: grid; gap: 0.7rem; }
     .gyms a { display: block; background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem; color: inherit; }
     .gyms a:hover { text-decoration: none; border-color: var(--accent); }
