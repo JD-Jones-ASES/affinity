@@ -1,0 +1,518 @@
+{
+  "kind": "gym",
+  "id": "kinetics",
+  "title": "Kinetics: integrated rate laws, half-life, and reading the order",
+  "slug": "kinetics",
+  "topic": "kinetics",
+  "family": "kinetics_v1",
+  "seed": 271828,
+  "blurb": "A reaction's ORDER sets its clock. Each drill gives a reaction, its measured order, and its rate constant k (a sourced value), and asks one of three things: how much reactant is left after a time t (apply the order's integrated rate law — [A]₀−kt for zero order, [A]₀e^(−kt) for first, 1/[A]₀+kt for second), what its half-life is (t½ = [A]₀/2k, ln2/k, or 1/k[A]₀), or — given three successive half-lives — what the order must be. Type the numeric answers to three significant figures; pick the order from the menu. The one mistake the drill keeps catching is using the WRONG order's formula, so every diagnostic names which order you slipped into. The arithmetic is machine-checked; the rate law and order are a disclosed model, and k is a sourced measured value.",
+  "skills": [
+    "apply the integrated rate law for the reaction's order to find [A] at a later time",
+    "compute the half-life with the order's formula, and notice that only first order is independent of [A]₀",
+    "read the reaction order off the successive-half-life pattern — constant (1st), doubling (2nd), or halving (0th)",
+    "keep the three orders' laws distinct — the commonest kinetics mistake is using the wrong one"
+  ],
+  "reference_links": [
+    "integrated-rate-law",
+    "half-life",
+    "rate-law",
+    "reaction-rate"
+  ],
+  "problems": [
+    {
+      "kind": "kinetics_concentration",
+      "mode": "numeric",
+      "prompt": "The decomposition of ammonia on a tungsten surface (NH3) is zero order in NH3, with k = 1.3×10⁻⁶ M s⁻¹. If [NH3]₀ = 0.01 M, what is [NH3] after 1923 s?",
+      "subscript_tokens": [
+        "NH3"
+      ],
+      "chain": [
+        {
+          "value": "1923",
+          "unit": "s",
+          "note": "elapsed time — apply [A] = [A]₀ − kt"
+        },
+        {
+          "value": "0.0075",
+          "unit": "M",
+          "note": "[NH3] remaining"
+        }
+      ],
+      "target_unit": "M",
+      "answer": {
+        "value": "0.0075",
+        "unit": "M",
+        "display": "0.0075 M"
+      },
+      "derivation": {
+        "kind": "kinetics_concentration",
+        "kinetics": {
+          "order": 0,
+          "k": "0.0000013",
+          "k_unit": "M/s",
+          "c0": "0.0100",
+          "t": "1923"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0.009975",
+          "unit": "M",
+          "misconception": "That is the first-order law ([A] = [A]₀·e^(−kt)); this reaction is zero order, so use [A] = [A]₀ − kt."
+        },
+        {
+          "value": "0.01",
+          "unit": "M",
+          "misconception": "That is the second-order law (1/[A] = 1/[A]₀ + kt); this reaction is zero order, so use [A] = [A]₀ − kt."
+        }
+      ],
+      "explain": "Apply the zero-order integrated law [A] = [A]₀ − kt with k = 1.3×10⁻⁶ M s⁻¹, [A]₀ = 0.01 M, t = 1923 s: [NH3] = 0.0075 M.",
+      "id": "q1"
+    },
+    {
+      "kind": "kinetics_half_life",
+      "mode": "numeric",
+      "prompt": "The decomposition of hydrogen peroxide (H2O2) is first order, with k = 3.21×10⁻⁵ s⁻¹ and [H2O2]₀ = 0.5 M. What is its half-life?",
+      "subscript_tokens": [
+        "H2O2"
+      ],
+      "chain": [
+        {
+          "value": "t½ = ln2/k",
+          "unit": "",
+          "note": "the first-order half-life"
+        },
+        {
+          "value": "21600",
+          "unit": "s",
+          "note": "half-life (a first-order half-life does not depend on [A]₀)"
+        }
+      ],
+      "target_unit": "s",
+      "answer": {
+        "value": "21590",
+        "unit": "s",
+        "display": "21600 s"
+      },
+      "derivation": {
+        "kind": "kinetics_half_life",
+        "kinetics": {
+          "order": 1,
+          "k": "0.0000321",
+          "k_unit": "1/s",
+          "c0": "0.500"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "7788",
+          "unit": "s",
+          "misconception": "That is the zero-order half-life ([A]₀/2k); this reaction is first order, so t½ = ln2/k."
+        },
+        {
+          "value": "62310",
+          "unit": "s",
+          "misconception": "That is the second-order half-life (1/(k[A]₀)); this reaction is first order, so t½ = ln2/k."
+        }
+      ],
+      "explain": "For a first-order reaction t½ = ln2/k; with k = 3.21×10⁻⁵ s⁻¹ that is 21600 s. (a first-order half-life does not depend on [A]₀)",
+      "id": "q2"
+    },
+    {
+      "kind": "kinetics_order",
+      "mode": "choice",
+      "prompt": "A reactant is followed as it decays; its first three successive half-lives are measured as 3850 s, 1920 s, 962 s. What is the order of the reaction?",
+      "subscript_tokens": [],
+      "answer": {
+        "value": "zero order",
+        "display": "zero order"
+      },
+      "derivation": {
+        "kind": "kinetics_order",
+        "kinetics": {
+          "order": 0,
+          "k": "0.0000013",
+          "k_unit": "M/s",
+          "c0": "0.0100",
+          "half_lives": [
+            "3850",
+            "1920",
+            "962"
+          ]
+        }
+      },
+      "choices": [
+        {
+          "display": "zero order",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "first order",
+          "correct": false,
+          "misconception": "A first-order reaction's successive half-lives stay constant; here they halve (shrink) each step."
+        },
+        {
+          "display": "second order",
+          "correct": false,
+          "misconception": "A second-order reaction's successive half-lives double (grow) each step; here they halve (shrink) each step."
+        }
+      ],
+      "explain": "The successive half-lives halve (shrink) each step — the fingerprint of a zero-order reaction (t½ = [A]₀/2k).",
+      "id": "q3"
+    },
+    {
+      "kind": "kinetics_concentration",
+      "mode": "numeric",
+      "prompt": "The dimerization of butadiene (C4H6) is second order in C4H6, with k = 5.76×10⁻² M⁻¹ min⁻¹. If [C4H6]₀ = 0.1 M, what is [C4H6] after 173.6 min?",
+      "subscript_tokens": [
+        "C4H6"
+      ],
+      "chain": [
+        {
+          "value": "173.6",
+          "unit": "min",
+          "note": "elapsed time — apply 1/[A] = 1/[A]₀ + kt"
+        },
+        {
+          "value": "0.05",
+          "unit": "M",
+          "note": "[C4H6] remaining"
+        }
+      ],
+      "target_unit": "M",
+      "answer": {
+        "value": "0.05",
+        "unit": "M",
+        "display": "0.05 M"
+      },
+      "derivation": {
+        "kind": "kinetics_concentration",
+        "kinetics": {
+          "order": 2,
+          "k": "0.0576",
+          "k_unit": "1/(M*min)",
+          "c0": "0.100",
+          "t": "173.6"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0",
+          "unit": "M",
+          "misconception": "That is the zero-order law ([A] = [A]₀ − kt); this reaction is second order, so use 1/[A] = 1/[A]₀ + kt."
+        },
+        {
+          "value": "0.000004543",
+          "unit": "M",
+          "misconception": "That is the first-order law ([A] = [A]₀·e^(−kt)); this reaction is second order, so use 1/[A] = 1/[A]₀ + kt."
+        }
+      ],
+      "explain": "Apply the second-order integrated law 1/[A] = 1/[A]₀ + kt with k = 5.76×10⁻² M⁻¹ min⁻¹, [A]₀ = 0.1 M, t = 173.6 min: [C4H6] = 0.05 M.",
+      "id": "q4"
+    },
+    {
+      "kind": "kinetics_half_life",
+      "mode": "numeric",
+      "prompt": "The dimerization of butadiene (C4H6) is second order, with k = 5.76×10⁻² M⁻¹ min⁻¹ and [C4H6]₀ = 0.5 M. What is its half-life?",
+      "subscript_tokens": [
+        "C4H6"
+      ],
+      "chain": [
+        {
+          "value": "t½ = 1/(k[A]₀)",
+          "unit": "",
+          "note": "the second-order half-life"
+        },
+        {
+          "value": "34.7",
+          "unit": "min",
+          "note": "half-life"
+        }
+      ],
+      "target_unit": "min",
+      "answer": {
+        "value": "34.72",
+        "unit": "min",
+        "display": "34.7 min"
+      },
+      "derivation": {
+        "kind": "kinetics_half_life",
+        "kinetics": {
+          "order": 2,
+          "k": "0.0576",
+          "k_unit": "1/(M*min)",
+          "c0": "0.500"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "4.34",
+          "unit": "min",
+          "misconception": "That is the zero-order half-life ([A]₀/2k); this reaction is second order, so t½ = 1/(k[A]₀)."
+        },
+        {
+          "value": "12.03",
+          "unit": "min",
+          "misconception": "That is the first-order half-life (ln2/k); this reaction is second order, so t½ = 1/(k[A]₀)."
+        }
+      ],
+      "explain": "For a second-order reaction t½ = 1/(k[A]₀); with k = 5.76×10⁻² M⁻¹ min⁻¹ and [A]₀ = 0.5 M that is 34.7 min.",
+      "id": "q5"
+    },
+    {
+      "kind": "kinetics_order",
+      "mode": "choice",
+      "prompt": "A reactant is followed as it decays; its first three successive half-lives are measured as 86.8 min, 174 min, 347 min. What is the order of the reaction?",
+      "subscript_tokens": [],
+      "answer": {
+        "value": "second order",
+        "display": "second order"
+      },
+      "derivation": {
+        "kind": "kinetics_order",
+        "kinetics": {
+          "order": 2,
+          "k": "0.0576",
+          "k_unit": "1/(M*min)",
+          "c0": "0.200",
+          "half_lives": [
+            "86.8",
+            "174",
+            "347"
+          ]
+        }
+      },
+      "choices": [
+        {
+          "display": "second order",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "zero order",
+          "correct": false,
+          "misconception": "A zero-order reaction's successive half-lives halve (shrink) each step; here they double (grow) each step."
+        },
+        {
+          "display": "first order",
+          "correct": false,
+          "misconception": "A first-order reaction's successive half-lives stay constant; here they double (grow) each step."
+        }
+      ],
+      "explain": "The successive half-lives double (grow) each step — the fingerprint of a second-order reaction (t½ = 1/(k[A]₀)).",
+      "id": "q6"
+    },
+    {
+      "kind": "kinetics_concentration",
+      "mode": "numeric",
+      "prompt": "The decomposition of ammonia on a tungsten surface (NH3) is zero order in NH3, with k = 1.3×10⁻⁶ M s⁻¹. If [NH3]₀ = 0.05 M, what is [NH3] after 28850 s?",
+      "subscript_tokens": [
+        "NH3"
+      ],
+      "chain": [
+        {
+          "value": "28850",
+          "unit": "s",
+          "note": "elapsed time — apply [A] = [A]₀ − kt"
+        },
+        {
+          "value": "0.0125",
+          "unit": "M",
+          "note": "[NH3] remaining"
+        }
+      ],
+      "target_unit": "M",
+      "answer": {
+        "value": "0.0125",
+        "unit": "M",
+        "display": "0.0125 M"
+      },
+      "derivation": {
+        "kind": "kinetics_concentration",
+        "kinetics": {
+          "order": 0,
+          "k": "0.0000013",
+          "k_unit": "M/s",
+          "c0": "0.0500",
+          "t": "28850"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0.04816",
+          "unit": "M",
+          "misconception": "That is the first-order law ([A] = [A]₀·e^(−kt)); this reaction is zero order, so use [A] = [A]₀ − kt."
+        },
+        {
+          "value": "0.04991",
+          "unit": "M",
+          "misconception": "That is the second-order law (1/[A] = 1/[A]₀ + kt); this reaction is zero order, so use [A] = [A]₀ − kt."
+        }
+      ],
+      "explain": "Apply the zero-order integrated law [A] = [A]₀ − kt with k = 1.3×10⁻⁶ M s⁻¹, [A]₀ = 0.05 M, t = 28850 s: [NH3] = 0.0125 M.",
+      "id": "q7"
+    },
+    {
+      "kind": "kinetics_half_life",
+      "mode": "numeric",
+      "prompt": "The decomposition of hydrogen peroxide (H2O2) is first order, with k = 3.21×10⁻⁵ s⁻¹ and [H2O2]₀ = 1 M. What is its half-life?",
+      "subscript_tokens": [
+        "H2O2"
+      ],
+      "chain": [
+        {
+          "value": "t½ = ln2/k",
+          "unit": "",
+          "note": "the first-order half-life"
+        },
+        {
+          "value": "21600",
+          "unit": "s",
+          "note": "half-life (a first-order half-life does not depend on [A]₀)"
+        }
+      ],
+      "target_unit": "s",
+      "answer": {
+        "value": "21590",
+        "unit": "s",
+        "display": "21600 s"
+      },
+      "derivation": {
+        "kind": "kinetics_half_life",
+        "kinetics": {
+          "order": 1,
+          "k": "0.0000321",
+          "k_unit": "1/s",
+          "c0": "1.00"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "15580",
+          "unit": "s",
+          "misconception": "That is the zero-order half-life ([A]₀/2k); this reaction is first order, so t½ = ln2/k."
+        },
+        {
+          "value": "31150",
+          "unit": "s",
+          "misconception": "That is the second-order half-life (1/(k[A]₀)); this reaction is first order, so t½ = ln2/k."
+        }
+      ],
+      "explain": "For a first-order reaction t½ = ln2/k; with k = 3.21×10⁻⁵ s⁻¹ that is 21600 s. (a first-order half-life does not depend on [A]₀)",
+      "id": "q8"
+    },
+    {
+      "kind": "kinetics_order",
+      "mode": "choice",
+      "prompt": "A reactant is followed as it decays; its first three successive half-lives are measured as 21600 s, 21600 s, 21600 s. What is the order of the reaction?",
+      "subscript_tokens": [],
+      "answer": {
+        "value": "first order",
+        "display": "first order"
+      },
+      "derivation": {
+        "kind": "kinetics_order",
+        "kinetics": {
+          "order": 1,
+          "k": "0.0000321",
+          "k_unit": "1/s",
+          "c0": "2.00",
+          "half_lives": [
+            "21600",
+            "21600",
+            "21600"
+          ]
+        }
+      },
+      "choices": [
+        {
+          "display": "first order",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "zero order",
+          "correct": false,
+          "misconception": "A zero-order reaction's successive half-lives halve (shrink) each step; here they stay constant."
+        },
+        {
+          "display": "second order",
+          "correct": false,
+          "misconception": "A second-order reaction's successive half-lives double (grow) each step; here they stay constant."
+        }
+      ],
+      "explain": "The successive half-lives stay constant — the fingerprint of a first-order reaction (t½ = ln2/k).",
+      "id": "q9"
+    },
+    {
+      "kind": "kinetics_concentration",
+      "mode": "numeric",
+      "prompt": "The decomposition of hydrogen peroxide (H2O2) is first order in H2O2, with k = 3.21×10⁻⁵ s⁻¹. If [H2O2]₀ = 1 M, what is [H2O2] after 32390 s?",
+      "subscript_tokens": [
+        "H2O2"
+      ],
+      "chain": [
+        {
+          "value": "32390",
+          "unit": "s",
+          "note": "elapsed time — apply [A] = [A]₀·e^(−kt)"
+        },
+        {
+          "value": "0.354",
+          "unit": "M",
+          "note": "[H2O2] remaining"
+        }
+      ],
+      "target_unit": "M",
+      "answer": {
+        "value": "0.3536",
+        "unit": "M",
+        "display": "0.354 M"
+      },
+      "derivation": {
+        "kind": "kinetics_concentration",
+        "kinetics": {
+          "order": 1,
+          "k": "0.0000321",
+          "k_unit": "1/s",
+          "c0": "1.00",
+          "t": "32390"
+        }
+      },
+      "diagnostics": [
+        {
+          "value": "0",
+          "unit": "M",
+          "misconception": "That is the zero-order law ([A] = [A]₀ − kt); this reaction is first order, so use [A] = [A]₀·e^(−kt)."
+        },
+        {
+          "value": "0.4903",
+          "unit": "M",
+          "misconception": "That is the second-order law (1/[A] = 1/[A]₀ + kt); this reaction is first order, so use [A] = [A]₀·e^(−kt)."
+        }
+      ],
+      "explain": "Apply the first-order integrated law [A] = [A]₀·e^(−kt) with k = 3.21×10⁻⁵ s⁻¹, [A]₀ = 1 M, t = 32390 s: [H2O2] = 0.354 M.",
+      "id": "q10"
+    }
+  ],
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "sources": {
+      "atomic_weight": "ciaaw-2021-atomic-weights",
+      "rate_constants": "openstax-chemistry-2e"
+    }
+  },
+  "assumptions": [
+    {
+      "claim": "The rate law and its reaction order are an experimentally determined model — not read off the balanced-equation coefficients. The order and the rate constant k are the sourced data; the integrated rate law and half-life follow exactly from them.",
+      "kind": "model"
+    },
+    {
+      "claim": "The rate constant k is constant over the run (fixed temperature, unchanging conditions), so the integrated rate law and half-life hold throughout.",
+      "kind": "model"
+    }
+  ]
+}

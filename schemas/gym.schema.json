@@ -63,7 +63,7 @@
             "required": ["kind"],
             "properties": {
               "kind": {
-                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield", "limiting_mass", "trend_compare", "predict_ion", "order_ionization", "classify_family", "name_spectators", "gas_ideal", "gas_combined", "calorimetry", "lewis_valence", "lewis_domains", "lewis_geometry", "weak_acid_ph"]
+                "enum": ["volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass", "volume_molarity_to_mass", "ionic_formula_to_name", "ionic_name_to_formula", "balancing", "mass_stoichiometry", "percent_yield", "limiting_mass", "trend_compare", "predict_ion", "order_ionization", "classify_family", "name_spectators", "gas_ideal", "gas_combined", "calorimetry", "lewis_valence", "lewis_domains", "lewis_geometry", "weak_acid_ph", "kinetics_concentration", "kinetics_half_life", "kinetics_order"]
               },
               "inputs": {
                 "type": "object",
@@ -208,6 +208,20 @@
                   "lone_pairs": { "type": "integer", "minimum": 0 },
                   "molecular_shape": { "type": "string", "minLength": 1 }
                 }
+              },
+              "kinetics": {
+                "type": "object",
+                "additionalProperties": false,
+                "$comment": "kinetics kinds (ADR-0049): the reaction order + the sourced rate constant k (native units) + [A]₀; the concentration kind adds the elapsed time t, the order kind adds the three successive half_lives. validate-gyms re-derives [A](t)/t½/the successive half-lives per order in pure Node (shared kineticscheck.mjs).",
+                "required": ["order", "k", "k_unit", "c0"],
+                "properties": {
+                  "order": { "enum": [0, 1, 2] },
+                  "k": { "type": "string", "minLength": 1 },
+                  "k_unit": { "type": "string", "minLength": 1 },
+                  "c0": { "type": "string", "minLength": 1 },
+                  "t": { "type": "string", "minLength": 1 },
+                  "half_lives": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "type": "string", "minLength": 1 } }
+                }
               }
             }
           },
@@ -265,7 +279,8 @@
             "constants": { "type": "string" },
             "specific_heats": { "type": "string" },
             "vsepr": { "type": "string" },
-            "ionization_constants": { "type": "string" }
+            "ionization_constants": { "type": "string" },
+            "rate_constants": { "type": "string" }
           }
         }
       }

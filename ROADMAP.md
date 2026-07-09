@@ -23,8 +23,9 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   the **kinetics tier is OPEN** (ADR-0049 — the ledger in time: the `kinetics` lesson kind, a **sixth lesson shape**), now with
   **all three orders** — first-order decay (`hydrogen-peroxide-decomposition`, t½=ln2/k constant), **second-order**
   (`butadiene-dimerization`, t½=1/k[A]₀ grows) and **zero-order** (`ammonia-decomposition`, t½=[A]₀/2k shrinks, reaches 0 at a
-  finite time) on one order-general engine (ADR-0049 2nd increment) — the contrast that makes "constant t½" mean something.
-  **Next inside Phase 2:** a kinetics gym + Arrhenius, then electrochemistry, each
+  finite time) on one order-general engine (ADR-0049 2nd increment) — the contrast that makes "constant t½" mean something — plus
+  the **`kinetics_v1` gym** ([A](t) / t½ / read-the-order, ADR-0049 3rd increment).
+  **Next inside Phase 2:** Arrhenius (k = A·e^(−Eₐ/RT)), then electrochemistry, each
   opening with its stress scenario. Counters live in `AGENTS.md ## Current state`;
   per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are
   the plan of record.
@@ -41,8 +42,10 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
   second-order `butadiene-dimerization` (2 C₄H₆ → C₈H₁₂, $k=5.76\times10^{-2}\,\mathrm{M^{-1}min^{-1}}$ → $t_{1/2}=1/k[\mathrm{A}]_0$
   **grows** 1.45 → 2.89 → 5.79 h); zero-order `ammonia-decomposition` (2 NH₃ → N₂ + 3 H₂ on hot W, $k=1.3\times10^{-6}\,\mathrm{M\,s^{-1}}$
   → $t_{1/2}=[\mathrm{A}]_0/2k$ **shrinks** 1.07 → 0.534 → 0.267 h, reaching **exactly 0 at 2.14 h**). All OpenStax §12.4.
-  **Next in-tier:** a kinetics **gym** (compute [A](t) / t½ / determine the order from data), the **Arrhenius** temperature
-  dependence of k.
+  The tier's **`kinetics_v1` gym** landed too (3rd increment): three kinds — apply the order's integrated law for [A](t), apply the
+  order's t½, and **read the order** off three successive half-lives (constant/doubling/halving); both badges, the gate re-deriving
+  each answer per order in pure Node with the same engine (`concAt`/`halfLife`/`timeToReach` exported from `kineticscheck.mjs`).
+  **Next in-tier:** the **Arrhenius** temperature dependence of k (k = A·e^(−Eₐ/RT) — a formula-sheet entry + a lesson).
 - **Equilibrium & acid-base — OPENED, six subtypes + a gym + a prediction kind** (2026-07-08, ADR-0048): the thesis made literal — *the ICE
   table is the species ledger with the extent solved from mass action* ($Q=K$), not driven to a limiting reagent. The
   **reversible-extent solver** (`chemkernel.equilibrium.solve_equilibrium`) finds the extent by **bisection to high
@@ -505,8 +508,8 @@ feature-complete.** Optional leftovers: a titration slider interactive; a weak-b
 is now OPEN** (ADR-0049 — first-, second-, and zero-order decay; see the Status scope block), then electrochemistry.
 
 **Then (each its own increment, sketch):** the rest of bonding (above) + the rest of equilibrium & acid-base (above);
-**kinetics is open** (ADR-0049 — first-, second-, and zero-order decay landed on one order-general engine; next: a kinetics gym,
-Arrhenius); electrochemistry (oxidation numbers — completing the free-element redox flag from ADR-0035 — electron ledger, $E^\circ$,
+**kinetics is open** (ADR-0049 — first-, second-, and zero-order decay + the `kinetics_v1` gym landed on one order-general engine;
+next: Arrhenius); electrochemistry (oxidation numbers — completing the free-element redox flag from ADR-0035 — electron ledger, $E^\circ$,
 $\Delta G=-nFE$, Nernst). Further formula-sheet entries ($\Delta G=\Delta H-T\Delta S$, Nernst) land with their topics.
 
 **Definition of done (a reviewable Phase-2 boundary):** deferred to the opening tier's close — at minimum the

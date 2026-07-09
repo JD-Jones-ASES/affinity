@@ -25,10 +25,11 @@ the three reaction **orders** — the order sets the clock: hydrogen peroxide de
 ($[\mathrm{A}]=[\mathrm{A}]_0 e^{-kt}$, $t_{1/2}=\ln 2/k=6$ h), butadiene dimerizes second-order with a half-life that **grows** as
 it thins out ($1/[\mathrm{A}]=1/[\mathrm{A}]_0+kt$, 1.45→2.89→5.79 h), and ammonia on hot tungsten decomposes zero-order with a
 half-life that **shrinks**, running out **completely** at a finite time ($[\mathrm{A}]=[\mathrm{A}]_0-kt$, 1.07→0.534→0.267 h) —
-each a decay curve, the contrast machine-checked), twelve procedural gyms (dimensional analysis, nomenclature,
+each a decay curve, the contrast machine-checked), thirteen procedural gyms (dimensional analysis, nomenclature,
 balancing, the full stoichiometry suite, periodic trends, reaction families, gas laws, calorimetry, **Lewis
-structures** — valence electrons, electron domains, molecular shape, counted exactly — and **weak-acid pH** — the ICE table's
-mass-action root, solved not approximated), the Chemical Atlas — five reference surfaces: a typed concept graph + **7 reaction
+structures** — valence electrons, electron domains, molecular shape, counted exactly — **weak-acid pH** — the ICE table's
+mass-action root, solved not approximated — and **kinetics** — apply the order's integrated law for [A](t), its half-life, and
+read the order off the successive-half-life pattern), the Chemical Atlas — five reference surfaces: a typed concept graph + **7 reaction
 families** with engine-classified example reactions + **14 species entries** with engine-derived molar masses +
 the **Valence Table flagship** (five lenses, trend graphs, a 156-salt formula builder, a ΔEN bonding mode over 23
 sourced elements) + the **formula & equation sheet** (the ideal gas law, calorimetry, mole–mass, and the

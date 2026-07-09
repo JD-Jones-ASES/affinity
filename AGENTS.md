@@ -198,20 +198,20 @@ reversible-extent solver + **six `equilibrium` subtypes** (weak-acid pH · buffe
 polyprotic · titration) + a gym + a Q-vs-Kₛₚ **`prediction`** kind (both verdicts) + the K/K_w/K_sp **formula-sheet** entries as
 dimensionless activity relations); and the **kinetics tier is OPEN** (ADR-0049 — the ledger in time: the `kinetics` lesson kind),
 now with **all three orders** on one order-general engine — first (t½ constant), second (t½ grows), zero (t½ shrinks, reaches 0) —
-the contrast that makes "constant t½" mean something, each a build-time decay curve. **Next:** a kinetics gym + Arrhenius, then
-electrochemistry. History
+the contrast that makes "constant t½" mean something (each a build-time decay curve), plus the **`kinetics_v1` gym**. **Next:**
+Arrhenius, then electrochemistry. History
 in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
 [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
 **Counters:** 21 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
 3 bonding (2 structure + 1 IMF comparison) + **7 equilibrium** (weak-acid pH + buffer + weak-base pH + Ksp solubility +
 common-ion Ksp + polyprotic + titration) + **2 prediction** (Q-vs-Ksp precipitation — CaF₂ forms, dilute Mg(OH)₂ stays clear),
-ADR-0048 + **3 kinetics** (first/second/zero-order decay — the ledger in time, t½ constant/grows/shrinks, ADR-0049)) · 12 gyms / 120 verified problems (dimensional analysis · ionic
+ADR-0048 + **3 kinetics** (first/second/zero-order decay — the ledger in time, t½ constant/grows/shrinks, ADR-0049)) · 13 gyms / 130 verified problems (dimensional analysis · ionic
 nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas
-laws · calorimetry · Lewis structures · weak-acid pH) · 1 Valence Table (23 elements; four modes; 182 named + machine-verified
+laws · calorimetry · Lewis structures · weak-acid pH · **kinetics** ([A](t)/t½/read-the-order, ADR-0049)) · 1 Valence Table (23 elements; four modes; 182 named + machine-verified
 salts) · 37 concept entries (8 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species
 entries + 6 molecule structure entries (Lewis ledger + VSEPR + dominant IMF, ADR-0044/0046) + 14 formula-sheet entries
-(ADR-0039/0043/0048 — incl. Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w as **dimensionless activity** relations) · 79 Atlas reference objects · 7 Node gates + CI + live Pages · 411 producer tests · astro build = 43 pages.
+(ADR-0039/0043/0048 — incl. Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w as **dimensionless activity** relations) · 79 Atlas reference objects · 7 Node gates + CI + live Pages · 417 producer tests · astro build = 44 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; honesty = three badges
 (regime-4 → model-assumed badge + an "interpretive" marker, ADR-0033); numeric practice free-entry (diagnostics), categorical
@@ -276,8 +276,8 @@ per the owner's call). **The equilibrium & acid-base tier is now feature-complet
 verdicts + the K reference surface). Optional leftovers: a titration **slider interactive**; a weak-**base**/buffer/polyprotic
 **gym** extension. The **kinetics tier is now OPEN** (ADR-0049 — the ledger in time; the `kinetics` lesson kind, the 6th lesson
 shape; `chemkernel.kinetics` + `data/rate-constants.toml` + `kineticscheck.mjs` + a build-time decay curve), now with **all three
-orders** (first/second/zero — t½ constant/grows/shrinks — on one order-general engine, ADR-0049 2nd increment). **Next in kinetics:**
-a kinetics **gym** (compute [A](t)/t½/the order from data), the **Arrhenius** temperature dependence
+orders** (first/second/zero — t½ constant/grows/shrinks — on one order-general engine, ADR-0049 2nd increment) + the **`kinetics_v1`
+gym** ([A](t) / t½ / read-the-order, ADR-0049 3rd increment). **Next in kinetics:** the **Arrhenius** temperature dependence
 of k. Then the last Phase-2 tier: **electrochemistry** (oxidation numbers → completing the free-element redox flag from ADR-0035
 → the electron ledger, ΔG=−nFE, Nernst). Bonding corpus-depth deferrals: octet exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻), more structure
 lessons (NH₃/CH₄), more comparison axes, a "which IMF dominates?" gym drill. Smaller/optional: endothermic / multi-step

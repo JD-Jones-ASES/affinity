@@ -30,6 +30,10 @@ from . import BuildError, __version__
 from .balance import balance
 from .equilibrium import solve_equilibrium
 from .formula import parse_formula
+from .kinetics import _K_UNIT_DISPLAY as _KIN_K_UNIT_DISPLAY
+from .kinetics import concentration as kin_conc
+from .kinetics import half_life as kin_half_life
+from .kinetics import time_to_reach as kin_time_to_reach
 from .nomenclature import (assemble_with, base_cation_name, formula_ionic, greek, is_variable,
                           name_ionic, other_charge_names, roman)
 from .structure import compute_ledger
@@ -1985,6 +1989,180 @@ def _generate_lewis(seed, count, data, ctx):
     return problems
 
 
+# ------------------------------ kinetics (Phase 2, ADR-0049) ------------------------------
+#
+# The kinetics tier's drill instrument (brief §13). Like the gas-laws / calorimetry / weak-acid gyms it is BOTH
+# model-exact-then-rounded (regime-2 — the integrated rate law is exact inside the disclosed rate-law model, the
+# answer reported to 3 sig figs, the gate re-derives within tolerance) AND data-sourced (regime-3 — the rate
+# constant k comes from data/rate-constants.toml, OpenStax §12.4), so it wears both badges. Three kinds:
+#   - kinetics_concentration (numeric): apply the ORDER's integrated law to find [A] at time t;
+#   - kinetics_half_life     (numeric): apply the ORDER's half-life formula (and see [A]₀ drop out for order 1);
+#   - kinetics_order         (categorical): read the order off the successive-half-life pattern
+#                                           (constant → 1st · doubling → 2nd · halving → 0th — the tier's payoff).
+# The star mistake is USING THE WRONG ORDER'S FORMULA — so the numeric diagnostics are the other two orders'
+# results, and the order-kind distractors are the other two orders with their pattern reasons. Every value rests
+# on the SAME `chemkernel.kinetics` engine the lessons use; the gate (validate-gyms.mjs) re-derives each answer
+# per order in pure Node from the emitted k + [A]₀ + t (shared with kineticscheck.mjs — one engine).
+_KIN_C0 = {
+    0: [Decimal(c) for c in ("0.0100", "0.0200", "0.0500")],   # zero-order NH₃ — gas-phase, small [A]
+    1: [Decimal(c) for c in ("0.500", "1.00", "2.00")],        # first-order — t½ independent of [A]₀
+    2: [Decimal(c) for c in ("0.100", "0.200", "0.500")],      # second-order
+}
+_KIN_F = {   # elapsed time as a fraction of the first half-life (t = f·t½); zero order needs f < 2 to stay positive
+    0: [Decimal(f) for f in ("0.5", "0.75", "1.25", "1.5")],
+    1: [Decimal(f) for f in ("0.5", "1", "1.5", "2", "3")],
+    2: [Decimal(f) for f in ("0.5", "1", "2", "3", "5")],
+}
+_KIN_ORDER_WORD = {0: "zero", 1: "first", 2: "second"}
+_KIN_LAW = {0: "[A] = [A]₀ − kt", 1: "[A] = [A]₀·e^(−kt)", 2: "1/[A] = 1/[A]₀ + kt"}
+_KIN_THALF = {0: "[A]₀/2k", 1: "ln2/k", 2: "1/(k[A]₀)"}
+_KIN_PROGRESSION = {0: "halve (shrink) each step", 1: "stay constant", 2: "double (grow) each step"}
+_KIN_KINDS = ["kinetics_concentration", "kinetics_half_life", "kinetics_order"]
+
+
+def _kin_native_unit(k_unit: str) -> str:
+    """The k's native time unit — the gym works in it directly (no conversion), so the arithmetic is a clean
+    application of the integrated law / half-life formula."""
+    return "min" if "min" in k_unit else "s"
+
+
+def _kin_reactions(data):
+    return [rec for _, rec in sorted(data.rate_constants.items())]
+
+
+def _kin_concentration_problem(rng, rec, ctx):
+    """Apply the reaction's ORDER-specific integrated rate law to find [A] at a concrete elapsed time."""
+    order, k = rec["order"], rec["k"]
+    c0 = rng.choice(_KIN_C0[order])
+    t = _round_sig(rng.choice(_KIN_F[order]) * kin_half_life(order, c0, k), 4)   # a real elapsed time (native units)
+    conc = kin_conc(order, c0, k, t)
+    if not (Decimal("0.02") * c0 <= conc <= Decimal("0.98") * c0):
+        return None                                             # keep it a meaningful, learnable decay
+    unit, kdisp, r = _kin_native_unit(rec["k_unit"]), _KIN_K_UNIT_DISPLAY[rec["k_unit"]], rec["reactant"]
+    wrongs = [(kin_conc(o, c0, k, t),
+               f"That is the {_KIN_ORDER_WORD[o]}-order law ({_KIN_LAW[o]}); this reaction is "
+               f"{_KIN_ORDER_WORD[order]} order, so use {_KIN_LAW[order]}.") for o in (0, 1, 2) if o != order]
+    value, display, diagnostics = _rounded_response(conc, "M", wrongs)
+    if len(diagnostics) < 1:
+        return None
+    prompt = (f"The {rec['name']} ({r}) is {_KIN_ORDER_WORD[order]} order in {r}, with "
+              f"k = {_sci(k)} {kdisp}. If [{r}]₀ = {_gnum(c0)} M, what is [{r}] after {_gnum(t)} {unit}?")
+    chain = [
+        {"value": _gnum(t), "unit": unit, "note": f"elapsed time — apply {_KIN_LAW[order]}"},
+        {"value": _sigdec(conc, 3), "unit": "M", "note": f"[{r}] remaining"},
+    ]
+    explain = (f"Apply the {_KIN_ORDER_WORD[order]}-order integrated law {_KIN_LAW[order]} with "
+               f"k = {_sci(k)} {kdisp}, [A]₀ = {_gnum(c0)} M, t = {_gnum(t)} {unit}: [{r}] = {display}.")
+    return {
+        "kind": "kinetics_concentration", "mode": "numeric", "prompt": prompt, "subscript_tokens": [r],
+        "chain": chain, "target_unit": "M", "answer": {"value": value, "unit": "M", "display": display},
+        "derivation": {"kind": "kinetics_concentration",
+                       "kinetics": {"order": order, "k": format(k, "f"), "k_unit": rec["k_unit"],
+                                    "c0": format(c0, "f"), "t": format(t, "f")}},
+        "diagnostics": diagnostics, "explain": explain,
+    }
+
+
+def _kin_half_life_problem(rng, rec, ctx):
+    """Apply the reaction's ORDER-specific half-life formula. For first order, [A]₀ is a deliberate distractor."""
+    order, k = rec["order"], rec["k"]
+    c0 = rng.choice(_KIN_C0[order])
+    t_half = kin_half_life(order, c0, k)
+    unit, kdisp, r = _kin_native_unit(rec["k_unit"]), _KIN_K_UNIT_DISPLAY[rec["k_unit"]], rec["reactant"]
+    wrongs = [(kin_half_life(o, c0, k),
+               f"That is the {_KIN_ORDER_WORD[o]}-order half-life ({_KIN_THALF[o]}); this reaction is "
+               f"{_KIN_ORDER_WORD[order]} order, so t½ = {_KIN_THALF[order]}.") for o in (0, 1, 2) if o != order]
+    value, display, diagnostics = _rounded_response(t_half, unit, wrongs)
+    if len(diagnostics) < 1:
+        return None
+    tail = " (a first-order half-life does not depend on [A]₀)" if order == 1 else ""
+    prompt = (f"The {rec['name']} ({r}) is {_KIN_ORDER_WORD[order]} order, with "
+              f"k = {_sci(k)} {kdisp} and [{r}]₀ = {_gnum(c0)} M. What is its half-life?")
+    chain = [
+        {"value": f"t½ = {_KIN_THALF[order]}", "unit": "", "note": f"the {_KIN_ORDER_WORD[order]}-order half-life"},
+        {"value": _sigdec(t_half, 3), "unit": unit, "note": f"half-life{tail}"},
+    ]
+    explain = (f"For a {_KIN_ORDER_WORD[order]}-order reaction t½ = {_KIN_THALF[order]}; with k = {_sci(k)} {kdisp}"
+               f"{'' if order == 1 else f' and [A]₀ = {_gnum(c0)} M'} that is {display}.{tail}")
+    return {
+        "kind": "kinetics_half_life", "mode": "numeric", "prompt": prompt, "subscript_tokens": [r],
+        "chain": chain, "target_unit": unit, "answer": {"value": value, "unit": unit, "display": display},
+        "derivation": {"kind": "kinetics_half_life",
+                       "kinetics": {"order": order, "k": format(k, "f"), "k_unit": rec["k_unit"],
+                                    "c0": format(c0, "f")}},
+        "diagnostics": diagnostics, "explain": explain,
+    }
+
+
+def _kin_order_problem(rng, rec, ctx):
+    """Read the reaction order off the successive-half-life pattern (the tier's payoff). The three successive
+    half-lives are the REAL ones of a sourced reaction (computed by the engine), presented anonymized so the
+    learner must read the pattern, not recall the reactant."""
+    order, k = rec["order"], rec["k"]
+    c0 = rng.choice(_KIN_C0[order])
+    unit = _kin_native_unit(rec["k_unit"])
+    # successive halvings: the time to go c₀→c₀/2, then c₀/2→c₀/4, then c₀/4→c₀/8 (each a "half-life")
+    reach = [Decimal(0)] + [kin_time_to_reach(order, c0, k, c0 / (2 ** n)) for n in (1, 2, 3)]
+    segs = [reach[i + 1] - reach[i] for i in range(3)]
+    halves = [_sigdec(s, 3) for s in segs]
+    if len(set(halves)) == 1 and order != 1:
+        return None                                            # rounding collapsed the pattern — reject
+    seq = ", ".join(f"{h} {unit}" for h in halves)
+    prompt = (f"A reactant is followed as it decays; its first three successive half-lives are measured as "
+              f"{seq}. What is the order of the reaction?")
+    correct = f"{_KIN_ORDER_WORD[order]} order"
+    choices = [{"display": correct, "correct": True, "misconception": None}]
+    seen = {correct}
+    for o in (0, 1, 2):
+        if o == order:
+            continue
+        disp = f"{_KIN_ORDER_WORD[o]} order"
+        if disp in seen:
+            return None
+        seen.add(disp)
+        choices.append({"display": disp, "correct": False,
+                        "misconception": (f"A {_KIN_ORDER_WORD[o]}-order reaction's successive half-lives "
+                                          f"{_KIN_PROGRESSION[o]}; here they {_KIN_PROGRESSION[order]}.")})
+    if len(choices) != 3:
+        return None
+    explain = (f"The successive half-lives {_KIN_PROGRESSION[order]} — the fingerprint of a "
+               f"{_KIN_ORDER_WORD[order]}-order reaction (t½ = {_KIN_THALF[order]}).")
+    return {
+        "kind": "kinetics_order", "mode": "choice", "prompt": prompt, "subscript_tokens": [],
+        "answer": {"value": correct, "display": correct},
+        "derivation": {"kind": "kinetics_order",
+                       "kinetics": {"order": order, "k": format(k, "f"), "k_unit": rec["k_unit"],
+                                    "c0": format(c0, "f"), "half_lives": halves}},
+        "choices": choices, "explain": explain,
+    }
+
+
+_KIN_PROBLEM = {"kinetics_concentration": _kin_concentration_problem,
+                "kinetics_half_life": _kin_half_life_problem, "kinetics_order": _kin_order_problem}
+
+
+def _generate_kinetics(seed, count, data, ctx):
+    if not data.rate_constants:
+        raise BuildError(f"{ctx}: kinetics gym needs data/rate-constants.toml")
+    reactions = _kin_reactions(data)
+    rng = random.Random(seed)
+    problems: list[dict] = []
+    seen: set = set()
+    attempts = 0
+    while len(problems) < count and attempts < 8000:
+        attempts += 1
+        kind = _KIN_KINDS[len(problems) % len(_KIN_KINDS)]
+        q = _KIN_PROBLEM[kind](rng, rng.choice(reactions), ctx)
+        if q is None or q["prompt"] in seen:
+            continue
+        seen.add(q["prompt"])
+        q["id"] = f"q{len(problems) + 1}"
+        problems.append(q)
+    if len(problems) < count:
+        raise BuildError(f"{ctx}: kinetics gym could not generate {count} problems at seed {seed}")
+    return problems
+
+
 _FAMILIES = {
     "solution_conversions_v1": _generate_conversions,
     "ionic_nomenclature_v1": _generate_nomenclature,
@@ -1998,6 +2176,7 @@ _FAMILIES = {
     "calorimetry_v1": _generate_calorimetry,
     "lewis_structures_v1": _generate_lewis,
     "weak_acid_ph_v1": _generate_weak_acid_ph,
+    "kinetics_v1": _generate_kinetics,
 }
 
 
@@ -2034,6 +2213,9 @@ def generate_gym(spec: dict, data, ctx: str = "") -> dict:
     if family == "weak_acid_ph_v1":
         # the pH answers rest on the sourced acid ionization constants Kₐ (data/ionization-constants.toml, ADR-0048)
         sources["ionization_constants"] = data.sources.get("ionization_constants", "")
+    if family == "kinetics_v1":
+        # [A](t)/t½ rest on the sourced rate constants k (data/rate-constants.toml, OpenStax §12.4, ADR-0049)
+        sources["rate_constants"] = data.sources.get("rate_constants", "")
 
     gym = {
         "kind": "gym",
@@ -2080,5 +2262,12 @@ _FAMILY_ASSUMPTIONS = {
                   "is neglected ([H⁺]₀ = 0). Valid when the acid's [H⁺] ≫ 10⁻⁷.", "kind": "model"},
         {"claim": "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which "
                   "is why Kₐ is written with concentrations.", "kind": "model"},
+    ],
+    "kinetics_v1": [
+        {"claim": "The rate law and its reaction order are an experimentally determined model — not read off the "
+                  "balanced-equation coefficients. The order and the rate constant k are the sourced data; the "
+                  "integrated rate law and half-life follow exactly from them.", "kind": "model"},
+        {"claim": "The rate constant k is constant over the run (fixed temperature, unchanging conditions), so the "
+                  "integrated rate law and half-life hold throughout.", "kind": "model"},
     ],
 }

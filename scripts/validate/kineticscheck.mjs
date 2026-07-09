@@ -34,18 +34,19 @@ function balanceOk(equation) {
   return true;
 }
 
-// the integrated rate laws + half-life + its inverse (all in the k's native time unit).
-function concAt(order, c0, k, t) {
+// the integrated rate laws + half-life + its inverse (all in the k's native time unit). Exported so the kinetics
+// GYM gate (validate-gyms.mjs) re-derives its answers with the SAME engine — one order-general kinetics solver.
+export function concAt(order, c0, k, t) {
   if (order === 0) return Math.max(c0 - k * t, 0);
   if (order === 1) return c0 * Math.exp(-k * t);
   return c0 / (1 + k * c0 * t);
 }
-function halfLife(order, c0, k) {
+export function halfLife(order, c0, k) {
   if (order === 0) return c0 / (2 * k);
   if (order === 1) return LN2 / k;
   return 1 / (k * c0);
 }
-function timeToReach(order, c0, k, c) {
+export function timeToReach(order, c0, k, c) {
   if (order === 0) return (c0 - c) / k;
   if (order === 1) return Math.log(c0 / c) / k;
   return (1 / c - 1 / c0) / k;

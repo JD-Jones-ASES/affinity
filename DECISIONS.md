@@ -1809,3 +1809,20 @@ validate-solutions = **3 kinetics** (21 ids); validate-reference = **79** (+1 co
 kinetics gate **10-way tamper-tested** across both new orders; browser-verified all three orders side by side (6→6→6 constant vs.
 doubling vs. halving). **Next in-tier:** a kinetics **gym** (compute [A](t) / t½ / determine the order from data), then
 **Arrhenius**.
+
+**Update (3rd increment, same session) — the `kinetics_v1` gym: the tier's drill instrument.** Every model-bearing tier gets its
+gym; kinetics's drills the three orders on the **same order-general `chemkernel.kinetics` engine** the lessons use. **Decision:**
+a `kinetics_v1` family (`_generate_kinetics`) with three kinds — **`kinetics_concentration`** (numeric: apply the order's
+integrated law for [A](t)), **`kinetics_half_life`** (numeric: apply the order's t½ formula — [A]₀ is a deliberate distractor for
+order 1), and **`kinetics_order`** (categorical: read the order off three successive half-lives — constant/doubling/halving, the
+tier's payoff). The gym works entirely in k's **native time unit** (no conversion — the drill is the integrated law itself), the
+answers **model-exact-then-rounded** to 3 sig figs; it carries **both badges** (data-sourced k + the model-assumed rate law/order,
+`_FAMILY_ASSUMPTIONS["kinetics_v1"]`). The star mistake — **using the wrong order's formula** — is exactly what the numeric
+diagnostics (the other two orders' results) and the order-kind distractors (the other two orders + their pattern) encode. The
+`kinetics_order` half-lives are the **real** successive half-lives of a sourced reaction (engine-computed), presented anonymized so
+the learner reads the pattern, not the reactant. The gate (`validate-gyms.mjs`) re-derives every answer per order in pure Node with
+the **same** `concAt`/`halfLife`/`timeToReach` now **exported from `kineticscheck.mjs`** (one engine, shared — as `equilibriumcheck`
+is shared with the weak-acid gym). **Consequences:** **417 producer tests** (+6); validate-gyms = **13 gyms / 130 problems** (+1/+10);
+**44 pages** (+1, `/gym/kinetics/`); check-katex 895 (gym prompts are Unicode prose, not KaTeX); the gym gate **6-way tamper-tested**;
+browser-verified (a numeric drill checks "✓ Correct — 0.0075 M", 0 KaTeX errors). Gym family #13. **Next in-tier:** **Arrhenius**
+(k = A·e^(−Eₐ/RT) — a formula-sheet entry with a sourced activation energy + a lesson), then **electrochemistry**.

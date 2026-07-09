@@ -13,6 +13,7 @@ import addFormats from "ajv-formats";
 import { parseFormula } from "./formula.mjs";
 import { verifyBalance } from "./balancecheck.mjs";
 import { solveEquilibrium } from "./equilibriumcheck.mjs";
+import { concAt as kinConc, halfLife as kinHalfLife, timeToReach as kinTimeToReach } from "./kineticscheck.mjs";
 
 const ROOT = process.cwd();
 const gymDir = join(ROOT, "derived", "gyms");
@@ -35,6 +36,7 @@ const NUMERIC_KINDS = new Set([
   "volume_molarity_to_moles", "moles_molarity_to_volume", "mass_to_moles", "moles_to_mass",
   "volume_molarity_to_mass", "mass_stoichiometry", "percent_yield", "limiting_mass",
   "gas_ideal", "gas_combined", "calorimetry", "lewis_valence", "lewis_domains", "weak_acid_ph",
+  "kinetics_concentration", "kinetics_half_life",   // kinetics_order is categorical (the order menu)
 ]);
 
 // re-derive an answer purely from the raw inputs — the same arithmetic a student does, unit by unit
@@ -328,6 +330,61 @@ function verifyWeakAcidPh(rel, p, fail) {
   if (p.answer.unit !== "") fail(rel, `${p.id}: pH answer unit '${p.answer.unit}' should be "" (pH is dimensionless)`);
 }
 
+// --- kinetics (Phase 2, ADR-0049): re-derive [A](t) / t½ / the successive-half-life pattern per ORDER in pure
+// Node, with the SAME order-general engine the lessons' gate uses (concAt/halfLife/timeToReach from
+// kineticscheck.mjs). k is in native units (the unit encodes order + time base); the numeric answers are
+// model-exact-then-rounded (the tolerance sits above the 3-sig rounding, below the diagnostic gap). The star
+// mistake — using the wrong order's formula — is exactly what the numeric diagnostics / order distractors encode.
+const KIN_ORDER_WORD = { 0: "zero", 1: "first", 2: "second" };
+function verifyKineticsGym(rel, p, fail) {
+  const d = p.derivation.kinetics;
+  if (!d) fail(rel, `${p.id}: kinetics derivation missing`);
+  const order = d.order, k = Number(d.k), c0 = Number(d.c0);
+  if (![0, 1, 2].includes(order)) fail(rel, `${p.id}: order ${order} not 0/1/2`);
+  if (!(k > 0 && c0 > 0)) fail(rel, `${p.id}: k (${d.k}) and c0 (${d.c0}) must be positive`);
+  const unitOrder = { "M/s": 0, "M/min": 0, "1/s": 1, "1/min": 1, "1/(M*s)": 2, "1/(M*min)": 2 };
+  if (unitOrder[d.k_unit] !== order) fail(rel, `${p.id}: k_unit '${d.k_unit}' does not match order ${order}`);
+
+  const chainLast = () => {
+    const last = p.chain[p.chain.length - 1];
+    if (last.unit !== p.target_unit) fail(rel, `${p.id}: chain ends in '${last.unit}', not target '${p.target_unit}'`);
+    if (Math.abs(Number(last.value) - Number(p.answer.value)) > 0.01 * Math.abs(Number(p.answer.value)) + 1e-9)
+      fail(rel, `${p.id}: chain end ${last.value} != answer ${p.answer.value}`);
+  };
+
+  if (p.kind === "kinetics_concentration") {
+    const t = Number(d.t);
+    if (!(t > 0)) fail(rel, `${p.id}: elapsed time ${d.t} must be positive`);
+    const got = kinConc(order, c0, k, t), want = Number(p.answer.value);
+    if (Math.abs(got - want) > 0.01 * Math.abs(want) + 1e-9)
+      fail(rel, `${p.id}: [A] ${p.answer.value} != order-${order} law = ${got}`);
+    if (p.answer.unit !== "M" || p.target_unit !== "M") fail(rel, `${p.id}: concentration answer/target unit must be 'M'`);
+    chainLast();
+  } else if (p.kind === "kinetics_half_life") {
+    const got = kinHalfLife(order, c0, k), want = Number(p.answer.value);
+    if (Math.abs(got - want) > 0.01 * Math.abs(want) + 1e-9)
+      fail(rel, `${p.id}: t½ ${p.answer.value} != order-${order} half-life = ${got}`);
+    const nativeUnit = d.k_unit.includes("min") ? "min" : "s";
+    if (p.answer.unit !== nativeUnit || p.target_unit !== nativeUnit)
+      fail(rel, `${p.id}: half-life answer/target unit '${p.answer.unit}' != native '${nativeUnit}'`);
+    chainLast();
+  } else { // kinetics_order — the successive half-lives are the REAL ones; re-derive + check the pattern↔order map
+    if (!Array.isArray(d.half_lives) || d.half_lives.length !== 3) fail(rel, `${p.id}: order kind needs 3 half_lives`);
+    const reach = (n) => kinTimeToReach(order, c0, k, c0 / 2 ** n);
+    const segs = [reach(1), reach(2) - reach(1), reach(3) - reach(2)];
+    for (let i = 0; i < 3; i++)
+      if (Math.abs(Number(d.half_lives[i]) - segs[i]) > 0.02 * Math.abs(segs[i]) + 1e-9)
+        fail(rel, `${p.id}: half-life #${i + 1} ${d.half_lives[i]} != re-derived ${segs[i]}`);
+    // the pattern must match the order: successive ratios ~1 (1st), ~2 (2nd), ~0.5 (0th)
+    const r1 = segs[1] / segs[0], r2 = segs[2] / segs[1];
+    const wantRatio = { 0: 0.5, 1: 1, 2: 2 }[order];
+    if (Math.abs(r1 - wantRatio) > 0.03 * wantRatio || Math.abs(r2 - wantRatio) > 0.03 * wantRatio)
+      fail(rel, `${p.id}: successive-half-life ratios ${r1.toFixed(3)}, ${r2.toFixed(3)} do not match order ${order} (~${wantRatio})`);
+    if (p.answer.value !== `${KIN_ORDER_WORD[order]} order`)
+      fail(rel, `${p.id}: answer '${p.answer.value}' != '${KIN_ORDER_WORD[order]} order'`);
+  }
+}
+
 // --- Lewis structures (Phase 2 bonding, ADR-0044): re-derive the electron ledger's counting answers in pure
 // Node from the emitted structure (atoms + bonds). The valence total re-sums each atom's group valence electrons
 // (from valence-table.json, the same source the molecule Atlas uses) minus the charge; the electron-domain count
@@ -438,6 +495,9 @@ for (const name of files) {
     } else if (p.kind === "weak_acid_ph") {
       // 1e. weak-acid pH (ADR-0048): re-solve the mass-action root (Q=Kₐ) in pure Node + re-check pH=−log₁₀[H⁺]
       verifyWeakAcidPh(rel, p, fail);
+    } else if (p.kind === "kinetics_concentration" || p.kind === "kinetics_half_life" || p.kind === "kinetics_order") {
+      // 1k. kinetics (ADR-0049): re-derive [A](t) / t½ / the successive-half-life pattern per order (kineticscheck.mjs)
+      verifyKineticsGym(rel, p, fail);
     } else {
       // 1c. conversion: the answer re-derives from the raw inputs; units line up; the chain ends at the answer
       const got = rederive(p.kind, p.derivation.inputs, rel, p.id);

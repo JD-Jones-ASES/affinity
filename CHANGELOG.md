@@ -3,6 +3,25 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-09 — kinetics: the `kinetics_v1` gym — the tier's drill instrument (ADR-0049, 3rd increment)
+
+Every model-bearing tier gets its gym. The kinetics gym drills the three orders on the **same order-general engine** the lessons
+use, over three kinds, wearing **both** the data-sourced badge (k) and the model-assumed badge (the rate law + order).
+
+- **`kinetics_concentration`** (free-entry numeric): apply the order's integrated rate law to find [A] at a given time — the
+  diagnostics are the *other two orders' results* ("that is the first-order law; this reaction is second order").
+- **`kinetics_half_life`** (free-entry numeric): apply the order's half-life formula; for a first-order problem [A]₀ is given but is
+  a deliberate distractor (t½ = ln2/k has no concentration).
+- **`kinetics_order`** (categorical): given three successive half-lives, read the order — constant → 1st, doubling → 2nd, halving →
+  0th (the tier's payoff). The half-lives are the *real* successive half-lives of a sourced reaction, presented anonymized so the
+  learner reads the pattern.
+- **One engine, shared:** `concAt` / `halfLife` / `timeToReach` are now **exported from `kineticscheck.mjs`**, and the gym gate
+  re-derives every answer per order in pure Node with them (as `equilibriumcheck` is shared with the weak-acid gym). Model-exact
+  answers rounded to 3 sig figs; the gym works in k's native time unit (no conversion).
+- **Verification:** **417 producer tests** (+6); 7 gates green (**validate-gyms 13 gyms / 130 problems**, +1/+10); **astro build =
+  44 pages** (+1, `/gym/kinetics/`). Gym gate **6-way tamper-tested**; browser-verified (a numeric drill returns "✓ Correct —
+  0.0075 M", 0 KaTeX errors). Gym family #13.
+
 ## Phase 2 — 2026-07-08 — kinetics: second- and zero-order decay — the contrast that makes "constant t½" mean something (ADR-0049, 2nd increment)
 
 The order sets the clock. First-order decay alone can't show *why* a constant half-life is special — so the tier grows two more

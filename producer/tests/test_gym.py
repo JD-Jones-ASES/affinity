@@ -719,3 +719,88 @@ def test_weak_acid_ph_answers_are_learnable():
 def test_weak_acid_ph_deterministic():
     assert _gym_from(SPEC_WEAK_ACID) == _gym_from(SPEC_WEAK_ACID)
     assert _gym_from(SPEC_WEAK_ACID, seed=55)["problems"] != _gym_from(SPEC_WEAK_ACID)["problems"]
+
+
+# ------------------------------ kinetics gym (Phase 2, ADR-0049) ------------------------------
+
+import math as _math
+
+SPEC_KINETICS = ROOT / "gyms" / "kinetics" / "kinetics.gym.toml"
+
+
+def _rederive_kin_conc(order, c0, k, t):
+    """Independent (plain-float) integrated rate law, matching the Node gate — not the Decimal engine."""
+    if order == 0:
+        return max(c0 - k * t, 0.0)
+    if order == 1:
+        return c0 * _math.exp(-k * t)
+    return c0 / (1 + k * c0 * t)
+
+
+def _rederive_kin_thalf(order, c0, k):
+    return c0 / (2 * k) if order == 0 else _math.log(2) / k if order == 1 else 1 / (k * c0)
+
+
+def test_kinetics_gym_shape_kinds_and_both_badges():
+    gym = _gym_from(SPEC_KINETICS)
+    assert gym["family"] == "kinetics_v1" and len(gym["problems"]) == 10
+    assert {p["kind"] for p in gym["problems"]} <= {"kinetics_concentration", "kinetics_half_life", "kinetics_order"}
+    assert {p["kind"] for p in gym["problems"]} >= {"kinetics_concentration", "kinetics_half_life", "kinetics_order"}
+    # data-sourced (k) + model-assumed (the rate law/order) — both badges (ADR-0049)
+    assert gym["provenance"]["sources"]["rate_constants"] == "openstax-chemistry-2e"
+    assert any(a["kind"] == "model" for a in gym["assumptions"])
+
+
+def test_kinetics_concentration_reproduces_the_integrated_law():
+    for p in _gym_from(SPEC_KINETICS)["problems"]:
+        if p["kind"] != "kinetics_concentration":
+            continue
+        _assert_numeric_response(p)
+        d = p["derivation"]["kinetics"]
+        got = _rederive_kin_conc(d["order"], float(d["c0"]), float(d["k"]), float(d["t"]))
+        assert abs(got - float(p["answer"]["value"])) <= 0.01 * abs(got) + 1e-9
+        assert p["answer"]["unit"] == "M"
+
+
+def test_kinetics_half_life_reproduces_and_first_order_ignores_c0():
+    saw_first = False
+    for p in _gym_from(SPEC_KINETICS)["problems"]:
+        if p["kind"] != "kinetics_half_life":
+            continue
+        _assert_numeric_response(p)
+        d = p["derivation"]["kinetics"]
+        got = _rederive_kin_thalf(d["order"], float(d["c0"]), float(d["k"]))
+        assert abs(got - float(p["answer"]["value"])) <= 0.01 * abs(got) + 1e-9
+        if d["order"] == 1:                                       # first-order t½ is independent of [A]₀
+            saw_first = True
+            assert abs(_math.log(2) / float(d["k"]) - float(p["answer"]["value"])) <= 0.01 * float(p["answer"]["value"])
+    assert saw_first
+
+
+def test_kinetics_order_pattern_matches_the_order():
+    ratio_for = {0: 0.5, 1: 1.0, 2: 2.0}
+    saw = set()
+    for p in _gym_from(SPEC_KINETICS)["problems"]:
+        if p["kind"] != "kinetics_order":
+            continue
+        _assert_choice_menu(p)
+        d = p["derivation"]["kinetics"]
+        hl = [float(x) for x in d["half_lives"]]
+        want = ratio_for[d["order"]]
+        assert abs(hl[1] / hl[0] - want) <= 0.03 * want and abs(hl[2] / hl[1] - want) <= 0.03 * want
+        assert p["answer"]["value"] == {0: "zero", 1: "first", 2: "second"}[d["order"]] + " order"
+        saw.add(d["order"])
+    assert saw                                                    # at least one order-kind problem present
+
+
+def test_kinetics_wrong_order_is_a_named_diagnostic():
+    for p in _gym_from(SPEC_KINETICS)["problems"]:
+        if p["kind"] not in ("kinetics_concentration", "kinetics_half_life"):
+            continue
+        assert p["diagnostics"]                                   # the wrong-order value(s) survive as diagnostics
+        assert any("order" in dgn["misconception"] for dgn in p["diagnostics"])
+
+
+def test_kinetics_gym_deterministic():
+    assert _gym_from(SPEC_KINETICS) == _gym_from(SPEC_KINETICS)
+    assert _gym_from(SPEC_KINETICS, seed=99)["problems"] != _gym_from(SPEC_KINETICS)["problems"]

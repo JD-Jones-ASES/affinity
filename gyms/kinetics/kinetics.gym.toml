@@ -1,0 +1,20 @@
+# A procedural gym (Phase 2 / brief §13, ADR-0049) — the kinetics tier's drill instrument. Like the calorimetry
+# and weak-acid gyms it is BOTH model-exact-then-rounded (regime-2: the integrated rate law is exact inside the
+# disclosed rate-law model, the answer rounded to 3 sig figs, the gate re-derives within tolerance) AND
+# data-sourced (regime-3: the rate constant k comes from data/rate-constants.toml, OpenStax §12.4). Every answer
+# is found the honest way — the SAME order-general `chemkernel.kinetics` engine the lessons use — and the Node
+# gate re-derives it per order from the emitted k + [A]₀ + t. Three kinds: apply the order's integrated law to
+# find [A](t); apply the order's half-life formula; and READ the order off the successive-half-life pattern
+# (constant → 1st, doubling → 2nd, halving → 0th — the tier's payoff). The named diagnostics/distractors are all
+# the same mistake: using the wrong order's formula.
+
+id = "kinetics"
+title = "Kinetics: integrated rate laws, half-life, and reading the order"
+slug = "kinetics"
+topic = "kinetics"
+family = "kinetics_v1"
+seed = 271828
+count = 10
+blurb = "A reaction's ORDER sets its clock. Each drill gives a reaction, its measured order, and its rate constant k (a sourced value), and asks one of three things: how much reactant is left after a time t (apply the order's integrated rate law — [A]₀−kt for zero order, [A]₀e^(−kt) for first, 1/[A]₀+kt for second), what its half-life is (t½ = [A]₀/2k, ln2/k, or 1/k[A]₀), or — given three successive half-lives — what the order must be. Type the numeric answers to three significant figures; pick the order from the menu. The one mistake the drill keeps catching is using the WRONG order's formula, so every diagnostic names which order you slipped into. The arithmetic is machine-checked; the rate law and order are a disclosed model, and k is a sourced measured value."
+skills = ["apply the integrated rate law for the reaction's order to find [A] at a later time", "compute the half-life with the order's formula, and notice that only first order is independent of [A]₀", "read the reaction order off the successive-half-life pattern — constant (1st), doubling (2nd), or halving (0th)", "keep the three orders' laws distinct — the commonest kinetics mistake is using the wrong one"]
+reference_links = ["integrated-rate-law", "half-life", "rate-law", "reaction-rate"]
