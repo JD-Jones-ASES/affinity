@@ -39,6 +39,10 @@ const xSym = ice.extent_symbol;                          // "x" (acid) or "s" (K
 const kc = lesson.equilibrium_constant;
 const res = lesson.result;
 
+// the "cubic vs √Ksp" factor in the Ksp misconception, computed from the data rather than hardcoded (QC 2026-07-09
+// C8): the naive-wrong answer treats Ksp = s², giving s = √Ksp; the correct cubic root is this many times larger.
+const kspSqrtRatio = isKsp ? Math.round(Number(res.molar_solubility_M) / Math.sqrt(Number(kc.value))) : null;
+
 // the constant symbol as HTML (K_a → Kₐ, K_sp → K_sp)
 const kParts = kc.symbol.split("_");
 const kHtml = `${kParts[0]}${kParts[1] ? `<sub>${kParts[1]}</sub>` : ""}`;
@@ -135,7 +139,7 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
       <span class="eq">= <Fragment set:html={kHtml} /> ✓</span>
     </p>
     <p class="resid">Put the committed equilibrium concentrations back in and the quotient reproduces <Fragment set:html={kHtml} /> to
-      within {lesson.mass_action.residualSci} — the solver found the extent{isKsp ? " (a cubic — bisection, not a formula)" : ""}, and the gate re-solved it independently.</p>
+      within {lesson.mass_action.residualSci} — the solver found the extent{isKsp ? " (a cubic — solved numerically, not by a formula)" : ""}, and an independent check re-solves it and agrees.</p>
   </div>
 
   <!-- titration: the pH curve (a build-time SVG of verified points — the ledger marched as titrant is added) -->
@@ -401,7 +405,7 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
     </div>
     <ul class="checks">
       <li><span class="tick">✓</span> Every equilibrium concentration = initial + ν·{xSym} <span class="tier">[ICE identity]</span></li>
-      <li><span class="tick">✓</span> The extent {xSym} re-solved independently (bisection) reproduces Q = <Fragment set:html={kHtml} /> <span class="tier">[mass-action root]</span></li>
+      <li><span class="tick">✓</span> The extent {xSym} re-solved independently — numerically, to high precision — reproduces Q = <Fragment set:html={kHtml} /> <span class="tier">[mass-action root]</span></li>
       <li><span class="tick">✓</span> {isKsp ? "The pure solid is excluded from Q; s > 0" : isBase ? `Water is excluded from Q; 0 < ${xSym} < [${lesson.reaction.basePretty}]₀` : `0 < ${xSym} < [${lesson.reaction.acidPretty}]₀`} — no concentration goes negative <span class="tier">[extent physical]</span></li>
       <li><span class="tick">✓</span> {isKsp ? "solubility (g/L) = s × molar mass" : isBase ? "[H⁺] = K_w/[OH⁻]; pH = −log₁₀[H⁺]; pH + pOH = pK_w" : isBuffer ? "pH = pK_a + log₁₀([A⁻]/[HA]) = −log₁₀[H⁺]" : isTitration ? "every curve point's pH re-derived by its region; pH ≈ pK_a at half-equivalence; equivalence is basic" : "pH = −log₁₀[H⁺]"} <span class="tier">[{isKsp ? "solubility consistent" : isBase ? "K_w bridge" : isBuffer ? "Henderson–Hasselbalch" : isTitration ? "curve re-derived" : "log consistent"}]</span></li>
     </ul>
@@ -429,7 +433,7 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
             ions, so [{inQ[1].idPretty}] = 2{xSym}, and <Fragment set:html={kHtml} /> = [{inQ[0].idPretty}][{inQ[1].idPretty}]<sup>2</sup>
             = {xSym}·(2{xSym})<sup>2</sup> = 4{xSym}<sup>3</sup> — a <strong>cubic</strong>, not {xSym}<sup>2</sup>. That gives
             {" "}{xSym} = ({kHtml.includes("sp") ? "Ksp" : "K"}/4)<sup>1/3</sup> = <strong>{res.molar_solubility_M_display} M</strong>,
-            about 35× larger than √<Fragment set:html={kHtml} /> ≈ {(Math.sqrt(Number(kc.value))).toExponential(1)}. The coefficient
+            about {kspSqrtRatio}× larger than √<Fragment set:html={kHtml} /> ≈ {(Math.sqrt(Number(kc.value))).toExponential(1)}. The coefficient
             enters <strong>twice</strong> — as a concentration factor and as an exponent.
           </>
         ) : isBuffer ? (

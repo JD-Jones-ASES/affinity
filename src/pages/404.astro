@@ -1,0 +1,41 @@
+---
+import Base from "../layouts/Base.astro";
+import { withBase } from "../lib/withBase.js";
+
+const links = [
+  ["/", "Home", "the species-ledger thesis"],
+  ["/lessons/", "Lessons", "the course, in learning order"],
+  ["/gym/", "Gym", "machine-checked practice, generated fresh"],
+  ["/reference/", "Chemical Atlas", "concepts, the Valence Table, formulas"],
+  ["/verification/", "Verification", "how every claim is proven, sourced, or disclosed"],
+];
+---
+
+<Base title="Page not found — Affinity" description="That page isn't in the ledger. Find your way back to the lessons, gym, or Chemical Atlas.">
+  <section class="notfound">
+    <p class="code faint">404</p>
+    <h1>This page isn't in the ledger.</h1>
+    <p class="lede muted">The address you followed doesn't resolve to a verified page — it may have moved, or
+      never existed. Nothing is lost; pick a starting point below.</p>
+    <ul class="links">
+      {links.map(([href, label, note]) => (
+        <li>
+          <a href={withBase(href)}>{label} →</a>
+          <span class="note">{note}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <style>
+    .notfound { max-width: 42rem; }
+    .code { font-family: var(--font-mono); font-size: 3rem; font-weight: 700; letter-spacing: 0.05em; margin: 0.5rem 0 0; }
+    h1 { font-size: 1.9rem; margin: 0.2rem 0 0.6rem; }
+    .lede { max-width: 40rem; }
+    .links { list-style: none; padding: 0; display: grid; gap: 0.6rem; margin-top: 1.4rem; }
+    .links li { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 0.95rem; }
+    .links a { font-weight: 600; }
+    .links a:hover { text-decoration: none; }
+    .links .note { display: block; font-size: 0.86rem; color: var(--ink-faint); margin-top: 0.15rem; }
+  </style>
+</Base>

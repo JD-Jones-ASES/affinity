@@ -73,7 +73,9 @@ const example = tex(String.raw`\begin{aligned}
     .bcard { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1rem; }
     .bcard p { margin: 0.5rem 0 0; font-size: 0.92rem; color: var(--ink-2); }
     .cta { display: flex; flex-wrap: wrap; gap: 0.8rem; margin: 1.5rem 0; }
-    .btn { background: var(--accent); color: #fff; padding: 0.55rem 1.1rem; border-radius: 8px; font-weight: 600; }
+    /* --paper (near-white light / near-black dark) keeps ≥4.5:1 on the accent fill in BOTH themes; plain white
+       failed dark mode at ~2.7:1 (QC 2026-07-09 C6). */
+    .btn { background: var(--accent); color: var(--paper); padding: 0.55rem 1.1rem; border-radius: 8px; font-weight: 600; }
     .btn:hover { text-decoration: none; filter: brightness(1.05); }
     .btn.ghost { background: var(--paper-2); color: var(--ink); border: 1px solid var(--line); }
   </style>

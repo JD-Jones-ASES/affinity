@@ -16,6 +16,11 @@ const nav = [
   ["Reference", "/reference/"],
   ["Verification", "/verification/"],
 ];
+// Self-contained SVG favicon: the brand "A" (accent blue on paper), inline as a data URI — no external asset,
+// no base-path concern (data URIs need no withBase). Matches the header wordmark's accent "A".
+const favicon = "data:image/svg+xml," + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#2f6f9f"/><path d="M16 7 L24 26 M16 7 L8 26 M11.2 20 H20.8" fill="none" stroke="#fbfaf7" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+);
 ---
 
 <!doctype html>
@@ -26,6 +31,7 @@ const nav = [
     <meta name="color-scheme" content="light dark" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={favicon} />
   </head>
   <body>
     <header class="site-header">

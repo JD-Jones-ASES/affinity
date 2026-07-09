@@ -11,6 +11,7 @@ import { withBase } from "../../lib/withBase.js";
 import { renderSolution, renderStructureLesson, renderComparisonLesson, renderEquilibriumLesson, renderPredictionLesson, renderKineticsLesson, renderElectrochemistryLesson } from "../../lib/view.js";
 import { plain } from "../../lib/katex.js";
 import { lessonGyms } from "../../lib/curriculum.js";
+import { topicTitle } from "../../lib/topicTitles.js";
 
 // One page per committed lesson JSON. Five lesson shapes share the /lessons/<slug>/ route: a reaction lesson
 // (*.solution.json → SolutionPlayer, the extent ledger), a structure lesson (*.structure.json → StructureLesson,
@@ -79,7 +80,7 @@ const practiceGyms = (lessonGyms[lesson.slug] ?? []).map((slug) => ({ slug, titl
 ---
 
 <Base title={`${lesson.title} — Affinity`} description={metaDesc}>
-  <p class="crumb faint"><a href={withBase("/lessons/")}>Lessons</a> · {lesson.topic}</p>
+  <p class="crumb faint"><a href={withBase("/lessons/")}>Lessons</a> · {topicTitle(lesson.topic)}</p>
   <h1>{lesson.title}</h1>
 
   {isElectrochemistry

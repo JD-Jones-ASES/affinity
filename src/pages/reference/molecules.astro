@@ -73,19 +73,21 @@ import { lessonTitles as lessonTitle } from "../../lib/lessonTitles.js";  // slu
           + {m.electron_check.nonbonding} nonbonding
           ({m.electron_check.nonbonding / 2} lone {m.electron_check.nonbonding / 2 === 1 ? "pair" : "pairs"})
           = {m.electron_check.total} ✓</p>
-        <table class="atoms">
-          <thead><tr><th>Atom</th><th>Lone pairs</th><th>Bonds (Σ order)</th><th>Formal charge</th></tr></thead>
-          <tbody>
-            {m.atoms.map((a) => (
-              <tr>
-                <td class="el">{a.element}<span class="aid">{a.id}</span></td>
-                <td class="num">{a.lone_pairs}</td>
-                <td class="num">{a.bond_order_sum}</td>
-                <td class={`num fc${a.formal_charge !== 0 ? " nz" : ""}`}>{a.fcDisplay}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div class="tablewrap">
+          <table class="atoms">
+            <thead><tr><th>Atom</th><th>Lone pairs</th><th>Bonds (Σ order)</th><th>Formal charge</th></tr></thead>
+            <tbody>
+              {m.atoms.map((a) => (
+                <tr>
+                  <td class="el">{a.element}<span class="aid">{a.id}</span></td>
+                  <td class="num">{a.lone_pairs}</td>
+                  <td class="num">{a.bond_order_sum}</td>
+                  <td class={`num fc${a.formal_charge !== 0 ? " nz" : ""}`}>{a.fcDisplay}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div class="grid2">
@@ -191,6 +193,7 @@ import { lessonTitles as lessonTitle } from "../../lib/lessonTitles.js";  // slu
     .valence { margin: 0.2rem 0; font-size: 0.94rem; }
     .valence .arrow { color: var(--ink-faint); }
     .echeck { font-size: 0.86rem; color: var(--ink-2); margin: 0.2rem 0 0.5rem; }
+    .tablewrap { overflow-x: auto; }
     .atoms { border-collapse: collapse; font-size: 0.9rem; width: auto; min-width: 24rem; }
     .atoms th, .atoms td { text-align: left; padding: 0.25rem 1rem 0.25rem 0; border-bottom: 1px solid var(--line); }
     .atoms thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-faint); font-weight: 600; }

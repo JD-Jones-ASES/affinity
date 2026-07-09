@@ -35,6 +35,10 @@
   // numbers — the real values (ΔH_rxn, q, ξ) all came from the producer.
   const energyScaleTrap = isEnergy && s.misconception?.refuted_by === "enthalpy_scales_with_extent";
   const naiveHeat = isEnergy ? Math.abs(Number(energy.delta_h_rxn_kj_per_mol)) : null;
+  // q is signed (q < 0 = exothermic); its MAGNITUDE is what "released/absorbed" refers to. Keeping the two apart
+  // avoids the sign-inconsistent "heat released −44.5 kJ" pairing (QC 2026-07-09 C8) — q stays signed, the amount
+  // released/absorbed is |q|. Strip the leading minus to preserve the producer's sig-fig formatting.
+  const qMag = isEnergy ? energy.q_kj_display.replace(/^-/, "") : null;
   // the "both reactants are fully consumed" trap: one runs out first, the other keeps a leftover — read off
   // the verified ledger (limiting row → 0, excess row → its final_mol). Only an exact-ratio mix cancels both.
   const bothConsumedTrap = s.misconception?.refuted_by === "neutralization_leaves_excess";
@@ -105,9 +109,9 @@
       <!-- energy ledger (ADR-0043): the HEAT is the headline (model-exact — Hess's law over sourced ΔH_f°). The
            ledger's ξ is machine-checked; ΔH_rxn rides the disclosed model — so the card carries its own badge. -->
       <div class="result energy">
-        <div class="label">Heat {energy.classification === "exothermic" ? "released" : "absorbed"} <span class="badge model tiny"><span class="dot"></span>{energy.classification}</span></div>
+        <div class="label">Heat of reaction q <span class="badge model tiny"><span class="dot"></span>{energy.classification}</span></div>
         <div class="value">{energy.q_kj_display} <span class="unit">kJ</span></div>
-        <div class="cond">q = ΔH_rxn × ξ</div>
+        <div class="cond">q = ΔH_rxn × ξ · {energy.classification === "exothermic" ? "q < 0 ⇒ heat released" : "q > 0 ⇒ heat absorbed"}</div>
       </div>
     {/if}
     {#if reported}
@@ -185,9 +189,9 @@
         <span class="eop">×</span>
         <div class="ecell"><span class="ev">{energy.extent_mol}</span> <span class="eu">mol</span><span class="en">extent ξ (capped by {s.result.limiting_speciesPretty.join(", ")})</span></div>
         <span class="eop">=</span>
-        <div class="ecell big"><span class="ev">{energy.q_kj_display}</span> <span class="eu">kJ</span><span class="en">heat {energy.classification === "exothermic" ? "released" : "absorbed"}</span></div>
+        <div class="ecell big"><span class="ev">{energy.q_kj_display}</span> <span class="eu">kJ</span><span class="en">q, the heat of reaction</span></div>
       </div>
-      <p class="enote">ΔH_rxn is <strong>per mole of reaction</strong> (one "run" of the balanced equation). This burn advances only ξ = {energy.extent_mol} mol before the limiting reagent runs out, so it {energy.classification === "exothermic" ? "releases" : "absorbs"} <strong>{energy.q_kj_display} kJ</strong> — not {naiveHeat} kJ. Elements in their standard state have ΔH_f° = 0 (they are the reference level, not zero energy).</p>
+      <p class="enote">ΔH_rxn is <strong>per mole of reaction</strong> (one "run" of the balanced equation). This burn advances only ξ = {energy.extent_mol} mol before the limiting reagent runs out, so q = <strong>{energy.q_kj_display} kJ</strong> — it {energy.classification === "exothermic" ? "releases" : "absorbs"} {qMag} kJ, not {naiveHeat} kJ. Elements in their standard state have ΔH_f° = 0 (they are the reference level, not zero energy).</p>
     </div>
   {/if}
 

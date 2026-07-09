@@ -39,6 +39,10 @@ const marks = res.landmarks.map((lm) => ({
   pct: lm.percent_decomposed_display,
 }));
 const cGrid = [0, 0.25, 0.5, 0.75, 1].map((f) => ({ c: (f * c0).toPrecision(3), y: py(f * c0) }));
+// a landmark mark sits at the nth halving — concentration c₀/2ⁿ. Label it by the FRACTION REMAINING (½, ¼, ⅛),
+// which names the y-level it's on and holds for every order. The old "n×½" read as n × (first half-life) in TIME,
+// true only for first order (successive half-lives are equal only then) — misleading for zero/second (QC C8).
+const fracRemaining = (n) => ({ 1: "½", 2: "¼", 3: "⅛" }[n] ?? `1/${2 ** n}`);
 ---
 
 <section class="player">
@@ -105,7 +109,7 @@ const cGrid = [0, 0.25, 0.5, 0.75, 1].map((f) => ({ c: (f * c0).toPrecision(3), 
             <line x1={m.x} y1={mt} x2={m.x} y2={m.y} class="dropline" />
             <line x1={ml} y1={m.y} x2={m.x} y2={m.y} class="dropline" />
             <circle cx={m.x} cy={m.y} r="4.5" class="mark" />
-            <text x={m.x + 8} y={m.y - 8} class="marklabel">{m.n}×½</text>
+            <text x={m.x + 8} y={m.y - 8} class="marklabel">{fracRemaining(m.n)} left</text>
           </Fragment>
         ))}
       </svg>

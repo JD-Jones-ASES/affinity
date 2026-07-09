@@ -367,8 +367,8 @@
     </div>
 
   {:else if mode === "formula"}
-    <p class="fm-lede muted">Pick a cation and an anion. The producer assembled every pair by charge crossover,
-      re-checked it atom-by-atom for neutrality, and named it with the same engine the nomenclature gym drills —
+    <p class="fm-lede muted">Pick a cation and an anion. Every pairing was built ahead of time by charge crossover,
+      re-checked atom-by-atom for neutrality, and named with the same engine the nomenclature gym drills —
       nothing here is computed in your browser.</p>
     <div class="pickers">
       <div class="picker">
@@ -453,7 +453,7 @@
   .modes { display: flex; gap: 0.35rem; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 0.55rem; }
   .mode { font: inherit; cursor: pointer; background: var(--paper-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.35rem 0.8rem; color: var(--ink-2); font-weight: 600; }
   .mode:hover { border-color: var(--accent); }
-  .mode.on { background: var(--accent); border-color: var(--accent); color: white; }
+  .mode.on { background: var(--accent); border-color: var(--accent); color: var(--paper); }
 
   .lenses { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
   .lens-cap { font-size: 0.8rem; color: var(--ink-faint); margin-right: 0.15rem; }

@@ -119,7 +119,8 @@
   .num:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
   .num:disabled { opacity: 0.75; }
   .entry .unit { font-family: var(--font-mono); color: var(--accent); font-weight: 600; margin-left: -0.15rem; }
-  .check { font: inherit; cursor: pointer; background: var(--accent); color: white; border: none; border-radius: 8px; padding: 0.45rem 0.9rem; font-weight: 600; }
+  /* --paper keeps ≥4.5:1 on the accent fill in dark mode too (white was ~2.7:1; QC 2026-07-09 C6). */
+  .check { font: inherit; cursor: pointer; background: var(--accent); color: var(--paper); border: none; border-radius: 8px; padding: 0.45rem 0.9rem; font-weight: 600; }
   .check:hover:enabled { filter: brightness(1.05); }
   .check:disabled { opacity: 0.5; cursor: default; }
   .giveup { font: inherit; cursor: pointer; background: transparent; color: var(--ink-faint); border: 1px solid var(--line); border-radius: 8px; padding: 0.45rem 0.75rem; }

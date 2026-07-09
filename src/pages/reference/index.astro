@@ -72,11 +72,17 @@ const conceptTitle = Object.fromEntries(concepts.map((c) => [c.id, c.title]));
         <div class="c-head">
           <h3>{c.title}</h3>
           <span class="badges">
+            {/* regime → the three-badge learner vocabulary, matching the lesson players (QC 2026-07-09 C4);
+                 ledger-exact/model-exact previously fell through to the raw slug. */}
             {c.regime === "rule-sourced"
               ? <span class="badge sourced"><span class="dot"></span>rule-sourced ({c.source})</span>
               : c.regime === "mechanistic"
                 ? <span class="badge model"><span class="dot"></span>interpretive — story, not proof</span>
-                : c.regime && <span class="badge regime">{c.regime}</span>}
+                : c.regime === "model-exact"
+                  ? <span class="badge model"><span class="dot"></span>model-assumed</span>
+                  : c.regime === "ledger-exact"
+                    ? <span class="badge machine"><span class="dot"></span>machine-checked</span>
+                    : c.regime && <span class="badge regime">{c.regime}</span>}
           </span>
         </div>
         <p class="def" set:html={c.definitionHtml} />

@@ -6,6 +6,14 @@
 const { lesson } = Astro.props;
 const ox = lesson.oxidation_states, hr = lesson.half_reactions, cell = lesson.cell, res = lesson.result;
 const anode = hr.oxidation, cathode = hr.reduction;
+
+// data-driven, not hardcoded (QC 2026-07-09 C8):
+const F = Math.round(Number(res.faraday));   // the Faraday constant, from the JSON (constants source) — was a literal 96485
+const spontaneous = res.spontaneous;          // render the verdict + signs from the flag, not "Yes ✓"
+// superscript an ion formula's charge for inline prose: "Cu^2+" → "Cu²⁺", "Ag^+" → "Ag⁺" (was a hardcoded "²⁺")
+const SUP = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "+": "⁺", "-": "⁻" };
+const ionPretty = (f) => f.replace(/\^(\d*[+-])/g, (_, c) => c.replace(/./g, (ch) => SUP[ch] ?? ch));
+const cathodeIon = ionPretty(cell.cathode_ion);
 ---
 
 <section class="player">
@@ -94,21 +102,22 @@ const anode = hr.oxidation, cathode = hr.reduction;
     <div class="card">
       <span class="k">free energy ΔG° = −nFE°</span>
       <span class="v">{res.delta_g_display} kJ/mol</span>
-      <span class="sub">n = {res.n_electrons}, F = 96485 C/mol</span>
+      <span class="sub">n = {res.n_electrons}, F = {F} C/mol</span>
     </div>
-    <div class="card spont">
+    <div class={`card ${spontaneous ? "spont" : "nonspont"}`}>
       <span class="k">spontaneous?</span>
-      <span class="v">Yes ✓</span>
-      <span class="sub">E°cell &gt; 0 ⇔ ΔG° &lt; 0</span>
+      <span class="v">{spontaneous ? "Yes ✓" : "No ✗"}</span>
+      <span class="sub">E°cell {spontaneous ? ">" : "<"} 0 ⇔ ΔG° {spontaneous ? "<" : ">"} 0</span>
     </div>
   </div>
 
   <p class="hhnote">
     <span class="badge machine tiny"><span class="dot"></span>Free energy per charge</span>
     The cell potential is <strong>free energy per unit charge</strong>: multiply the {res.e_cell_display} V by the charge moved,
-    <span class="mono">n·F = {res.n_electrons} × 96485 C</span>, and you get the work the reaction can do —
-    <strong>ΔG° = −nFE° = {res.delta_g_display} kJ/mol</strong>. Because E°cell is positive, ΔG° is negative: the reaction runs on its
-    own, and the electrons flow from the {cell.anode_metal} anode through the wire to the {cell.cathode_metal} cathode.
+    <span class="mono">n·F = {res.n_electrons} × {F} C</span>, and you get the work the reaction can do —
+    <strong>ΔG° = −nFE° = {res.delta_g_display} kJ/mol</strong>. Because E°cell is {spontaneous ? "positive" : "negative"}, ΔG° is
+    {spontaneous ? " negative" : " positive"}: the reaction {spontaneous ? "runs on its own" : "must be driven"}, and the electrons
+    flow from the {cell.anode_metal} anode through the wire to the {cell.cathode_metal} cathode.
   </p>
 
   <!-- the machine-checked facts, SHOWN not asserted -->
@@ -133,7 +142,7 @@ const anode = hr.oxidation, cathode = hr.reduction;
       <p class="mis-fix">
         The direction is <strong>not</strong> a matter of how you write it — the <strong>standard reduction potentials decide</strong>.
         {cathode.couple_name} sits at <strong>{cathode.e_standard_display} V</strong>, above {anode.couple_name} at
-        <strong> {anode.e_standard_display} V</strong>, so the {cell.cathode_metal.replace(/\d.*/, "")}²⁺ is reduced and the
+        <strong> {anode.e_standard_display} V</strong>, so the {cathodeIon} is reduced and the
         {cell.anode_metal} electrode dissolves — never the reverse. The machine confirms it: E°cell = {res.e_cell_display} V is
         <strong> positive</strong>, so ΔG° = {res.delta_g_display} kJ/mol is negative and this is the spontaneous direction. Running it
         backwards would require <em>supplying</em> {res.e_cell_display} V (an electrolytic cell).
@@ -205,6 +214,8 @@ const anode = hr.oxidation, cathode = hr.reduction;
   .card.headline { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
   .card.spont { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
   .card.spont .v { color: var(--accent); }
+  .card.nonspont { border-color: color-mix(in srgb, var(--warn) 40%, var(--line)); }
+  .card.nonspont .v { color: var(--warn); }
 
   .hhnote { margin: 0; font-size: 0.9rem; color: var(--ink-2); line-height: 1.6; background: var(--paper-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
   .hhnote .badge { margin-right: 0.35rem; }

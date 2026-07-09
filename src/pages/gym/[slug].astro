@@ -4,6 +4,7 @@ import DimensionalGym from "../../islands/DimensionalGym.svelte";
 import { withBase } from "../../lib/withBase.js";
 import { renderGym } from "../../lib/view.js";
 import { gymLessons } from "../../lib/curriculum.js";
+import { topicTitle } from "../../lib/topicTitles.js";
 
 // One page per committed gym (ADR-0024). The producer is the source of truth; this page renders it — no
 // chemistry happens here. The only view transform is typography: renderGym subscripts the substance tokens.
@@ -75,7 +76,7 @@ const assumptions = gym.assumptions ?? [];
 ---
 
 <Base title={`${gym.title} — Affinity`} description={gym.blurb}>
-  <p class="crumb faint"><a href={withBase("/gym/")}>Gym</a> · {gym.topic}</p>
+  <p class="crumb faint"><a href={withBase("/gym/")}>Gym</a> · {topicTitle(gym.topic)}</p>
   <h1>{gym.title}</h1>
   <p class="muted lede">{gym.blurb}</p>
   <div class="badges">

@@ -4,7 +4,7 @@ kind = "concept"
 title = "Balancing equations"
 term = "balancing equations"
 regime = "ledger-exact"
-definition = "Choosing the smallest whole-number coefficients that make every element's atom count — and the total charge — equal on both sides. ChemKernel solves this as the null space of the conservation matrix: one exact integer vector, re-verified, so the coefficients are derived rather than guessed. For the calcium-phosphate lesson that gives $3\\,\\text{CaCl}_2 + 2\\,\\text{Na}_3\\text{PO}_4 \\rightarrow \\text{Ca}_3(\\text{PO}_4)_2 + 6\\,\\text{NaCl}$."
+definition = "Choosing the smallest whole-number coefficients that make every element's atom count — and the total charge — equal on both sides. ChemKernel finds them by exact arithmetic — the one set of whole-number coefficients that conserves every atom and the total charge, re-verified independently — so the coefficients are derived rather than guessed. For the calcium-phosphate lesson that gives $3\\,\\text{CaCl}_2 + 2\\,\\text{Na}_3\\text{PO}_4 \\rightarrow \\text{Ca}_3(\\text{PO}_4)_2 + 6\\,\\text{NaCl}$."
 latex = "3\\,\\text{CaCl}_2 + 2\\,\\text{Na}_3\\text{PO}_4 \\rightarrow \\text{Ca}_3(\\text{PO}_4)_2 + 6\\,\\text{NaCl}"
 related = [
   { to = "conservation-of-mass", type = "solves" },

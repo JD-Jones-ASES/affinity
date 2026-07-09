@@ -1,54 +1,196 @@
 ---
 import Base from "../layouts/Base.astro";
 import { withBase } from "../lib/withBase.js";
+
+// The seven CI gates (package.json `validate`), each named with what it independently RE-DERIVES from the
+// committed output — no Python. Kept in the run order.
+const gates = [
+  {
+    name: "validate:solutions",
+    what: "Schema + honesty cross-checks for every lesson",
+    body: "Ajv validates every derived lesson against its shape's strict schema (no stray fields allowed), then runs the honesty checks the schema can't express — dispatching each model-bearing shape to its own independent re-deriver (below).",
+  },
+  {
+    name: "validate:reference",
+    what: "The Chemical Atlas re-derived",
+    body: "Every Atlas entry is schema-checked by kind; ids are unique; every concept link, wiki-link, and cited source id resolves. Then it re-derives the Valence Table (valence electrons from the group, every salt's name and subscripts by charge crossover, every flagged mistake re-proven wrong), each molecule's Lewis ledger, and every formula-sheet entry's dimensional homogeneity.",
+  },
+  {
+    name: "validate:gyms",
+    what: "Every drill re-solved from raw inputs",
+    body: "Each generated practice problem's answer is re-derived from its raw quantities (volume, molarity, mass, molar mass, rate constant, K…) — independent of the engine — and its answer format is checked: a categorical question is a one-correct menu, a numeric one is free entry whose distractors never collapse onto the answer.",
+  },
+  {
+    name: "check:ledger",
+    what: "The species ledger and equation balance",
+    body: "The pivot object, re-proven: every amount is re-computed as initial + ν·ξ, and the reported result (precipitate moles, leftovers) is cross-checked against it. Each reaction's equation is independently re-balanced — every formula re-parsed, atoms and charge conserved on both sides — so a non-conserving coefficient can't slip through as an asserted flag.",
+  },
+  {
+    name: "check:parity",
+    what: "The browser's slider math matches the engine",
+    body: "For every interactive lesson, the JavaScript closed forms the browser runs to drive the sliders are re-evaluated at sample points and required to reproduce the engine's values across the whole range — including the point where the limiting reagent switches. The default slider setting must reproduce the committed static answer.",
+  },
+  {
+    name: "check:katex",
+    what: "Every formula renders",
+    body: "The build-time math renderer tolerates errors so a bad string would ship silently as an error node. This gate re-renders every LaTeX string in the committed data with errors turned into failures — so a formula that survives is known to render.",
+  },
+  {
+    name: "validate:scan",
+    what: "No course, exam, or board is named",
+    body: "Affinity is beginning chemistry, full stop. This gate greps every committed text file for the name of any specific course, exam, or standards body and fails the build on a hit — the public-language rule is enforced, not just intended.",
+  },
+];
+
+// The model-bearing lesson shapes beyond the reaction lesson (6 of the 7 shapes) — each with its own pure-Node
+// re-derivation, dispatched from validate:solutions.
+const shapes = [
+  {
+    name: "Equilibrium (ICE table)",
+    body: "The ICE table is the species ledger with the extent solved from mass action, not driven to a limiting reagent. The gate re-derives every equilibrium concentration as c₀ + ν·x, re-solves the extent numerically to high precision by an independent method, and confirms the reaction quotient reproduces K (with its residual), the pH, and the percent ionization.",
+  },
+  {
+    name: "Precipitation prediction (Q vs Ksp)",
+    body: "A snapshot, not a solve: mix two solutions, dilute each ion into the combined volume, compute the reaction quotient Q and compare it to Ksp. The gate re-derives the dilution, Q, and the does-it-precipitate verdict independently.",
+  },
+  {
+    name: "Kinetics (the ledger in time)",
+    body: "One order-general engine over orders 0, 1, and 2. The gate re-derives the reaction balance, every point on the decay curve, the half-life relation, and the successive-half-life progression — constant, doubling, or shrinking — which is the machine-checked fingerprint of the order.",
+  },
+  {
+    name: "Electrochemistry (the electron ledger)",
+    body: "The ledger with electrons as the tracked quantity. The gate re-derives the oxidation numbers (rule hierarchy → sum to each species' charge), each half-reaction's atom, charge, and electron balance, the electron ledger (electrons lost = gained), the cell potential E°cell = E°(cathode) − E°(anode), and the free energy ΔG° = −nFE°.",
+  },
+  {
+    name: "Structure (the Lewis ledger)",
+    body: "The electron-counting counterpart of the species ledger. The gate re-derives the valence-electron total, every atom's octet (or duet for H) and formal charge and that they sum to the molecular charge, electron conservation, each bond's electronegativity difference and class, the VSEPR domain count, and that a molecule is polar exactly when its bonds and shape leave a net dipole.",
+  },
+  {
+    name: "Comparison (a trend)",
+    body: "Several molecules ranked against a property. Each row reuses a verified molecule Atlas entry, the ordering is re-checked exactly, and the dominant intermolecular force must rise monotonically with the property — the corpus is refused if the trend is not clean.",
+  },
+];
 ---
 
 <Base title="How Affinity is verified">
   <h1>Verification is the product</h1>
   <p class="lede muted">
     Affinity is a factory with a gate at the exit. A build-time engine (<strong>ChemKernel</strong>) turns
-    authored problem specs into machine-verified solution data; it <strong>refuses to emit</strong> anything
-    that fails a check. Then a separate, pure-Node gate re-validates the committed output — so what deploys is
-    proven twice, and the second layer needs no Python.
+    authored problem specs into machine-verified data; it <strong>refuses to emit</strong> anything that fails a
+    check. Then a separate, pure-Node gate re-validates the committed output — so what deploys is proven twice,
+    and the second layer runs no Python. Below is the whole verified surface as it stands, stated plainly:
+    what is re-derived, and what is only sourced or disclosed.
   </p>
 
-  <h2>The two layers</h2>
+  <h2>Two layers</h2>
   <div class="layers">
     <div class="card">
       <span class="badge machine"><span class="dot"></span>Emit-time (local)</span>
-      <p>ChemKernel parses formulas, balances by exact rational arithmetic, dissociates strong electrolytes,
-        cancels spectators, solves the extent, and classifies solubility from a sourced ruleset. A failed
-        check — unbalanced atoms, non-conserved charge, a negative amount, a phase that contradicts the rules —
-        raises and writes nothing.</p>
+      <p>ChemKernel parses formulas, balances by exact rational arithmetic, solves the extent — for a reaction
+        driven to completion, or for a reversible reaction where the quotient equals K — and classifies from
+        sourced rules. A failed check (unbalanced atoms, non-conserved charge, a negative amount, a
+        contradicted rule) raises and writes nothing. Its own test suite additionally cross-checks the
+        118-element periodic dataset against an independent oracle.</p>
     </div>
     <div class="card">
       <span class="badge machine"><span class="dot"></span>Gate-time (CI)</span>
-      <p>Node re-validates the committed JSON against a strict schema and re-runs honesty cross-checks:
-        every check holds, the ledger is internally consistent, the precipitate is a real solid row, every
-        empirical value is traceable to a source. The interactive sliders evaluate closed forms that are
-        proven against the engine.</p>
+      <p>On every push, seven Node gates re-validate the committed JSON from scratch — no Python in the loop.
+        They re-derive the arithmetic, not merely re-read the answer: a claim survives only because a second,
+        independent implementation reproduced it. The gates below are the second proof.</p>
     </div>
   </div>
 
-  <h2>What the badges mean</h2>
-  <ul class="badgelist">
-    <li><span class="badge machine"><span class="dot"></span>Machine-checked</span> — derived and verified by the engine; the proof detail is shown, not asserted.</li>
-    <li><span class="badge sourced"><span class="dot"></span>Data / rule-sourced</span> — from a registered dataset or rule; the badge reveals source, version, and conditions.</li>
-    <li><span class="badge model"><span class="dot"></span>Model-assumed</span> — an author-asserted idealization; disclosed, never quietly discharged.</li>
-  </ul>
+  <h2>The seven gates</h2>
+  <p class="muted section-lede">Run in order on every commit; the first failure stops the build.</p>
+  <div class="gates">
+    {gates.map((g) => (
+      <div class="gate">
+        <div class="gate-head">
+          <code class="gname">{g.name}</code>
+          <span class="gwhat">{g.what}</span>
+        </div>
+        <p>{g.body}</p>
+      </div>
+    ))}
+  </div>
 
-  <p class="muted">
+  <h2>Re-derived per lesson shape</h2>
+  <p class="muted section-lede">
+    The reaction lessons ride the ledger, balance, and parity gates above. The other six lesson shapes each
+    carry their own independent re-derivation — dispatched from <code>validate:solutions</code>, re-run in pure
+    Node — so the model-bearing lessons stand on the same footing as the precipitation ones.
+  </p>
+  <div class="shapes">
+    {shapes.map((s) => (
+      <div class="shape">
+        <div class="shape-head"><span class="badge machine"><span class="dot"></span>machine-checked</span>{s.name}</div>
+        <p>{s.body}</p>
+      </div>
+    ))}
+  </div>
+
+  <h2>What the badges mean — and what they don't claim</h2>
+  <p class="muted section-lede">
+    Not everything in chemistry can be proven from conservation laws; much of it is measured. The three badges
+    keep the two apart, on every claim.
+  </p>
+  <ul class="badgelist">
+    <li>
+      <span class="badge machine"><span class="dot"></span>Machine-checked</span>
+      Derived and re-verified by the engine and the gates — atom and charge balance, the ledger and ICE
+      arithmetic, oxidation numbers, the Lewis and electron ledgers, dimensional homogeneity. The proof detail
+      is shown, not asserted.
+    </li>
+    <li>
+      <span class="badge sourced"><span class="dot"></span>Data / rule-sourced</span>
+      A measured or tabulated value — solubility and Ksp, Ka/Kb/Kw, electronegativities, standard reduction
+      potentials, specific heats, boiling points, atomic weights. The engine checks the arithmetic <em>on</em>{" "}
+      these numbers; it does not prove the numbers themselves. The badge reveals the source, version, and
+      conditions, and every source resolves in the register.
+    </li>
+    <li>
+      <span class="badge model"><span class="dot"></span>Model-assumed</span>
+      An author-stated idealization — the ideal-gas law, complete dissociation, activities approximated by
+      concentrations, standard conditions. Exact only inside its stated model, and so <strong>disclosed, not
+      discharged</strong>: every lesson lists its assumptions rather than burying them.
+    </li>
+  </ul>
+  <p class="muted interp">
+    A fourth kind of claim — <strong>interpretive</strong> explanation (why one acid is stronger than another,
+    what a shape "wants" to do) — is chemically useful but not machine-provable. Where it appears it wears the
+    model-assumed badge with an interpretive marker: present, and labeled as story rather than proof.
+  </p>
+
+  <p class="muted closing">
     Every lesson also carries a <strong>misconception register</strong>: the canonical wrong move, made to
-    visibly fail in the ledger — never merely scolded. See it in action in the{" "}
-    <a href={withBase("/lessons/")}>lessons</a>.
+    visibly fail in the ledger or particle view — never merely scolded. See the whole system at work in the{" "}
+    <a href={withBase("/lessons/")}>lessons</a> and the <a href={withBase("/reference/")}>Chemical Atlas</a>.
   </p>
 
   <style>
     h1 { font-size: 1.9rem; }
-    .lede { max-width: 48rem; }
-    .layers { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 0.9rem; margin: 1rem 0 2rem; }
+    h2 { font-size: 1.3rem; margin-top: 2.2rem; }
+    .lede { max-width: 50rem; }
+    .section-lede { max-width: 50rem; margin: 0.3rem 0 1rem; font-size: 0.95rem; }
+    .layers { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 0.9rem; margin: 1rem 0 0; }
     .layers .card p { margin: 0.6rem 0 0; font-size: 0.93rem; }
-    .badgelist { list-style: none; padding: 0; display: grid; gap: 0.6rem; max-width: 48rem; }
-    .badgelist li { font-size: 0.95rem; color: var(--ink-2); }
+
+    .gates { display: grid; gap: 0.7rem; }
+    .gate { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.8rem 1rem; }
+    .gate-head { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap; }
+    .gname { background: var(--accent-soft); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius: 6px; padding: 0.1rem 0.5rem; font-size: 0.85rem; font-weight: 600; }
+    .gwhat { font-weight: 600; font-size: 0.98rem; }
+    .gate p { margin: 0.45rem 0 0; font-size: 0.92rem; color: var(--ink-2); line-height: 1.6; }
+
+    .shapes { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 0.7rem; }
+    .shape { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.8rem 1rem; }
+    .shape-head { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; font-size: 0.98rem; flex-wrap: wrap; }
+    .shape p { margin: 0.45rem 0 0; font-size: 0.92rem; color: var(--ink-2); line-height: 1.6; }
+
+    .badgelist { list-style: none; padding: 0; display: grid; gap: 0.8rem; max-width: 52rem; margin-top: 0.5rem; }
+    .badgelist li { font-size: 0.95rem; color: var(--ink-2); line-height: 1.6; }
+    .badgelist .badge { margin-right: 0.4rem; transform: translateY(1px); }
+    .interp { max-width: 52rem; font-size: 0.93rem; }
+    .closing { max-width: 52rem; margin-top: 1.6rem; border-top: 1px solid var(--line); padding-top: 1rem; }
   </style>
 </Base>

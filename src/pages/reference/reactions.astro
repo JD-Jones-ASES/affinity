@@ -125,18 +125,18 @@ import { lessonTitles as lessonTitle } from "../../lib/lessonTitles.js";  // slu
     .net-lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); flex-shrink: 0; }
     .evidence { color: var(--ink-2); font-size: 0.9rem; margin: 0.5rem 0 0; }
     .redox-note { color: var(--ink-faint); font-size: 0.84rem; margin: 0.35rem 0 0; }
-    .chip { display: inline-block; background: var(--amber-bg, #f5e6c8); color: var(--amber-ink, #7a5b12); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 0.05rem 0.4rem; border-radius: 4px; margin-right: 0.4rem; }
+    .chip { display: inline-block; background: var(--model-soft); color: var(--model); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 0.05rem 0.4rem; border-radius: 4px; margin-right: 0.4rem; }
     .spectators { font-size: 0.84rem; color: var(--ink-faint); margin: 0.35rem 0 0; }
     .ion { font-variant-numeric: normal; }
     .misconceptions { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
     .misconceptions li { border-left: 3px solid var(--line); padding-left: 0.7rem; }
     .claim { color: var(--ink-2); font-style: italic; }
-    .claim::before { content: "✗ "; color: #b4442f; font-style: normal; }
+    .claim::before { content: "✗ "; color: var(--warn); font-style: normal; }
     .refute { color: var(--ink-2); display: block; margin-top: 0.15rem; }
     .refute::before { content: "→ "; color: var(--accent); }
     .links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; font-size: 0.86rem; color: var(--ink-faint); margin-top: 0.8rem; border-top: 1px solid var(--line); padding-top: 0.5rem; }
     .etype { font-style: italic; }
-    .badge.redox { background: #e9dcc3; color: #7a5b12; }
+    .badge.redox { background: var(--model-soft); color: var(--model); border-color: color-mix(in srgb, var(--model) 30%, transparent); }
     .badge.notredox { background: var(--paper); color: var(--ink-faint); border: 1px solid var(--line); }
     .badge.maybe { background: var(--paper); color: var(--ink-faint); border: 1px dashed var(--line); }
   </style>
