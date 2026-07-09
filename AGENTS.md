@@ -201,14 +201,14 @@ electrochemistry. History
 in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
 [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
-**Counters:** 17 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
+**Counters:** 18 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
 3 bonding (2 structure + 1 IMF comparison) + **7 equilibrium** (weak-acid pH + buffer + weak-base pH + Ksp solubility +
-common-ion Ksp + polyprotic + titration) + **1 prediction** (Q-vs-Ksp precipitation), ADR-0048) · 12 gyms / 120 verified problems (dimensional analysis · ionic
+common-ion Ksp + polyprotic + titration) + **2 prediction** (Q-vs-Ksp precipitation — CaF₂ forms, dilute Mg(OH)₂ stays clear), ADR-0048) · 12 gyms / 120 verified problems (dimensional analysis · ionic
 nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas
 laws · calorimetry · Lewis structures · weak-acid pH) · 1 Valence Table (23 elements; four modes; 182 named + machine-verified
 salts) · 33 concept entries (8 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species
 entries + 6 molecule structure entries (Lewis ledger + VSEPR + dominant IMF, ADR-0044/0046) + 9 formula-sheet entries
-(ADR-0039/0043) · 70 Atlas reference objects · 7 Node gates + CI + live Pages · 392 producer tests · astro build = 39 pages.
+(ADR-0039/0043) · 70 Atlas reference objects · 7 Node gates + CI + live Pages · 393 producer tests · astro build = 40 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; honesty = three badges
 (regime-4 → model-assumed badge + an "interpretive" marker, ADR-0033); numeric practice free-entry (diagnostics), categorical

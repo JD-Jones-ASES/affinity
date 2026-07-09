@@ -2,7 +2,7 @@
 
 **A beginning-chemistry portal where the verification system is the product.**
 
-**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — seventeen machine-verified lessons (precipitation,
+**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — eighteen machine-verified lessons (precipitation,
 percent yield, acid-base neutralization, **gas stoichiometry** — a weighed metal + acid whose hydrogen volume falls
 out of the ledger via PV=nRT — the **energy ledger** — burning methane, whose heat q = ΔH_rxn·ξ falls out of
 the ledger via Hess's law over sourced formation enthalpies — two **single-molecule structure lessons** (why water is
@@ -18,8 +18,9 @@ where dissolving calcium fluoride into a fluoride solution suppresses its solubi
 acid, whose three protons come off in stages Kₐ1 ≫ Kₐ2 ≫ Kₐ3 — the same solver run once per stage, so the first ionization
 sets the pH and the amphiprotic middle anion sits at ≈ Kₐ2; and a **titration curve** — acetic acid titrated by NaOH, the
 ledger marched drop by drop into a build-time SVG that reads pKₐ off the half-equivalence plateau and lands basic at
-equivalence), **plus a precipitation-prediction lesson** (a different kind — mix calcium and fluoride solutions, and the
-**reaction quotient** Q, compared to Ksp, decides whether calcium fluoride crashes out: a snapshot, not a solve), twelve procedural gyms (dimensional analysis, nomenclature,
+equivalence), **plus two precipitation-prediction lessons** (a different kind — the **reaction quotient** Q, compared to Ksp,
+decides whether a solid forms: calcium fluoride crashes out of a millimolar mix, while dilute magnesium hydroxide stays clear
+despite being “insoluble” — a snapshot, not a solve), twelve procedural gyms (dimensional analysis, nomenclature,
 balancing, the full stoichiometry suite, periodic trends, reaction families, gas laws, calorimetry, **Lewis
 structures** — valence electrons, electron domains, molecular shape, counted exactly — and **weak-acid pH** — the ICE table's
 mass-action root, solved not approximated), the Chemical Atlas — five reference surfaces: a typed concept graph + **7 reaction

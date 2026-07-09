@@ -1,0 +1,136 @@
+{
+  "kind": "prediction",
+  "id": "magnesium-hydroxide-no-precipitate",
+  "title": "Insoluble, but no precipitate? Dilute magnesium and hydroxide",
+  "slug": "magnesium-hydroxide-no-precipitate",
+  "topic": "equilibrium",
+  "tags": [
+    "equilibrium",
+    "precipitation",
+    "reaction quotient",
+    "Q vs Ksp",
+    "solubility"
+  ],
+  "scenario": "Milk of magnesia is a suspension of solid **magnesium hydroxide**, Mg(OH)2 — the textbook “insoluble” base. So surely mixing a magnesium salt with a hydroxide makes the solid appear? Stir 50.0 mL of 0.00010 M Mg(NO3)2 (magnesium nitrate) into 50.0 mL of 0.00010 M NaOH — both perfectly clear. The dissolution equilibrium is $\\mathrm{Mg(OH)_2(s)} \\rightleftharpoons \\mathrm{Mg^{2+}(aq)} + 2\\,\\mathrm{OH^-(aq)}$, and whether a solid forms is decided by the **reaction quotient**: dilute each ion into the combined 100.0 mL, evaluate $Q = [\\mathrm{Mg^{2+}}][\\mathrm{OH^-}]^2$, and compare it to $K_{sp}$. If $Q < K_{sp}$ the solution is **unsaturated** and stays clear — however “insoluble” the compound is called.",
+  "regimes": [
+    {
+      "facet": "ICE ledger (species accounting)",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "equilibrium constant",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "precipitation prediction (Q vs Ksp)",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "Both source salts are soluble strong electrolytes that dissociate completely, and volumes are additive — so mixing 50.0 mL and 50.0 mL dilutes each ion into the combined 100.0 mL. The spectators $\\mathrm{Na^+}$ and $\\mathrm{NO_3^-}$ take no part, and water's own $\\mathrm{OH^-}$ (about $10^{-7}$ M) is negligible beside the added hydroxide.",
+      "kind": "model"
+    },
+    {
+      "claim": "Activities are approximated by molar concentrations (the ideal-dilute-solution model), which is why $Q$ and $K_{sp}$ are written with concentrations.",
+      "kind": "model"
+    },
+    {
+      "claim": "The thermodynamic prediction is taken to hold: $Q < K_{sp}$ means no solid forms (the solution is unsaturated), and nothing kinetic changes that.",
+      "kind": "model"
+    }
+  ],
+  "reaction": {
+    "salt": "Mg(OH)2",
+    "salt_name": "magnesium hydroxide",
+    "salt_latex": "\\mathrm{Mg(OH)_{2}}",
+    "cation": "Mg^2+",
+    "cation_latex": "\\mathrm{Mg}^{2+}",
+    "anion": "OH^-",
+    "anion_latex": "\\mathrm{OH}^{-}",
+    "n_cation": 1,
+    "n_anion": 2,
+    "text": "Mg(OH)2(s) <=> Mg^2+(aq) + 2 OH^-(aq)",
+    "latex": "\\mathrm{Mg(OH)_{2}}\\,\\text{(s)} \\rightleftharpoons \\mathrm{Mg}^{2+}\\,\\text{(aq)} + 2\\,\\mathrm{OH}^{-}\\,\\text{(aq)}"
+  },
+  "equilibrium_constant": {
+    "symbol": "K_sp",
+    "value": "0.00000000000561",
+    "expression_latex": "K_{sp} = [\\mathrm{Mg}^{2+}][\\mathrm{OH}^{-}]^{2}",
+    "source": "openstax-chemistry-2e"
+  },
+  "mixing": {
+    "volume_total_mL": "100",
+    "volume_total_mL_display": "100",
+    "cation_source": {
+      "formula": "Mg(NO3)2",
+      "formula_latex": "\\mathrm{Mg(NO_{3})_{2}}",
+      "name": "magnesium nitrate",
+      "molarity_M": "0.00010",
+      "volume_mL": "50.0",
+      "per_formula": 1,
+      "ion": "Mg^2+",
+      "ion_latex": "\\mathrm{Mg}^{2+}",
+      "ion_source_M": "0.0001",
+      "ion_source_M_display": "0.0001",
+      "mixed_M": "0.00005",
+      "mixed_M_display": "0.00005"
+    },
+    "anion_source": {
+      "formula": "NaOH",
+      "formula_latex": "\\mathrm{NaOH}",
+      "name": "sodium hydroxide",
+      "molarity_M": "0.00010",
+      "volume_mL": "50.0",
+      "per_formula": 1,
+      "ion": "OH^-",
+      "ion_latex": "\\mathrm{OH}^{-}",
+      "ion_source_M": "0.0001",
+      "ion_source_M_display": "0.0001",
+      "mixed_M": "0.00005",
+      "mixed_M_display": "0.00005"
+    }
+  },
+  "quotient": {
+    "symbol": "Q",
+    "expression_latex": "Q = [\\mathrm{Mg}^{2+}][\\mathrm{OH}^{-}]^{2}",
+    "value": "0.000000000000125",
+    "value_display": "0.000000000000125"
+  },
+  "result": {
+    "verdict": "no-precipitate",
+    "forms_precipitate": false,
+    "comparison_symbol": "<",
+    "q_value_display": "0.000000000000125",
+    "ksp_value_display": "0.00000000000561",
+    "margin_display": "44.9",
+    "margin_direction": "below"
+  },
+  "misconception": {
+    "claim": "Magnesium hydroxide is a classic insoluble compound, so mixing any magnesium salt with hydroxide must produce a precipitate.",
+    "refuted_by": "q_below_ksp"
+  },
+  "reference_links": [
+    "reaction-quotient",
+    "solubility-product",
+    "chemical-equilibrium",
+    "precipitation",
+    "molarity"
+  ],
+  "checks": {
+    "mixing_dilution": true,
+    "quotient_computed": true,
+    "verdict_consistent": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "solubility_products": "openstax-chemistry-2e",
+      "ion_charge": "openstax-chemistry-2e"
+    }
+  }
+}

@@ -1720,3 +1720,13 @@ concentration; Q; the margin; the source `per_formula`). In-browser: the mixing 
 ("✓ A precipitate forms", Q > Kₛₚ ≈ 4170×) render, 0 KaTeX errors, all 5 concept chips resolve. Lessons now come in **five
 shapes** (reaction · structure · comparison · equilibrium · prediction); the equilibrium tier spans **six `equilibrium`
 subtypes + the `prediction` kind** — the ledger solved to equilibrium, and now the ledger's quotient tested against it.
+
+**Follow-on (same increment) — the other verdict + a verdict-general player.** A second prediction lesson
+`equilibrium/magnesium-hydroxide-no-precipitate` shows the $Q < K_{sp}$ case: dilute Mg(NO₃)₂ + NaOH → $Q = 1.25\times10^{-13}$,
+about **45× below** $K_{sp} = 5.61\times10^{-12}$ → **stays clear**. It makes "insoluble" read as *quantitative* (a precipitate
+forms only when Q exceeds Kₛₚ, not because a compound is "insoluble"), refuting the reverse misconception; and it exercises the
+**second** curated Kₛₚ salt (Mg(OH)₂) plus a **polyatomic-ion** (OH⁻) source — whose multiplicity rides the disclosed
+full-dissociation model (the monatomic composition check applies only to a monatomic ion). Authoring it surfaced a latent gap:
+`PredictionLesson.astro`'s misconception refutation had been hardcoded for the "precipitate forms / Q above Kₛₚ" case — now
+**branched on the verdict**, so the `prediction` kind handles both outcomes cleanly. **393 tests** (+1); validate-solutions =
+2 prediction (18 ids); check-katex 773; **40 pages**; the "no" verdict tamper-tested (flipping it to "precipitate" is caught).

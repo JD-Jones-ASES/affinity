@@ -121,12 +121,25 @@ const sources = [cat, an];
     <div class="misconception">
       <div class="mis-claim"><span class="x">✗</span> Common misconception: “<span set:html={lesson.misconception.claimHtml} />”</div>
       <p class="mis-fix">
-        The clarity or dilution of each beaker on its own decides <strong>nothing</strong> — neither holds any
-        {" "}{lesson.reaction.saltPretty} to begin with. What matters is the <strong>ion product of the mixture</strong>
-        {" "}versus K<sub>sp</sub>. Here Q = <strong>{res.qSci}</strong> lands about <strong>{res.margin_display}×</strong>
-        {" "}above K<sub>sp</sub> = {res.kspSci}, because K<sub>sp</sub> is so tiny that even millimolar
-        {" "}[{cat.ionPretty}] and [{an.ionPretty}] blow past it. So {lesson.reaction.saltPretty} precipitates — the
-        {" "}Q-vs-K<sub>sp</sub> test, not the look of the parts, is what predicts it.
+        {forms ? (
+          <>
+            The clarity or dilution of each beaker on its own decides <strong>nothing</strong> — neither holds any
+            {" "}{lesson.reaction.saltPretty} to begin with. What matters is the <strong>ion product of the mixture</strong>
+            {" "}versus K<sub>sp</sub>. Here Q = <strong>{res.qSci}</strong> lands about <strong>{res.margin_display}×</strong>
+            {" "}above K<sub>sp</sub> = {res.kspSci}, because K<sub>sp</sub> is so tiny that even millimolar
+            {" "}[{cat.ionPretty}] and [{an.ionPretty}] blow past it. So {lesson.reaction.saltPretty} precipitates — the
+            {" "}Q-vs-K<sub>sp</sub> test, not the look of the parts, is what predicts it.
+          </>
+        ) : (
+          <>
+            “Insoluble” is not a yes/no label — it is <strong>quantitative</strong>. A precipitate appears only when the
+            {" "}<strong>ion product of the mixture</strong> <em>exceeds</em> K<sub>sp</sub>. Here Q = <strong>{res.qSci}</strong>
+            {" "}sits about <strong>{res.margin_display}×</strong> <em>below</em> K<sub>sp</sub> = {res.kspSci}, so the solution
+            {" "}is <strong>unsaturated</strong> and stays perfectly clear — the {cat.ionPretty} and {an.ionPretty} stay
+            dissolved. Dilute enough and even a famously insoluble salt like {lesson.reaction.saltPretty} does not form. It is
+            the Q-vs-K<sub>sp</sub> comparison, not the compound's reputation, that decides.
+          </>
+        )}
       </p>
     </div>
   )}

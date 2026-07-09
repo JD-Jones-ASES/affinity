@@ -1,0 +1,58 @@
+# Prediction lesson, the `prediction` kind (ADR-0048, 9th increment) — the OTHER verdict. Where calcium-fluoride-
+# precipitation shows Q > Ksp (a precipitate forms), this shows Q < Ksp (the solution stays clear), so "insoluble"
+# is revealed as quantitative, not a yes/no label. Exercises the second curated Ksp salt (Mg(OH)2) and a polyatomic-
+# ion source (OH- from NaOH — the monatomic multiplicity check is skipped, the dissociation disclosed as a model).
+# TOML trap #4: every bare key precedes the [cation_source] / [anion_source] / [[assumptions]] / [misconception] headers.
+
+id = "magnesium-hydroxide-no-precipitate"
+title = "Insoluble, but no precipitate? Dilute magnesium and hydroxide"
+slug = "magnesium-hydroxide-no-precipitate"
+topic = "equilibrium"
+tags = ["equilibrium", "precipitation", "reaction quotient", "Q vs Ksp", "solubility"]
+
+# the sparingly soluble product; Ksp + the ion composition are curated + machine-checked in solubility-products.toml
+salt = "Mg(OH)2"
+
+scenario = "Milk of magnesia is a suspension of solid **magnesium hydroxide**, Mg(OH)2 — the textbook “insoluble” base. So surely mixing a magnesium salt with a hydroxide makes the solid appear? Stir 50.0 mL of 0.00010 M Mg(NO3)2 (magnesium nitrate) into 50.0 mL of 0.00010 M NaOH — both perfectly clear. The dissolution equilibrium is $\\mathrm{Mg(OH)_2(s)} \\rightleftharpoons \\mathrm{Mg^{2+}(aq)} + 2\\,\\mathrm{OH^-(aq)}$, and whether a solid forms is decided by the **reaction quotient**: dilute each ion into the combined 100.0 mL, evaluate $Q = [\\mathrm{Mg^{2+}}][\\mathrm{OH^-}]^2$, and compare it to $K_{sp}$. If $Q < K_{sp}$ the solution is **unsaturated** and stays clear — however “insoluble” the compound is called."
+
+reference_links = ["reaction-quotient", "solubility-product", "chemical-equilibrium", "precipitation", "molarity"]
+
+author = "Affinity"
+created = "2026-07-08"
+
+# solution A: the cation source. Mg(NO3)2 is a soluble strong electrolyte releasing one Mg2+ per formula unit
+# (machine-checked: one Mg in the formula); NO3- is a spectator.
+[cation_source]
+formula = "Mg(NO3)2"
+name = "magnesium nitrate"
+molarity_M = "0.00010"
+volume_mL = "50.0"
+per_formula = 1
+
+# solution B: the anion source. NaOH releases one OH- per formula unit (a polyatomic ion — the multiplicity rides
+# the disclosed full-dissociation model, not the monatomic composition check); Na+ is a spectator.
+[anion_source]
+formula = "NaOH"
+name = "sodium hydroxide"
+molarity_M = "0.00010"
+volume_mL = "50.0"
+per_formula = 1
+
+# modeling assumptions — disclosed (ADR-0003, the model-assumed badge). The ion accounting (dilution + Q) is exact;
+# the verdict rides on these idealizations.
+[[assumptions]]
+claim = "Both source salts are soluble strong electrolytes that dissociate completely, and volumes are additive — so mixing 50.0 mL and 50.0 mL dilutes each ion into the combined 100.0 mL. The spectators $\\mathrm{Na^+}$ and $\\mathrm{NO_3^-}$ take no part, and water's own $\\mathrm{OH^-}$ (about $10^{-7}$ M) is negligible beside the added hydroxide."
+kind = "model"
+
+[[assumptions]]
+claim = "Activities are approximated by molar concentrations (the ideal-dilute-solution model), which is why $Q$ and $K_{sp}$ are written with concentrations."
+kind = "model"
+
+[[assumptions]]
+claim = "The thermodynamic prediction is taken to hold: $Q < K_{sp}$ means no solid forms (the solution is unsaturated), and nothing kinetic changes that."
+kind = "model"
+
+# the canonical wrong move: treating "insoluble" as a guarantee of precipitation, ignoring how dilute the mix is.
+[misconception]
+claim = "Magnesium hydroxide is a classic insoluble compound, so mixing any magnesium salt with hydroxide must produce a precipitate."
+refuted_by = "q_below_ksp"

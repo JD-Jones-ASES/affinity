@@ -3,6 +3,19 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — equilibrium: the other verdict — a "stays clear" prediction lesson (ADR-0048, 9th increment follow-on)
+
+A second `prediction` lesson completing the Q-vs-Kₛₚ story — the case where **no** precipitate forms — plus a small player fix.
+
+- **Lesson `equilibrium/magnesium-hydroxide-no-precipitate`** — dilute Mg(NO₃)₂ + NaOH → [Mg²⁺] = [OH⁻] = 5.0×10⁻⁵ M, so
+  **Q = 1.25×10⁻¹³ < Kₛₚ = 5.61×10⁻¹² (≈45× below)** → **stays clear**. "Insoluble" is revealed as *quantitative*: a precipitate
+  forms only when Q exceeds Kₛₚ, not because a compound has an "insoluble" reputation. Exercises the **second** curated Kₛₚ salt
+  (Mg(OH)₂) and a **polyatomic-ion** (OH⁻) source (its multiplicity rides the disclosed dissociation model).
+- **Verdict-general player.** `PredictionLesson.astro`'s misconception refutation had been hardcoded for the "precipitate forms"
+  case; it now branches on the verdict, so the `prediction` kind renders both outcomes correctly.
+- **Verification:** **393 producer tests** (+1); 7 gates green (**validate-solutions = 2 prediction / 18 ids**, check-katex 773);
+  **astro build = 40 pages** (+1); `derived/` byte-stable. The "no" verdict tamper-tested; browser-verified (0 KaTeX errors).
+
 ## Phase 2 — 2026-07-08 — equilibrium: Q-vs-Kₛₚ precipitation prediction — the `prediction` lesson kind (ADR-0048, 9th increment)
 
 The flagged remaining equilibrium item, and the first face that is **not** a solve: *will a precipitate form when two solutions

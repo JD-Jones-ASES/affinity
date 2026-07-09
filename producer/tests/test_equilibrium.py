@@ -28,6 +28,7 @@ SPEC_TITRATION = ROOT / "problems" / "equilibrium" / "acetic-acid-titration.equi
 SPEC_BASE = ROOT / "problems" / "equilibrium" / "ammonia-ph.equilibrium.toml"
 SPEC_BUFFER = ROOT / "problems" / "equilibrium" / "acetate-buffer.equilibrium.toml"
 SPEC_PREDICTION = ROOT / "problems" / "equilibrium" / "calcium-fluoride-precipitation.prediction.toml"
+SPEC_PREDICTION_NO = ROOT / "problems" / "equilibrium" / "magnesium-hydroxide-no-precipitate.prediction.toml"
 
 
 def _acid_system(c0, hplus=Decimal(0)):
@@ -771,3 +772,14 @@ def test_prediction_round_trip():
     assert out_rel == "equilibrium/calcium-fluoride-precipitation.prediction.json"
     assert lesson["kind"] == "prediction"
     assert lesson["result"]["forms_precipitate"] is True
+
+
+def test_prediction_no_precipitate_round_trip():
+    """The Mg(OH)₂ lesson: a dilute mix where Q < Ksp → no precipitate (the other verdict, the 2nd curated Ksp salt,
+    and a polyatomic-ion (OH⁻) source whose multiplicity rides the disclosed dissociation model)."""
+    lesson, out_rel = build_prediction(SPEC_PREDICTION_NO, ROOT)
+    assert out_rel == "equilibrium/magnesium-hydroxide-no-precipitate.prediction.json"
+    assert lesson["reaction"]["salt"] == "Mg(OH)2"
+    assert lesson["result"]["verdict"] == "no-precipitate"
+    assert lesson["result"]["forms_precipitate"] is False
+    assert lesson["result"]["comparison_symbol"] == "<"

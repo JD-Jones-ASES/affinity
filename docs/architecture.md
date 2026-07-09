@@ -45,7 +45,7 @@ tab (`PracticeQuestion.svelte`); `gym/[slug].astro` + `DimensionalGym.svelte` ru
 `reference/` hosts the Atlas + Valence Table. Spec formats are documented (`docs/authoring-problems.md`,
 `docs/authoring-gyms.md`) and **CI deploys to GitHub Pages** (`.github/workflows/deploy.yml`, live at
 `/affinity`). Independent **test oracles** (ADR-0026: `chempy`, `periodictable` as dev-deps) cross-check the
-molar masses and balancer in pytest. **Current counters: 17 lessons (2 precipitation + 1 percent-yield + 1
+molar masses and balancer in pytest. **Current counters: 18 lessons (2 precipitation + 1 percent-yield + 1
 acid-base neutralization, ADR-0037; + 1 gas-stoichiometry — the ledger drives a gas volume via PV=nRT, ADR-0041;
 + 1 thermochemistry/energy-ledger — the ledger drives a heat q=ΔH_rxn·ξ via Hess's law, ADR-0043; + 2 bonding/structure —
 a single molecule's Lewis electron ledger stepped to VSEPR + polarity, the `structure` lesson kind, ADR-0045: water
@@ -57,9 +57,10 @@ case) + the weak-base pH of ammonia (water excluded from Q, pH via the Kw bridge
 solid excluded from Q, a cubic — plus a common-ion variant (CaF₂ into 0.10 M F⁻, dissolution suppressed 59 400×) + the
 polyprotic staged pH of H₃PO₄ (Kₐ1≫Kₐ2≫Kₐ3, the solver run once per stage on the previous stage's output) + a titration curve
 (acetic acid vs NaOH — the ledger marched by region, a build-time SVG of verified points)
-+ 1 prediction — Q vs Ksp: mix two solutions, compute the reaction quotient at the mixed concentrations, compare to Ksp →
++ 2 prediction — Q vs Ksp: mix two solutions, compute the reaction quotient at the mixed concentrations, compare to Ksp →
 does a precipitate form? A **snapshot, not a solve**; the `prediction` lesson kind (ADR-0048 9th increment); CaF₂ from Ca(NO₃)₂
-+ NaF → Q ≈ 4170× Ksp → precipitates)
++ NaF → Q ≈ 4170× Ksp → **precipitates**, and dilute Mg(OH)₂ from Mg(NO₃)₂ + NaOH → Q ≈ 45× below Ksp → **stays clear**, the
+other verdict)
 + 12 gyms (conversions + ionic nomenclature + balancing + mass
 stoichiometry + percent yield + limiting reagent + periodic trends + reaction families + gas laws + calorimetry +
 Lewis structures + weak-acid pH; 120 drills — numeric families free-entry, ADR-0032), 1 Valence Table (23 elements; four modes — Explore lenses /
@@ -70,7 +71,7 @@ re-summed in Node, ADR-0038) + 6 molecule structure entries (Lewis electron ledg
 machine-checked, re-derived in Node, + VSEPR geometry from `data/vsepr.toml`, + a structure-derived **dominant IMF**
 ADR-0046, ADR-0044) + 9 formula-sheet entries
 (dimensional homogeneity machine-checked, ADR-0039 — incl. Hess's law ΔH_rxn=Σν·ΔH_f°, ADR-0043) = **70 Atlas reference
-objects**, 392 producer tests + 7 Node gates + `astro build` (39 pages) + live CI/Pages green. Lesson practice mass/leftover/volume/heat questions are
+objects**, 393 producer tests + 7 Node gates + `astro build` (40 pages) + live CI/Pages green. Lesson practice mass/leftover/volume/heat questions are
 free-entry too (ADR-0032); gas-stoichiometry (ADR-0041) + energy-ledger (ADR-0043) practice re-derive from reaction constants with no interactive block.**
 
 ## ChemKernel module map (brief §6)
