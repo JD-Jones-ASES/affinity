@@ -121,7 +121,7 @@ def test_refuse_incomplete_octet():
 
 def test_refuse_off_dataset_element():
     bad = copy.deepcopy(WATER)
-    bad["atoms"][0]["element"] = "Xe"                       # not in data/elements.toml
+    bad["atoms"][0]["element"] = "Zz"                       # not a real element (all 118 real ones exist)
     with pytest.raises(BuildError, match="absent from data/elements.toml"):
         _mol(bad)
 

@@ -1,38 +1,46 @@
-# Curated element dataset (ADR-0006, ADR-0012, ADR-0031). ChemKernel reads empirical constants ONLY from here.
+# Curated element dataset (ADR-0006, ADR-0012, ADR-0031, ADR-0052). ChemKernel reads empirical constants ONLY from here.
+# The full 118-element periodic table (ADR-0052): "depth for the common elements, breadth for the rest" — the
+# original curated 23 (H-Ca, Fe, Cu, Zn) keep their ions/salts/lessons; every other element carries honest
+# breadth (placement + identity + sourced properties where an authority confidently defines one).
 #
 # ── Atomic weights ────────────────────────────────────────────────────────────────────────────────────
 # IUPAC/CIAAW *abridged* standard atomic weights (Atomic Weights 2021 report, table rev. 2024) — SOURCES id
-# `ciaaw-2021-atomic-weights`. The values are scientific facts (not copyrightable); CIAAW is cited as the
-# authority + access date. Stored as strings, read as Decimal so precision/sig-figs survive and no float ever
-# enters the pipeline (ADR-0013). Most elements carry the abridged `uncertainty`; a few interval elements
-# (Li, B, N, Si, P, S, Ar) omit it this pass as a deferred backfill — NOT because they lack one (CIAAW's
-# abridged table does list interval-element uncertainties, e.g. Li 6.94 ± 0.06). The stored weight is always
-# the abridged single value; `uncertainty` is provenance metadata, unused in any calculation.
+# `ciaaw-2021-atomic-weights`. Stored as strings, read as Decimal so precision/sig-figs survive and no float
+# ever enters the pipeline (ADR-0013). Each element with a standard weight carries the abridged `uncertainty`
+# (the abridged single value + its abridged uncertainty; e.g. Li 6.94 ± 0.06, Ar 39.95 ± 0.16). `uncertainty`
+# is provenance metadata, unused in any calculation.
+#
+# ── No standard atomic weight (ADR-0052) ────────────────────────────────────────────────────────────────
+# The radioactive elements with no CIAAW standard atomic weight (Tc, Pm, Po, At, Rn, Fr, Ra, Ac, and every
+# Z >= 93) carry NO `atomic_weight`; instead they carry `mass_number` — the mass number of the longest-lived
+# isotope, from the IUPAC periodic table (source `iupac-periodic-table`), the IUPAC bracket convention. It is
+# a distinct integer field that NEVER enters arithmetic (data.py refuses to Decimal() it); the valence-table
+# builder emits the bracketed display form "[98]". Exactly one of `atomic_weight` / `mass_number` per element.
+# (The superheavy "longest-lived isotope" is genuinely source/date-dependent; the value is display provenance.)
 #
 # ── Positions ─────────────────────────────────────────────────────────────────────────────────────────
-# group/period/block are the definitional IUPAC periodic-table positions — source `iupac-periodic-table`.
+# group/period/block are the definitional IUPAC positions — source `iupac-periodic-table`. f-block convention:
+# La (57) and Ac (89) are group 3, block "d"; the fourteen f-block elements Ce-Lu (58-71) and Th-Lr (90-103)
+# carry `block = "f"` and NO `group` (the schema makes `group` optional only for the f-block). This matches
+# the mendeleev oracle's convention, so group/period/block are all independently cross-checked (ADR-0026).
 #
-# ── Periodic properties (ADR-0031, Phase 1 item 5a) ─────────────────────────────────────────────────────
-# electronegativity        revised-Pauling scale (Allred 1961) — source `allred-1961-electronegativity`. These
-#                          are the two-decimal values in the CRC Handbook (F 3.98, O 3.44, …), NOT OpenStax
-#                          Fig 7.6's single-decimal classic-Pauling table (F 4.0). Undefined for the noble
-#                          gases (He, Ne, Ar): omitted, never written as 0.
+# ── Periodic properties (ADR-0031, ADR-0052) ────────────────────────────────────────────────────────────
+# electronegativity        revised-Pauling scale (Allred 1961 / CRC two-decimal) — source
+#                          `allred-1961-electronegativity`. Shipped for 71 elements. OMITTED where undefined
+#                          or unconfirmable: the noble gases (undefined on the Pauling scale), the lanthanides
+#                          the oracle cannot confirm (Pm, Eu, Tb, Yb), Np and every Z >= 95, AND ten heavy
+#                          metals (Tc, Lu, W, Pt, Au, Hg, Tl, Pb, Bi, U) where the Allred-revised value and the
+#                          independent mendeleev cross-check diverge by > 0.06 (the Pauling scale for heavy
+#                          metals is compilation-dependent) — a gap is honest; we never ship a disputed value.
 # covalent_radius_pm       single-bond covalent radius (Cordero et al., Dalton Trans. 2008) — source
-#                          `cordero-2008-covalent-radii`. Main-group Z ≤ 20 only; the transition metals
-#                          (Fe, Cu, Zn) have spin-state-dependent radii and are omitted this pass (a later
-#                          transition-metal radius session curates them with the spin state disclosed).
-# first_ionization_kj_mol  first ionization energy (NIST atomic data, public domain) — source
-#                          `nist-ionization-energies`.
-# All three are OPTIONAL per element, stored as strings → Decimal (never float, ADR-0013), and cross-checked
-# against the independent `mendeleev` oracle in tests/test_oracle.py (ADR-0026). Every source id resolves in
-# docs/SOURCES.md; the validate-reference gate fails on any that does not.
-#
-# ── Element set ─────────────────────────────────────────────────────────────────────────────────────────
-# The first twenty elements (H…Ca — periods 1–3 complete, period 4 opened) plus the three transition metals
-# the nomenclature engine introduced (Fe, Cu, Zn). This spans the clean periodic trends the Valence-Table
-# flagship teaches: period 2 (Li→Ne) and period 3 (Na→Ar) left-to-right, and groups 1 (H/Li/Na/K),
-# 2 (Be/Mg/Ca), 17 (F/Cl), 18 (He/Ne/Ar) top-to-bottom. Every ion in ions.toml stays composed of elements
-# present here (the load-time self-check in data.py depends on it).
+#                          `cordero-2008-covalent-radii`. Main-group Z <= 20 only (unchanged this wave); the
+#                          transition metals have spin-state-dependent radii and stay omitted.
+# first_ionization_kj_mol  first ionization energy (NIST ASD, public domain) — source `nist-ionization-energies`.
+#                          Shipped for Z 1-103 (measured/recommended). The transactinides (Z >= 104) are omitted
+#                          — their ionization energies are theoretical estimates, not confidently measured.
+# All are OPTIONAL per element, stored as strings -> Decimal (never float, ADR-0013), and cross-checked against
+# the independent `mendeleev` oracle in tests/test_oracle.py (ADR-0026): atomic weight vs `periodictable`;
+# name/group/period/block, EN, and ionization energy vs `mendeleev`. Every source id resolves in docs/SOURCES.md.
 
 source = "ciaaw-2021-atomic-weights"
 position_source = "iupac-periodic-table"
@@ -67,6 +75,7 @@ first_ionization_kj_mol = "2372.3"
 Z = 3
 name = "lithium"
 atomic_weight = "6.94"
+uncertainty = "0.06"
 group = 1
 period = 2
 block = "s"
@@ -90,6 +99,7 @@ first_ionization_kj_mol = "899.5"
 Z = 5
 name = "boron"
 atomic_weight = "10.81"
+uncertainty = "0.02"
 group = 13
 period = 2
 block = "p"
@@ -113,6 +123,7 @@ first_ionization_kj_mol = "1086.5"
 Z = 7
 name = "nitrogen"
 atomic_weight = "14.007"
+uncertainty = "0.001"
 group = 15
 period = 2
 block = "p"
@@ -195,6 +206,7 @@ first_ionization_kj_mol = "577.5"
 Z = 14
 name = "silicon"
 atomic_weight = "28.085"
+uncertainty = "0.001"
 group = 14
 period = 3
 block = "p"
@@ -206,6 +218,7 @@ first_ionization_kj_mol = "786.5"
 Z = 15
 name = "phosphorus"
 atomic_weight = "30.974"
+uncertainty = "0.001"
 group = 15
 period = 3
 block = "p"
@@ -217,6 +230,7 @@ first_ionization_kj_mol = "1011.8"
 Z = 16
 name = "sulfur"
 atomic_weight = "32.06"
+uncertainty = "0.02"
 group = 16
 period = 3
 block = "p"
@@ -240,6 +254,7 @@ first_ionization_kj_mol = "1251.2"
 Z = 18
 name = "argon"
 atomic_weight = "39.95"
+uncertainty = "0.16"
 group = 18
 period = 3
 block = "p"
@@ -270,8 +285,60 @@ electronegativity = "1.00"
 covalent_radius_pm = "176"
 first_ionization_kj_mol = "589.8"
 
-# --- transition metals introduced by the nomenclature engine (Phase 1 item 2); Fe and Cu are variable-charge
-#     (the Stock system). Covalent radii omitted (spin-state-dependent — deferred, see header). ---
+[elements.Sc]
+Z = 21
+name = "scandium"
+atomic_weight = "44.956"
+uncertainty = "0.001"
+group = 3
+period = 4
+block = "d"
+electronegativity = "1.36"
+first_ionization_kj_mol = "633.1"
+
+[elements.Ti]
+Z = 22
+name = "titanium"
+atomic_weight = "47.867"
+uncertainty = "0.001"
+group = 4
+period = 4
+block = "d"
+electronegativity = "1.54"
+first_ionization_kj_mol = "658.8"
+
+[elements.V]
+Z = 23
+name = "vanadium"
+atomic_weight = "50.942"
+uncertainty = "0.001"
+group = 5
+period = 4
+block = "d"
+electronegativity = "1.63"
+first_ionization_kj_mol = "650.9"
+
+[elements.Cr]
+Z = 24
+name = "chromium"
+atomic_weight = "51.996"
+uncertainty = "0.001"
+group = 6
+period = 4
+block = "d"
+electronegativity = "1.66"
+first_ionization_kj_mol = "652.9"
+
+[elements.Mn]
+Z = 25
+name = "manganese"
+atomic_weight = "54.938"
+uncertainty = "0.001"
+group = 7
+period = 4
+block = "d"
+electronegativity = "1.55"
+first_ionization_kj_mol = "717.3"
 
 [elements.Fe]
 Z = 26
@@ -283,6 +350,28 @@ period = 4
 block = "d"
 electronegativity = "1.83"
 first_ionization_kj_mol = "762.5"
+
+[elements.Co]
+Z = 27
+name = "cobalt"
+atomic_weight = "58.933"
+uncertainty = "0.001"
+group = 9
+period = 4
+block = "d"
+electronegativity = "1.88"
+first_ionization_kj_mol = "760.4"
+
+[elements.Ni]
+Z = 28
+name = "nickel"
+atomic_weight = "58.693"
+uncertainty = "0.001"
+group = 10
+period = 4
+block = "d"
+electronegativity = "1.91"
+first_ionization_kj_mol = "737.1"
 
 [elements.Cu]
 Z = 29
@@ -305,3 +394,850 @@ period = 4
 block = "d"
 electronegativity = "1.65"
 first_ionization_kj_mol = "906.4"
+
+[elements.Ga]
+Z = 31
+name = "gallium"
+atomic_weight = "69.723"
+uncertainty = "0.001"
+group = 13
+period = 4
+block = "p"
+electronegativity = "1.81"
+first_ionization_kj_mol = "578.8"
+
+[elements.Ge]
+Z = 32
+name = "germanium"
+atomic_weight = "72.630"
+uncertainty = "0.008"
+group = 14
+period = 4
+block = "p"
+electronegativity = "2.01"
+first_ionization_kj_mol = "762.0"
+
+[elements.As]
+Z = 33
+name = "arsenic"
+atomic_weight = "74.922"
+uncertainty = "0.001"
+group = 15
+period = 4
+block = "p"
+electronegativity = "2.18"
+first_ionization_kj_mol = "944.5"
+
+[elements.Se]
+Z = 34
+name = "selenium"
+atomic_weight = "78.971"
+uncertainty = "0.008"
+group = 16
+period = 4
+block = "p"
+electronegativity = "2.55"
+first_ionization_kj_mol = "941.0"
+
+[elements.Br]
+Z = 35
+name = "bromine"
+atomic_weight = "79.904"
+uncertainty = "0.003"
+group = 17
+period = 4
+block = "p"
+electronegativity = "2.96"
+first_ionization_kj_mol = "1139.9"
+
+[elements.Kr]
+Z = 36
+name = "krypton"
+atomic_weight = "83.798"
+uncertainty = "0.002"
+group = 18
+period = 4
+block = "p"
+first_ionization_kj_mol = "1350.8"
+
+[elements.Rb]
+Z = 37
+name = "rubidium"
+atomic_weight = "85.468"
+uncertainty = "0.001"
+group = 1
+period = 5
+block = "s"
+electronegativity = "0.82"
+first_ionization_kj_mol = "403.0"
+
+[elements.Sr]
+Z = 38
+name = "strontium"
+atomic_weight = "87.62"
+uncertainty = "0.01"
+group = 2
+period = 5
+block = "s"
+electronegativity = "0.95"
+first_ionization_kj_mol = "549.5"
+
+[elements.Y]
+Z = 39
+name = "yttrium"
+atomic_weight = "88.906"
+uncertainty = "0.001"
+group = 3
+period = 5
+block = "d"
+electronegativity = "1.22"
+first_ionization_kj_mol = "600.0"
+
+[elements.Zr]
+Z = 40
+name = "zirconium"
+atomic_weight = "91.222"
+uncertainty = "0.003"
+group = 4
+period = 5
+block = "d"
+electronegativity = "1.33"
+first_ionization_kj_mol = "640.1"
+
+[elements.Nb]
+Z = 41
+name = "niobium"
+atomic_weight = "92.906"
+uncertainty = "0.001"
+group = 5
+period = 5
+block = "d"
+electronegativity = "1.60"
+first_ionization_kj_mol = "652.1"
+
+[elements.Mo]
+Z = 42
+name = "molybdenum"
+atomic_weight = "95.95"
+uncertainty = "0.01"
+group = 6
+period = 5
+block = "d"
+electronegativity = "2.16"
+first_ionization_kj_mol = "684.3"
+
+[elements.Tc]
+Z = 43
+name = "technetium"
+mass_number = 97
+group = 7
+period = 5
+block = "d"
+first_ionization_kj_mol = "686.9"
+
+[elements.Ru]
+Z = 44
+name = "ruthenium"
+atomic_weight = "101.07"
+uncertainty = "0.02"
+group = 8
+period = 5
+block = "d"
+electronegativity = "2.20"
+first_ionization_kj_mol = "710.2"
+
+[elements.Rh]
+Z = 45
+name = "rhodium"
+atomic_weight = "102.91"
+uncertainty = "0.01"
+group = 9
+period = 5
+block = "d"
+electronegativity = "2.28"
+first_ionization_kj_mol = "719.7"
+
+[elements.Pd]
+Z = 46
+name = "palladium"
+atomic_weight = "106.42"
+uncertainty = "0.01"
+group = 10
+period = 5
+block = "d"
+electronegativity = "2.20"
+first_ionization_kj_mol = "804.4"
+
+[elements.Ag]
+Z = 47
+name = "silver"
+atomic_weight = "107.87"
+uncertainty = "0.01"
+group = 11
+period = 5
+block = "d"
+electronegativity = "1.93"
+first_ionization_kj_mol = "731.0"
+
+[elements.Cd]
+Z = 48
+name = "cadmium"
+atomic_weight = "112.41"
+uncertainty = "0.01"
+group = 12
+period = 5
+block = "d"
+electronegativity = "1.69"
+first_ionization_kj_mol = "867.8"
+
+[elements.In]
+Z = 49
+name = "indium"
+atomic_weight = "114.82"
+uncertainty = "0.01"
+group = 13
+period = 5
+block = "p"
+electronegativity = "1.78"
+first_ionization_kj_mol = "558.3"
+
+[elements.Sn]
+Z = 50
+name = "tin"
+atomic_weight = "118.71"
+uncertainty = "0.01"
+group = 14
+period = 5
+block = "p"
+electronegativity = "1.96"
+first_ionization_kj_mol = "708.6"
+
+[elements.Sb]
+Z = 51
+name = "antimony"
+atomic_weight = "121.76"
+uncertainty = "0.01"
+group = 15
+period = 5
+block = "p"
+electronegativity = "2.05"
+first_ionization_kj_mol = "830.6"
+
+[elements.Te]
+Z = 52
+name = "tellurium"
+atomic_weight = "127.60"
+uncertainty = "0.03"
+group = 16
+period = 5
+block = "p"
+electronegativity = "2.10"
+first_ionization_kj_mol = "869.3"
+
+[elements.I]
+Z = 53
+name = "iodine"
+atomic_weight = "126.90"
+uncertainty = "0.01"
+group = 17
+period = 5
+block = "p"
+electronegativity = "2.66"
+first_ionization_kj_mol = "1008.4"
+
+[elements.Xe]
+Z = 54
+name = "xenon"
+atomic_weight = "131.29"
+uncertainty = "0.01"
+group = 18
+period = 5
+block = "p"
+first_ionization_kj_mol = "1170.4"
+
+[elements.Cs]
+Z = 55
+name = "cesium"
+atomic_weight = "132.91"
+uncertainty = "0.01"
+group = 1
+period = 6
+block = "s"
+electronegativity = "0.79"
+first_ionization_kj_mol = "375.7"
+
+[elements.Ba]
+Z = 56
+name = "barium"
+atomic_weight = "137.33"
+uncertainty = "0.01"
+group = 2
+period = 6
+block = "s"
+electronegativity = "0.89"
+first_ionization_kj_mol = "502.9"
+
+[elements.La]
+Z = 57
+name = "lanthanum"
+atomic_weight = "138.91"
+uncertainty = "0.01"
+group = 3
+period = 6
+block = "d"
+electronegativity = "1.10"
+first_ionization_kj_mol = "538.1"
+
+[elements.Ce]
+Z = 58
+name = "cerium"
+atomic_weight = "140.12"
+uncertainty = "0.01"
+period = 6
+block = "f"
+electronegativity = "1.12"
+first_ionization_kj_mol = "534.4"
+
+[elements.Pr]
+Z = 59
+name = "praseodymium"
+atomic_weight = "140.91"
+uncertainty = "0.01"
+period = 6
+block = "f"
+electronegativity = "1.13"
+first_ionization_kj_mol = "527.0"
+
+[elements.Nd]
+Z = 60
+name = "neodymium"
+atomic_weight = "144.24"
+uncertainty = "0.01"
+period = 6
+block = "f"
+electronegativity = "1.14"
+first_ionization_kj_mol = "533.1"
+
+[elements.Pm]
+Z = 61
+name = "promethium"
+mass_number = 145
+period = 6
+block = "f"
+first_ionization_kj_mol = "540.0"
+
+[elements.Sm]
+Z = 62
+name = "samarium"
+atomic_weight = "150.36"
+uncertainty = "0.02"
+period = 6
+block = "f"
+electronegativity = "1.17"
+first_ionization_kj_mol = "544.5"
+
+[elements.Eu]
+Z = 63
+name = "europium"
+atomic_weight = "151.96"
+uncertainty = "0.01"
+period = 6
+block = "f"
+first_ionization_kj_mol = "547.1"
+
+[elements.Gd]
+Z = 64
+name = "gadolinium"
+atomic_weight = "157.25"
+uncertainty = "0.01"
+period = 6
+block = "f"
+electronegativity = "1.20"
+first_ionization_kj_mol = "593.4"
+
+[elements.Tb]
+Z = 65
+name = "terbium"
+atomic_weight = "158.93"
+uncertainty = "0.01"
+period = 6
+block = "f"
+first_ionization_kj_mol = "565.8"
+
+[elements.Dy]
+Z = 66
+name = "dysprosium"
+atomic_weight = "162.50"
+uncertainty = "0.01"
+period = 6
+block = "f"
+electronegativity = "1.22"
+first_ionization_kj_mol = "573.0"
+
+[elements.Ho]
+Z = 67
+name = "holmium"
+atomic_weight = "164.93"
+uncertainty = "0.01"
+period = 6
+block = "f"
+electronegativity = "1.23"
+first_ionization_kj_mol = "581.0"
+
+[elements.Er]
+Z = 68
+name = "erbium"
+atomic_weight = "167.26"
+uncertainty = "0.01"
+period = 6
+block = "f"
+electronegativity = "1.24"
+first_ionization_kj_mol = "589.3"
+
+[elements.Tm]
+Z = 69
+name = "thulium"
+atomic_weight = "168.93"
+uncertainty = "0.01"
+period = 6
+block = "f"
+electronegativity = "1.25"
+first_ionization_kj_mol = "596.7"
+
+[elements.Yb]
+Z = 70
+name = "ytterbium"
+atomic_weight = "173.05"
+uncertainty = "0.02"
+period = 6
+block = "f"
+first_ionization_kj_mol = "603.4"
+
+[elements.Lu]
+Z = 71
+name = "lutetium"
+atomic_weight = "174.97"
+uncertainty = "0.01"
+period = 6
+block = "f"
+first_ionization_kj_mol = "523.5"
+
+[elements.Hf]
+Z = 72
+name = "hafnium"
+atomic_weight = "178.49"
+uncertainty = "0.01"
+group = 4
+period = 6
+block = "d"
+electronegativity = "1.30"
+first_ionization_kj_mol = "658.5"
+
+[elements.Ta]
+Z = 73
+name = "tantalum"
+atomic_weight = "180.95"
+uncertainty = "0.01"
+group = 5
+period = 6
+block = "d"
+electronegativity = "1.50"
+first_ionization_kj_mol = "728.4"
+
+[elements.W]
+Z = 74
+name = "tungsten"
+atomic_weight = "183.84"
+uncertainty = "0.01"
+group = 6
+period = 6
+block = "d"
+first_ionization_kj_mol = "758.8"
+
+[elements.Re]
+Z = 75
+name = "rhenium"
+atomic_weight = "186.21"
+uncertainty = "0.01"
+group = 7
+period = 6
+block = "d"
+electronegativity = "1.90"
+first_ionization_kj_mol = "755.8"
+
+[elements.Os]
+Z = 76
+name = "osmium"
+atomic_weight = "190.23"
+uncertainty = "0.03"
+group = 8
+period = 6
+block = "d"
+electronegativity = "2.20"
+first_ionization_kj_mol = "814.2"
+
+[elements.Ir]
+Z = 77
+name = "iridium"
+atomic_weight = "192.22"
+uncertainty = "0.01"
+group = 9
+period = 6
+block = "d"
+electronegativity = "2.20"
+first_ionization_kj_mol = "865.2"
+
+[elements.Pt]
+Z = 78
+name = "platinum"
+atomic_weight = "195.08"
+uncertainty = "0.02"
+group = 10
+period = 6
+block = "d"
+first_ionization_kj_mol = "864.4"
+
+[elements.Au]
+Z = 79
+name = "gold"
+atomic_weight = "196.97"
+uncertainty = "0.01"
+group = 11
+period = 6
+block = "d"
+first_ionization_kj_mol = "890.1"
+
+[elements.Hg]
+Z = 80
+name = "mercury"
+atomic_weight = "200.59"
+uncertainty = "0.01"
+group = 12
+period = 6
+block = "d"
+first_ionization_kj_mol = "1007.1"
+
+[elements.Tl]
+Z = 81
+name = "thallium"
+atomic_weight = "204.38"
+uncertainty = "0.01"
+group = 13
+period = 6
+block = "p"
+first_ionization_kj_mol = "589.4"
+
+[elements.Pb]
+Z = 82
+name = "lead"
+atomic_weight = "207.2"
+uncertainty = "1.1"
+group = 14
+period = 6
+block = "p"
+first_ionization_kj_mol = "715.6"
+
+[elements.Bi]
+Z = 83
+name = "bismuth"
+atomic_weight = "208.98"
+uncertainty = "0.01"
+group = 15
+period = 6
+block = "p"
+first_ionization_kj_mol = "703.0"
+
+[elements.Po]
+Z = 84
+name = "polonium"
+mass_number = 209
+group = 16
+period = 6
+block = "p"
+first_ionization_kj_mol = "812.1"
+
+[elements.At]
+Z = 85
+name = "astatine"
+mass_number = 210
+group = 17
+period = 6
+block = "p"
+first_ionization_kj_mol = "899.0"
+
+[elements.Rn]
+Z = 86
+name = "radon"
+mass_number = 222
+group = 18
+period = 6
+block = "p"
+first_ionization_kj_mol = "1037.0"
+
+[elements.Fr]
+Z = 87
+name = "francium"
+mass_number = 223
+group = 1
+period = 7
+block = "s"
+electronegativity = "0.70"
+first_ionization_kj_mol = "393.0"
+
+[elements.Ra]
+Z = 88
+name = "radium"
+mass_number = 226
+group = 2
+period = 7
+block = "s"
+electronegativity = "0.90"
+first_ionization_kj_mol = "509.3"
+
+[elements.Ac]
+Z = 89
+name = "actinium"
+mass_number = 227
+group = 3
+period = 7
+block = "d"
+electronegativity = "1.10"
+first_ionization_kj_mol = "519.1"
+
+[elements.Th]
+Z = 90
+name = "thorium"
+atomic_weight = "232.04"
+uncertainty = "0.01"
+period = 7
+block = "f"
+electronegativity = "1.30"
+first_ionization_kj_mol = "608.5"
+
+[elements.Pa]
+Z = 91
+name = "protactinium"
+atomic_weight = "231.04"
+uncertainty = "0.01"
+period = 7
+block = "f"
+electronegativity = "1.50"
+first_ionization_kj_mol = "568.0"
+
+[elements.U]
+Z = 92
+name = "uranium"
+atomic_weight = "238.03"
+uncertainty = "0.01"
+period = 7
+block = "f"
+first_ionization_kj_mol = "597.6"
+
+[elements.Np]
+Z = 93
+name = "neptunium"
+mass_number = 237
+period = 7
+block = "f"
+first_ionization_kj_mol = "604.5"
+
+[elements.Pu]
+Z = 94
+name = "plutonium"
+mass_number = 244
+period = 7
+block = "f"
+electronegativity = "1.28"
+first_ionization_kj_mol = "581.4"
+
+[elements.Am]
+Z = 95
+name = "americium"
+mass_number = 243
+period = 7
+block = "f"
+first_ionization_kj_mol = "578.0"
+
+[elements.Cm]
+Z = 96
+name = "curium"
+mass_number = 247
+period = 7
+block = "f"
+first_ionization_kj_mol = "578.2"
+
+[elements.Bk]
+Z = 97
+name = "berkelium"
+mass_number = 247
+period = 7
+block = "f"
+first_ionization_kj_mol = "598.0"
+
+[elements.Cf]
+Z = 98
+name = "californium"
+mass_number = 251
+period = 7
+block = "f"
+first_ionization_kj_mol = "608.0"
+
+[elements.Es]
+Z = 99
+name = "einsteinium"
+mass_number = 252
+period = 7
+block = "f"
+first_ionization_kj_mol = "614.5"
+
+[elements.Fm]
+Z = 100
+name = "fermium"
+mass_number = 257
+period = 7
+block = "f"
+first_ionization_kj_mol = "627.0"
+
+[elements.Md]
+Z = 101
+name = "mendelevium"
+mass_number = 258
+period = 7
+block = "f"
+first_ionization_kj_mol = "635.0"
+
+[elements.No]
+Z = 102
+name = "nobelium"
+mass_number = 259
+period = 7
+block = "f"
+first_ionization_kj_mol = "641.0"
+
+[elements.Lr]
+Z = 103
+name = "lawrencium"
+mass_number = 266
+period = 7
+block = "f"
+first_ionization_kj_mol = "478.6"
+
+[elements.Rf]
+Z = 104
+name = "rutherfordium"
+mass_number = 267
+group = 4
+period = 7
+block = "d"
+
+[elements.Db]
+Z = 105
+name = "dubnium"
+mass_number = 268
+group = 5
+period = 7
+block = "d"
+
+[elements.Sg]
+Z = 106
+name = "seaborgium"
+mass_number = 267
+group = 6
+period = 7
+block = "d"
+
+[elements.Bh]
+Z = 107
+name = "bohrium"
+mass_number = 270
+group = 7
+period = 7
+block = "d"
+
+[elements.Hs]
+Z = 108
+name = "hassium"
+mass_number = 271
+group = 8
+period = 7
+block = "d"
+
+[elements.Mt]
+Z = 109
+name = "meitnerium"
+mass_number = 278
+group = 9
+period = 7
+block = "d"
+
+[elements.Ds]
+Z = 110
+name = "darmstadtium"
+mass_number = 281
+group = 10
+period = 7
+block = "d"
+
+[elements.Rg]
+Z = 111
+name = "roentgenium"
+mass_number = 282
+group = 11
+period = 7
+block = "d"
+
+[elements.Cn]
+Z = 112
+name = "copernicium"
+mass_number = 285
+group = 12
+period = 7
+block = "d"
+
+[elements.Nh]
+Z = 113
+name = "nihonium"
+mass_number = 286
+group = 13
+period = 7
+block = "p"
+
+[elements.Fl]
+Z = 114
+name = "flerovium"
+mass_number = 289
+group = 14
+period = 7
+block = "p"
+
+[elements.Mc]
+Z = 115
+name = "moscovium"
+mass_number = 290
+group = 15
+period = 7
+block = "p"
+
+[elements.Lv]
+Z = 116
+name = "livermorium"
+mass_number = 293
+group = 16
+period = 7
+block = "p"
+
+[elements.Ts]
+Z = 117
+name = "tennessine"
+mass_number = 294
+group = 17
+period = 7
+block = "p"
+
+[elements.Og]
+Z = 118
+name = "oganesson"
+mass_number = 294
+group = 18
+period = 7
+block = "p"

@@ -26,8 +26,17 @@ def test_loads_and_self_validates():
 
 def test_atomic_weights_are_decimal_not_float():
     d = data()
+    n_w = n_mn = 0
     for el in d.elements.values():
-        assert isinstance(el.atomic_weight, Decimal)
+        # exactly one of atomic_weight (Decimal, never float — ADR-0013) / mass_number (int) per element (ADR-0052)
+        assert (el.atomic_weight is None) != (el.mass_number is None), f"{el.symbol}: need exactly one"
+        if el.atomic_weight is not None:
+            assert isinstance(el.atomic_weight, Decimal)
+            n_w += 1
+        else:
+            assert isinstance(el.mass_number, int)
+            n_mn += 1
+    assert (n_w, n_mn) == (84, 34), f"expected 84 standard weights + 34 mass numbers, got {n_w}+{n_mn}"
 
 
 def test_avogadro_constant_loaded_exact():
@@ -75,7 +84,15 @@ def test_molar_mass_cacl2_and_na2co3():
 def test_unknown_element_raises():
     d = data()
     with pytest.raises(BuildError):
-        d.molar_mass("Xe")  # xenon not in the minimal dataset
+        d.molar_mass("Zz")  # a fictitious element — all 118 real ones now exist (ADR-0052)
+
+
+def test_no_standard_weight_element_refuses_molar_mass():
+    # a no-standard-weight element (mass_number only, ADR-0052) has no value for arithmetic — refuse, not guess
+    d = data()
+    assert d.elements["Tc"].atomic_weight is None and d.elements["Tc"].mass_number == 97
+    with pytest.raises(BuildError):
+        d.molar_mass("Tc")  # technetium: mass_number 97, no standard atomic weight
 
 
 def test_every_ion_composition_is_known():
@@ -118,19 +135,24 @@ def test_periodic_properties_load_as_decimal():
 
 def test_property_optionality_matches_where_defined():
     d = data()
-    # electronegativity is undefined for the noble gases (Pauling) — omitted, never written as zero
-    for ng in ["He", "Ne", "Ar"]:
+    # electronegativity (ADR-0052): 71 shipped; undefined for the noble gases (never zero), and omitted for the
+    # ten compilation-disputed heavy metals + the lanthanides/actinides the oracle cannot confirm.
+    for ng in ["He", "Ne", "Ar", "Kr", "Xe", "Rn", "Og"]:
         assert d.elements[ng].electronegativity is None
-    for sym, el in d.elements.items():
-        if sym not in ("He", "Ne", "Ar"):
-            assert el.electronegativity is not None, f"{sym} should carry an electronegativity"
-    # covalent radius: shipped for main-group Z≤20, deferred (omitted) for the transition metals
+    for omit in ["Tc", "Lu", "W", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "U"]:
+        assert d.elements[omit].electronegativity is None, f"{omit} EN should be omitted (compilation-disputed)"
+    assert d.elements["F"].electronegativity == Decimal("3.98")
+    assert d.elements["Fe"].electronegativity == Decimal("1.83")
+    assert sum(1 for el in d.elements.values() if el.electronegativity is not None) == 71
+    # covalent radius: shipped for main-group Z≤20, deferred (omitted) for the transition metals + everything above
     for tm in ["Fe", "Cu", "Zn"]:
         assert d.elements[tm].covalent_radius_pm is None
     assert d.elements["Cl"].covalent_radius_pm == Decimal("102")
-    # every element carries a first ionization energy
-    for el in d.elements.values():
-        assert el.first_ionization_kj_mol is not None
+    assert sum(1 for el in d.elements.values() if el.covalent_radius_pm is not None) == 20
+    # first ionization energy: shipped for Z 1–103 (measured/recommended); the transactinides (Z≥104) are omitted
+    assert d.elements["Lr"].first_ionization_kj_mol is not None
+    assert d.elements["Rf"].first_ionization_kj_mol is None
+    assert sum(1 for el in d.elements.values() if el.first_ionization_kj_mol is not None) == 103
 
 
 def test_property_sources_registered():

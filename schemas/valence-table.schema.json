@@ -19,12 +19,14 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["symbol", "Z", "name", "atomic_weight", "group", "period", "block"],
+        "$comment": "ADR-0052 (118 elements): exactly one of `atomic_weight` (a numeric string) / `mass_number` (an integer, the longest-lived isotope for no-standard-weight elements — rendered bracketed, never fed to Number()) is present; `group` is omitted for the f-block (Ce-Lu, Th-Lr). Those two invariants are enforced in validate-reference.mjs. additionalProperties:false preserved.",
+        "required": ["symbol", "Z", "name", "period", "block"],
         "properties": {
           "symbol": { "type": "string" },
           "Z": { "type": "integer" },
           "name": { "type": "string" },
           "atomic_weight": { "type": "string" },
+          "mass_number": { "type": "integer" },
           "group": { "type": "integer" },
           "period": { "type": "integer" },
           "block": { "type": "string" },

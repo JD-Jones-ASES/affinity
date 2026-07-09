@@ -78,7 +78,10 @@ for (const name of files) {
 // the Valence Table's sourced atomic weights (symbol → exact string), for re-deriving species molar masses —
 // a species may only use elements the table already sources (ADR-0038), the same discipline the trends gym uses.
 const vt = entries.find((e) => e.obj.kind === "valence-table")?.obj;
-const atomicWeight = new Map((vt?.elements ?? []).map((e) => [e.symbol, e.atomic_weight]));
+// only elements that carry a numeric atomic weight seed the species molar-mass table; the no-standard-weight
+// elements (mass_number only, ADR-0052) are never used in a species/salt, so they contribute no weight.
+const atomicWeight = new Map((vt?.elements ?? []).filter((e) => e.atomic_weight != null)
+  .map((e) => [e.symbol, e.atomic_weight]));
 // the Valence Table's derived valence-electron counts + sourced electronegativities, for re-deriving a
 // molecule's electron ledger + bond ΔEN in pure Node (ADR-0044) — one source of truth, as species molar
 // masses re-sum the table's weights (ADR-0038). Shared with validate-solutions' structure lessons (ADR-0045).
@@ -265,6 +268,30 @@ for (const { rel, obj } of entries) {
     }
     const syms = new Set(obj.elements.map((e) => e.symbol));
     for (const h of obj.highlight) if (!syms.has(h)) fail(rel, `highlight '${h}' is not an element in the table`);
+
+    // ADR-0052: the full periodic table — exactly 118 elements, Z 1..118 each once, and every element carries
+    // a valid position + mass. Exactly one of atomic_weight (a numeric string, never bracketed) / mass_number
+    // (an integer for the no-standard-weight radioactive elements); group present except for the f-block.
+    if (obj.elements.length !== 118) fail(rel, `expected 118 elements, got ${obj.elements.length}`);
+    const zs = new Set();
+    for (const e of obj.elements) {
+      if (typeof e.Z !== "number" || e.Z < 1 || e.Z > 118) fail(rel, `${e.symbol}: Z ${e.Z} out of range`);
+      if (zs.has(e.Z)) fail(rel, `duplicate Z ${e.Z}`);
+      zs.add(e.Z);
+      const hasW = e.atomic_weight !== undefined, hasMN = e.mass_number !== undefined;
+      if (hasW === hasMN) fail(rel, `${e.symbol}: need exactly one of atomic_weight / mass_number`);
+      if (hasW && (typeof e.atomic_weight !== "string" || e.atomic_weight.includes("[") || !Number.isFinite(Number(e.atomic_weight))))
+        fail(rel, `${e.symbol}: atomic_weight '${e.atomic_weight}' must be a bracket-free numeric string`);
+      if (hasMN && (!Number.isInteger(e.mass_number) || e.mass_number < 1))
+        fail(rel, `${e.symbol}: mass_number '${e.mass_number}' must be a positive integer`);
+      if (e.block === "f") {
+        if (e.group !== undefined) fail(rel, `${e.symbol}: f-block element must omit group (got ${e.group})`);
+      } else if (typeof e.group !== "number") {
+        fail(rel, `${e.symbol}: non-f-block element must carry an integer group`);
+      }
+      if (typeof e.period !== "number" || e.period < 1 || e.period > 7) fail(rel, `${e.symbol}: bad period ${e.period}`);
+    }
+    if (zs.size !== 118) fail(rel, `expected Z 1..118, got ${zs.size} distinct`);
 
     // valence electrons re-derive from the emitted IUPAC position (ADR-0033): s/p-block only, He = 2,
     // groups 1–2 = the group, groups 13–18 = group − 10; the d-block must omit the field.

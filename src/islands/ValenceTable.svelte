@@ -18,6 +18,17 @@
 
   const bySym = Object.fromEntries(t.elements.map((e) => [e.symbol, e]));
 
+  // Atomic-weight cell text: a numeric standard weight, else the bracketed longest-lived mass number ("[98]")
+  // for the no-standard-weight radioactive elements (ADR-0052). Never fed to Number().
+  const awText = (e) => (e.atomic_weight != null ? e.atomic_weight : e.mass_number != null ? `[${e.mass_number}]` : "");
+  // f-block inset placement (ADR-0052): the fourteen f-block elements carry no group, so they get an explicit
+  // grid cell in a dedicated inset row (Ce–Lu row 8, Th–Lr row 9, columns 3–16) instead of scattering into the
+  // sparse main grid. A later wave redesigns the layout; this keeps the 118-element table coherent + green.
+  const fCol = (e) => e.Z - (e.period === 6 ? 58 : 90) + 3;
+  const fRow = (e) => (e.period === 6 ? 8 : 9);
+  const cellCol = (e) => (e.group != null ? e.group : fCol(e));
+  const cellRow = (e) => (e.group != null ? e.period : fRow(e));
+
   // ---------- modes ----------
   const MODES = [
     { id: "explore", label: "Explore" },
@@ -63,7 +74,7 @@
   const SERIES = [
     ...[...new Set(t.elements.map((e) => e.period))].sort((a, b) => a - b)
       .map((n) => ({ kind: "period", n, label: `Period ${n}` })),
-    ...[...new Set(t.elements.map((e) => e.group))].sort((a, b) => a - b)
+    ...[...new Set(t.elements.map((e) => e.group))].filter((n) => n != null).sort((a, b) => a - b)
       .filter((n) => t.elements.filter((e) => e.group === n).length >= 2)
       .map((n) => ({ kind: "group", n, label: `Group ${n}` })),
   ].filter((s) => s.kind === "group" || t.elements.filter((e) => e.period === s.n).length >= 2);
@@ -151,13 +162,13 @@
         {@const shade = numericLens ? lensShade(e) : null}
         <button
           class="cell {isHi(e.symbol) ? 'hi' : ''} {sel.type === 'element' && sel.key === e.symbol ? 'sel' : ''} {numericLens ? '' : `b-${e.block}`}"
-          style={`grid-column:${e.group}; grid-row:${e.period};` + (shade != null ? ` background: color-mix(in srgb, var(--accent) ${shade}%, var(--paper-2));` : "")}
+          style={`grid-column:${cellCol(e)}; grid-row:${cellRow(e)};` + (shade != null ? ` background: color-mix(in srgb, var(--accent) ${shade}%, var(--paper-2));` : "")}
           onclick={() => (sel = { type: "element", key: e.symbol })}
           aria-label={`${e.name}, ${e.common_ion ? "common ion " + chargeLabel(e.common_ion.charge) : "no simple ion"}`}>
           <span class="z">{e.Z}</span>
           {#if !numericLens && e.common_ion}<span class="ch">{chargeLabel(e.common_ion.charge)}</span>{/if}
           <span class="sym">{e.symbol}</span>
-          <span class="aw">{numericLens ? (lensValue(e) ?? "—") : e.atomic_weight}</span>
+          <span class="aw">{numericLens ? (lensValue(e) ?? "—") : awText(e)}</span>
         </button>
       {/each}
       <div class="legend" style="grid-column:3 / 13; grid-row:1 / 3;">
@@ -197,7 +208,7 @@
           <span class="d-sym">{selElement.symbol}</span>
           <div>
             <div class="d-name">{selElement.name}</div>
-            <div class="d-meta">Z = {selElement.Z} · {selElement.atomic_weight} g/mol · group {selElement.group}, period {selElement.period}{selElement.valence_electrons ? ` · ${selElement.valence_electrons} valence e⁻` : ""}</div>
+            <div class="d-meta">Z = {selElement.Z} · {awText(selElement)}{selElement.atomic_weight != null ? " g/mol" : ""} · {selElement.group != null ? `group ${selElement.group}, ` : ""}period {selElement.period}{selElement.valence_electrons ? ` · ${selElement.valence_electrons} valence e⁻` : ""}</div>
           </div>
         </div>
         {#if selElement.common_ion}

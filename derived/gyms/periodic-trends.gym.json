@@ -22,173 +22,31 @@
     {
       "kind": "trend_compare",
       "mode": "choice",
-      "prompt": "Which of Li, Na, K — all in group 1 — has the lowest electronegativity?",
-      "answer": {
-        "value": "K",
-        "display": "K (potassium)"
-      },
-      "derivation": {
-        "kind": "trend_compare",
-        "property": "electronegativity",
-        "direction": "min",
-        "series": {
-          "kind": "group",
-          "n": 1
-        },
-        "candidates": [
-          {
-            "symbol": "Li",
-            "value": "0.98"
-          },
-          {
-            "symbol": "Na",
-            "value": "0.93"
-          },
-          {
-            "symbol": "K",
-            "value": "0.82"
-          }
-        ]
-      },
-      "choices": [
-        {
-          "display": "K (potassium)",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "Li (lithium)",
-          "correct": false,
-          "misconception": "Li is 0.98; K is 0.82. Electronegativity falls down a group."
-        },
-        {
-          "display": "Na (sodium)",
-          "correct": false,
-          "misconception": "Na is 0.93; K is 0.82. Electronegativity falls down a group."
-        }
-      ],
-      "explain": "The data decides: K (0.82) < Na (0.93) < Li (0.98). Electronegativity falls down a group.",
-      "id": "q1"
-    },
-    {
-      "kind": "predict_ion",
-      "mode": "choice",
-      "prompt": "Predict the common ion for calcium (Ca).",
-      "answer": {
-        "value": "Ca^2+",
-        "display": "Ca^2+"
-      },
-      "derivation": {
-        "kind": "predict_ion",
-        "element": "Ca",
-        "ion": {
-          "id": "Ca^2+",
-          "charge": 2
-        }
-      },
-      "choices": [
-        {
-          "display": "Ca^2+",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "Ca^2-",
-          "correct": false,
-          "misconception": "Calcium is a metal — it LOSES electrons, forming a cation (+), not an anion."
-        },
-        {
-          "display": "Ca^+",
-          "correct": false,
-          "misconception": "Miscounted the valence electrons — calcium (group 2) has 2; it loses all 2, so the charge is +2."
-        }
-      ],
-      "explain": "Calcium sits in group 2 with 2 valence electrons — it loses all 2, leaving a full inner shell — charge +2. The charge is sourced data, and the pattern explains it.",
-      "subscript_tokens": [
-        "Ca^+",
-        "Ca^2+",
-        "Ca^2-"
-      ],
-      "id": "q2"
-    },
-    {
-      "kind": "order_ionization",
-      "mode": "choice",
-      "prompt": "Order by FIRST IONIZATION ENERGY, lowest → highest: N, O, C (all in period 2).",
-      "answer": {
-        "value": "C,O,N",
-        "display": "C < O < N"
-      },
-      "derivation": {
-        "kind": "order_ionization",
-        "property": "first_ionization_kj_mol",
-        "series": {
-          "kind": "period",
-          "n": 2
-        },
-        "candidates": [
-          {
-            "symbol": "N",
-            "value": "1402.3"
-          },
-          {
-            "symbol": "O",
-            "value": "1313.9"
-          },
-          {
-            "symbol": "C",
-            "value": "1086.5"
-          }
-        ]
-      },
-      "choices": [
-        {
-          "display": "C < O < N",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "C < N < O",
-          "correct": false,
-          "misconception": "That is the left-to-right rule — but the data dips: O (1313.9 kJ/mol) sits BELOW N (1402.3 kJ/mol). The trend is a guide; the measured values decide."
-        },
-        {
-          "display": "N < O < C",
-          "correct": false,
-          "misconception": "Reversed — ionization energy generally RISES across a period, so this is the decreasing order."
-        }
-      ],
-      "explain": "The data: C (1086.5 kJ/mol) < O (1313.9 kJ/mol) < N (1402.3 kJ/mol). Ionization energy climbs across period 2 overall. Note the dip — an exception the naive rule can't see; the curated data is the authority.",
-      "id": "q3"
-    },
-    {
-      "kind": "trend_compare",
-      "mode": "choice",
-      "prompt": "Which of B, C, N — all in period 2 — has the highest first ionization energy?",
+      "prompt": "Which of N, As, Sb — all in group 15 — has the highest electronegativity?",
       "answer": {
         "value": "N",
         "display": "N (nitrogen)"
       },
       "derivation": {
         "kind": "trend_compare",
-        "property": "first_ionization_kj_mol",
+        "property": "electronegativity",
         "direction": "max",
         "series": {
-          "kind": "period",
-          "n": 2
+          "kind": "group",
+          "n": 15
         },
         "candidates": [
           {
-            "symbol": "B",
-            "value": "800.6"
-          },
-          {
-            "symbol": "C",
-            "value": "1086.5"
-          },
-          {
             "symbol": "N",
-            "value": "1402.3"
+            "value": "3.04"
+          },
+          {
+            "symbol": "As",
+            "value": "2.18"
+          },
+          {
+            "symbol": "Sb",
+            "value": "2.05"
           }
         ]
       },
@@ -199,160 +57,18 @@
           "misconception": null
         },
         {
-          "display": "B (boron)",
+          "display": "As (arsenic)",
           "correct": false,
-          "misconception": "B is 800.6 kJ/mol; N is 1402.3 kJ/mol. Ionization energy climbs left → right across a period — same shell, more nuclear pull — though the s→p and p-pairing dips break the climb."
+          "misconception": "As is 2.18; N is 3.04. Electronegativity falls down a group."
         },
         {
-          "display": "C (carbon)",
+          "display": "Sb (antimony)",
           "correct": false,
-          "misconception": "C is 1086.5 kJ/mol; N is 1402.3 kJ/mol. Ionization energy climbs left → right across a period — same shell, more nuclear pull — though the s→p and p-pairing dips break the climb."
+          "misconception": "Sb is 2.05; N is 3.04. Electronegativity falls down a group."
         }
       ],
-      "explain": "The data decides: B (800.6 kJ/mol) < C (1086.5 kJ/mol) < N (1402.3 kJ/mol). Ionization energy climbs left → right across a period — same shell, more nuclear pull — though the s→p and p-pairing dips break the climb.",
-      "id": "q4"
-    },
-    {
-      "kind": "predict_ion",
-      "mode": "choice",
-      "prompt": "Predict the common ion for magnesium (Mg).",
-      "answer": {
-        "value": "Mg^2+",
-        "display": "Mg^2+"
-      },
-      "derivation": {
-        "kind": "predict_ion",
-        "element": "Mg",
-        "ion": {
-          "id": "Mg^2+",
-          "charge": 2
-        }
-      },
-      "choices": [
-        {
-          "display": "Mg^2+",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "Mg^2-",
-          "correct": false,
-          "misconception": "Magnesium is a metal — it LOSES electrons, forming a cation (+), not an anion."
-        },
-        {
-          "display": "Mg^+",
-          "correct": false,
-          "misconception": "Miscounted the valence electrons — magnesium (group 2) has 2; it loses all 2, so the charge is +2."
-        }
-      ],
-      "explain": "Magnesium sits in group 2 with 2 valence electrons — it loses all 2, leaving a full inner shell — charge +2. The charge is sourced data, and the pattern explains it.",
-      "subscript_tokens": [
-        "Mg^+",
-        "Mg^2+",
-        "Mg^2-"
-      ],
-      "id": "q5"
-    },
-    {
-      "kind": "order_ionization",
-      "mode": "choice",
-      "prompt": "Order by FIRST IONIZATION ENERGY, lowest → highest: Ne, Be, C (all in period 2).",
-      "answer": {
-        "value": "Be,C,Ne",
-        "display": "Be < C < Ne"
-      },
-      "derivation": {
-        "kind": "order_ionization",
-        "property": "first_ionization_kj_mol",
-        "series": {
-          "kind": "period",
-          "n": 2
-        },
-        "candidates": [
-          {
-            "symbol": "Ne",
-            "value": "2080.7"
-          },
-          {
-            "symbol": "Be",
-            "value": "899.5"
-          },
-          {
-            "symbol": "C",
-            "value": "1086.5"
-          }
-        ]
-      },
-      "choices": [
-        {
-          "display": "Be < C < Ne",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "Ne < C < Be",
-          "correct": false,
-          "misconception": "Reversed — ionization energy generally RISES across a period, so this is the decreasing order."
-        },
-        {
-          "display": "C < Be < Ne",
-          "correct": false,
-          "misconception": "Check the data: Be is 899.5 kJ/mol and C is 1086.5 — Be comes first."
-        }
-      ],
-      "explain": "The data: Be (899.5 kJ/mol) < C (1086.5 kJ/mol) < Ne (2080.7 kJ/mol). Ionization energy climbs across period 2 overall.",
-      "id": "q6"
-    },
-    {
-      "kind": "trend_compare",
-      "mode": "choice",
-      "prompt": "Which of Be, Mg, Ca — all in group 2 — has the lowest electronegativity?",
-      "answer": {
-        "value": "Ca",
-        "display": "Ca (calcium)"
-      },
-      "derivation": {
-        "kind": "trend_compare",
-        "property": "electronegativity",
-        "direction": "min",
-        "series": {
-          "kind": "group",
-          "n": 2
-        },
-        "candidates": [
-          {
-            "symbol": "Be",
-            "value": "1.57"
-          },
-          {
-            "symbol": "Mg",
-            "value": "1.31"
-          },
-          {
-            "symbol": "Ca",
-            "value": "1.00"
-          }
-        ]
-      },
-      "choices": [
-        {
-          "display": "Ca (calcium)",
-          "correct": true,
-          "misconception": null
-        },
-        {
-          "display": "Be (beryllium)",
-          "correct": false,
-          "misconception": "Be is 1.57; Ca is 1.00. Electronegativity falls down a group."
-        },
-        {
-          "display": "Mg (magnesium)",
-          "correct": false,
-          "misconception": "Mg is 1.31; Ca is 1.00. Electronegativity falls down a group."
-        }
-      ],
-      "explain": "The data decides: Ca (1.00) < Mg (1.31) < Be (1.57). Electronegativity falls down a group.",
-      "id": "q7"
+      "explain": "The data decides: Sb (2.05) < As (2.18) < N (3.04). Electronegativity falls down a group.",
+      "id": "q1"
     },
     {
       "kind": "predict_ion",
@@ -393,22 +109,73 @@
         "F^-",
         "F^7-"
       ],
-      "id": "q8"
+      "id": "q2"
     },
     {
       "kind": "order_ionization",
       "mode": "choice",
-      "prompt": "Order by FIRST IONIZATION ENERGY, lowest → highest: Li, O, Ne (all in period 2).",
+      "prompt": "Order by FIRST IONIZATION ENERGY, lowest → highest: Na, P, S (all in period 3).",
       "answer": {
-        "value": "Li,O,Ne",
-        "display": "Li < O < Ne"
+        "value": "Na,S,P",
+        "display": "Na < S < P"
       },
       "derivation": {
         "kind": "order_ionization",
         "property": "first_ionization_kj_mol",
         "series": {
           "kind": "period",
-          "n": 2
+          "n": 3
+        },
+        "candidates": [
+          {
+            "symbol": "Na",
+            "value": "495.8"
+          },
+          {
+            "symbol": "P",
+            "value": "1011.8"
+          },
+          {
+            "symbol": "S",
+            "value": "999.6"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "display": "Na < S < P",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Na < P < S",
+          "correct": false,
+          "misconception": "That is the left-to-right rule — but the data dips: S (999.6 kJ/mol) sits BELOW P (1011.8 kJ/mol). The trend is a guide; the measured values decide."
+        },
+        {
+          "display": "P < S < Na",
+          "correct": false,
+          "misconception": "Reversed — ionization energy generally RISES across a period, so this is the decreasing order."
+        }
+      ],
+      "explain": "The data: Na (495.8 kJ/mol) < S (999.6 kJ/mol) < P (1011.8 kJ/mol). Ionization energy climbs across period 3 overall. Note the dip — an exception the naive rule can't see; the curated data is the authority.",
+      "id": "q3"
+    },
+    {
+      "kind": "trend_compare",
+      "mode": "choice",
+      "prompt": "Which of Li, Na, Rb — all in group 1 — has the lowest first ionization energy?",
+      "answer": {
+        "value": "Rb",
+        "display": "Rb (rubidium)"
+      },
+      "derivation": {
+        "kind": "trend_compare",
+        "property": "first_ionization_kj_mol",
+        "direction": "min",
+        "series": {
+          "kind": "group",
+          "n": 1
         },
         "candidates": [
           {
@@ -416,33 +183,266 @@
             "value": "520.2"
           },
           {
-            "symbol": "O",
-            "value": "1313.9"
+            "symbol": "Na",
+            "value": "495.8"
           },
           {
-            "symbol": "Ne",
-            "value": "2080.7"
+            "symbol": "Rb",
+            "value": "403.0"
           }
         ]
       },
       "choices": [
         {
-          "display": "Li < O < Ne",
+          "display": "Rb (rubidium)",
           "correct": true,
           "misconception": null
         },
         {
-          "display": "Ne < O < Li",
+          "display": "Li (lithium)",
+          "correct": false,
+          "misconception": "Li is 520.2 kJ/mol; Rb is 403.0 kJ/mol. Ionization energy falls down a group — the outer electron sits farther out and better screened."
+        },
+        {
+          "display": "Na (sodium)",
+          "correct": false,
+          "misconception": "Na is 495.8 kJ/mol; Rb is 403.0 kJ/mol. Ionization energy falls down a group — the outer electron sits farther out and better screened."
+        }
+      ],
+      "explain": "The data decides: Rb (403.0 kJ/mol) < Na (495.8 kJ/mol) < Li (520.2 kJ/mol). Ionization energy falls down a group — the outer electron sits farther out and better screened.",
+      "id": "q4"
+    },
+    {
+      "kind": "predict_ion",
+      "mode": "choice",
+      "prompt": "Predict the common ion for aluminum (Al).",
+      "answer": {
+        "value": "Al^3+",
+        "display": "Al^3+"
+      },
+      "derivation": {
+        "kind": "predict_ion",
+        "element": "Al",
+        "ion": {
+          "id": "Al^3+",
+          "charge": 3
+        }
+      },
+      "choices": [
+        {
+          "display": "Al^3+",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Al^3-",
+          "correct": false,
+          "misconception": "Aluminum is a metal — it LOSES electrons, forming a cation (+), not an anion."
+        },
+        {
+          "display": "Al^2+",
+          "correct": false,
+          "misconception": "Miscounted the valence electrons — aluminum (group 13) has 3; it loses all 3, so the charge is +3."
+        }
+      ],
+      "explain": "Aluminum sits in group 13 with 3 valence electrons — it loses all 3, leaving a full inner shell — charge +3. The charge is sourced data, and the pattern explains it.",
+      "subscript_tokens": [
+        "Al^2+",
+        "Al^3+",
+        "Al^3-"
+      ],
+      "id": "q5"
+    },
+    {
+      "kind": "order_ionization",
+      "mode": "choice",
+      "prompt": "Order by FIRST IONIZATION ENERGY, lowest → highest: Sr, Sn, Rb (all in period 5).",
+      "answer": {
+        "value": "Rb,Sr,Sn",
+        "display": "Rb < Sr < Sn"
+      },
+      "derivation": {
+        "kind": "order_ionization",
+        "property": "first_ionization_kj_mol",
+        "series": {
+          "kind": "period",
+          "n": 5
+        },
+        "candidates": [
+          {
+            "symbol": "Sr",
+            "value": "549.5"
+          },
+          {
+            "symbol": "Sn",
+            "value": "708.6"
+          },
+          {
+            "symbol": "Rb",
+            "value": "403.0"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "display": "Rb < Sr < Sn",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Sn < Sr < Rb",
           "correct": false,
           "misconception": "Reversed — ionization energy generally RISES across a period, so this is the decreasing order."
         },
         {
-          "display": "O < Li < Ne",
+          "display": "Sr < Rb < Sn",
           "correct": false,
-          "misconception": "Check the data: Li is 520.2 kJ/mol and O is 1313.9 — Li comes first."
+          "misconception": "Check the data: Rb is 403.0 kJ/mol and Sr is 549.5 — Rb comes first."
         }
       ],
-      "explain": "The data: Li (520.2 kJ/mol) < O (1313.9 kJ/mol) < Ne (2080.7 kJ/mol). Ionization energy climbs across period 2 overall.",
+      "explain": "The data: Rb (403.0 kJ/mol) < Sr (549.5 kJ/mol) < Sn (708.6 kJ/mol). Ionization energy climbs across period 5 overall.",
+      "id": "q6"
+    },
+    {
+      "kind": "trend_compare",
+      "mode": "choice",
+      "prompt": "Which of B, Al, In — all in group 13 — has the lowest electronegativity?",
+      "answer": {
+        "value": "Al",
+        "display": "Al (aluminum)"
+      },
+      "derivation": {
+        "kind": "trend_compare",
+        "property": "electronegativity",
+        "direction": "min",
+        "series": {
+          "kind": "group",
+          "n": 13
+        },
+        "candidates": [
+          {
+            "symbol": "B",
+            "value": "2.04"
+          },
+          {
+            "symbol": "Al",
+            "value": "1.61"
+          },
+          {
+            "symbol": "In",
+            "value": "1.78"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "display": "Al (aluminum)",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "B (boron)",
+          "correct": false,
+          "misconception": "B is 2.04; Al is 1.61. Electronegativity falls down a group."
+        },
+        {
+          "display": "In (indium)",
+          "correct": false,
+          "misconception": "In is 1.78; Al is 1.61. Electronegativity falls down a group."
+        }
+      ],
+      "explain": "The data decides: Al (1.61) < In (1.78) < B (2.04). Electronegativity falls down a group. That breaks the naive position rule — the curated data is the authority, and here Al beats In.",
+      "id": "q7"
+    },
+    {
+      "kind": "predict_ion",
+      "mode": "choice",
+      "prompt": "Predict the common ion for beryllium (Be).",
+      "answer": {
+        "value": "Be^2+",
+        "display": "Be^2+"
+      },
+      "derivation": {
+        "kind": "predict_ion",
+        "element": "Be",
+        "ion": {
+          "id": "Be^2+",
+          "charge": 2
+        }
+      },
+      "choices": [
+        {
+          "display": "Be^2+",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Be^2-",
+          "correct": false,
+          "misconception": "Beryllium is a metal — it LOSES electrons, forming a cation (+), not an anion."
+        },
+        {
+          "display": "Be^+",
+          "correct": false,
+          "misconception": "Miscounted the valence electrons — beryllium (group 2) has 2; it loses all 2, so the charge is +2."
+        }
+      ],
+      "explain": "Beryllium sits in group 2 with 2 valence electrons — it loses all 2, leaving a full inner shell — charge +2. The charge is sourced data, and the pattern explains it.",
+      "subscript_tokens": [
+        "Be^+",
+        "Be^2+",
+        "Be^2-"
+      ],
+      "id": "q8"
+    },
+    {
+      "kind": "order_ionization",
+      "mode": "choice",
+      "prompt": "Order by FIRST IONIZATION ENERGY, lowest → highest: Cs, Po, Rn (all in period 6).",
+      "answer": {
+        "value": "Cs,Po,Rn",
+        "display": "Cs < Po < Rn"
+      },
+      "derivation": {
+        "kind": "order_ionization",
+        "property": "first_ionization_kj_mol",
+        "series": {
+          "kind": "period",
+          "n": 6
+        },
+        "candidates": [
+          {
+            "symbol": "Cs",
+            "value": "375.7"
+          },
+          {
+            "symbol": "Po",
+            "value": "812.1"
+          },
+          {
+            "symbol": "Rn",
+            "value": "1037.0"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "display": "Cs < Po < Rn",
+          "correct": true,
+          "misconception": null
+        },
+        {
+          "display": "Rn < Po < Cs",
+          "correct": false,
+          "misconception": "Reversed — ionization energy generally RISES across a period, so this is the decreasing order."
+        },
+        {
+          "display": "Po < Cs < Rn",
+          "correct": false,
+          "misconception": "Check the data: Cs is 375.7 kJ/mol and Po is 812.1 — Cs comes first."
+        }
+      ],
+      "explain": "The data: Cs (375.7 kJ/mol) < Po (812.1 kJ/mol) < Rn (1037.0 kJ/mol). Ionization energy climbs across period 6 overall.",
       "id": "q9"
     },
     {

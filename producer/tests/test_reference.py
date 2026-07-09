@@ -37,8 +37,20 @@ def _family(spec):
 def test_valence_table_shape():
     t = build_valence_table(_data())
     assert t["kind"] == "valence-table" and t["id"] == "valence-table"
-    assert len(t["elements"]) == 23           # first-20 (H…Ca) + Fe,Cu,Zn (ADR-0031, item 5a)
-    assert t["highlight"] == ["Ca", "Na"]
+    assert len(t["elements"]) == 118          # the full periodic table (ADR-0052)
+    assert {e["Z"] for e in t["elements"]} == set(range(1, 119))
+    assert t["highlight"] == ["Ca", "Na"]     # highlight + depth-element behaviour unchanged
+    # a no-standard-weight element carries an integer mass_number (never a bracketed atomic_weight)
+    tc = next(e for e in t["elements"] if e["symbol"] == "Tc")
+    assert tc["mass_number"] == 97 and "atomic_weight" not in tc
+    # an f-block element carries no group; La (group 3, d-block) does
+    ce = next(e for e in t["elements"] if e["symbol"] == "Ce")
+    assert ce["block"] == "f" and "group" not in ce and "valence_electrons" not in ce
+    la = next(e for e in t["elements"] if e["symbol"] == "La")
+    assert la["group"] == 3 and la["block"] == "d"
+    # every emitted atomic_weight stays a bracket-free numeric string (never enters Number())
+    for e in t["elements"]:
+        assert "atomic_weight" not in e or "[" not in e["atomic_weight"]
     ca = next(e for e in t["elements"] if e["symbol"] == "Ca")
     assert ca["common_ion"]["id"] == "Ca^2+" and ca["common_ion"]["charge"] == 2
     # a variable-charge metal shows its lowest charge deterministically (Fe²⁺, not Fe³⁺)
@@ -327,9 +339,17 @@ def test_species_ion_carries_charge_from_the_formula():
 
 
 def test_species_rejects_off_dataset_element():
-    with pytest.raises(BuildError):                       # Au is not in the 23-element dataset
-        _species({"id": "gold", "kind": "species", "title": "Gold", "formula": "Au",
-                  "species_class": "element", "names": ["gold"], "summary": "s",
+    with pytest.raises(BuildError):                       # Zz is not a real element (all 118 real ones exist)
+        _species({"id": "fake", "kind": "species", "title": "Fake", "formula": "Zz",
+                  "species_class": "element", "names": ["fake"], "summary": "s",
+                  "source": "ciaaw-2021-atomic-weights"})
+
+
+def test_species_rejects_no_standard_weight_element():
+    # a no-standard-weight element (mass_number only, ADR-0052) has no weight for a molar mass — refuse (ADR-0008)
+    with pytest.raises(BuildError):
+        _species({"id": "tech", "kind": "species", "title": "Technetium", "formula": "Tc",
+                  "species_class": "element", "names": ["technetium"], "summary": "s",
                   "source": "ciaaw-2021-atomic-weights"})
 
 

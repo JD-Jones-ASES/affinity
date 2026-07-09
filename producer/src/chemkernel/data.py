@@ -25,14 +25,19 @@ class Element:
     symbol: str
     Z: int
     name: str
-    atomic_weight: Decimal
-    group: int
     period: int
     block: str
+    # exactly one of atomic_weight / mass_number (ADR-0052): a CIAAW standard atomic weight, OR — for the
+    # radioactive elements with no standard weight — the mass number of the longest-lived isotope (a distinct
+    # integer that NEVER enters arithmetic; the bracketed "[98]" display form). group is None only for the
+    # f-block (Ce-Lu, Th-Lr), which the IUPAC 18-column table leaves without a group number.
+    atomic_weight: Decimal | None = None
+    mass_number: int | None = None
+    group: int | None = None
     uncertainty: Decimal | None = None
     # periodic properties (ADR-0031); optional — omitted where the property is undefined (noble-gas
     # electronegativity) or deferred (transition-metal covalent radius). Decimal, never float (ADR-0013).
-    electronegativity: Decimal | None = None        # Pauling scale (openstax-chemistry-2e)
+    electronegativity: Decimal | None = None        # revised-Pauling scale (allred-1961-electronegativity)
     covalent_radius_pm: Decimal | None = None        # single-bond covalent radius, pm (cordero-2008)
     first_ionization_kj_mol: Decimal | None = None   # first ionization energy, kJ/mol (nist)
 
@@ -198,14 +203,27 @@ class ChemData:
         for symbol, e in el_doc.get("elements", {}).items():
             opt = lambda key: Decimal(e[key]) if key in e else None  # optional Decimal, never float (ADR-0013)
             try:
+                block = e["block"]
+                # exactly one of atomic_weight / mass_number (ADR-0052). A bracketed mass number never reaches
+                # Decimal(): no-standard-weight elements omit atomic_weight entirely and carry a bare integer
+                # mass_number, so "[98]" can never crash the eager Decimal parse (the landmine this guards).
+                has_w, has_mn = "atomic_weight" in e, "mass_number" in e
+                if has_w == has_mn:
+                    raise BuildError(f"element '{symbol}' must have exactly one of atomic_weight / mass_number "
+                                     f"(atomic_weight={has_w}, mass_number={has_mn})")
+                # group is required except for the f-block (Ce-Lu, Th-Lr carry no IUPAC group number, ADR-0052)
+                group = int(e["group"]) if "group" in e else None
+                if group is None and block != "f":
+                    raise BuildError(f"element '{symbol}' has no group but block is '{block}', not f")
                 elements[symbol] = Element(
                     symbol=symbol,
                     Z=int(e["Z"]),
                     name=e["name"],
-                    atomic_weight=Decimal(e["atomic_weight"]),
-                    group=int(e["group"]),
                     period=int(e["period"]),
-                    block=e["block"],
+                    block=block,
+                    atomic_weight=opt("atomic_weight"),
+                    mass_number=int(e["mass_number"]) if has_mn else None,
+                    group=group,
                     uncertainty=opt("uncertainty"),
                     electronegativity=opt("electronegativity"),
                     covalent_radius_pm=opt("covalent_radius_pm"),
@@ -547,6 +565,11 @@ class ChemData:
         el = self.elements.get(symbol)
         if el is None:
             raise BuildError(f"unknown element '{symbol}' — not in data/elements.toml")
+        if el.atomic_weight is None:
+            # a no-standard-weight element (mass_number only, ADR-0052) has no value for molar-mass arithmetic;
+            # refuse rather than guess. No curated ion/species/reaction uses one, so this never fires in practice.
+            raise BuildError(f"element '{symbol}' has no standard atomic weight (mass_number only) — it cannot "
+                             f"enter a molar-mass calculation")
         return el.atomic_weight
 
     def molar_mass(self, formula) -> Decimal:

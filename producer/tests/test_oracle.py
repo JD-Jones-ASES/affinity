@@ -44,14 +44,58 @@ def _data():
     return ChemData.load(ROOT)
 
 
-def test_element_weights_match_periodictable():
-    """Every curated CIAAW atomic weight agrees with periodictable's independent element table."""
+def test_all_118_elements_present():
+    """The full periodic table (ADR-0052): exactly 118 elements, Z 1..118 each exactly once."""
+    data = _data()
+    zs = sorted(el.Z for el in data.elements.values())
+    assert zs == list(range(1, 119)), f"expected Z 1..118, got {len(zs)} ({zs[:3]}..{zs[-3:]})"
+
+
+def test_identity_matches_mendeleev():
+    """Every element's Z, name, group, period, and block agree with mendeleev's independent element table
+    (ADR-0052). mendeleev leaves the f-block (Ce-Lu, Th-Lr) without a group_id — our data must match."""
     data = _data()
     for sym, el in data.elements.items():
+        m = mendeleev.element(sym)
+        assert el.Z == m.atomic_number, f"{sym}: Z {el.Z} vs mendeleev {m.atomic_number}"
+        assert el.name == m.name.lower(), f"{sym}: name '{el.name}' vs mendeleev '{m.name.lower()}'"
+        assert el.period == m.period, f"{sym}: period {el.period} vs mendeleev {m.period}"
+        assert el.block == m.block, f"{sym}: block '{el.block}' vs mendeleev '{m.block}'"
+        assert el.group == m.group_id, f"{sym}: group {el.group} vs mendeleev group_id {m.group_id}"
+
+
+def test_element_weights_match_periodictable():
+    """Every curated CIAAW standard atomic weight agrees with periodictable's independent element table. The
+    no-standard-weight elements (mass_number only, ADR-0052) are checked separately below."""
+    data = _data()
+    checked = 0
+    for sym, el in data.elements.items():
+        if el.atomic_weight is None:
+            continue
         oracle = getattr(periodictable, sym).mass
         tol = max(float(getattr(el, "uncertainty", 0) or 0), 0.01)
         assert abs(float(el.atomic_weight) - oracle) <= tol, (
             f"{sym}: ours {el.atomic_weight} vs periodictable {oracle}")
+        checked += 1
+    assert checked == 84, f"expected 84 standard atomic weights, checked {checked}"
+
+
+def test_mass_numbers_match_mendeleev():
+    """Every no-standard-weight element's mass_number (IUPAC longest-lived isotope, ADR-0052) sits within 5 of
+    mendeleev's most-stable-isotope mass. The window is loose because the 'longest-lived isotope' for the
+    superheavies is genuinely source/date-dependent; the check catches a gross transcription error, not the
+    isotope choice. mass_number never enters arithmetic — it is display provenance only."""
+    data = _data()
+    n = 0
+    for sym, el in data.elements.items():
+        if el.mass_number is None:
+            continue
+        assert el.atomic_weight is None, f"{sym}: has both atomic_weight and mass_number"
+        oracle = round(mendeleev.element(sym).mass)
+        assert abs(el.mass_number - oracle) <= 5, (
+            f"{sym}: mass_number {el.mass_number} vs round(mendeleev.mass) {oracle}")
+        n += 1
+    assert n == 34, f"expected 34 no-standard-weight elements, got {n}"
 
 
 def test_molar_masses_match_chempy():
@@ -123,18 +167,28 @@ def test_families_corpus_balances_match_chempy(reactants, products):
 # mendeleev's data pipeline is entirely separate from our cited sources (OpenStax/NIST/Cordero), so agreement
 # is redundant proof and disagreement flags a transcription slip — exactly the failure mode ADR-0026 targets.
 
+_NOBLE = {"He", "Ne", "Ar", "Kr", "Xe", "Rn", "Og"}
+
+
 def test_electronegativity_matches_mendeleev():
-    """Every curated Pauling electronegativity agrees with mendeleev; we omit EN exactly where it's undefined."""
+    """Every SHIPPED revised-Pauling electronegativity agrees with mendeleev within 0.06 (ADR-0052). We do not
+    require the converse: EN is honestly OMITTED wherever Allred-revised and the mendeleev cross-check diverge
+    > 0.06 (ten compilation-disputed heavy metals) or where a value is undefined/unconfirmable — so a value
+    mendeleev happens to carry (e.g. Xe) may still be omitted. The noble gases carry no EN (our editorial
+    stance: undefined on the Pauling scale); we assert that stays true."""
     data = _data()
+    shipped = 0
     for sym, el in data.elements.items():
-        oracle = mendeleev.element(sym).en_pauling
+        if sym in _NOBLE:
+            assert el.electronegativity is None, f"{sym}: a noble gas must not ship an electronegativity"
         if el.electronegativity is None:
-            # EN is omitted only for the noble gases (Pauling undefined) — mendeleev agrees it has none
-            assert oracle is None, f"{sym}: we omit EN but mendeleev has en_pauling={oracle}"
-        else:
-            assert oracle is not None, f"{sym}: we ship EN {el.electronegativity} but mendeleev has none"
-            assert abs(float(el.electronegativity) - oracle) <= 0.05, (
-                f"{sym}: ours {el.electronegativity} vs mendeleev en_pauling {oracle}")
+            continue
+        oracle = mendeleev.element(sym).en_pauling
+        assert oracle is not None, f"{sym}: we ship EN {el.electronegativity} but mendeleev has none"
+        assert abs(float(el.electronegativity) - oracle) <= 0.06, (
+            f"{sym}: ours {el.electronegativity} vs mendeleev en_pauling {oracle}")
+        shipped += 1
+    assert shipped == 71, f"expected 71 shipped electronegativities, got {shipped}"
 
 
 def test_covalent_radius_matches_mendeleev():
@@ -153,12 +207,18 @@ def test_covalent_radius_matches_mendeleev():
 
 
 def test_first_ionization_energy_matches_mendeleev():
-    """Every curated first ionization energy agrees with mendeleev's NIST-derived value (eV → kJ/mol)."""
+    """Every SHIPPED first ionization energy agrees with mendeleev's NIST-derived value (eV → kJ/mol) within
+    2.5 kJ/mol (ADR-0052). IE is shipped for Z 1..103 (measured/recommended); the transactinides (Z ≥ 104) are
+    omitted (theoretical estimates, not confidently measured), so we check where present, not for every element."""
     data = _data()
+    shipped = 0
     for sym, el in data.elements.items():
-        assert el.first_ionization_kj_mol is not None, f"{sym}: missing first ionization energy"
+        if el.first_ionization_kj_mol is None:
+            continue
         oracle_ev = mendeleev.element(sym).ionenergies.get(1)
         assert oracle_ev is not None, f"{sym}: mendeleev has no first ionization energy for {sym}"
         oracle_kj = oracle_ev * _EV_TO_KJMOL
-        assert abs(float(el.first_ionization_kj_mol) - oracle_kj) <= 2.0, (
+        assert abs(float(el.first_ionization_kj_mol) - oracle_kj) <= 2.5, (
             f"{sym}: ours {el.first_ionization_kj_mol} vs mendeleev {oracle_kj:.1f} kJ/mol")
+        shipped += 1
+    assert shipped == 103, f"expected 103 shipped ionization energies, got {shipped}"

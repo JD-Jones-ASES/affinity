@@ -204,10 +204,18 @@ def build_valence_table(data) -> dict:
 
     elements = []
     for sym, el in sorted(data.elements.items(), key=lambda kv: kv[1].Z):
-        entry = {
-            "symbol": sym, "Z": el.Z, "name": el.name, "atomic_weight": str(el.atomic_weight),
-            "group": el.group, "period": el.period, "block": el.block,
-        }
+        entry = {"symbol": sym, "Z": el.Z, "name": el.name}
+        # exactly one of atomic_weight (a numeric string, never bracketed) / mass_number (an integer, the
+        # builder's job is to render the bracketed "[98]" display in the view layer, ADR-0052).
+        if el.atomic_weight is not None:
+            entry["atomic_weight"] = str(el.atomic_weight)
+        else:
+            entry["mass_number"] = el.mass_number
+        # group is omitted for the f-block (Ce-Lu, Th-Lr, ADR-0052); period/block always present.
+        if el.group is not None:
+            entry["group"] = el.group
+        entry["period"] = el.period
+        entry["block"] = el.block
         # periodic properties (ADR-0031); emitted as strings only where curated (optional — the noble gases
         # carry no electronegativity, the transition metals no covalent radius). The lens badges each source.
         if el.electronegativity is not None:
