@@ -9,6 +9,7 @@ const isKsp = lesson.subtype === "solubility";
 const isCommonIon = isKsp && !!lesson.reaction.common_ion;   // the Ksp common-ion variant (a shared ion pre-loaded)
 const isBase = lesson.subtype === "weak-base";
 const isBuffer = lesson.subtype === "buffer";
+const isPoly = lesson.subtype === "polyprotic";           // a polyprotic acid ionizing in stages (top ice = stage 1)
 const ice = lesson.ice;
 const rows = ice.species;
 const xSym = ice.extent_symbol;                          // "x" (acid) or "s" (Ksp)
@@ -91,6 +92,7 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
     The Change row is <strong>ν·{xSym}</strong> — the very same extent ledger <span class="mono">c<sub>i</sub> = c<sub>i,0</sub> + ν<sub>i</sub>·{xSym}</span>
     as any reaction. {isKsp ? "The pure solid has activity 1, so it never enters the equilibrium expression."
       : isBase ? "Water is the pure solvent (activity 1), so it never enters the equilibrium expression."
+      : isPoly ? `This is the first of ${res.proton_count} ionizations — the one that releases nearly all of the H⁺.`
       : "What differs is only where the extent stops."}
   </p>
 
@@ -174,6 +176,24 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
         <span class="sub">[H<sup>+</sup>] = {res.hydronium_M_display} M</span>
       </div>
     </div>
+  ) : isPoly ? (
+    <div class="results">
+      <div class="card headline">
+        <span class="k">pH</span>
+        <span class="v big">{res.pH_display}</span>
+        <span class="sub">set almost entirely by the first ionization</span>
+      </div>
+      <div class="card">
+        <span class="k">[H<sup>+</sup>]</span>
+        <span class="v">{res.hydronium_M_display} M</span>
+        <span class="sub">{res.percent_ionization_display}% of the 1st proton ionizes</span>
+      </div>
+      <div class="card">
+        <span class="k">ionizes in</span>
+        <span class="v">{res.proton_count} stages</span>
+        <span class="sub">K<sub>a1</sub> ≫ K<sub>a2</sub> ≫ K<sub>a3</sub></span>
+      </div>
+    </div>
   ) : (
     <div class="results">
       <div class="card">
@@ -227,6 +247,54 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
       <span class="mono">{xSym} = {res.molar_solubility_M_display} M</span> — about <strong>{res.suppression_factor_display}× less</strong>.
       Le Chatelier: the pre-loaded {lesson.reaction.commonIonPretty} pushes <Fragment set:html={lesson.reaction.latexHtml} /> to the left.
     </p>
+  )}
+
+  <!-- polyprotic: the later ionizations, each solved on the previous stage's output (SHOWN + machine-checked) -->
+  {isPoly && (
+    <div class="stages">
+      <div class="proof-head">
+        <span class="badge machine"><span class="dot"></span>The later ionizations</span>
+        <strong>Each is the same ICE solve — run on what the stage before it left behind.</strong>
+      </div>
+      <div class="tablewrap">
+        <table class="ice laterstages">
+          <thead>
+            <tr>
+              <th>Stage</th><th>Equilibrium</th><th class="num">K<sub>a</sub></th>
+              <th class="num">extent x</th><th class="num">product formed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {res.later_stages.map((ls) => (
+              <tr>
+                <td class="sym">{ls.index}</td>
+                <td class="sym"><span set:html={ls.reactantPretty} /> ⇌ H<sup>+</sup> + <span set:html={ls.anionPretty} /></td>
+                <td class="num"><span set:html={ls.kaSci} /></td>
+                <td class="num"><span set:html={ls.extentSci} /></td>
+                <td class="num">[<span set:html={ls.anionPretty} />] = <span set:html={ls.anionEqmSci} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="hhnote">
+        <span class="badge machine tiny"><span class="dot"></span>The payoff</span>
+        The first ionization gives <strong>[H<sup>+</sup>] = {res.hydronium_M_display} M</strong> ({res.percent_ionization_display}%);
+        each later stage adds a vanishing amount. And because [H<sup>+</sup>] ≈ [<span set:html={res.later_stages[0].reactantPretty} />]
+        after stage 1, the second stage's K<sub>a</sub> collapses to just its product:
+        <span class="mono"> [<span set:html={res.later_stages[0].anionPretty} />] = <span set:html={res.later_stages[0].anionEqmSci} /> M ≈ K<sub>a2</sub> = <span set:html={res.later_stages[0].kaSci} /></span>.
+        The fully-stripped <span set:html={res.species_ladder[res.species_ladder.length - 1].idPretty} /> is essentially absent
+        (<span set:html={res.species_ladder[res.species_ladder.length - 1].eqmSci} /> M).
+      </p>
+      <div class="ladder">
+        <span class="ladder-label">Every species at equilibrium:</span>
+        <span class="ladder-vals">
+          {res.species_ladder.map((l, i) => (
+            <span class="lv">[<span set:html={l.idPretty} />] = <span set:html={l.eqmSci} /> M{i < res.species_ladder.length - 1 ? " · " : ""}</span>
+          ))}
+        </span>
+      </div>
+    </div>
   )}
 
   <!-- the machine-checked facts, SHOWN not asserted -->
@@ -287,6 +355,16 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
             pH = <strong>{res.pH_display}</strong> — not 13.00; the other {reactantRow.equilibrium_M_display} M
             {" "}({(100 - Number(res.percent_ionization_display)).toFixed(2)}%) stays as intact {lesson.reaction.basePretty}. Notice the mirror:
             this base at 0.100 M lands as far <em>above</em> pH 7 as 0.100 M acetic acid (same K) lands below it.
+          </>
+        ) : isPoly ? (
+          <>
+            Only the <strong>first</strong> proton comes off appreciably. Because each K<sub>a</sub> is about 10<sup>5</sup>
+            smaller than the last, the second ionization barely proceeds (x<sub>2</sub> = <span set:html={res.later_stages[0].extentSci} /> M)
+            and the third is vanishing (<span set:html={res.species_ladder[res.species_ladder.length - 1].idPretty} /> ≈
+            <span set:html={res.species_ladder[res.species_ladder.length - 1].eqmSci} /> M). So <strong>[H<sup>+</sup>] = {res.hydronium_M_display} M</strong>
+            comes almost entirely from stage 1 — the extra protons add nothing measurable, and pH = <strong>{res.pH_display}</strong>,
+            not one-third lower. A triprotic acid is not “three times” a monoprotic one; it is one moderately weak acid followed
+            by two that essentially do not ionize.
           </>
         ) : (
           <>
@@ -374,4 +452,14 @@ const excludedFrom = isKsp ? "Ksp" : "Q";
   .akind { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; padding: 0.05rem 0.35rem; border-radius: 5px; margin-right: 0.3rem; }
   .akind.model { background: var(--model-soft); color: var(--model); }
   .akind.rule { background: var(--sourced-soft); color: var(--sourced); }
+
+  /* polyprotic: the later-ionizations table + species ladder */
+  .stages { display: grid; gap: 0.7rem; border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line)); border-radius: var(--radius); padding: 0.6rem 0.9rem 0.9rem; }
+  table.laterstages { font-size: 0.9rem; }
+  table.laterstages td.num, table.laterstages th.num { font-size: 0.85rem; }
+  table.laterstages .sym sub, table.laterstages .sym sup { font-size: 0.75em; }
+  .ladder { display: flex; flex-wrap: wrap; gap: 0.3rem 0.7rem; align-items: baseline; }
+  .ladder-label { color: var(--ink-faint); text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.03em; }
+  .ladder-vals { font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 0.3rem 0.5rem; }
+  .ladder .lv { white-space: nowrap; }
 </style>

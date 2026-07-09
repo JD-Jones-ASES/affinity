@@ -398,6 +398,27 @@ refuted_by = "common_ion_ignored"                 # the player renders the commo
 
 See [`problems/equilibrium/acetate-buffer.equilibrium.toml`](../problems/equilibrium/acetate-buffer.equilibrium.toml).
 
+The **polyprotic subtype** names an `acid` with **≥ 2 protons** (e.g. `H3PO4`, curated in `data/acids-bases.toml` with
+`protons = 3`), whose staged ionization constants live in `data/ionization-constants.toml` under `[polyprotic."H3PO4"]`
+(ordered `stages` of `{ acid, ka, anion }`, Kₐ strictly decreasing, each composition machine-checked on load). The proton
+count alone routes the build to the polyprotic builder — no extra key. The producer solves each stage in sequence (each on the
+previous stage's equilibrium), emits the first ionization as the top-level ICE and the rest under `result.later_stages`, and
+refuses a monoprotic acid or one with no `[polyprotic]` entry. Use `refuted_by = "later_stages_negligible"` for the player's
+polyprotic refutation:
+
+```toml
+topic = "equilibrium"
+acid = "H3PO4"                                    # a weak acid with protons ≥ 2 (→ the polyprotic subtype)
+initial_molarity_M = "0.100"
+scenario = "…"
+
+[misconception]
+claim = "…"
+refuted_by = "later_stages_negligible"            # the player renders the staged-ionization refutation for this key
+```
+
+See [`problems/equilibrium/phosphoric-acid-ph.equilibrium.toml`](../problems/equilibrium/phosphoric-acid-ph.equilibrium.toml).
+
 ### Other optional keys
 
 `tags` (array), `reference_links` (array of Atlas ids — they become links as the Atlas is built),

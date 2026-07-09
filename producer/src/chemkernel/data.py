@@ -55,7 +55,7 @@ class ChemData:
                  formation_enthalpies: dict | None = None, vsepr: dict | None = None,
                  boiling_points: dict | None = None, ionization_constants: dict | None = None,
                  solubility_products: dict | None = None, base_ionization_constants: dict | None = None,
-                 water_kw: Decimal | None = None):
+                 water_kw: Decimal | None = None, polyprotic_constants: dict | None = None):
         self.elements = elements
         self.ions = ions
         self.sources = sources
@@ -90,6 +90,10 @@ class ChemData:
         # the ion-product constant of water K_w = [H+][OH-] (ADR-0048, 3rd increment), Decimal, sourced (regime-3).
         # The bridge between [OH-] and pH: [H+] = K_w/[OH-], so pH + pOH = pK_w = 14.00 at 25 °C.
         self.water_kw = water_kw
+        # polyprotic weak acids (ADR-0048), keyed by first-stage acid formula -> {name, stages: [{acid, ka, anion}]},
+        # the stages ordered by decreasing Ka. Each stage's composition (acid = anion + H+) is machine-checked on
+        # load (regime-1); the Ka are sourced (regime-3). The engine solves the stages in sequence.
+        self.polyprotic_constants = polyprotic_constants or {}
 
     @property
     def avogadro(self) -> Decimal:
@@ -136,6 +140,14 @@ class ChemData:
         if formula not in self.base_ionization_constants:
             raise BuildError(f"no base ionization constant for '{formula}' in data/ionization-constants.toml")
         return self.base_ionization_constants[formula]
+
+    def polyprotic_constant(self, formula: str) -> dict:
+        """The staged ionization constants of a polyprotic weak acid by neutral formula, from
+        data/ionization-constants.toml [polyprotic] (ADR-0048). Returns {name, stages: [{acid, ka, anion}]} with the
+        stages ordered by decreasing Ka + machine-checked composition. Raises if absent (ADR-0008 — refuse to guess)."""
+        if formula not in self.polyprotic_constants:
+            raise BuildError(f"no polyprotic ionization constants for '{formula}' in data/ionization-constants.toml")
+        return self.polyprotic_constants[formula]
 
     def water_ion_product(self) -> Decimal:
         """The ion-product constant of water K_w = [H+][OH-] (Decimal), from data/ionization-constants.toml
@@ -296,6 +308,7 @@ class ChemData:
         # neutral base formula (Kb + conjugate acid, composition machine-checked below); water carries K_w.
         ionization_constants: dict = {}
         base_ionization_constants: dict = {}
+        polyprotic_constants: dict = {}
         water_kw: Decimal | None = None
         ic_source = ""
         ic_path = d / "ionization-constants.toml"
@@ -344,6 +357,43 @@ class ChemData:
                         raise BuildError("data/ionization-constants.toml: [water] kw must be positive")
                 except (KeyError, ArithmeticError) as exc:
                     raise BuildError(f"data/ionization-constants.toml: bad [water] entry: {exc}") from exc
+            # polyprotic weak acids: an ordered list of stages, each HₙA <=> H+ + Hₙ₋₁A with its own Kₐ. On load,
+            # machine-check each stage's composition (regime-1): the stage's acid = its anion + one H+, charge one
+            # more positive; the Kₐ are strictly DECREASING (Kₐ1 > Kₐ2 > …, the physical ordering); every species
+            # resolves in the ion/formula tables. So "H2PO4⁻ loses a proton to give HPO4²⁻" is verified even though
+            # "phosphoric acid is triprotic" is a sourced convention.
+            for key, v in ic_doc.get("polyprotic", {}).items():
+                try:
+                    raw = v["stages"]
+                    if len(raw) < 2:
+                        raise BuildError(f"data/ionization-constants.toml: polyprotic '{key}' needs ≥ 2 stages")
+                    stages, prev_ka = [], None
+                    for i, st in enumerate(raw):
+                        ka = Decimal(st["ka"])
+                        if ka <= 0:
+                            raise BuildError(f"data/ionization-constants.toml: polyprotic '{key}' stage {i+1} ka must be positive")
+                        if prev_ka is not None and ka >= prev_ka:
+                            raise BuildError(f"data/ionization-constants.toml: polyprotic '{key}' Kₐ must strictly "
+                                             f"decrease by stage (stage {i+1} {ka} ≥ previous {prev_ka})")
+                        prev_ka = ka
+                        acid_f = parse_formula(st["acid"], ctx=f"polyprotic '{key}' stage {i+1} acid")
+                        anion = ions.get(st["anion"])
+                        if anion is None:
+                            raise BuildError(f"data/ionization-constants.toml: polyprotic '{key}' stage {i+1} names "
+                                             f"unknown anion '{st['anion']}'")
+                        # acid = anion + one H+ (composition + charge)
+                        expect = dict(parse_formula(anion.formula).counts)
+                        expect["H"] = expect.get("H", 0) + 1
+                        if dict(acid_f.counts) != expect or acid_f.charge != anion.charge + 1:
+                            raise BuildError(f"data/ionization-constants.toml: polyprotic '{key}' stage {i+1}: "
+                                             f"{st['acid']} is not {st['anion']} + H+ (composition/charge)")
+                        stages.append({"acid": st["acid"], "ka": ka, "anion": anion.id})
+                    if key != stages[0]["acid"]:
+                        raise BuildError(f"data/ionization-constants.toml: polyprotic key '{key}' must equal its "
+                                         f"first-stage acid '{stages[0]['acid']}'")
+                    polyprotic_constants[key] = {"name": v["name"], "stages": stages}
+                except (KeyError, ArithmeticError) as exc:
+                    raise BuildError(f"data/ionization-constants.toml: bad polyprotic entry for '{key}': {exc}") from exc
 
         # solubility-product constants Ksp (optional file; ADR-0006/0048). The Ksp value is sourced (regime-3);
         # the ion counts are DERIVED by charge crossover and the salt composition machine-checked here (regime-1),
@@ -398,7 +448,7 @@ class ChemData:
         }
         obj = cls(elements, ions, sources, constants, bonding, constant_units, specific_heats,
                   formation_enthalpies, vsepr, boiling_points, ionization_constants, solubility_products,
-                  base_ionization_constants, water_kw)
+                  base_ionization_constants, water_kw, polyprotic_constants)
         obj.validate()
         return obj
 

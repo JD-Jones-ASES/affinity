@@ -1643,3 +1643,25 @@ comparison + **5 equilibrium** (14 ids); validate-reference = **67** (+1 concept
 cross-links). **3-way tamper-tested** on the new branch (the suppression factor; the pure-water contrast solubility; the
 common ion's initial concentration vs the reaction block). In-browser: the ICE table shows F⁻ pre-loaded at 0.10, the
 "59 400× less" card, the common-ion note, and the refuted misconception; 0 KaTeX errors.
+
+**Update (7th increment, same day) — the `polyprotic` subtype: staged ionization, the same solver run per stage.** A
+polyprotic acid loses its protons in STAGES (H₃PO₄ ⇌ H⁺ + H₂PO₄⁻, then H₂PO₄⁻ ⇌ H⁺ + HPO₄²⁻, then HPO₄²⁻ ⇌ H⁺ + PO₄³⁻),
+each with its own Kₐ (Kₐ1 ≫ Kₐ2 ≫ Kₐ3, ~10⁵ apart). `solve_equilibrium` runs **once per stage**, each seeded with the
+previous stage's equilibrium concentrations (the standard **successive treatment** — a disclosed model assumption, exact in
+the well-separated-Kₐ limit). The FIFTH subtype (`build_polyprotic_lesson`, dispatched when the named acid has ≥ 2 protons).
+Schema: the top-level `ice`/`mass_action`/`reaction`/`equilibrium_constant` are the FIRST (dominant) ionization — so the
+existing required fields stay meaningful and the existing ICE renderer shows stage 1 — and `result.later_stages` carries
+stages 2..n as compact, independently re-solvable objects (+ `result.species_ladder` for every species' equilibrium
+concentration, + `proton_count`). No `required`-field relaxation; the 4th check reuses `ph_consistent`. Data (regime-3): a
+`[polyprotic]` table in `data/ionization-constants.toml` (each stage's composition — acid = anion + H⁺, charge one more
+positive — machine-checked on load, the Kₐ required strictly decreasing) + two new ion-table anions (H₂PO₄⁻/HPO₄²⁻), all
+OpenStax App H. The opener: **`equilibrium/phosphoric-acid-ph`** — 0.100 M H₃PO₄ → **pH 1.62** ([H⁺] = 0.0239 M, 23.9% of
+the first proton), and the checkable payoffs FALL OUT of the solve: [H⁺] tracks stage 1, the amphiprotic **[HPO₄²⁻] ≈ Kₐ2 =
+6.2×10⁻⁸** (because [H⁺] ≈ [H₂PO₄⁻] collapses stage 2's mass-action law), and [PO₄³⁻] ≈ 10⁻¹⁸ (essentially absent). The
+misconception is that all three protons ionize comparably. A new **`polyprotic-acid` concept**. Gate `equilibriumcheck.mjs`
+re-solves each later stage on the chained initials + re-checks Q=Kₐ per stage + the accumulated [H⁺]/pH + the species-ladder
+reconstruction. **376 tests** (+7); validate-solutions = 6 + 2 structure + 1 comparison + **6 equilibrium** (15 ids);
+validate-reference = **68** (+1 concept); check-katex **702** (+59); **37 pages** (+1); `derived/` byte-stable. **5-way
+tamper-tested** (a stage extent; the chain link; the pH; a ladder concentration; the accumulated hydronium). In-browser:
+stage-1 ICE + the later-ionizations table + the species ladder (10⁻² → 10⁻¹⁸) + the ≈Kₐ2 payoff render; 0 KaTeX errors. The
+`equilibrium` kind now has **five subtypes**.

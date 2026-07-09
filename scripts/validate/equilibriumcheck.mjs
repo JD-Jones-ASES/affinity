@@ -50,8 +50,8 @@ export function solveEquilibrium(species, K) {
   return { extent: x, concs: concsAt(x), quotient: reactionQuotient(concsAt(x), nus, inQ) };
 }
 
-// Re-derive + verify one equilibrium lesson (all four subtypes — weak-acid pH, buffer, weak-base pH, and Ksp
-// solubility incl. the common-ion variant, ADR-0048). `fail(rel, msg)` exits the process (the caller's fail).
+// Re-derive + verify one equilibrium lesson (all five subtypes — weak-acid pH, buffer, weak-base pH, Ksp
+// solubility incl. the common-ion variant, and polyprotic staged ionization, ADR-0048). `fail(rel, msg)` exits.
 export function verifyEquilibrium(rel, les, fail) {
   const rc = (g, w, t = 1e-6) => Math.abs(g - w) <= t * Math.abs(w) + 1e-12;
   const ice = les.ice;
@@ -206,6 +206,57 @@ export function verifyEquilibrium(rel, les, fail) {
       if (!rc(suppression, Number(les.result.suppression_factor_display), 5e-3))
         fail(rel, `result.suppression_factor_display ${les.result.suppression_factor_display} != s_pure/s = ${suppression}`);
     }
+  } else if (les.subtype === "polyprotic") {
+    // the top-level ice IS stage 1 (already re-solved above). Walk result.later_stages, each an independent
+    // re-solve on the PREVIOUS stage's equilibrium concentrations (the successive treatment), and re-derive the
+    // accumulated [H+], the pH, and the species ladder — so the "each Ka is 10^5 smaller, so later stages barely
+    // move [H+]" payoff is re-proven, not asserted.
+    const r = les.result;
+    const acid = species.find((s) => s.nu < 0);
+    const hplus1 = species.find((s) => s.id === "H^+");
+    const anion1 = species.find((s) => s.nu > 0 && s.id !== "H^+");
+    if (!acid || !hplus1 || !anion1) fail(rel, "polyprotic stage 1 needs a reactant acid, H^+, and its conjugate base");
+    const c0 = acid.initial;
+    const xs = [x];                                   // x = stage-1 extent (top-level ice)
+    let prevReactantEqm = anion1.equilibrium;         // stage 2's reactant is stage 1's anion
+    let prevHydronium = hplus1.equilibrium;           // the running [H+]
+    for (const st of (r.later_stages || [])) {
+      if (!rc(Number(st.initial_reactant_M), prevReactantEqm, 1e-4))
+        fail(rel, `stage ${st.index}: initial_reactant_M ${st.initial_reactant_M} != previous anion equilibrium ${prevReactantEqm}`);
+      if (!rc(Number(st.initial_hydronium_M), prevHydronium, 1e-4))
+        fail(rel, `stage ${st.index}: initial_hydronium_M ${st.initial_hydronium_M} != running [H+] ${prevHydronium}`);
+      if (Number(st.initial_anion_M) !== 0) fail(rel, `stage ${st.index}: initial_anion_M must start at 0`);
+      const ka = Number(st.ka_value);
+      if (!(ka > 0)) fail(rel, `stage ${st.index}: ka_value ${st.ka_value} not positive`);
+      const sys = [{ nu: -1, initial: Number(st.initial_reactant_M), in_quotient: true },
+                   { nu: 1, initial: Number(st.initial_hydronium_M), in_quotient: true },
+                   { nu: 1, initial: 0, in_quotient: true }];
+      const sol = solveEquilibrium(sys, ka);
+      const xj = Number(st.extent_M);
+      if (Number.isNaN(sol.extent)) fail(rel, `stage ${st.index}: root not bracketed on re-solve`);
+      if (!rc(xj, sol.extent, 1e-3)) fail(rel, `stage ${st.index}: extent_M ${st.extent_M} != re-solved ${sol.extent}`);
+      const reEq = Number(st.initial_reactant_M) - xj, hEq = Number(st.initial_hydronium_M) + xj, anEq = xj;
+      const Q = (hEq * anEq) / reEq;                  // [H+][anion]/[reactant]
+      if (!rc(Q, ka, 1e-4)) fail(rel, `stage ${st.index}: Q ${Q} != Ka ${ka}`);
+      if (!rc(Number(st.anion_equilibrium_M), anEq, 1e-4)) fail(rel, `stage ${st.index}: anion_equilibrium_M != initial_anion + x`);
+      xs.push(xj);
+      prevReactantEqm = anEq;                          // this stage's anion feeds the next stage
+      prevHydronium = hEq;
+    }
+    const hplusTotal = xs.reduce((a, b) => a + b, 0);  // [H+] accumulates across the stages
+    if (!rc(Number(r.hydronium_M), hplusTotal, 1e-4)) fail(rel, `result.hydronium_M ${r.hydronium_M} != Σ stage extents ${hplusTotal}`);
+    const pH = -Math.log10(hplusTotal);
+    if (Math.abs(pH - Number(r.pH)) > 1e-3) fail(rel, `result.pH ${r.pH} != -log10[H+] = ${pH.toFixed(6)}`);
+    const percent = (x / c0) * 100;
+    if (!rc(percent, Number(r.percent_ionization), 1e-3)) fail(rel, `result.percent_ionization ${r.percent_ionization} != x1/c0·100 = ${percent}`);
+    // the species ladder: [acid] = c0 − x1; [anion_k] = x_k − x_{k+1}; [last anion] = x_last
+    const ladder = r.species_ladder || [], N = xs.length;
+    if (ladder.length !== N + 1) fail(rel, `species_ladder length ${ladder.length} != acid + ${N} anions`);
+    const expected = [c0 - xs[0]];
+    for (let k = 0; k < N; k++) expected.push(k < N - 1 ? xs[k] - xs[k + 1] : xs[k]);
+    for (let k = 0; k < ladder.length; k++)
+      if (!rc(Number(ladder[k].equilibrium_M), expected[k], 1e-3))
+        fail(rel, `species_ladder[${k}] ${ladder[k].id} = ${ladder[k].equilibrium_M} != expected ${expected[k]}`);
   } else {
     fail(rel, `unknown equilibrium subtype '${les.subtype}'`);
   }

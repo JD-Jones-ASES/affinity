@@ -308,6 +308,15 @@ for (const file of equilibriumFiles) {
       need(les.reaction, ["common_ion_latex", "common_ion_molarity_M"], "reaction");
       need(les.result, ["molar_solubility_pure_water_M", "molar_solubility_pure_water_M_display", "suppression_factor_display"], "result");
     }
+  } else if (les.subtype === "polyprotic") {
+    // stage 1 lives in the top-level reaction/ice (weak-acid shape); the later stages + ladder live in result
+    need(les.reaction, ["acid", "acid_name", "acid_latex", "conjugate_base"], "reaction");
+    need(les.result, ["hydronium_M", "hydronium_M_display", "pH", "pH_display", "percent_ionization",
+      "percent_ionization_display", "proton_count", "species_ladder", "later_stages"], "result");
+    if (!Array.isArray(les.result.later_stages) || les.result.later_stages.length < 1)
+      fail(rel, "polyprotic result.later_stages must list stages 2..n (≥ 1 entry)");
+    need(les.checks, ["ph_consistent"], "checks");
+    need(les.provenance.sources, ["ionization_constants", "ion_charge"], "provenance.sources");
   } else fail(rel, `unknown equilibrium subtype '${les.subtype}'`);
 
   // the machine-checked core: re-derive the reversible-extent solve independently of Python

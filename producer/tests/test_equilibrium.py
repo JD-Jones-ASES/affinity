@@ -13,14 +13,15 @@ import pytest
 from chemkernel import BuildError
 from chemkernel.build import build_equilibrium
 from chemkernel.data import ChemData
-from chemkernel.equilibrium import (build_buffer_lesson, build_equilibrium_lesson, build_solubility_lesson,
-                                    build_weak_base_lesson, solve_equilibrium, _quotient)
+from chemkernel.equilibrium import (build_buffer_lesson, build_equilibrium_lesson, build_polyprotic_lesson,
+                                    build_solubility_lesson, build_weak_base_lesson, solve_equilibrium, _quotient)
 from chemkernel.reactivity import AcidBase
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = ROOT / "problems" / "equilibrium" / "acetic-acid-ph.equilibrium.toml"
 SPEC_KSP = ROOT / "problems" / "equilibrium" / "calcium-fluoride-solubility.equilibrium.toml"
 SPEC_KSP_COMMON = ROOT / "problems" / "equilibrium" / "calcium-fluoride-common-ion.equilibrium.toml"
+SPEC_POLY = ROOT / "problems" / "equilibrium" / "phosphoric-acid-ph.equilibrium.toml"
 SPEC_BASE = ROOT / "problems" / "equilibrium" / "ammonia-ph.equilibrium.toml"
 SPEC_BUFFER = ROOT / "problems" / "equilibrium" / "acetate-buffer.equilibrium.toml"
 
@@ -349,6 +350,88 @@ def test_build_common_ion_round_trip():
     lesson, out_rel = build_equilibrium(SPEC_KSP_COMMON, ROOT)
     assert out_rel == "equilibrium/calcium-fluoride-common-ion.equilibrium.json"
     assert lesson["subtype"] == "solubility" and lesson["reaction"]["common_ion"] == "F^-"
+
+
+# ── polyprotic (staged ionization — Kₐ1 ≫ Kₐ2 ≫ Kₐ3, each stage solved on the previous stage's output) ──
+
+def test_polyprotic_data_loaded_decreasing_ka():
+    data = ChemData.load(ROOT)
+    rec = data.polyprotic_constant("H3PO4")
+    kas = [s["ka"] for s in rec["stages"]]
+    assert kas == [Decimal("7.5e-3"), Decimal("6.2e-8"), Decimal("4.2e-13")]
+    assert kas[0] > kas[1] > kas[2]                                   # strictly decreasing (checked on load)
+    assert [s["anion"] for s in rec["stages"]] == ["H2PO4^-", "HPO4^2-", "PO4^3-"]
+
+
+def _poly_spec():
+    return {"id": "t", "title": "t", "slug": "t", "topic": "equilibrium", "scenario": "s", "acid": "H3PO4",
+            "initial_molarity_M": "0.100", "misconception": {"claim": "c", "refuted_by": "later_stages_negligible"}}
+
+
+def test_builds_phosphoric_acid_lesson():
+    data, acidbase = ChemData.load(ROOT), AcidBase.load(ROOT)
+    L = build_polyprotic_lesson(_poly_spec(), data, acidbase, "t")
+    assert L["subtype"] == "polyprotic"
+    assert L["equilibrium_constant"]["symbol"] == "K_a1" and L["equilibrium_constant"]["value"] == "0.0075"
+    # the first ionization sets the pH: [H+] ≈ 0.0239, pH ≈ 1.62, ~23.9% of the first proton ionized
+    assert L["result"]["pH_display"] == "1.62"
+    assert L["result"]["hydronium_M_display"] == "0.0239"
+    assert L["result"]["percent_ionization_display"] == "23.9"
+    assert L["result"]["proton_count"] == 3
+    # the ladder is the acid + its three successive anions; two later stages (2 and 3)
+    assert [s["id"] for s in L["result"]["species_ladder"]] == ["H3PO4", "H2PO4^-", "HPO4^2-", "PO4^3-"]
+    assert [ls["index"] for ls in L["result"]["later_stages"]] == [2, 3]
+    assert all(L["checks"].values())
+
+
+def test_polyprotic_amphiprotic_middle_equals_ka2():
+    """The signature polyprotic result: [HPO4²⁻] ≈ Kₐ2, because after stage 1 [H+] ≈ [H2PO4⁻] collapses the
+    second stage's mass-action law to Kₐ2 ≈ [HPO4²⁻]. It falls out of the machine solve, not asserted."""
+    data, acidbase = ChemData.load(ROOT), AcidBase.load(ROOT)
+    L = build_polyprotic_lesson(_poly_spec(), data, acidbase, "t")
+    hpo4 = next(s for s in L["result"]["species_ladder"] if s["id"] == "HPO4^2-")
+    ka2 = Decimal(L["result"]["later_stages"][0]["ka_value"])
+    assert abs(Decimal(hpo4["equilibrium_M"]) - ka2) / ka2 < Decimal("1e-3")
+    # and the fully-stripped phosphate is essentially absent (< 1e-15 M)
+    po4 = next(s for s in L["result"]["species_ladder"] if s["id"] == "PO4^3-")
+    assert Decimal(po4["equilibrium_M"]) < Decimal("1e-15")
+
+
+def test_polyprotic_each_stage_satisfies_its_ka():
+    """Every stage's committed concentrations reproduce that stage's Kₐ (Q = Kₐ per stage)."""
+    data, acidbase = ChemData.load(ROOT), AcidBase.load(ROOT)
+    L = build_polyprotic_lesson(_poly_spec(), data, acidbase, "t")
+    for ls in L["result"]["later_stages"]:
+        re_eq = Decimal(ls["initial_reactant_M"]) - Decimal(ls["extent_M"])
+        h_eq = Decimal(ls["initial_hydronium_M"]) + Decimal(ls["extent_M"])
+        an_eq = Decimal(ls["anion_equilibrium_M"])
+        Q = h_eq * an_eq / re_eq
+        ka = Decimal(ls["ka_value"])
+        assert abs(Q - ka) / ka < Decimal("1e-6")
+
+
+def test_polyprotic_stages_chain():
+    """Each later stage starts on the previous stage's equilibrium concentrations (the successive treatment)."""
+    data, acidbase = ChemData.load(ROOT), AcidBase.load(ROOT)
+    L = build_polyprotic_lesson(_poly_spec(), data, acidbase, "t")
+    # stage 2's reactant [H2PO4⁻]₀ = stage 1's anion equilibrium (the top-level ice's product)
+    anion1_eq = next(r for r in L["ice"]["species"] if r["id"] == "H2PO4^-")["equilibrium_M"]
+    assert L["result"]["later_stages"][0]["initial_reactant_M"] == anion1_eq
+
+
+def test_polyprotic_refuses_monoprotic_acid():
+    data, acidbase = ChemData.load(ROOT), AcidBase.load(ROOT)
+    spec = dict(_poly_spec(), acid="HC2H3O2")                          # acetic acid — one proton
+    with pytest.raises(BuildError, match="polyprotic lesson needs"):
+        build_polyprotic_lesson(spec, data, acidbase, "t")
+
+
+def test_polyprotic_dispatch_routes_by_proton_count():
+    """build_equilibrium routes a triprotic acid to polyprotic and a monoprotic acid to weak-acid."""
+    poly, rel = build_equilibrium(SPEC_POLY, ROOT)
+    assert rel == "equilibrium/phosphoric-acid-ph.equilibrium.json" and poly["subtype"] == "polyprotic"
+    mono, _ = build_equilibrium(SPEC, ROOT)                            # acetic-acid-ph.equilibrium.toml
+    assert mono["subtype"] == "weak-acid"
 
 
 # ── weak base (the 3rd increment — water excluded from Q like the solid; Kb → pOH → pH via Kw) ──

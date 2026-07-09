@@ -1,0 +1,41 @@
+# Equilibrium lesson, subtype `polyprotic` (ADR-0048). Phosphoric acid is TRIPROTIC — it loses its three protons
+# in stages, each with its own Kₐ (Kₐ1 ≫ Kₐ2 ≫ Kₐ3). The SAME reversible-extent solver runs once per stage, each
+# seeded with the previous stage's equilibrium concentrations. The payoff: the first ionization sets [H⁺] almost
+# entirely, and the middle anion HPO₄²⁻ sits at ≈ Kₐ2 — both fall out of the machine solve, not asserted.
+# The acid + its staged Kₐ come from data/ionization-constants.toml [polyprotic]. TOML trap #4: bare keys first.
+
+id = "phosphoric-acid-ph"
+title = "One acid, three protons: the pH of phosphoric acid"
+slug = "phosphoric-acid-ph"
+topic = "equilibrium"
+tags = ["equilibrium", "polyprotic", "acid", "pH", "ICE table", "staged ionization"]
+
+# a polyprotic weak acid curated in data/acids-bases.toml (protons ≥ 2) with staged Kₐ in ionization-constants.toml
+acid = "H3PO4"
+initial_molarity_M = "0.100"
+
+scenario = "Phosphoric acid, $\\mathrm{H_3PO_4}$, has **three** acidic protons — it is **triprotic**. But it does not give them up all at once: it ionizes in **stages**, each with its own equilibrium constant, and each $K_a$ is about $10^5$ smaller than the last ($K_{a1} = 7.5\\times10^{-3}$, $K_{a2} = 6.2\\times10^{-8}$, $K_{a3} = 4.2\\times10^{-13}$). So the **first** ionization is the only one that releases an appreciable amount of $\\mathrm{H^+}$ — and it is just the weak-acid ICE table again. Each later stage is the same solve, run on the concentrations the stage before it left behind."
+
+reference_links = ["polyprotic-acid", "chemical-equilibrium", "ph", "reaction-acid-base"]
+
+author = "Affinity"
+created = "2026-07-08"
+
+# modeling assumptions — disclosed (ADR-0003, the model-assumed badge). The ICE accounting in each stage is exact;
+# the successive treatment (solving one stage at a time) rides on the wide Kₐ separation.
+[[assumptions]]
+claim = "The three ionizations are solved in succession — each stage on the equilibrium concentrations the previous stage left — rather than simultaneously. This is exact in the limit of well-separated $K_a$ (here each is $\\sim10^5$ apart), the standard treatment."
+kind = "model"
+
+[[assumptions]]
+claim = "Water's own autoionization is neglected: $[\\mathrm{H^+}]_0 = 0$ before the acid ionizes (valid because the acid's $[\\mathrm{H^+}]$ is far above $10^{-7}$ M)."
+kind = "model"
+
+[[assumptions]]
+claim = "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which is why each $K_a$ is written with concentrations."
+kind = "model"
+
+# the canonical wrong move: adding the three Kₐ contributions as if all protons ionize comparably.
+[misconception]
+claim = "Phosphoric acid has three ionizable protons, so all three ionize substantially and [H+] is about three times what a monoprotic acid would give."
+refuted_by = "later_stages_negligible"

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://affinity/schemas/equilibrium-lesson.schema.json",
   "title": "Affinity equilibrium lesson",
-  "description": "One verified reversible-equilibrium lesson (ADR-0048): the species ledger with the extent solved from MASS ACTION rather than the limiting reagent. Where a solution.json (ADR-0020) runs a reaction to completion (ξ = the limiting-reagent minimum), an equilibrium lesson is the ICE table — every concentration c_i = c_{i,0} + ν_i·x, with x the root of Q(x)=K (chemkernel.equilibrium.solve_equilibrium). Four subtypes share this schema: `weak-acid` (HA ⇌ H⁺ + A⁻, the pH), `buffer` (the same reaction with A⁻ already present — the common-ion effect + Henderson–Hasselbalch), `weak-base` (B + H₂O ⇌ BH⁺ + OH⁻, → pOH → pH via K_w — water excluded from Q) and `solubility` (a Ksp dissolution, the molar solubility — the pure solid excluded from Q; optionally with a **common ion** already present, which suppresses dissolution — the same nonzero-initial-product case the buffer proves, on the cubic). A distinct, tight schema keeps solution.schema.json pristine. additionalProperties:false everywhere.",
+  "description": "One verified reversible-equilibrium lesson (ADR-0048): the species ledger with the extent solved from MASS ACTION rather than the limiting reagent. Where a solution.json (ADR-0020) runs a reaction to completion (ξ = the limiting-reagent minimum), an equilibrium lesson is the ICE table — every concentration c_i = c_{i,0} + ν_i·x, with x the root of Q(x)=K (chemkernel.equilibrium.solve_equilibrium). Four subtypes share this schema: `weak-acid` (HA ⇌ H⁺ + A⁻, the pH), `buffer` (the same reaction with A⁻ already present — the common-ion effect + Henderson–Hasselbalch), `weak-base` (B + H₂O ⇌ BH⁺ + OH⁻, → pOH → pH via K_w — water excluded from Q) `solubility` (a Ksp dissolution, the molar solubility — the pure solid excluded from Q; optionally with a **common ion** already present, which suppresses dissolution — the same nonzero-initial-product case the buffer proves, on the cubic), and `polyprotic` (a triprotic acid like H₃PO₄ ionizing in stages Kₐ1 ≫ Kₐ2 ≫ Kₐ3 — the top-level ice is the first, dominant ionization and result.later_stages carries the rest, each solved on the previous stage's outputs). A distinct, tight schema keeps solution.schema.json pristine. additionalProperties:false everywhere.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,7 +14,7 @@
   },
   "properties": {
     "kind": { "const": "equilibrium" },
-    "subtype": { "enum": ["weak-acid", "buffer", "weak-base", "solubility"], "$comment": "discriminates the equilibrium shapes; the gate requires the subtype-specific reaction/result/checks fields" },
+    "subtype": { "enum": ["weak-acid", "buffer", "weak-base", "solubility", "polyprotic"], "$comment": "discriminates the equilibrium shapes; the gate requires the subtype-specific reaction/result/checks fields. `polyprotic`: the top-level ice/mass_action/reaction/equilibrium_constant are the FIRST (dominant) ionization; result.later_stages carries stages 2..n" },
     "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
     "title": { "type": "string", "minLength": 1 },
     "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
@@ -159,7 +159,52 @@
         "molar_solubility_pure_water_M_display": { "$ref": "#/$defs/decimalString" },
         "solubility_g_per_L": { "$ref": "#/$defs/decimalString" },
         "solubility_g_per_L_display": { "$ref": "#/$defs/decimalString" },
-        "molar_mass_g_per_mol": { "$ref": "#/$defs/decimalString" }
+        "molar_mass_g_per_mol": { "$ref": "#/$defs/decimalString" },
+        "proton_count": { "type": "integer", "minimum": 2, "$comment": "polyprotic: the acid's ionizable proton count (= number of stages)" },
+        "species_ladder": {
+          "type": "array", "minItems": 2,
+          "$comment": "polyprotic: the equilibrium concentration of every species in the ionization ladder HₙA → … → the last anion",
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["id", "latex", "equilibrium_M", "equilibrium_M_display"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "latex": { "type": "string", "minLength": 1 },
+              "equilibrium_M": { "$ref": "#/$defs/decimalString" },
+              "equilibrium_M_display": { "$ref": "#/$defs/decimalString" }
+            }
+          }
+        },
+        "later_stages": {
+          "type": "array",
+          "$comment": "polyprotic: stages 2..n as compact, independently re-solvable objects (the gate re-solves each on the previous stage's outputs). Stage 1 is the top-level ice/mass_action.",
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["index", "ka_symbol", "ka_value", "expression_latex", "reactant_id", "reactant_latex",
+              "anion_id", "anion_latex", "initial_reactant_M", "initial_hydronium_M", "initial_anion_M",
+              "extent_M", "extent_M_display", "anion_equilibrium_M", "anion_equilibrium_M_display",
+              "quotient_at_equilibrium", "residual_relative"],
+            "properties": {
+              "index": { "type": "integer", "minimum": 2 },
+              "ka_symbol": { "type": "string", "minLength": 1 },
+              "ka_value": { "$ref": "#/$defs/decimalString" },
+              "expression_latex": { "type": "string", "minLength": 1 },
+              "reactant_id": { "type": "string", "minLength": 1 },
+              "reactant_latex": { "type": "string", "minLength": 1 },
+              "anion_id": { "type": "string", "minLength": 1 },
+              "anion_latex": { "type": "string", "minLength": 1 },
+              "initial_reactant_M": { "$ref": "#/$defs/decimalString" },
+              "initial_hydronium_M": { "$ref": "#/$defs/decimalString" },
+              "initial_anion_M": { "$ref": "#/$defs/decimalString" },
+              "extent_M": { "$ref": "#/$defs/decimalString" },
+              "extent_M_display": { "$ref": "#/$defs/decimalString" },
+              "anion_equilibrium_M": { "$ref": "#/$defs/decimalString" },
+              "anion_equilibrium_M_display": { "$ref": "#/$defs/decimalString" },
+              "quotient_at_equilibrium": { "$ref": "#/$defs/decimalString" },
+              "residual_relative": { "$ref": "#/$defs/decimalString" }
+            }
+          }
+        }
       }
     },
     "misconception": {

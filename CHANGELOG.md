@@ -3,6 +3,30 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — equilibrium: polyprotic staged ionization (ADR-0048, 7th increment)
+
+A polyprotic acid loses its protons in **stages** — H₃PO₄ ⇌ H⁺ + H₂PO₄⁻, then H₂PO₄⁻ ⇌ H⁺ + HPO₄²⁻, then HPO₄²⁻ ⇌ H⁺ +
+PO₄³⁻ — each with its own Kₐ (Kₐ1 ≫ Kₐ2 ≫ Kₐ3, ~10⁵ apart). The **same reversible-extent solver** runs once per stage, each
+seeded with the previous stage's equilibrium concentrations (the standard successive treatment). The fifth `equilibrium`
+subtype.
+
+- **Lesson `equilibrium/phosphoric-acid-ph`** — 0.100 M phosphoric acid → **pH 1.62** ([H⁺] = 0.0239 M, 23.9% of the first
+  proton ionized). The payoffs are machine-derived, not asserted: [H⁺] is set almost entirely by stage 1; the amphiprotic
+  **[HPO₄²⁻] ≈ Kₐ2 = 6.2×10⁻⁸** (because [H⁺] ≈ [H₂PO₄⁻] collapses the second stage's mass-action law); and [PO₄³⁻] ≈ 10⁻¹⁸
+  is essentially absent. The misconception — "three protons, so three times the [H⁺]" — is refuted.
+- **Engine:** `build_polyprotic_lesson` (dispatched when the named acid has ≥ 2 protons). The top-level ICE is the first,
+  dominant ionization; `result.later_stages` carries stages 2..n as compact re-solvable objects + `result.species_ladder`.
+- **Data (regime-3, OpenStax App H):** a `[polyprotic]` table in `data/ionization-constants.toml` (each stage's composition
+  machine-checked on load — acid = anion + H⁺, charge one more positive; the Kₐ required strictly decreasing) + two new
+  ion-table anions (H₂PO₄⁻ dihydrogen phosphate, HPO₄²⁻ hydrogen phosphate).
+- **New concept `polyprotic-acid`** — staged ionization + the amphiprotic-≈-Kₐ2 result.
+- **Gate:** `equilibriumcheck.mjs` re-solves each later stage on the chained initials, re-checks Q=Kₐ per stage, the
+  accumulated [H⁺]/pH, and the species-ladder reconstruction.
+- **Verification:** **376 producer tests** (+7); 7 Node gates green (**validate-solutions = 6 equilibrium / 15 ids**,
+  **validate-reference = 68**, check-katex 702); **astro build = 37 pages** (+1); `derived/` byte-stable. 5-way tamper-tested.
+  In-browser: the stage-1 ICE, the later-ionizations table, the species ladder (10⁻² → 10⁻¹⁸), and the ≈Kₐ2 payoff render;
+  0 KaTeX errors.
+
 ## Phase 2 — 2026-07-08 — equilibrium: the common-ion effect on solubility (ADR-0048, 6th increment)
 
 The natural Ksp follow-on — and the **second face of the common-ion effect** the buffer already showed for a weak acid, now

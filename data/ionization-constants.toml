@@ -20,8 +20,9 @@
 # (regime-1 — so "NH3 + H⁺ is NH4⁺" is verified even though "NH3 is a weak base" is a sourced convention). The
 # ICE accounting the equilibrium engine builds on top of these constants is machine-checked (ADR-0048).
 #
-# Only MONOPROTIC weak acids / MONOBASIC weak bases here. Polyprotic acids (H3PO4: Kₐ1/Kₐ2/Kₐ3) ionize in
-# stages — a multi-step equilibrium deferred with the buffer/titration work.
+# The [acids]/[bases] tables are MONOPROTIC weak acids / MONOBASIC weak bases. Polyprotic acids (H3PO4:
+# Kₐ1/Kₐ2/Kₐ3) ionize in stages and live in the [polyprotic] table below — each stage a separate Kₐ, solved in
+# sequence (ADR-0048).
 
 source = "openstax-chemistry-2e"
 
@@ -52,3 +53,16 @@ ka = "4.9e-10"
 name = "ammonia"
 kb = "1.8e-5"
 conjugate_acid = "NH4^+"
+
+# --- polyprotic weak acids: staged ionization, Kₐ1 ≫ Kₐ2 ≫ Kₐ3 (each stage HₙA <=> H+ + Hₙ₋₁A) ---
+# Because each successive Kₐ is ~10⁵ smaller, the first ionization sets [H+] almost entirely and each stage is
+# solved on the previous stage's equilibrium (the standard successive treatment — a disclosed model assumption).
+# On load, data.py machine-checks each stage's composition: the acid = its conjugate anion + one H+, charge down by
+# one (regime-1 — so "H2PO4⁻ loses a proton to give HPO4²⁻" is verified). Source Appendix H (`openstax-chemistry-2e`).
+[polyprotic."H3PO4"]
+name = "phosphoric acid"
+stages = [
+  { acid = "H3PO4", ka = "7.5e-3", anion = "H2PO4^-" },      # Kₐ1
+  { acid = "H2PO4^-", ka = "6.2e-8", anion = "HPO4^2-" },    # Kₐ2
+  { acid = "HPO4^2-", ka = "4.2e-13", anion = "PO4^3-" },    # Kₐ3
+]

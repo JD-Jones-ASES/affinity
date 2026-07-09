@@ -2,19 +2,21 @@
 
 **A beginning-chemistry portal where the verification system is the product.**
 
-**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — fourteen machine-verified lessons (precipitation,
+**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — fifteen machine-verified lessons (precipitation,
 percent yield, acid-base neutralization, **gas stoichiometry** — a weighed metal + acid whose hydrogen volume falls
 out of the ledger via PV=nRT — the **energy ledger** — burning methane, whose heat q = ΔH_rxn·ξ falls out of
 the ledger via Hess's law over sourced formation enthalpies — two **single-molecule structure lessons** (why water is
 bent → polar, why CO₂ is linear → polar bonds, nonpolar molecule; each stepped valence electrons → Lewis structure →
 VSEPR shape → polarity, the electron ledger machine-checked), and a **multi-molecule comparison** whose IMF-strength
-boiling-point trend is itself machine-checked (CH₄ ≪ NH₃ ≪ H₂O)), and five **equilibrium** lessons (the pH of
+boiling-point trend is itself machine-checked (CH₄ ≪ NH₃ ≪ H₂O)), and six **equilibrium** lessons (the pH of
 acetic acid; the pH of ammonia — a weak base, the exact mirror of the acetic-acid lesson across neutral, water excluded from
 Q and pH reached through the Kw bridge; a **buffer** — acetic acid + acetate, where the common-ion effect holds the pH at pKₐ
 and Henderson–Hasselbalch falls out as the mass-action law in log form; and the Ksp molar solubility of calcium fluoride —
 the ICE table is the species ledger with the extent solved from **mass action** Q=K, not driven to a limiting reagent; for
 Ksp the pure solid is excluded from Q, so it is a cubic, and the machine-check is the residual — with a **common-ion variant**
-where dissolving calcium fluoride into a fluoride solution suppresses its solubility 59 400-fold), twelve procedural gyms (dimensional analysis, nomenclature,
+where dissolving calcium fluoride into a fluoride solution suppresses its solubility 59 400-fold; and **polyprotic** phosphoric
+acid, whose three protons come off in stages Kₐ1 ≫ Kₐ2 ≫ Kₐ3 — the same solver run once per stage, so the first ionization
+sets the pH and the amphiprotic middle anion sits at ≈ Kₐ2), twelve procedural gyms (dimensional analysis, nomenclature,
 balancing, the full stoichiometry suite, periodic trends, reaction families, gas laws, calorimetry, **Lewis
 structures** — valence electrons, electron domains, molecular shape, counted exactly — and **weak-acid pH** — the ICE table's
 mass-action root, solved not approximated), the Chemical Atlas — five reference surfaces: a typed concept graph + **7 reaction
@@ -26,8 +28,8 @@ valence total, octet, and formal charge machine-checked — with VSEPR shape, po
 force** derived from the structure: why CO₂ is nonpolar but H₂O is not, and why water boils at 100 °C while methane boils
 at −161 °C) — and generated practice. Phase 2 has landed its gas + thermochemistry tiers, its **bonding & structure**
 tier (engine, gym, three lessons, and intermolecular forces), and has **opened equilibrium & acid-base** (the
-reversible-extent solver + the `equilibrium` lesson kind with four subtypes — weak-acid pH, buffer, weak-base pH, Ksp
-solubility incl. a common-ion variant); see [`ROADMAP.md`](./ROADMAP.md). See [`AGENTS.md`](./AGENTS.md) to work the repo.
+reversible-extent solver + the `equilibrium` lesson kind with five subtypes — weak-acid pH, buffer, weak-base pH, Ksp
+solubility incl. a common-ion variant, and polyprotic staged ionization); see [`ROADMAP.md`](./ROADMAP.md). See [`AGENTS.md`](./AGENTS.md) to work the repo.
 
 ## The idea in three lines
 

@@ -463,6 +463,20 @@
       "latex": "\\mathrm{PO_{4}}^{3-}"
     },
     {
+      "id": "H2PO4^-",
+      "formula": "H2PO4",
+      "charge": -1,
+      "name": "dihydrogen phosphate",
+      "latex": "\\mathrm{H_{2}PO_{4}}^{-}"
+    },
+    {
+      "id": "HPO4^2-",
+      "formula": "HPO4",
+      "charge": -2,
+      "name": "hydrogen phosphate",
+      "latex": "\\mathrm{HPO_{4}}^{2-}"
+    },
+    {
       "id": "C2H3O2^-",
       "formula": "C2H3O2",
       "charge": -1,
@@ -613,6 +627,23 @@
     },
     {
       "cation": "Al^3+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "aluminum",
+      "anion_name": "dihydrogen phosphate",
+      "name": "aluminum dihydrogen phosphate",
+      "formula": "Al(H2PO4)3",
+      "latex": "\\mathrm{Al(H_{2}PO_{4})_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Al3H2PO4",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Al^3+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 3,
@@ -626,6 +657,23 @@
         "formula": "Al3HCO3",
         "kind": "own-charge",
         "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Al^3+",
+      "anion": "HPO4^2-",
+      "cation_n": 2,
+      "anion_n": 3,
+      "cation_name": "aluminum",
+      "anion_name": "hydrogen phosphate",
+      "name": "aluminum hydrogen phosphate",
+      "formula": "Al2(HPO4)3",
+      "latex": "\\mathrm{Al_{2}(HPO_{4})_{3}}",
+      "note": "2×(+3) + 3×(−2) = 0",
+      "mistake": {
+        "formula": "Al3(HPO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 2×(−2) = +5, not 0. CROSS the charges: each subscript is the other ion's charge."
       }
     },
     {
@@ -817,6 +865,23 @@
     },
     {
       "cation": "Be^2+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "beryllium",
+      "anion_name": "dihydrogen phosphate",
+      "name": "beryllium dihydrogen phosphate",
+      "formula": "Be(H2PO4)2",
+      "latex": "\\mathrm{Be(H_{2}PO_{4})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Be2H2PO4",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Be^2+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 2,
@@ -830,6 +895,23 @@
         "formula": "Be2HCO3",
         "kind": "own-charge",
         "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Be^2+",
+      "anion": "HPO4^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "beryllium",
+      "anion_name": "hydrogen phosphate",
+      "name": "beryllium hydrogen phosphate",
+      "formula": "BeHPO4",
+      "latex": "\\mathrm{BeHPO_{4}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Be2(HPO4)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Be2(HPO4)2 reduces by the common factor 2 to BeHPO4."
       }
     },
     {
@@ -1021,6 +1103,23 @@
     },
     {
       "cation": "Ca^2+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "calcium",
+      "anion_name": "dihydrogen phosphate",
+      "name": "calcium dihydrogen phosphate",
+      "formula": "Ca(H2PO4)2",
+      "latex": "\\mathrm{Ca(H_{2}PO_{4})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Ca2H2PO4",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Ca^2+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 2,
@@ -1034,6 +1133,23 @@
         "formula": "Ca2HCO3",
         "kind": "own-charge",
         "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Ca^2+",
+      "anion": "HPO4^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "calcium",
+      "anion_name": "hydrogen phosphate",
+      "name": "calcium hydrogen phosphate",
+      "formula": "CaHPO4",
+      "latex": "\\mathrm{CaHPO_{4}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Ca2(HPO4)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Ca2(HPO4)2 reduces by the common factor 2 to CaHPO4."
       }
     },
     {
@@ -1210,6 +1326,18 @@
     },
     {
       "cation": "Cu^+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "dihydrogen phosphate",
+      "name": "copper(I) dihydrogen phosphate",
+      "formula": "CuH2PO4",
+      "latex": "\\mathrm{CuH_{2}PO_{4}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Cu^+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 1,
@@ -1219,6 +1347,23 @@
       "formula": "CuHCO3",
       "latex": "\\mathrm{CuHCO_{3}}",
       "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Cu^+",
+      "anion": "HPO4^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "copper(I)",
+      "anion_name": "hydrogen phosphate",
+      "name": "copper(I) hydrogen phosphate",
+      "formula": "Cu2HPO4",
+      "latex": "\\mathrm{Cu_{2}HPO_{4}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Cu(HPO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
     },
     {
       "cation": "Cu^+",
@@ -1399,6 +1544,23 @@
     },
     {
       "cation": "Cu^2+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "copper(II)",
+      "anion_name": "dihydrogen phosphate",
+      "name": "copper(II) dihydrogen phosphate",
+      "formula": "Cu(H2PO4)2",
+      "latex": "\\mathrm{Cu(H_{2}PO_{4})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Cu2H2PO4",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^2+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 2,
@@ -1412,6 +1574,23 @@
         "formula": "Cu2HCO3",
         "kind": "own-charge",
         "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Cu^2+",
+      "anion": "HPO4^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "copper(II)",
+      "anion_name": "hydrogen phosphate",
+      "name": "copper(II) hydrogen phosphate",
+      "formula": "CuHPO4",
+      "latex": "\\mathrm{CuHPO_{4}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Cu2(HPO4)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Cu2(HPO4)2 reduces by the common factor 2 to CuHPO4."
       }
     },
     {
@@ -1603,6 +1782,23 @@
     },
     {
       "cation": "Fe^2+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "iron(II)",
+      "anion_name": "dihydrogen phosphate",
+      "name": "iron(II) dihydrogen phosphate",
+      "formula": "Fe(H2PO4)2",
+      "latex": "\\mathrm{Fe(H_{2}PO_{4})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Fe2H2PO4",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^2+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 2,
@@ -1616,6 +1812,23 @@
         "formula": "Fe2HCO3",
         "kind": "own-charge",
         "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^2+",
+      "anion": "HPO4^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "iron(II)",
+      "anion_name": "hydrogen phosphate",
+      "name": "iron(II) hydrogen phosphate",
+      "formula": "FeHPO4",
+      "latex": "\\mathrm{FeHPO_{4}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Fe2(HPO4)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Fe2(HPO4)2 reduces by the common factor 2 to FeHPO4."
       }
     },
     {
@@ -1807,6 +2020,23 @@
     },
     {
       "cation": "Fe^3+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 3,
+      "cation_name": "iron(III)",
+      "anion_name": "dihydrogen phosphate",
+      "name": "iron(III) dihydrogen phosphate",
+      "formula": "Fe(H2PO4)3",
+      "latex": "\\mathrm{Fe(H_{2}PO_{4})_{3}}",
+      "note": "1×(+3) + 3×(−1) = 0",
+      "mistake": {
+        "formula": "Fe3H2PO4",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^3+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 3,
@@ -1820,6 +2050,23 @@
         "formula": "Fe3HCO3",
         "kind": "own-charge",
         "note": "Each ion's own charge became its own subscript — but 3×(+3) + 1×(−1) = +8, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Fe^3+",
+      "anion": "HPO4^2-",
+      "cation_n": 2,
+      "anion_n": 3,
+      "cation_name": "iron(III)",
+      "anion_name": "hydrogen phosphate",
+      "name": "iron(III) hydrogen phosphate",
+      "formula": "Fe2(HPO4)3",
+      "latex": "\\mathrm{Fe_{2}(HPO_{4})_{3}}",
+      "note": "2×(+3) + 3×(−2) = 0",
+      "mistake": {
+        "formula": "Fe3(HPO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 3×(+3) + 2×(−2) = +5, not 0. CROSS the charges: each subscript is the other ion's charge."
       }
     },
     {
@@ -1996,6 +2243,18 @@
     },
     {
       "cation": "K^+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "dihydrogen phosphate",
+      "name": "potassium dihydrogen phosphate",
+      "formula": "KH2PO4",
+      "latex": "\\mathrm{KH_{2}PO_{4}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "K^+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 1,
@@ -2005,6 +2264,23 @@
       "formula": "KHCO3",
       "latex": "\\mathrm{KHCO_{3}}",
       "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "K^+",
+      "anion": "HPO4^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "potassium",
+      "anion_name": "hydrogen phosphate",
+      "name": "potassium hydrogen phosphate",
+      "formula": "K2HPO4",
+      "latex": "\\mathrm{K_{2}HPO_{4}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "K(HPO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
     },
     {
       "cation": "K^+",
@@ -2170,6 +2446,18 @@
     },
     {
       "cation": "Li^+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "dihydrogen phosphate",
+      "name": "lithium dihydrogen phosphate",
+      "formula": "LiH2PO4",
+      "latex": "\\mathrm{LiH_{2}PO_{4}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Li^+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 1,
@@ -2179,6 +2467,23 @@
       "formula": "LiHCO3",
       "latex": "\\mathrm{LiHCO_{3}}",
       "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Li^+",
+      "anion": "HPO4^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "lithium",
+      "anion_name": "hydrogen phosphate",
+      "name": "lithium hydrogen phosphate",
+      "formula": "Li2HPO4",
+      "latex": "\\mathrm{Li_{2}HPO_{4}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Li(HPO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
     },
     {
       "cation": "Li^+",
@@ -2359,6 +2664,23 @@
     },
     {
       "cation": "Mg^2+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "magnesium",
+      "anion_name": "dihydrogen phosphate",
+      "name": "magnesium dihydrogen phosphate",
+      "formula": "Mg(H2PO4)2",
+      "latex": "\\mathrm{Mg(H_{2}PO_{4})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Mg2H2PO4",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Mg^2+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 2,
@@ -2372,6 +2694,23 @@
         "formula": "Mg2HCO3",
         "kind": "own-charge",
         "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Mg^2+",
+      "anion": "HPO4^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "magnesium",
+      "anion_name": "hydrogen phosphate",
+      "name": "magnesium hydrogen phosphate",
+      "formula": "MgHPO4",
+      "latex": "\\mathrm{MgHPO_{4}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Mg2(HPO4)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Mg2(HPO4)2 reduces by the common factor 2 to MgHPO4."
       }
     },
     {
@@ -2548,6 +2887,18 @@
     },
     {
       "cation": "NH4^+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "dihydrogen phosphate",
+      "name": "ammonium dihydrogen phosphate",
+      "formula": "NH4H2PO4",
+      "latex": "\\mathrm{NH_{4}H_{2}PO_{4}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "NH4^+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 1,
@@ -2557,6 +2908,23 @@
       "formula": "NH4HCO3",
       "latex": "\\mathrm{NH_{4}HCO_{3}}",
       "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "NH4^+",
+      "anion": "HPO4^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "ammonium",
+      "anion_name": "hydrogen phosphate",
+      "name": "ammonium hydrogen phosphate",
+      "formula": "(NH4)2HPO4",
+      "latex": "\\mathrm{(NH_{4})_{2}HPO_{4}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "NH4(HPO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
     },
     {
       "cation": "NH4^+",
@@ -2722,6 +3090,18 @@
     },
     {
       "cation": "Na^+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "dihydrogen phosphate",
+      "name": "sodium dihydrogen phosphate",
+      "formula": "NaH2PO4",
+      "latex": "\\mathrm{NaH_{2}PO_{4}}",
+      "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Na^+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 1,
@@ -2731,6 +3111,23 @@
       "formula": "NaHCO3",
       "latex": "\\mathrm{NaHCO_{3}}",
       "note": "1×(+1) + 1×(−1) = 0"
+    },
+    {
+      "cation": "Na^+",
+      "anion": "HPO4^2-",
+      "cation_n": 2,
+      "anion_n": 1,
+      "cation_name": "sodium",
+      "anion_name": "hydrogen phosphate",
+      "name": "sodium hydrogen phosphate",
+      "formula": "Na2HPO4",
+      "latex": "\\mathrm{Na_{2}HPO_{4}}",
+      "note": "2×(+1) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Na(HPO4)2",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 1×(+1) + 2×(−2) = -3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
     },
     {
       "cation": "Na^+",
@@ -2911,6 +3308,23 @@
     },
     {
       "cation": "Zn^2+",
+      "anion": "H2PO4^-",
+      "cation_n": 1,
+      "anion_n": 2,
+      "cation_name": "zinc",
+      "anion_name": "dihydrogen phosphate",
+      "name": "zinc dihydrogen phosphate",
+      "formula": "Zn(H2PO4)2",
+      "latex": "\\mathrm{Zn(H_{2}PO_{4})_{2}}",
+      "note": "1×(+2) + 2×(−1) = 0",
+      "mistake": {
+        "formula": "Zn2H2PO4",
+        "kind": "own-charge",
+        "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Zn^2+",
       "anion": "HCO3^-",
       "cation_n": 1,
       "anion_n": 2,
@@ -2924,6 +3338,23 @@
         "formula": "Zn2HCO3",
         "kind": "own-charge",
         "note": "Each ion's own charge became its own subscript — but 2×(+2) + 1×(−1) = +3, not 0. CROSS the charges: each subscript is the other ion's charge."
+      }
+    },
+    {
+      "cation": "Zn^2+",
+      "anion": "HPO4^2-",
+      "cation_n": 1,
+      "anion_n": 1,
+      "cation_name": "zinc",
+      "anion_name": "hydrogen phosphate",
+      "name": "zinc hydrogen phosphate",
+      "formula": "ZnHPO4",
+      "latex": "\\mathrm{ZnHPO_{4}}",
+      "note": "1×(+2) + 1×(−2) = 0",
+      "mistake": {
+        "formula": "Zn2(HPO4)2",
+        "kind": "unreduced",
+        "note": "Neutral, but not the smallest whole-number ratio — the charges cancel one-for-one, so Zn2(HPO4)2 reduces by the common factor 2 to ZnHPO4."
       }
     },
     {

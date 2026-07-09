@@ -217,6 +217,22 @@ name = "phosphate"
 compound_name = "phosphate"
 kind = "polyatomic"
 
+# the intermediate anions of phosphoric acid's staged ionization (ADR-0048 polyprotic) — each one proton short
+# of the last; the composition (H2PO4 = HPO4 + H = PO4 + 2H) is machine-checked against the Ka stages on load
+[ions."H2PO4^-"]
+formula = "H2PO4"
+charge = -1
+name = "dihydrogen phosphate"
+compound_name = "dihydrogen phosphate"
+kind = "polyatomic"
+
+[ions."HPO4^2-"]
+formula = "HPO4"
+charge = -2
+name = "hydrogen phosphate"
+compound_name = "hydrogen phosphate"
+kind = "polyatomic"
+
 [ions."C2H3O2^-"]
 formula = "C2H3O2"
 charge = -1

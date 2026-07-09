@@ -1,0 +1,26 @@
+{
+  "kind": "concept",
+  "id": "polyprotic-acid",
+  "title": "Polyprotic acids and staged ionization",
+  "term": "polyprotic acid",
+  "definition": "A **polyprotic acid** has more than one ionizable proton and gives them up in **stages**, each a separate equilibrium with its own constant: $\\mathrm{H_3PO_4} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{H_2PO_4^-}$ ($K_{a1}$), then $\\mathrm{H_2PO_4^-} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{HPO_4^{2-}}$ ($K_{a2}$), then $\\mathrm{HPO_4^{2-}} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{PO_4^{3-}}$ ($K_{a3}$). Successive constants fall steeply — typically $K_{a1} \\gg K_{a2} \\gg K_{a3}$, each roughly $10^5$ smaller — because pulling a proton off an already-negative ion is far harder. That separation is what makes the arithmetic simple: the **first** ionization sets $[\\mathrm{H^+}]$ almost entirely, so the pH is essentially the first stage's, and each later stage is the same ICE solve run on the concentrations the stage before it left. A useful consequence for a diprotic-or-more acid: the **amphiprotic middle** species sits at a concentration $\\approx K_{a2}$, because after stage 1 $[\\mathrm{H^+}] \\approx [\\mathrm{H_2PO_4^-}]$ and the second-stage mass-action law collapses to $K_{a2} \\approx [\\mathrm{HPO_4^{2-}}]$.",
+  "related": [
+    {
+      "to": "chemical-equilibrium",
+      "type": "extends"
+    },
+    {
+      "to": "ph",
+      "type": "depends-on"
+    },
+    {
+      "to": "reaction-acid-base",
+      "type": "see-also"
+    }
+  ],
+  "lessons": [
+    "phosphoric-acid-ph"
+  ],
+  "regime": "model-exact",
+  "latex": "\\mathrm{H}_n\\mathrm{A} \\rightleftharpoons \\mathrm{H^+} + \\mathrm{H}_{n-1}\\mathrm{A}^- \\;\\;(K_{a1}\\gg K_{a2}\\gg\\cdots)"
+}

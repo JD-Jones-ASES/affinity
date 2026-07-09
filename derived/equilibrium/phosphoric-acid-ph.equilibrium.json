@@ -1,0 +1,206 @@
+{
+  "kind": "equilibrium",
+  "subtype": "polyprotic",
+  "id": "phosphoric-acid-ph",
+  "title": "One acid, three protons: the pH of phosphoric acid",
+  "slug": "phosphoric-acid-ph",
+  "topic": "equilibrium",
+  "tags": [
+    "equilibrium",
+    "polyprotic",
+    "acid",
+    "pH",
+    "ICE table",
+    "staged ionization"
+  ],
+  "scenario": "Phosphoric acid, $\\mathrm{H_3PO_4}$, has **three** acidic protons — it is **triprotic**. But it does not give them up all at once: it ionizes in **stages**, each with its own equilibrium constant, and each $K_a$ is about $10^5$ smaller than the last ($K_{a1} = 7.5\\times10^{-3}$, $K_{a2} = 6.2\\times10^{-8}$, $K_{a3} = 4.2\\times10^{-13}$). So the **first** ionization is the only one that releases an appreciable amount of $\\mathrm{H^+}$ — and it is just the weak-acid ICE table again. Each later stage is the same solve, run on the concentrations the stage before it left behind.",
+  "regimes": [
+    {
+      "facet": "ICE ledger (species accounting)",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "equilibrium constant",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "equilibrium position (staged pH)",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The three ionizations are solved in succession — each stage on the equilibrium concentrations the previous stage left — rather than simultaneously. This is exact in the limit of well-separated $K_a$ (here each is $\\sim10^5$ apart), the standard treatment.",
+      "kind": "model"
+    },
+    {
+      "claim": "Water's own autoionization is neglected: $[\\mathrm{H^+}]_0 = 0$ before the acid ionizes (valid because the acid's $[\\mathrm{H^+}]$ is far above $10^{-7}$ M).",
+      "kind": "model"
+    },
+    {
+      "claim": "Activities are approximated by molar concentrations — the ideal-dilute-solution model, which is why each $K_a$ is written with concentrations.",
+      "kind": "model"
+    }
+  ],
+  "reaction": {
+    "acid": "H3PO4",
+    "acid_name": "phosphoric acid",
+    "acid_latex": "\\mathrm{H_{3}PO_{4}}",
+    "text": "H3PO4 <=> H^+ + H2PO4^-",
+    "latex": "\\mathrm{H_{3}PO_{4}} \\rightleftharpoons \\mathrm{H}^{+} + \\mathrm{H_{2}PO_{4}}^{-}",
+    "conjugate_base": "H2PO4^-"
+  },
+  "equilibrium_constant": {
+    "symbol": "K_a1",
+    "value": "0.0075",
+    "expression_latex": "K_{a1} = \\dfrac{[\\mathrm{H}^{+}][\\mathrm{H_{2}PO_{4}}^{-}]}{[\\mathrm{H_{3}PO_{4}}]}",
+    "source": "openstax-chemistry-2e"
+  },
+  "ice": {
+    "extent_symbol": "x",
+    "extent_M": "0.0238916804844",
+    "extent_M_display": "0.0239",
+    "species": [
+      {
+        "id": "H3PO4",
+        "latex": "\\mathrm{H_{3}PO_{4}}",
+        "phase": "aq",
+        "role": "reactant",
+        "nu": -1,
+        "initial_M": "0.1",
+        "change_M": "-0.0238916804844",
+        "equilibrium_M": "0.0761083195156",
+        "equilibrium_M_display": "0.0761"
+      },
+      {
+        "id": "H^+",
+        "latex": "\\mathrm{H}^{+}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 1,
+        "initial_M": "0",
+        "change_M": "+0.0238916804844",
+        "equilibrium_M": "0.0238916804844",
+        "equilibrium_M_display": "0.0239"
+      },
+      {
+        "id": "H2PO4^-",
+        "latex": "\\mathrm{H_{2}PO_{4}}^{-}",
+        "phase": "aq",
+        "role": "product",
+        "nu": 1,
+        "initial_M": "0",
+        "change_M": "+0.0238916804844",
+        "equilibrium_M": "0.0238916804844",
+        "equilibrium_M_display": "0.0239"
+      }
+    ]
+  },
+  "mass_action": {
+    "quotient_symbol": "Q",
+    "quotient_at_equilibrium": "0.0075",
+    "residual_relative": "0.0000000000029"
+  },
+  "result": {
+    "hydronium_M": "0.0238917424841",
+    "hydronium_M_display": "0.0239",
+    "pH": "1.6217522",
+    "pH_display": "1.62",
+    "percent_ionization": "23.89168",
+    "percent_ionization_display": "23.9",
+    "proton_count": 3,
+    "species_ladder": [
+      {
+        "id": "H3PO4",
+        "latex": "\\mathrm{H_{3}PO_{4}}",
+        "equilibrium_M": "0.0761083195156",
+        "equilibrium_M_display": "0.0761"
+      },
+      {
+        "id": "H2PO4^-",
+        "latex": "\\mathrm{H_{2}PO_{4}}^{-}",
+        "equilibrium_M": "0.0238916184847",
+        "equilibrium_M_display": "0.0239"
+      },
+      {
+        "id": "HPO4^2-",
+        "latex": "\\mathrm{HPO_{4}}^{2-}",
+        "equilibrium_M": "0.0000000619996782158",
+        "equilibrium_M_display": "0.000000062"
+      },
+      {
+        "id": "PO4^3-",
+        "latex": "\\mathrm{PO_{4}}^{3-}",
+        "equilibrium_M": "0.00000000000000000108991066131",
+        "equilibrium_M_display": "0.00000000000000000109"
+      }
+    ],
+    "later_stages": [
+      {
+        "index": 2,
+        "ka_symbol": "K_{a2}",
+        "ka_value": "0.000000062",
+        "expression_latex": "K_{a2} = \\dfrac{[\\mathrm{H}^{+}][\\mathrm{HPO_{4}}^{2-}]}{[\\mathrm{H_{2}PO_{4}}^{-}]}",
+        "reactant_id": "H2PO4^-",
+        "reactant_latex": "\\mathrm{H_{2}PO_{4}}^{-}",
+        "anion_id": "HPO4^2-",
+        "anion_latex": "\\mathrm{HPO_{4}}^{2-}",
+        "initial_reactant_M": "0.0238916804844",
+        "initial_hydronium_M": "0.0238916804844",
+        "initial_anion_M": "0",
+        "extent_M": "0.0000000619996782169",
+        "extent_M_display": "0.000000062",
+        "anion_equilibrium_M": "0.0000000619996782169",
+        "anion_equilibrium_M_display": "0.000000062",
+        "quotient_at_equilibrium": "0.000000062",
+        "residual_relative": "0.0000000000026"
+      },
+      {
+        "index": 3,
+        "ka_symbol": "K_{a3}",
+        "ka_value": "0.00000000000042",
+        "expression_latex": "K_{a3} = \\dfrac{[\\mathrm{H}^{+}][\\mathrm{PO_{4}}^{3-}]}{[\\mathrm{HPO_{4}}^{2-}]}",
+        "reactant_id": "HPO4^2-",
+        "reactant_latex": "\\mathrm{HPO_{4}}^{2-}",
+        "anion_id": "PO4^3-",
+        "anion_latex": "\\mathrm{PO_{4}}^{3-}",
+        "initial_reactant_M": "0.0000000619996782169",
+        "initial_hydronium_M": "0.0238917424841",
+        "initial_anion_M": "0",
+        "extent_M": "0.00000000000000000108991066131",
+        "extent_M_display": "0.00000000000000000109",
+        "anion_equilibrium_M": "0.00000000000000000108991066131",
+        "anion_equilibrium_M_display": "0.00000000000000000109",
+        "quotient_at_equilibrium": "0.00000000000042",
+        "residual_relative": "0.0000000000022"
+      }
+    ]
+  },
+  "misconception": {
+    "claim": "Phosphoric acid has three ionizable protons, so all three ionize substantially and [H+] is about three times what a monoprotic acid would give.",
+    "refuted_by": "later_stages_negligible"
+  },
+  "reference_links": [
+    "polyprotic-acid",
+    "chemical-equilibrium",
+    "ph",
+    "reaction-acid-base"
+  ],
+  "checks": {
+    "ice_identity": true,
+    "mass_action_satisfied": true,
+    "extent_physical": true,
+    "ph_consistent": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "ionization_constants": "openstax-chemistry-2e",
+      "ion_charge": "openstax-chemistry-2e"
+    }
+  }
+}

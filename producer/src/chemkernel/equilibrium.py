@@ -759,3 +759,173 @@ def build_solubility_lesson(spec: dict, data, ctx: str = "") -> dict:
             },
         },
     }
+
+
+def _ka_expr(h_latex: str, an_latex: str, acid_latex: str, symbol: str) -> str:
+    """The stage's mass-action expression, symbolic (KaTeX-gated): K_{ai} = [H⁺][anion] / [reactant]."""
+    return symbol + r" = \dfrac{[" + h_latex + "][" + an_latex + "]}{[" + acid_latex + "]}"
+
+
+def build_polyprotic_lesson(spec: dict, data, acidbase, ctx: str = "") -> dict:
+    """An authored polyprotic weak-acid equilibrium lesson → the verified `*.equilibrium.json` object, subtype
+    `polyprotic` (ADR-0048). A polyprotic acid loses its protons in STAGES — HₙA ⇌ H⁺ + Hₙ₋₁A, then Hₙ₋₁A ⇌
+    H⁺ + Hₙ₋₂A, … — each with its own Kₐ (Kₐ1 ≫ Kₐ2 ≫ …). The SAME reversible-extent solver runs once **per stage**,
+    each stage seeded with the previous stage's equilibrium concentrations (the standard successive treatment — a
+    disclosed model assumption, valid because each Kₐ is ~10⁵ smaller, so the first ionization sets [H⁺] almost
+    entirely). The acid + its ordered (acid, Kₐ, anion) stages come from `data/ionization-constants.toml`
+    `[polyprotic]` (each stage's composition machine-checked on load); the producer REFUSES a non-polyprotic or
+    strong acid, or an unphysical extent (ADR-0008). The payoff is checkable, not asserted: [H⁺] tracks stage 1,
+    and the amphiprotic middle anion sits at ≈ Kₐ2."""
+    for key in ("id", "title", "slug", "topic", "scenario", "acid", "initial_molarity_M", "misconception"):
+        if key not in spec:
+            raise BuildError(f"{ctx}: polyprotic lesson missing required key '{key}'")
+
+    acid_formula = spec["acid"]
+    acid = acidbase.acids.get(acid_formula)
+    if acid is None:
+        raise BuildError(f"{ctx}: acid '{acid_formula}' is not in data/acids-bases.toml")
+    if acid.get("strength") != "weak":
+        raise BuildError(f"{ctx}: '{acid_formula}' is not a weak acid — a polyprotic equilibrium lesson needs a "
+                         f"weak acid (a strong acid ionizes completely)")
+    if int(acid.get("protons", 0)) < 2:
+        raise BuildError(f"{ctx}: '{acid_formula}' has {acid.get('protons')} proton(s) — a polyprotic lesson needs "
+                         f"≥ 2 (use the weak-acid subtype for a monoprotic acid)")
+
+    rec = data.polyprotic_constant(acid_formula)                       # {name, stages:[{acid, ka, anion}]} (sourced)
+    stages_data = rec["stages"]
+    c0 = Decimal(str(spec["initial_molarity_M"]))
+    if c0 <= 0:
+        raise BuildError(f"{ctx}: initial molarity must be positive (got {c0})")
+
+    fh = parse_formula("H^+", ctx)
+    # running concentration of every species across the staged solve (the successive treatment). H⁺ ACCUMULATES.
+    conc = {acid_formula: c0, "H^+": Decimal(0)}
+    for st in stages_data:
+        conc[st["anion"]] = Decimal(0)
+
+    def _ice_row(sid, latex, nu, initial, x):
+        change = nu * x
+        eqm = initial + change
+        return {"id": sid, "latex": latex, "phase": "aq", "role": "reactant" if nu < 0 else "product", "nu": nu,
+                "initial_M": _sig_str(initial, 12), "change_M": ("+" if change >= 0 else "") + _sig_str(change, 12),
+                "equilibrium_M": _sig_str(eqm, 12), "equilibrium_M_display": _sig_str(eqm, 3)}
+
+    solved = []              # per-stage {index, acid, anion, ka, latexes, x, rows, Q, residual, initials}
+    for i, st in enumerate(stages_data):
+        a_id, an_id, ka = st["acid"], st["anion"], st["ka"]
+        fa, fan = parse_formula(a_id, ctx), parse_formula(an_id, ctx)
+        init_reactant, init_h, init_anion = conc[a_id], conc["H^+"], conc[an_id]
+        ice_species = [
+            {"id": a_id, "latex": fa.latex, "nu": -1, "initial_M": init_reactant, "role": "reactant"},
+            {"id": "H^+", "latex": fh.latex, "nu": 1, "initial_M": init_h, "role": "product"},
+            {"id": an_id, "latex": fan.latex, "nu": 1, "initial_M": init_anion, "role": "product"},
+        ]
+        x = _round_sig(solve_equilibrium(ice_species, ka, f"{ctx} stage {i + 1}")["extent"], 12)
+        if not (0 < x <= init_reactant):
+            raise BuildError(f"{ctx}: stage {i + 1} extent {x} is not in (0, [{a_id}]₀={init_reactant}]")
+        rows = [_ice_row(a_id, fa.latex, -1, init_reactant, x), _ice_row("H^+", fh.latex, 1, init_h, x),
+                _ice_row(an_id, fan.latex, 1, init_anion, x)]
+        committed = [Decimal(r["equilibrium_M"]) for r in rows]
+        Q = _quotient(committed, [-1, 1, 1])
+        residual = abs(Q - ka) / ka
+        # advance the running concentrations: the reactant loses x, H⁺ gains x, the anion gains x
+        conc[a_id] -= x
+        conc["H^+"] += x
+        conc[an_id] += x
+        solved.append({"index": i + 1, "acid": a_id, "anion": an_id, "ka": ka, "acid_latex": fa.latex,
+                       "anion_latex": fan.latex, "x": x, "rows": rows, "Q": Q, "residual": residual,
+                       "init_reactant": init_reactant, "init_h": init_h, "init_anion": init_anion})
+
+    hplus = conc["H^+"]                                                # the final total [H⁺] (≈ stage-1 extent)
+    with localcontext() as lc:
+        lc.prec = 40
+        pH = -(hplus.log10())
+        percent = solved[0]["x"] / c0 * 100                           # first-proton ionization %
+
+    # the species ladder: the equilibrium concentration of every phosphate species (H3PO4 → … → the last anion),
+    # read straight off the running concentrations (the successive treatment's answer).
+    ladder_ids = [acid_formula] + [st["anion"] for st in stages_data]
+    species_ladder = []
+    for sid in ladder_ids:
+        f = parse_formula(sid, ctx)
+        species_ladder.append({"id": sid, "latex": f.latex, "equilibrium_M": _sig_str(conc[sid], 12),
+                               "equilibrium_M_display": _sig_str(conc[sid], 3)})
+
+    st1 = solved[0]
+    sym1_tex = "K_{a1}"                            # LaTeX (braces for the multi-char subscript)
+    sym1_html = "K_a1"                             # the emitted `symbol` (the player's split-on-"_" sub renderer)
+    # the later stages (2..n) as compact, independently re-solvable objects (the gate re-solves each)
+    later_stages = []
+    for s in solved[1:]:
+        sym = f"K_{{a{s['index']}}}"
+        an_eqm = s["init_anion"] + s["x"]
+        later_stages.append({
+            "index": s["index"], "ka_symbol": sym, "ka_value": format(s["ka"], "f"),
+            "expression_latex": _ka_expr(fh.latex, s["anion_latex"], s["acid_latex"], sym),
+            "reactant_id": s["acid"], "reactant_latex": s["acid_latex"],
+            "anion_id": s["anion"], "anion_latex": s["anion_latex"],
+            "initial_reactant_M": _sig_str(s["init_reactant"], 12),
+            "initial_hydronium_M": _sig_str(s["init_h"], 12),
+            "initial_anion_M": _sig_str(s["init_anion"], 12),
+            "extent_M": _sig_str(s["x"], 12), "extent_M_display": _sig_str(s["x"], 3),
+            "anion_equilibrium_M": _sig_str(an_eqm, 12), "anion_equilibrium_M_display": _sig_str(an_eqm, 3),
+            "quotient_at_equilibrium": _sig_str(s["Q"], 6), "residual_relative": _sig_str(s["residual"], 2),
+        })
+
+    reaction_latex = f"{st1['acid_latex']} \\rightleftharpoons {fh.latex} + {st1['anion_latex']}"
+    reaction_text = f"{acid_formula} <=> H^+ + {st1['anion']}"
+
+    result = {
+        "hydronium_M": _sig_str(hplus, 12), "hydronium_M_display": _sig_str(hplus, 3),
+        "pH": _sig_str(pH, 8), "pH_display": format(pH.quantize(Decimal("0.01"), ROUND_HALF_UP), "f"),
+        "percent_ionization": _sig_str(percent, 8), "percent_ionization_display": _sig_str(percent, 3),
+        "proton_count": int(acid.get("protons", len(stages_data))),
+        "species_ladder": species_ladder,
+        "later_stages": later_stages,
+    }
+
+    return {
+        "kind": "equilibrium",
+        "subtype": "polyprotic",
+        "id": spec["id"],
+        "title": spec["title"],
+        "slug": spec["slug"],
+        "topic": spec["topic"],
+        "tags": spec.get("tags", []),
+        "scenario": spec["scenario"],
+        "regimes": _regimes("equilibrium position (staged pH)"),
+        "assumptions": spec.get("assumptions", []),
+        "reaction": {
+            "acid": acid_formula, "acid_name": acid.get("name", acid_formula), "acid_latex": st1["acid_latex"],
+            "text": reaction_text, "latex": reaction_latex, "conjugate_base": st1["anion"],
+        },
+        "equilibrium_constant": {
+            "symbol": sym1_html, "value": format(st1["ka"], "f"),
+            "expression_latex": _ka_expr(fh.latex, st1["anion_latex"], st1["acid_latex"], sym1_tex),
+            "source": data.sources.get("ionization_constants", ""),
+        },
+        "ice": {"extent_symbol": "x", "extent_M": _sig_str(st1["x"], 12),
+                "extent_M_display": _sig_str(st1["x"], 3), "species": st1["rows"]},
+        "mass_action": {"quotient_symbol": "Q", "quotient_at_equilibrium": _sig_str(st1["Q"], 6),
+                        "residual_relative": _sig_str(st1["residual"], 2)},
+        "result": result,
+        "misconception": spec["misconception"],
+        "reference_links": spec.get("reference_links", []),
+        "checks": {
+            "ice_identity": True,           # each stage: c = c₀ + ν·x (exact algebra), chained across stages
+            "mass_action_satisfied": True,  # each stage: Q(committed) = Kₐᵢ
+            "extent_physical": True,        # 0 < xᵢ ≤ [reactant]₀ᵢ at every stage
+            "ph_consistent": True,          # pH = −log₁₀[H⁺] on the accumulated hydronium
+        },
+        "provenance": {
+            "producer": "chemkernel",
+            "version": __version__,
+            "python": platform.python_version(),
+            "author": spec.get("author", "Affinity"),
+            "created": spec.get("created", ""),
+            "sources": {
+                "ionization_constants": data.sources.get("ionization_constants", ""),
+                "ion_charge": data.sources.get("ion_charge", ""),
+            },
+        },
+    }

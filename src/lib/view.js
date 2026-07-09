@@ -360,10 +360,13 @@ export function renderEquilibriumLesson(lesson) {
   // conjugate acid + OH⁻ + water; a Ksp lesson the salt + its two ions.
   const isKsp = s.subtype === "solubility";
   const isBase = s.subtype === "weak-base";
+  const isPoly = s.subtype === "polyprotic";
   const toks = isKsp
     ? [s.reaction.salt, s.reaction.cation, s.reaction.anion, s.reaction.common_ion].filter(Boolean)
     : isBase
     ? [s.reaction.base, s.reaction.conjugate_acid, "OH^-", "H2O"]
+    : isPoly
+    ? ["H^+", ...(s.result.species_ladder ?? []).map((l) => l.id)]
     : [s.reaction.acid, s.reaction.conjugate_base, "H^+"];
   s.scenarioHtml = inline(prettyText(s.scenario, toks));
   delete s.scenario;
@@ -379,6 +382,18 @@ export function renderEquilibriumLesson(lesson) {
   s.ice.species = s.ice.species.map((r) => ({ ...r, symbolHtml: tex(r.latex, false), idPretty: prettyIon(r.id) }));
   s.mass_action.quotientSci = toSci(s.mass_action.quotient_at_equilibrium);
   s.mass_action.residualSci = toSci(s.mass_action.residual_relative);
+  // polyprotic: the ladder species get pretty ids + KaTeX symbols; each later stage gets its rendered Kₐ
+  // expression, scientific-notation Kₐ + extent + anion concentration, and pretty reactant/anion.
+  if (isPoly) {
+    s.result.species_ladder = (s.result.species_ladder ?? []).map((l) => ({
+      ...l, idPretty: prettyIon(l.id), symbolHtml: tex(l.latex, false), eqmSci: toSci(l.equilibrium_M_display),
+    }));
+    s.result.later_stages = (s.result.later_stages ?? []).map((ls) => ({
+      ...ls, expressionHtml: tex(ls.expression_latex, false), kaSci: toSci(ls.ka_value),
+      reactantPretty: prettyIon(ls.reactant_id), anionPretty: prettyIon(ls.anion_id),
+      extentSci: toSci(ls.extent_M_display), anionEqmSci: toSci(ls.anion_equilibrium_M_display),
+    }));
+  }
   s.assumptions = (s.assumptions ?? []).map((a) => ({ ...a, claimHtml: inline(prettyText(a.claim, toks)) }));
   if (s.misconception) s.misconception.claimHtml = inline(prettyText(s.misconception.claim, toks));
   return s;
