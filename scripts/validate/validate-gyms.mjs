@@ -17,9 +17,12 @@ import { concAt as kinConc, halfLife as kinHalfLife, timeToReach as kinTimeToRea
 
 const ROOT = process.cwd();
 const gymDir = join(ROOT, "derived", "gyms");
+// Gyms are load-bearing since Phase 1 (13 committed, 130 verified problems) — a missing or empty derived/gyms/
+// is a regression (accidental deletion / non-commit), NOT a valid state, so fail loud rather than pass green
+// (matches validate-solutions; QC 2026-07-09 B1).
 if (!existsSync(gymDir)) {
-  console.log("validate-gyms: no derived/gyms/ — nothing to check.");
-  process.exit(0);
+  console.error("GYM GATE FAILED — no derived/gyms/ directory (all gyms missing?) — run `npm run produce` first");
+  process.exit(1);
 }
 
 const ajv = new Ajv({ allErrors: true, strict: true });
@@ -433,7 +436,7 @@ function verifyLewis(rel, p, fail) {
 }
 
 const files = readdirSync(gymDir).filter((n) => n.endsWith(".gym.json"));
-if (files.length === 0) { console.log("validate-gyms: no *.gym.json — nothing to check."); process.exit(0); }
+if (files.length === 0) { console.error("GYM GATE FAILED — no *.gym.json under derived/gyms/ (all gyms missing?)"); process.exit(1); }
 
 const ids = new Set();
 const molarMass = new Map(); // substance -> molar mass string (must be consistent across every problem)

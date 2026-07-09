@@ -3,6 +3,40 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-09 — v1.0.0 QC: chemistry/provenance corrections (package A, ADR-0051) + verification hardening (package B)
+
+A pre-v1.0.0 quality-control sweep (15-dimension multi-agent review, `docs/sessions/2026-07-09.md`) then two implementation packages.
+No shipped value was wrong chemistry; the corrections fix labeling, attribution, and gate coverage. Owner decisions O1–O4 applied.
+
+**Package A — chemistry & source-provenance corrections (ADR-0051):**
+- **3 high-severity, learner-facing:** the first-order half-life misconception refutation was **inverted** (a shrinking t½ signals
+  order **< 1**, not higher order) — fixed in KineticsLesson + the H₂O₂ TOML + ADR-0049; the **reaction-rate concept vs the kinetics
+  lessons** used two rate conventions differing by the coefficient a — both now disclose the per-species rate −d[A]/dt = k[A]ⁿ; the
+  **Ksp values** are adopted from OpenStax Appendix J as cited (CaF₂ 3.45→**4.0×10⁻¹¹**, Mg(OH)₂ 5.61→**8.9×10⁻¹²**) — solubility
+  2.15×10⁻⁴ M, suppression 53 900×, prediction margins 3600×/71×, both verdicts hold.
+- **Provenance:** electronegativity re-sourced to the **revised-Pauling scale (Allred 1961)** it actually is (OpenStax Fig 7.6 prints
+  classic Pauling); boiling points re-sourced to the **NIST WebBook** (§10.1 shows the trend, not the values); silver (absent from
+  the cited Table 5.1) replaced by **silicon**; two new SOURCES.md rows.
+- **Honesty labels:** the **oxidation-number** concept rebadged `ledger-exact` → `rule-sourced` + an OpenStax §4.1 source (its core is
+  the rule hierarchy; regime-map now consistent); the **prediction** regimes facet "ICE ledger" → "dilution + reaction quotient Q"
+  (predictions run no ICE solve); the polyprotic "amphiprotic middle" → "second-ionization product"; temperatures recorded on the
+  rate-constant and reduction-potential tables (or the absence honestly disclosed).
+- **Pedagogy:** a new `neutralization_leaves_excess` refutation makes the "both reactants fully consumed" misconception fail in the
+  ledger (limiting → 0, excess keeps 0.5 mmol) rather than rendering the unrelated volume rebuttal; the titration half-equivalence
+  "pH = pKₐ" softened to "pH ≈ pKₐ" with an honest exact-solve-offset note.
+- *23 derived files regenerated (deterministic); 7 gates green, 45 pages, 427 producer tests (8 value/source assertions updated).*
+
+**Package B — verification & schema hardening (no ADR — tightening inside settled contracts):**
+- **B1** validate-gyms no longer exits 0 on a missing/empty `derived/gyms/` (deleting all 13 gyms would have deployed green).
+- **B2** the electrochemistry gate's **dead `ox_display` check** is now live (fraction-aware; tamper-tested).
+- **B3** three rendered-but-ungated KaTeX surfaces now gated (titration neutralization equation, valence-table `other_ions` chips,
+  formula-sheet assumption math): 944 → **959** strings.
+- **B5** the six reaction lessons' **equation balance is re-derived** in Node (Σν·count = 0 per element, Σν·charge = 0, reduced |ν|),
+  not merely asserted via the producer's `checks` booleans; tamper-tested.
+- **B9** schema tightening: `regimes` gains minItems:1 (no more unlabeled lessons), concept `regime` is required, the k·t½=ln2
+  identity is enforced first-order-only, and stale schema descriptions corrected.
+- *Deferred: B7 client-KaTeX → build-time (owner-chosen O3, its own session), B8 producer fail-loud guards, B10 scan-text breadth.*
+
 ## Phase 2 — 2026-07-09 — ELECTROCHEMISTRY TIER OPENED: the electron ledger — the Daniell cell (ADR-0050)
 
 The last Phase-2 tier (owner-authorized). Electrochemistry is the species ledger with **electrons** as the tracked quantity —

@@ -5,7 +5,7 @@
   "description": "One authored reference concept (ADR-0005). additionalProperties:false everywhere.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["kind", "id", "title", "term", "definition", "related", "lessons"],
+  "required": ["kind", "id", "title", "term", "definition", "regime", "related", "lessons"],
   "properties": {
     "kind": { "const": "concept" },
     "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },

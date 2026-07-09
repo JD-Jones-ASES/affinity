@@ -75,6 +75,8 @@ function equilibriumLatex(les) {
   if (les.reaction?.latex) out.push(["reaction.latex", les.reaction.latex]);
   if (les.equilibrium_constant?.expression_latex) out.push(["equilibrium_constant.expression_latex", les.equilibrium_constant.expression_latex]);
   (les.ice?.species ?? []).forEach((s, i) => s.latex && out.push([`ice.species[${i}].latex`, s.latex]));
+  // titration subtype: the neutralization equation is rendered (view.js → neutralizationHtml) — gate it too (B3)
+  if (les.titration?.neutralization_latex) out.push(["titration.neutralization_latex", les.titration.neutralization_latex]);
   out.push(...inlineMath("scenario", les.scenario));
   (les.assumptions ?? []).forEach((a, i) => out.push(...inlineMath(`assumptions[${i}].claim`, a.claim)));
   if (les.misconception?.claim) out.push(...inlineMath("misconception.claim", les.misconception.claim));
@@ -138,6 +140,8 @@ function referenceLatex(ref) {
     out.push(...inlineMath("definition", ref.definition));
   } else if (ref.kind === "valence-table") {
     (ref.elements ?? []).forEach((e, i) => e.common_ion?.latex && out.push([`elements[${i}].common_ion.latex`, e.common_ion.latex]));
+    // the variable-charge ions' chips are rendered too (ValenceTable.svelte → other_ions latexHtml) — gate them (B3)
+    (ref.elements ?? []).forEach((e, i) => (e.other_ions ?? []).forEach((o, j) => o.latex && out.push([`elements[${i}].other_ions[${j}].latex`, o.latex])));
     (ref.polyatomic ?? []).forEach((p, i) => p.latex && out.push([`polyatomic[${i}].latex`, p.latex]));
     (ref.charge_balance ?? []).forEach((c, i) => c.latex && out.push([`charge_balance[${i}].latex`, c.latex]));
   } else if (ref.kind === "reaction-family") {
@@ -159,6 +163,8 @@ function referenceLatex(ref) {
     (ref.rearrangements ?? []).forEach((r, i) => out.push([`rearrangements[${i}]`, r]));
     out.push(...inlineMath("summary", ref.summary));
     if (ref.domain) out.push(...inlineMath("domain", ref.domain));
+    // the disclosed model assumptions are rendered on the formula sheet (formulas.astro → claimHtml, inline $…$) — gate them (B3)
+    (ref.assumptions ?? []).forEach((a, i) => out.push(...inlineMath(`assumptions[${i}].claim`, a.claim)));
   } else if (ref.kind === "molecule") {
     // ADR-0044: the molecule's formula symbol, plus any inline $…$ in the authored summary / polarity reason / notes
     if (ref.latex) out.push(["latex", ref.latex]);

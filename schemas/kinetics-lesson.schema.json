@@ -70,7 +70,7 @@
     },
     "integrated": {
       "type": "object", "additionalProperties": false,
-      "description": "The integrated first-order rate law [A](t) = [A]₀·e^(−kt) — exact given the model.",
+      "description": "The order-specific integrated rate law [A](t): zero [A]₀−kt, first [A]₀·e^(−kt), second 1/([A]₀)+kt — exact given the model.",
       "required": ["law_latex", "initial_molarity_M", "initial_molarity_display"],
       "properties": {
         "law_latex": { "type": "string", "minLength": 1 },

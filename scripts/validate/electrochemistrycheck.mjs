@@ -67,6 +67,16 @@ function overallBalances(equation) {
 // a signed oxidation-number label, matching the producer's _ox_display
 const oxLabel = (v) => (v === 0 ? "0" : (v > 0 ? "+" : "−") + Math.abs(v));
 
+// render the learner-visible ox_display from the (already-verified) emitted ox_number string, mirroring the
+// producer's _ox_display exactly: "0", "+2"/"−2" (integers), "+8/3"/"−8/3" (fractions), always Unicode minus.
+// Fraction-aware — so it does not false-positive on non-integer oxidation states (QC 2026-07-09 B2).
+const oxDisplayOf = (oxNum) => {
+  const s = String(oxNum).trim();
+  if (s === "0" || s === "0/1") return "0";
+  const neg = s[0] === "-" || s[0] === "−";
+  return (neg ? "−" : "+") + s.replace(/^[-−]/, "");
+};
+
 export function verifyElectrochemistry(rel, les, fail) {
   const rc = (g, w, t = 1e-6) => Math.abs(g - w) <= t * Math.abs(w) + 1e-9;
   if (les.subtype !== "galvanic") fail(rel, `unknown electrochemistry subtype '${les.subtype}'`);
@@ -80,8 +90,10 @@ export function verifyElectrochemistry(rel, les, fail) {
         : (String(a.ox_number).includes("/") ? (() => { const [p, q] = String(a.ox_number).split("/"); return Number(p) / Number(q); })() : Number(a.ox_number));
       if (!rc(re[a.element], emitted, 1e-9))
         fail(rel, `${id}: ${sp.formula} ${a.element} oxidation number ${a.ox_number} != re-derived ${re[a.element]}`);
-      if (a.ox_display !== oxLabel(Math.round(re[a.element] * 1e6) / 1e6) && a.ox_display !== oxLabel(re[a.element]))
-        { /* display is cosmetic; the numeric check above is the proof */ }
+      // the learner-visible label must be the correct signed rendering of the verified ox_number (no longer
+      // dead: the empty-body check here previously let a wrong display ship past every gate — QC 2026-07-09 B2)
+      if (a.ox_display !== oxDisplayOf(a.ox_number))
+        fail(rel, `${id}: ${sp.formula} ${a.element} ox_display '${a.ox_display}' != '${oxDisplayOf(a.ox_number)}' (from ox_number ${a.ox_number})`);
     }
   }
   // the oxidized element rose, the reduced element fell (by the emitted from→to)

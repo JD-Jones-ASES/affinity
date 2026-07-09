@@ -6,6 +6,8 @@
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { parseFormula } from "./formula.mjs";
+import { gcd } from "./balancecheck.mjs";
 
 const ROOT = process.cwd();
 const TOL = 1e-12;
@@ -62,6 +64,30 @@ for (const file of files) {
     byId[r.id] = r;
     rows++;
   }
+
+  // re-derive the equation's atom + charge balance from the ledger's own coefficients (ν) — NOT merely trust the
+  // producer's `checks` booleans. Parse each species formula independently (formula.mjs), cross-check the emitted
+  // charge, and prove Σ ν·count = 0 for every element and Σ ν·charge = 0 (the definition of a balanced equation),
+  // with the |ν| a reduced positive-integer set. The per-row arithmetic above (n = n0 + ν·ξ) does NOT catch a ν
+  // vector that violates conservation; this does. (QC 2026-07-09 B5.)
+  const atomNet = {};
+  let chargeNet = 0;
+  const absCoeffs = [];
+  for (const r of L.species) {
+    let parsed;
+    try { parsed = parseFormula(r.id); }
+    catch (e) { fail(rel, `equation balance: cannot parse species '${r.id}': ${e.message}`); }
+    if (parsed.charge !== Number(r.charge))
+      fail(rel, `${r.id}: parsed charge ${parsed.charge} != emitted ledger charge ${r.charge}`);
+    for (const [el, c] of Object.entries(parsed.counts)) atomNet[el] = (atomNet[el] || 0) + r.nu * c;
+    chargeNet += r.nu * Number(r.charge);
+    absCoeffs.push(Math.abs(r.nu));
+  }
+  for (const [el, net] of Object.entries(atomNet))
+    if (net !== 0) fail(rel, `equation not balanced: element ${el} net ${net} (Σ ν·count ≠ 0)`);
+  if (chargeNet !== 0) fail(rel, `equation not balanced: net charge ${chargeNet} (Σ ν·charge ≠ 0)`);
+  if (absCoeffs.length && absCoeffs.reduce((a, b) => gcd(a, b)) !== 1)
+    fail(rel, `equation coefficients [${absCoeffs}] are not reduced (common factor > 1)`);
 
   // the reported limiting set is exactly the rows tagged limiting
   const tagged = L.species.filter((r) => r.role === "limiting").map((r) => r.id).sort();

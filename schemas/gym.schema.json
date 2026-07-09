@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://affinity/schemas/gym.schema.json",
   "title": "Affinity procedural gym (generated, verified problem set)",
-  "description": "A Phase-1 gym: producer-generated dimensional-analysis problems (ADR-0024). additionalProperties:false everywhere.",
+  "description": "A producer-generated gym: a seeded set of machine-verified drill problems in one family (ADR-0024; extended through Phase 2). Families span dimensional analysis, ionic nomenclature, balancing, mass/limiting/percent-yield stoichiometry, periodic trends, reaction families, gas laws, calorimetry, Lewis structures, weak-acid pH, and kinetics — 13 gyms as of ADR-0049. Numeric-answer kinds are free-entry drills carrying a diagnostics catalogue; categorical kinds carry a choice menu (ADR-0032). additionalProperties:false everywhere.",
   "type": "object",
   "additionalProperties": false,
   "required": ["kind", "id", "title", "slug", "topic", "family", "seed", "problems", "provenance"],

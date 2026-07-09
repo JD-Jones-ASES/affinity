@@ -80,8 +80,16 @@ export function verifyKinetics(rel, les, fail) {
   if (!rc(tHalfSec, tHalfNative * tb, 1e-3)) fail(rel, `t½ ${les.half_life.seconds}s != order-${order} t½ = ${tHalfNative * tb}s`);
   if (les.half_life.depends_on_concentration !== (order !== 1))
     fail(rel, `half_life.depends_on_concentration ${les.half_life.depends_on_concentration} wrong for order ${order}`);
-  if (order === 1 && les.half_life.k_times_thalf !== undefined && !rc(Number(les.half_life.k_times_thalf), LN2, 1e-4))
-    fail(rel, `half_life.k_times_thalf ${les.half_life.k_times_thalf} != ln2 = ${LN2}`);
+  // the k·t½ = ln2 identity is FIRST-ORDER ONLY: require it on order 1 (and check it = ln2), forbid it elsewhere —
+  // previously it was opt-in on order 1 and unchecked on orders 0/2, so a wrong value could ship (QC 2026-07-09 B9).
+  if (order === 1) {
+    if (les.half_life.k_times_thalf === undefined)
+      fail(rel, `half_life.k_times_thalf missing on a first-order lesson (the k·t½ = ln2 identity)`);
+    if (!rc(Number(les.half_life.k_times_thalf), LN2, 1e-4))
+      fail(rel, `half_life.k_times_thalf ${les.half_life.k_times_thalf} != ln2 = ${LN2}`);
+  } else if (les.half_life.k_times_thalf !== undefined) {
+    fail(rel, `half_life.k_times_thalf present on an order-${order} lesson — the k·t½ = ln2 identity is first-order only`);
+  }
 
   // 3. the integrated rate law: every curve point c(t) matches the order's law, at t = (half_lives)·t½
   if (!(les.curve.points.length >= 3)) fail(rel, "kinetics curve needs ≥ 3 points");
