@@ -2,7 +2,7 @@
 
 **A beginning-chemistry portal where the verification system is the product.**
 
-**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — nineteen machine-verified lessons (precipitation,
+**Status:** **Phase 2 open** (Phase 1 complete + owner-reviewed) — twenty-one machine-verified lessons (precipitation,
 percent yield, acid-base neutralization, **gas stoichiometry** — a weighed metal + acid whose hydrogen volume falls
 out of the ledger via PV=nRT — the **energy ledger** — burning methane, whose heat q = ΔH_rxn·ξ falls out of
 the ledger via Hess's law over sourced formation enthalpies — two **single-molecule structure lessons** (why water is
@@ -20,9 +20,12 @@ sets the pH and the amphiprotic middle anion sits at ≈ Kₐ2; and a **titratio
 ledger marched drop by drop into a build-time SVG that reads pKₐ off the half-equivalence plateau and lands basic at
 equivalence), **two precipitation-prediction lessons** (a different kind — the **reaction quotient** Q, compared to Ksp,
 decides whether a solid forms: calcium fluoride crashes out of a millimolar mix, while dilute magnesium hydroxide stays clear
-despite being “insoluble” — a snapshot, not a solve), and **a first-order kinetics lesson** (the **ledger in time** — hydrogen
-peroxide decays $[\mathrm{H_2O_2}] = [\mathrm{H_2O_2}]_0 e^{-kt}$ with a concentration-independent half-life $t_{1/2} = \ln 2/k$,
-drawn as a decay curve), twelve procedural gyms (dimensional analysis, nomenclature,
+despite being “insoluble” — a snapshot, not a solve), and **three kinetics lessons** (the **ledger in time**, one lesson kind over
+the three reaction **orders** — the order sets the clock: hydrogen peroxide decays first-order with a **constant** half-life
+($[\mathrm{A}]=[\mathrm{A}]_0 e^{-kt}$, $t_{1/2}=\ln 2/k=6$ h), butadiene dimerizes second-order with a half-life that **grows** as
+it thins out ($1/[\mathrm{A}]=1/[\mathrm{A}]_0+kt$, 1.45→2.89→5.79 h), and ammonia on hot tungsten decomposes zero-order with a
+half-life that **shrinks**, running out **completely** at a finite time ($[\mathrm{A}]=[\mathrm{A}]_0-kt$, 1.07→0.534→0.267 h) —
+each a decay curve, the contrast machine-checked), twelve procedural gyms (dimensional analysis, nomenclature,
 balancing, the full stoichiometry suite, periodic trends, reaction families, gas laws, calorimetry, **Lewis
 structures** — valence electrons, electron domains, molecular shape, counted exactly — and **weak-acid pH** — the ICE table's
 mass-action root, solved not approximated), the Chemical Atlas — five reference surfaces: a typed concept graph + **7 reaction
@@ -38,7 +41,7 @@ tier (engine, gym, three lessons, and intermolecular forces), and has **opened e
 reversible-extent solver + the `equilibrium` lesson kind with six subtypes — weak-acid pH, buffer, weak-base pH, Ksp
 solubility incl. a common-ion variant, polyprotic staged ionization, and titration curves — plus a `prediction` lesson kind
 (Q vs Ksp: does a precipitate form?) and the K/Kw/Ksp formula sheet), and has now **opened kinetics** (the ledger in time —
-first-order decay, the `kinetics` lesson kind); see [`ROADMAP.md`](./ROADMAP.md). See [`AGENTS.md`](./AGENTS.md) to work the repo.
+decay of orders 0/1/2 on one order-general engine, the `kinetics` lesson kind); see [`ROADMAP.md`](./ROADMAP.md). See [`AGENTS.md`](./AGENTS.md) to work the repo.
 
 ## The idea in three lines
 

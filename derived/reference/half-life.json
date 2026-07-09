@@ -10,12 +10,18 @@
       "type": "see-also"
     },
     {
+      "to": "integrated-rate-law",
+      "type": "see-also"
+    },
+    {
       "to": "reaction-rate",
       "type": "see-also"
     }
   ],
   "lessons": [
-    "hydrogen-peroxide-decomposition"
+    "hydrogen-peroxide-decomposition",
+    "butadiene-dimerization",
+    "ammonia-decomposition"
   ],
   "regime": "model-exact",
   "latex": "t_{1/2} = \\dfrac{\\ln 2}{k} \\quad(\\text{first order})"

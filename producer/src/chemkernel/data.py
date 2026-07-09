@@ -450,7 +450,8 @@ class ChemData:
         rate_constants: dict = {}
         rc_source = ""
         rc_path = d / "rate-constants.toml"
-        _KINETIC_UNITS = {"1/s", "1/(M*s)", "M/s"}          # first- / second- / zero-order k units
+        # first- / second- / zero-order k units, in seconds or minutes (k is kept in its sourced native units)
+        _KINETIC_UNITS = {"1/s", "1/min", "1/(M*s)", "1/(M*min)", "M/s", "M/min"}
         if rc_path.exists():
             rc_doc = tomllib.loads(rc_path.read_text(encoding="utf-8"))
             rc_source = rc_doc.get("source", "")

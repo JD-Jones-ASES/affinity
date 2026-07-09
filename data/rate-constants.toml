@@ -3,10 +3,13 @@
 # from the balanced equation); the value of k and the order are the sourced data, and the integrated rate law +
 # half-life follow exactly from them (model-exact-then-rounded, like the gas-law volume — ADR-0040).
 #
+# The order sets the k UNITS: zero order M s⁻¹, first order s⁻¹, second order M⁻¹ s⁻¹ (or the /min variants).
+# k is kept + shown in its SOURCED units (honesty); the engine reads the time base (min → 60 s) off the unit.
 # Read as Decimal (never float — ADR-0013). Table keys are the reactant formula (house ASCII). On load, data.py
-# checks the reactant formula parses, k > 0, the order is a positive integer, and k_unit is a known kinetic unit;
-# the balanced equation is verified by the balancer in the kinetics builder (engine-checked, not asserted).
-# Values: OpenStax Chemistry 2e §12.4 (Integrated Rate Laws), CC BY 4.0 — see docs/SOURCES.md.
+# checks the reactant formula parses, k > 0, the order is a nonnegative integer, and k_unit is a known kinetic
+# unit; the balanced equation is verified by the balancer in the kinetics builder (engine-checked, not asserted),
+# and the builder cross-checks the unit family against the order. Values: OpenStax Chemistry 2e §12.4 (Integrated
+# Rate Laws), CC BY 4.0 — see docs/SOURCES.md.
 
 source = "openstax-chemistry-2e"
 
@@ -18,3 +21,21 @@ k = "3.21e-5"
 k_unit = "1/s"               # first order → k carries inverse-time units (s⁻¹)
 equation = "2 H2O2 -> 2 H2O + O2"
 conditions = "dilute aqueous solution"
+
+[reactions."C4H6"]           # butadiene dimerization — the OpenStax SECOND-ORDER example (§12.4, "Second-Order Reactions")
+name = "dimerization of butadiene"
+reactant = "C4H6"
+order = 2
+k = "5.76e-2"
+k_unit = "1/(M*min)"         # second order → k carries M⁻¹ time⁻¹ units (here per minute, as OpenStax reports it)
+equation = "2 C4H6 -> C8H12"
+conditions = "gas phase"
+
+[reactions."NH3"]            # ammonia decomposition on hot tungsten — the OpenStax ZERO-ORDER example (§12.4, "Zero-Order Reactions")
+name = "decomposition of ammonia on a tungsten surface"
+reactant = "NH3"
+order = 0
+k = "1.3e-6"
+k_unit = "M/s"               # zero order → k carries concentration/time units (M s⁻¹); rate independent of [NH3]
+equation = "2 NH3 -> N2 + 3 H2"
+conditions = "on a hot tungsten (W) surface"

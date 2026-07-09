@@ -9,7 +9,8 @@ definition = "A **rate law** relates the reaction rate to concentrations: $\\tex
 latex = "\\text{rate} = k[\\mathrm{A}]^m[\\mathrm{B}]^n"
 related = [
   { to = "reaction-rate", type = "see-also" },
+  { to = "integrated-rate-law", type = "extends" },
   { to = "half-life", type = "see-also" },
   { to = "balancing-equations", type = "contrast" },
 ]
-lessons = ["hydrogen-peroxide-decomposition"]
+lessons = ["hydrogen-peroxide-decomposition", "butadiene-dimerization", "ammonia-decomposition"]

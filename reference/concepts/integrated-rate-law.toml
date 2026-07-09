@@ -1,0 +1,16 @@
+# Chemical Atlas concept entry (ADR-0005, ADR-0049 2nd/3rd increments). Integrated rate law: the exact solution of
+# the rate law, giving [A] at any time — one form per order, each with its own straight-line plot and half-life
+# behavior. Model-exact. No [[array-of-tables]] / TOML trap #4 N/A.
+id = "integrated-rate-law"
+kind = "concept"
+title = "Integrated rate laws and reaction order"
+term = "integrated rate law"
+regime = "model-exact"
+definition = "An **integrated rate law** solves the rate law for concentration as a function of time — it turns a rate into a prediction. The form depends on the **order**: **zero order** gives $[\\mathrm{A}] = [\\mathrm{A}]_0 - kt$ (a straight line that reaches **zero** at a finite time, half-life $t_{1/2} = [\\mathrm{A}]_0/2k$, which *shrinks*); **first order** gives $[\\mathrm{A}] = [\\mathrm{A}]_0 e^{-kt}$ (exponential decay, $t_{1/2} = \\ln 2/k$, *constant* — the signature); **second order** gives $\\frac{1}{[\\mathrm{A}]} = \\frac{1}{[\\mathrm{A}]_0} + kt$ (asymptotic, $t_{1/2} = 1/k[\\mathrm{A}]_0$, which *grows*). Each linearizes a different plot — $[\\mathrm{A}]$, $\\ln[\\mathrm{A}]$, or $1/[\\mathrm{A}]$ versus $t$ — which is how the order is read from data. The order is a disclosed model (regime-2) and $k$ is sourced (regime-3), but the law that follows is exact, so a **constant half-life is not a general fact — it is the fingerprint of first order** (see [[half-life]])."
+latex = "\\text{order 0: } [\\mathrm{A}]_0 - kt \\quad\\text{1: } [\\mathrm{A}]_0 e^{-kt} \\quad\\text{2: } \\tfrac{1}{[\\mathrm{A}]_0}+kt"
+related = [
+  { to = "rate-law", type = "extends" },
+  { to = "half-life", type = "see-also" },
+  { to = "reaction-rate", type = "see-also" },
+]
+lessons = ["hydrogen-peroxide-decomposition", "butadiene-dimerization", "ammonia-decomposition"]

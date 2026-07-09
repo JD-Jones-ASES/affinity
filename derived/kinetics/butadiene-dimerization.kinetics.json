@@ -1,0 +1,224 @@
+{
+  "kind": "kinetics",
+  "subtype": "second-order",
+  "id": "butadiene-dimerization",
+  "title": "When the half-life keeps growing: a second-order dimerization",
+  "slug": "butadiene-dimerization",
+  "topic": "kinetics",
+  "tags": [
+    "kinetics",
+    "second-order",
+    "half-life",
+    "rate law",
+    "integrated rate law"
+  ],
+  "scenario": "Two butadiene molecules snap together into a ring: 2 C4H6 → C8H12. The reaction is **second order** in butadiene — its rate depends on *two* C4H6 molecules colliding, $\\text{rate} = k[\\mathrm{C_4H_6}]^2$, with $k = 5.76\\times10^{-2}\\ \\mathrm{M^{-1}\\,min^{-1}}$. The amount left follows the **second-order integrated law** $\\frac{1}{[\\mathrm{C_4H_6}]} = \\frac{1}{[\\mathrm{C_4H_6}]_0} + kt$ (it is $1/[\\mathrm{C_4H_6}]$, not $[\\mathrm{C_4H_6}]$, that climbs in a straight line). Its **half-life** is $t_{1/2} = 1/(k[\\mathrm{C_4H_6}]_0)$ — and because $[\\mathrm{C_4H_6}]_0$ sits in the denominator, the half-life **grows** as the reactant thins out: the second half takes longer than the first. Same species ledger, extent marching in time — but a very different clock from first order.",
+  "regimes": [
+    {
+      "facet": "species accounting over time (the ledger)",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "rate constant",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "rate law + integrated decay",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The reaction is second order in C4H6 ($\\text{rate} = k[\\mathrm{C_4H_6}]^2$) — an experimentally determined rate law, not read off the balanced equation. The order and rate constant $k$ are the sourced data; the integrated law and half-life follow exactly.",
+      "kind": "model"
+    },
+    {
+      "claim": "The rate constant is constant over the run — fixed temperature, gas phase, unchanging conditions — so the integrated rate law and half-life hold throughout, and the reverse reaction is negligible.",
+      "kind": "model"
+    }
+  ],
+  "reaction": {
+    "reactant": "C4H6",
+    "reactant_name": "dimerization of butadiene",
+    "reactant_latex": "\\mathrm{C_{4}H_{6}}",
+    "equation_text": "2 C4H6 -> C8H12",
+    "equation_latex": "2\\,\\mathrm{C_{4}H_{6}} \\rightarrow \\mathrm{C_{8}H_{12}}",
+    "conditions": "gas phase"
+  },
+  "rate_law": {
+    "order": 2,
+    "statement_latex": "\\text{rate} = k\\,[\\mathrm{C_{4}H_{6}}]^2",
+    "k_symbol": "k",
+    "k_value": "0.0576",
+    "k_display": "0.0576",
+    "k_unit": "1/(M*min)",
+    "k_unit_display": "M⁻¹ min⁻¹",
+    "source": "openstax-chemistry-2e"
+  },
+  "integrated": {
+    "law_latex": "\\dfrac{1}{[\\mathrm{C_{4}H_{6}}]} = \\dfrac{1}{[\\mathrm{C_{4}H_{6}}]_0} + kt",
+    "initial_molarity_M": "0.200",
+    "initial_molarity_display": "0.2"
+  },
+  "half_life": {
+    "symbol": "t_{1/2}",
+    "relation_latex": "t_{1/2} = \\dfrac{1}{k\\,[\\mathrm{C_{4}H_{6}}]_0}",
+    "seconds": "5208.3333",
+    "seconds_display": "5210",
+    "hours_display": "1.45",
+    "progression": "doubles",
+    "depends_on_concentration": true
+  },
+  "curve": {
+    "points": [
+      {
+        "half_lives": "0",
+        "t_seconds": "0",
+        "t_seconds_display": "0",
+        "t_hours_display": "0",
+        "concentration_M": "0.2",
+        "concentration_display": "0.2",
+        "percent_remaining_display": "100",
+        "percent_decomposed_display": "0"
+      },
+      {
+        "half_lives": "0.5",
+        "t_seconds": "2604.1667",
+        "t_seconds_display": "2600",
+        "t_hours_display": "0.723",
+        "concentration_M": "0.133333333333",
+        "concentration_display": "0.133",
+        "percent_remaining_display": "66.7",
+        "percent_decomposed_display": "33.3"
+      },
+      {
+        "half_lives": "1",
+        "t_seconds": "5208.3333",
+        "t_seconds_display": "5210",
+        "t_hours_display": "1.45",
+        "concentration_M": "0.1",
+        "concentration_display": "0.1",
+        "percent_remaining_display": "50",
+        "percent_decomposed_display": "50"
+      },
+      {
+        "half_lives": "2",
+        "t_seconds": "10416.667",
+        "t_seconds_display": "10400",
+        "t_hours_display": "2.89",
+        "concentration_M": "0.0666666666667",
+        "concentration_display": "0.0667",
+        "percent_remaining_display": "33.3",
+        "percent_decomposed_display": "66.7"
+      },
+      {
+        "half_lives": "3",
+        "t_seconds": "15625",
+        "t_seconds_display": "15600",
+        "t_hours_display": "4.34",
+        "concentration_M": "0.05",
+        "concentration_display": "0.05",
+        "percent_remaining_display": "25",
+        "percent_decomposed_display": "75"
+      },
+      {
+        "half_lives": "5",
+        "t_seconds": "26041.667",
+        "t_seconds_display": "26000",
+        "t_hours_display": "7.23",
+        "concentration_M": "0.0333333333333",
+        "concentration_display": "0.0333",
+        "percent_remaining_display": "16.7",
+        "percent_decomposed_display": "83.3"
+      },
+      {
+        "half_lives": "7",
+        "t_seconds": "36458.333",
+        "t_seconds_display": "36500",
+        "t_hours_display": "10.1",
+        "concentration_M": "0.025",
+        "concentration_display": "0.025",
+        "percent_remaining_display": "12.5",
+        "percent_decomposed_display": "87.5"
+      },
+      {
+        "half_lives": "10",
+        "t_seconds": "52083.333",
+        "t_seconds_display": "52100",
+        "t_hours_display": "14.5",
+        "concentration_M": "0.0181818181818",
+        "concentration_display": "0.0182",
+        "percent_remaining_display": "9.09",
+        "percent_decomposed_display": "90.9"
+      },
+      {
+        "half_lives": "15",
+        "t_seconds": "78125",
+        "t_seconds_display": "78100",
+        "t_hours_display": "21.7",
+        "concentration_M": "0.0125",
+        "concentration_display": "0.0125",
+        "percent_remaining_display": "6.25",
+        "percent_decomposed_display": "93.8"
+      }
+    ]
+  },
+  "result": {
+    "half_life_hours_display": "1.45",
+    "half_life_seconds_display": "5210",
+    "landmarks": [
+      {
+        "half_lives": 1,
+        "t_hours_display": "1.45",
+        "segment_half_life_hours_display": "1.45",
+        "concentration_M": "0.1",
+        "concentration_display": "0.1",
+        "percent_decomposed_display": "50"
+      },
+      {
+        "half_lives": 2,
+        "t_hours_display": "4.34",
+        "segment_half_life_hours_display": "2.89",
+        "concentration_M": "0.05",
+        "concentration_display": "0.05",
+        "percent_decomposed_display": "75"
+      },
+      {
+        "half_lives": 3,
+        "t_hours_display": "10.1",
+        "segment_half_life_hours_display": "5.79",
+        "concentration_M": "0.025",
+        "concentration_display": "0.025",
+        "percent_decomposed_display": "87.5"
+      }
+    ]
+  },
+  "misconception": {
+    "claim": "The half-life is a fixed property of the reaction, so using up the second half takes the same time as the first — a half-life is a half-life.",
+    "refuted_by": "second_order_half_life_grows"
+  },
+  "reference_links": [
+    "integrated-rate-law",
+    "half-life",
+    "rate-law",
+    "reaction-rate",
+    "extent-of-reaction"
+  ],
+  "checks": {
+    "reaction_balanced": true,
+    "integrated_law": true,
+    "half_life_relation": true,
+    "half_life_progression": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "rate_constants": "openstax-chemistry-2e",
+      "atomic_weight": "ciaaw-2021-atomic-weights"
+    }
+  }
+}

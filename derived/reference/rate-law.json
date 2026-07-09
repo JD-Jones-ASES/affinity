@@ -10,6 +10,10 @@
       "type": "see-also"
     },
     {
+      "to": "integrated-rate-law",
+      "type": "extends"
+    },
+    {
       "to": "half-life",
       "type": "see-also"
     },
@@ -19,7 +23,9 @@
     }
   ],
   "lessons": [
-    "hydrogen-peroxide-decomposition"
+    "hydrogen-peroxide-decomposition",
+    "butadiene-dimerization",
+    "ammonia-decomposition"
   ],
   "regime": "model-exact",
   "latex": "\\text{rate} = k[\\mathrm{A}]^m[\\mathrm{B}]^n"

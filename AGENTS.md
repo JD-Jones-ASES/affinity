@@ -196,21 +196,22 @@ Its **gases + thermochemistry** and **bonding & structure** tiers are complete (
 engine/`molecule` Atlas kind + IMFs, ADR-0039–0047); **equilibrium & acid-base is FEATURE-COMPLETE** (ADR-0048 — the
 reversible-extent solver + **six `equilibrium` subtypes** (weak-acid pH · buffer · weak-base pH · Ksp solubility (+ common-ion) ·
 polyprotic · titration) + a gym + a Q-vs-Kₛₚ **`prediction`** kind (both verdicts) + the K/K_w/K_sp **formula-sheet** entries as
-dimensionless activity relations); and the **kinetics tier is OPEN** (ADR-0049 — the ledger in time: the `kinetics` lesson kind,
-opened on first-order H₂O₂ decay, $[\mathrm{A}]=[\mathrm{A}]_0e^{-kt}$, $t_{1/2}=\ln2/k$, a build-time decay curve). **Next:** the
-rest of kinetics (second-/zero-order, a gym, Arrhenius), then electrochemistry. History
+dimensionless activity relations); and the **kinetics tier is OPEN** (ADR-0049 — the ledger in time: the `kinetics` lesson kind),
+now with **all three orders** on one order-general engine — first (t½ constant), second (t½ grows), zero (t½ shrinks, reaches 0) —
+the contrast that makes "constant t½" mean something, each a build-time decay curve. **Next:** a kinetics gym + Arrhenius, then
+electrochemistry. History
 in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
 [`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
 
-**Counters:** 19 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
+**Counters:** 21 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
 3 bonding (2 structure + 1 IMF comparison) + **7 equilibrium** (weak-acid pH + buffer + weak-base pH + Ksp solubility +
 common-ion Ksp + polyprotic + titration) + **2 prediction** (Q-vs-Ksp precipitation — CaF₂ forms, dilute Mg(OH)₂ stays clear),
-ADR-0048 + **1 kinetics** (first-order H₂O₂ decay — the ledger in time, ADR-0049)) · 12 gyms / 120 verified problems (dimensional analysis · ionic
+ADR-0048 + **3 kinetics** (first/second/zero-order decay — the ledger in time, t½ constant/grows/shrinks, ADR-0049)) · 12 gyms / 120 verified problems (dimensional analysis · ionic
 nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas
 laws · calorimetry · Lewis structures · weak-acid pH) · 1 Valence Table (23 elements; four modes; 182 named + machine-verified
-salts) · 36 concept entries (8 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species
+salts) · 37 concept entries (8 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species
 entries + 6 molecule structure entries (Lewis ledger + VSEPR + dominant IMF, ADR-0044/0046) + 14 formula-sheet entries
-(ADR-0039/0043/0048 — incl. Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w as **dimensionless activity** relations) · 78 Atlas reference objects · 7 Node gates + CI + live Pages · 404 producer tests · astro build = 41 pages.
+(ADR-0039/0043/0048 — incl. Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w as **dimensionless activity** relations) · 79 Atlas reference objects · 7 Node gates + CI + live Pages · 411 producer tests · astro build = 43 pages.
 
 **Standing facts a session should know:** the seven architecture open questions are all resolved; honesty = three badges
 (regime-4 → model-assumed badge + an "interpretive" marker, ADR-0033); numeric practice free-entry (diagnostics), categorical
@@ -237,10 +238,13 @@ block with the (volume, pH) curve; the player draws a **build-time SVG**; pH=pK�
 dilute each ion into the combined volume, compute the reaction quotient $Q=[\text{cat}]^a[\text{an}]^b$ and compare to $K_{sp}$
 → *does a precipitate form?* (Q>Kₛₚ ⇒ yes); the dilution + $Q$ + verdict machine-checked (`verifyPrediction`), its own tight
 schema + static player; reuses the sourced Kₛₚ (no ICE table, $Q\ne K$ by design). And a **`kinetics` lesson** (`*.kinetics.json`,
-ADR-0049): the ledger with the extent **evolving in time** — a first-order reactant decays $[\mathrm{A}]=[\mathrm{A}]_0e^{-kt}$,
-$t_{1/2}=\ln2/k$ (concentration-independent — the first-order tell); `chemkernel.kinetics` (Decimal exp/ln, model-exact-then-rounded),
-a build-time decay-curve SVG; k sourced from `data/rate-constants.toml`, the rate law + order model-assumed (the order is measured,
-**not** the coefficient), the balance + curve + k·t½=ln2 + halving landmarks machine-checked (`kineticscheck.mjs`).
+ADR-0049): the ledger with the extent **evolving in time**, one shape over **orders 0/1/2** (`subtype`+`order`; dispatched in
+`chemkernel.kinetics`, Decimal exp/ln, model-exact-then-rounded) — zero $[\mathrm{A}]_0-kt$ ($t_{1/2}=[\mathrm{A}]_0/2k$ shrinks,
+hits 0 at $[\mathrm{A}]_0/k$), first $[\mathrm{A}]_0e^{-kt}$ ($\ln2/k$ constant — the signature), second $1/[\mathrm{A}]_0+kt$
+($1/k[\mathrm{A}]_0$ grows); the successive-half-life **progression** (constant/doubles/halves) is the order's machine-checked
+fingerprint; a build-time decay-curve SVG; k sourced from `data/rate-constants.toml` in its **native units** (the unit encodes the
+order + time base, min→60 s), the rate law + order model-assumed (the order is measured, **not** the coefficient), the balance +
+every curve point + the t½ relation + landmark segments + progression machine-checked (`kineticscheck.mjs`).
 `mass_g`→moles supported; a fully molecular reaction omits the ionic equations; redox = the free-element signature (Phase 2).
 The Atlas carries all four brief-§10 kinds (lens, concepts, reactions, species ADR-0038, formula sheet ADR-0039 — machine-checked
 **dimensional homogeneity** via `chemkernel.dimension`, separate from Decimal `units.py` per ADR-0015) **plus a fifth structural
@@ -270,10 +274,10 @@ activity** relations: an activity $a_X=[X]/c^\circ$ against the 1 M standard sta
 dimensionless quantities and fits the existing dimension engine unchanged; pH/pOH — log relations — stay in the `ph` concept,
 per the owner's call). **The equilibrium & acid-base tier is now feature-complete** (six subtypes + gym + prediction kind, both
 verdicts + the K reference surface). Optional leftovers: a titration **slider interactive**; a weak-**base**/buffer/polyprotic
-**gym** extension. The **kinetics tier is now OPEN** (ADR-0049 — the ledger in time; first-order H₂O₂ decay landed as the
-`kinetics` lesson kind, the 6th lesson shape; `chemkernel.kinetics` + `data/rate-constants.toml` + `kineticscheck.mjs` + a
-build-time decay curve). **Next in kinetics:** second-/zero-order decay (a half-life that grows/shrinks — the contrast that makes
-"constant t½" meaningful), a kinetics **gym** (compute [A](t)/t½/the order from data), the **Arrhenius** temperature dependence
+**gym** extension. The **kinetics tier is now OPEN** (ADR-0049 — the ledger in time; the `kinetics` lesson kind, the 6th lesson
+shape; `chemkernel.kinetics` + `data/rate-constants.toml` + `kineticscheck.mjs` + a build-time decay curve), now with **all three
+orders** (first/second/zero — t½ constant/grows/shrinks — on one order-general engine, ADR-0049 2nd increment). **Next in kinetics:**
+a kinetics **gym** (compute [A](t)/t½/the order from data), the **Arrhenius** temperature dependence
 of k. Then the last Phase-2 tier: **electrochemistry** (oxidation numbers → completing the free-element redox flag from ADR-0035
 → the electron ledger, ΔG=−nFE, Nernst). Bonding corpus-depth deferrals: octet exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻), more structure
 lessons (NH₃/CH₄), more comparison axes, a "which IMF dominates?" gym drill. Smaller/optional: endothermic / multi-step

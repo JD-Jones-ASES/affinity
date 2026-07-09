@@ -29,7 +29,7 @@ lesson (`*.equilibrium.toml`, the ICE table solved by mass action — a weak aci
 solubility — [Equilibrium lessons](#equilibrium-lessons--a-weak-acids-ph-equilibriumtoml-adr-0048) below), a **prediction**
 lesson (`*.prediction.toml`, Q vs Ksp — does a precipitate form?, a snapshot not a solve — [Prediction
 lessons](#prediction-lessons--q-vs-ksp-does-a-precipitate-form-predictiontoml-adr-0048) below), and a **kinetics**
-lesson (`*.kinetics.toml`, first-order decay — the ledger in time — [Kinetics lessons](#kinetics-lessons--first-order-decay-kineticstoml-adr-0049) below).
+lesson (`*.kinetics.toml`, decay of orders 0/1/2 — the ledger in time — [Kinetics lessons](#kinetics-lessons--decay-of-orders-0-1-2-kineticstoml-adr-0049) below).
 
 ## The one TOML gotcha
 
@@ -482,33 +482,39 @@ refuted_by = "q_exceeds_ksp"                      # the player renders the Q-exc
 
 See [`problems/equilibrium/calcium-fluoride-precipitation.prediction.toml`](../problems/equilibrium/calcium-fluoride-precipitation.prediction.toml).
 
-### Kinetics lessons — first-order decay (`*.kinetics.toml`, ADR-0049)
+### Kinetics lessons — decay of orders 0, 1, 2 (`*.kinetics.toml`, ADR-0049)
 
-A **kinetics lesson** is a *different lesson kind* — the species ledger with the extent evolving in **time**. A first-order
-reactant decays by the integrated rate law $[\mathrm{A}](t) = [\mathrm{A}]_0 e^{-kt}$, with a concentration-independent
-half-life $t_{1/2} = \ln 2 / k$. Its own extension (`*.kinetics.toml` → `*.kinetics.json`) and its own tight schema.
+A **kinetics lesson** is a *different lesson kind* — the species ledger with the extent evolving in **time**. The reactant's
+**order** (in `data/rate-constants.toml`) picks the integrated rate law and the half-life behavior: **zero** ($[\mathrm{A}]_0-kt$,
+$t_{1/2}=[\mathrm{A}]_0/2k$ shrinks, reaches 0 at a finite time), **first** ($[\mathrm{A}]_0 e^{-kt}$, $t_{1/2}=\ln 2/k$ constant),
+or **second** ($1/[\mathrm{A}]_0+kt$, $t_{1/2}=1/k[\mathrm{A}]_0$ grows). Its own extension (`*.kinetics.toml` → `*.kinetics.json`)
+and one tight schema over all three orders.
 
-Author only the `reactant` (whose rate constant + order live in `data/rate-constants.toml`, sourced + machine-checked) and its
-`initial_molarity_M`. The producer requires **first order**, computes the decay curve (sampled at multiples of the half-life),
-the halving landmarks, and $t_{1/2}$ — all machine-checked. Use `refuted_by = "first_order_half_life_constant"` for the player's
-shrinking-half-life refutation:
+Author only the `reactant` (whose rate constant `k` + `order` + `k_unit` live in `data/rate-constants.toml`, sourced +
+machine-checked — the unit encodes the order: $M\,s^{-1}$ zero / $s^{-1}$ first / $M^{-1}\,s^{-1}$ second, `/min` variants OK) and
+its `initial_molarity_M`. The producer picks the order-appropriate integrated law, computes the decay curve, the halving landmarks
+(each with its own segment half-life), the progression (constant/doubles/halves), and — for zero order — the finite completion,
+all machine-checked. The player's misconception refutation is **order-driven** (it renders the grows/shrinks/constant story from
+`rate_law.order`); `refuted_by` is a semantic label, not a switch:
 
 ```toml
 topic = "kinetics"
-reactant = "H2O2"                                 # first-order in data/rate-constants.toml (k + order, sourced)
-initial_molarity_M = "1.000"
+reactant = "C4H6"                                 # order + k + k_unit come from data/rate-constants.toml (sourced)
+initial_molarity_M = "0.200"
 scenario = "…"
 
-[[assumptions]]                                   # disclose the rate law is an empirical model (the order is measured)
+[[assumptions]]                                   # disclose the rate law + order are an empirical model (the order is measured)
 claim = "…"
 kind = "model"
 
 [misconception]
 claim = "…"
-refuted_by = "first_order_half_life_constant"     # the player renders the constant-half-life refutation for this key
+refuted_by = "second_order_half_life_grows"       # a semantic label; the refutation prose is chosen by the order
 ```
 
-See [`problems/kinetics/hydrogen-peroxide-decomposition.kinetics.toml`](../problems/kinetics/hydrogen-peroxide-decomposition.kinetics.toml).
+See [`problems/kinetics/hydrogen-peroxide-decomposition.kinetics.toml`](../problems/kinetics/hydrogen-peroxide-decomposition.kinetics.toml)
+(first), [`butadiene-dimerization`](../problems/kinetics/butadiene-dimerization.kinetics.toml) (second), and
+[`ammonia-decomposition`](../problems/kinetics/ammonia-decomposition.kinetics.toml) (zero).
 
 ### Other optional keys
 

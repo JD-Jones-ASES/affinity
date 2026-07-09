@@ -1,0 +1,225 @@
+{
+  "kind": "kinetics",
+  "subtype": "zero-order",
+  "id": "ammonia-decomposition",
+  "title": "When the reaction never slows down: zero-order decomposition",
+  "slug": "ammonia-decomposition",
+  "topic": "kinetics",
+  "tags": [
+    "kinetics",
+    "zero-order",
+    "half-life",
+    "rate law",
+    "catalysis"
+  ],
+  "scenario": "On a hot tungsten wire, ammonia breaks down: 2 NH3 → N2 + 3 H2. The surface is **saturated** with NH3, so speeding it up by adding more does nothing — the reaction is **zero order**: $\\text{rate} = k$, a *constant*, with $k = 1.3\\times10^{-6}\\ \\mathrm{M\\,s^{-1}}$. The amount left falls in a **straight line**, $[\\mathrm{NH_3}] = [\\mathrm{NH_3}]_0 - kt$, so unlike an exponential decay it reaches **exactly zero** at a finite time $t = [\\mathrm{NH_3}]_0/k$. Its **half-life** is $t_{1/2} = [\\mathrm{NH_3}]_0/(2k)$ — proportional to how much is present, so as the ammonia runs low the half-life **shrinks**: the last half disappears faster than the first. The species ledger again, extent marching in time — at a steady pace that never slackens.",
+  "regimes": [
+    {
+      "facet": "species accounting over time (the ledger)",
+      "regime": "ledger-exact"
+    },
+    {
+      "facet": "rate constant",
+      "regime": "rule-sourced"
+    },
+    {
+      "facet": "rate law + integrated decay",
+      "regime": "model-exact"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The reaction is zero order in NH3 ($\\text{rate} = k$) — an experimentally determined rate law that holds while the tungsten surface is saturated, not read off the balanced equation. The order and rate constant $k$ are the sourced data; the integrated law and half-life follow exactly.",
+      "kind": "model"
+    },
+    {
+      "claim": "The zero-order regime holds throughout the run modeled here — fixed temperature, the surface kept saturated — so the straight-line decay applies until the ammonia is nearly gone (at very low [NH3] the surface is no longer saturated and the true order changes).",
+      "kind": "model"
+    }
+  ],
+  "reaction": {
+    "reactant": "NH3",
+    "reactant_name": "decomposition of ammonia on a tungsten surface",
+    "reactant_latex": "\\mathrm{NH_{3}}",
+    "equation_text": "2 NH3 -> N2 + 3 H2",
+    "equation_latex": "2\\,\\mathrm{NH_{3}} \\rightarrow \\mathrm{N_{2}} + 3\\,\\mathrm{H_{2}}",
+    "conditions": "on a hot tungsten (W) surface"
+  },
+  "rate_law": {
+    "order": 0,
+    "statement_latex": "\\text{rate} = k",
+    "k_symbol": "k",
+    "k_value": "0.0000013",
+    "k_display": "0.0000013",
+    "k_unit": "M/s",
+    "k_unit_display": "M s⁻¹",
+    "source": "openstax-chemistry-2e"
+  },
+  "integrated": {
+    "law_latex": "[\\mathrm{NH_{3}}] = [\\mathrm{NH_{3}}]_0 - kt",
+    "initial_molarity_M": "0.0100",
+    "initial_molarity_display": "0.01"
+  },
+  "half_life": {
+    "symbol": "t_{1/2}",
+    "relation_latex": "t_{1/2} = \\dfrac{[\\mathrm{NH_{3}}]_0}{2k}",
+    "seconds": "3846.1538",
+    "seconds_display": "3850",
+    "hours_display": "1.07",
+    "progression": "halves",
+    "depends_on_concentration": true
+  },
+  "curve": {
+    "points": [
+      {
+        "half_lives": "0",
+        "t_seconds": "0",
+        "t_seconds_display": "0",
+        "t_hours_display": "0",
+        "concentration_M": "0.01",
+        "concentration_display": "0.01",
+        "percent_remaining_display": "100",
+        "percent_decomposed_display": "0"
+      },
+      {
+        "half_lives": "0.25",
+        "t_seconds": "961.53846",
+        "t_seconds_display": "962",
+        "t_hours_display": "0.267",
+        "concentration_M": "0.00875",
+        "concentration_display": "0.00875",
+        "percent_remaining_display": "87.5",
+        "percent_decomposed_display": "12.5"
+      },
+      {
+        "half_lives": "0.5",
+        "t_seconds": "1923.0769",
+        "t_seconds_display": "1920",
+        "t_hours_display": "0.534",
+        "concentration_M": "0.0075",
+        "concentration_display": "0.0075",
+        "percent_remaining_display": "75",
+        "percent_decomposed_display": "25"
+      },
+      {
+        "half_lives": "0.75",
+        "t_seconds": "2884.6154",
+        "t_seconds_display": "2880",
+        "t_hours_display": "0.801",
+        "concentration_M": "0.00625",
+        "concentration_display": "0.00625",
+        "percent_remaining_display": "62.5",
+        "percent_decomposed_display": "37.5"
+      },
+      {
+        "half_lives": "1",
+        "t_seconds": "3846.1538",
+        "t_seconds_display": "3850",
+        "t_hours_display": "1.07",
+        "concentration_M": "0.005",
+        "concentration_display": "0.005",
+        "percent_remaining_display": "50",
+        "percent_decomposed_display": "50"
+      },
+      {
+        "half_lives": "1.25",
+        "t_seconds": "4807.6923",
+        "t_seconds_display": "4810",
+        "t_hours_display": "1.34",
+        "concentration_M": "0.00375",
+        "concentration_display": "0.00375",
+        "percent_remaining_display": "37.5",
+        "percent_decomposed_display": "62.5"
+      },
+      {
+        "half_lives": "1.5",
+        "t_seconds": "5769.2308",
+        "t_seconds_display": "5770",
+        "t_hours_display": "1.6",
+        "concentration_M": "0.0025",
+        "concentration_display": "0.0025",
+        "percent_remaining_display": "25",
+        "percent_decomposed_display": "75"
+      },
+      {
+        "half_lives": "1.75",
+        "t_seconds": "6730.7692",
+        "t_seconds_display": "6730",
+        "t_hours_display": "1.87",
+        "concentration_M": "0.00125",
+        "concentration_display": "0.00125",
+        "percent_remaining_display": "12.5",
+        "percent_decomposed_display": "87.5"
+      },
+      {
+        "half_lives": "2",
+        "t_seconds": "7692.3077",
+        "t_seconds_display": "7690",
+        "t_hours_display": "2.14",
+        "concentration_M": "0",
+        "concentration_display": "0",
+        "percent_remaining_display": "0",
+        "percent_decomposed_display": "100"
+      }
+    ]
+  },
+  "result": {
+    "half_life_hours_display": "1.07",
+    "half_life_seconds_display": "3850",
+    "landmarks": [
+      {
+        "half_lives": 1,
+        "t_hours_display": "1.07",
+        "segment_half_life_hours_display": "1.07",
+        "concentration_M": "0.005",
+        "concentration_display": "0.005",
+        "percent_decomposed_display": "50"
+      },
+      {
+        "half_lives": 2,
+        "t_hours_display": "1.6",
+        "segment_half_life_hours_display": "0.534",
+        "concentration_M": "0.0025",
+        "concentration_display": "0.0025",
+        "percent_decomposed_display": "75"
+      },
+      {
+        "half_lives": 3,
+        "t_hours_display": "1.87",
+        "segment_half_life_hours_display": "0.267",
+        "concentration_M": "0.00125",
+        "concentration_display": "0.00125",
+        "percent_decomposed_display": "87.5"
+      }
+    ],
+    "completion_hours_display": "2.14"
+  },
+  "misconception": {
+    "claim": "As the ammonia gets used up there is less of it, so the reaction must slow down and only taper off toward zero, never quite reaching it.",
+    "refuted_by": "zero_order_constant_rate"
+  },
+  "reference_links": [
+    "integrated-rate-law",
+    "half-life",
+    "rate-law",
+    "reaction-rate",
+    "extent-of-reaction"
+  ],
+  "checks": {
+    "reaction_balanced": true,
+    "integrated_law": true,
+    "half_life_relation": true,
+    "half_life_progression": true
+  },
+  "provenance": {
+    "producer": "chemkernel",
+    "version": "0.1.0",
+    "python": "3.14.2",
+    "author": "Affinity",
+    "created": "2026-07-08",
+    "sources": {
+      "rate_constants": "openstax-chemistry-2e",
+      "atomic_weight": "ciaaw-2021-atomic-weights"
+    }
+  }
+}

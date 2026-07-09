@@ -66,6 +66,8 @@
     "seconds": "21593.37",
     "seconds_display": "21600",
     "hours_display": "6",
+    "progression": "constant",
+    "depends_on_concentration": false,
     "k_times_thalf": "0.69314718"
   },
   "curve": {
@@ -169,6 +171,7 @@
       {
         "half_lives": 1,
         "t_hours_display": "6",
+        "segment_half_life_hours_display": "6",
         "concentration_M": "0.5",
         "concentration_display": "0.5",
         "percent_decomposed_display": "50"
@@ -176,6 +179,7 @@
       {
         "half_lives": 2,
         "t_hours_display": "12",
+        "segment_half_life_hours_display": "6",
         "concentration_M": "0.25",
         "concentration_display": "0.25",
         "percent_decomposed_display": "75"
@@ -183,6 +187,7 @@
       {
         "half_lives": 3,
         "t_hours_display": "18",
+        "segment_half_life_hours_display": "6",
         "concentration_M": "0.125",
         "concentration_display": "0.125",
         "percent_decomposed_display": "87.5"
@@ -203,7 +208,7 @@
     "reaction_balanced": true,
     "integrated_law": true,
     "half_life_relation": true,
-    "half_life_constant": true
+    "half_life_progression": true
   },
   "provenance": {
     "producer": "chemkernel",

@@ -10,7 +10,8 @@ latex = "\\text{rate} = -\\tfrac{1}{a}\\dfrac{d[\\mathrm{A}]}{dt} = \\dfrac{d\\x
 related = [
   { to = "extent-of-reaction", type = "extends" },
   { to = "rate-law", type = "see-also" },
+  { to = "integrated-rate-law", type = "see-also" },
   { to = "half-life", type = "see-also" },
   { to = "chemical-equilibrium", type = "see-also" },
 ]
-lessons = ["hydrogen-peroxide-decomposition"]
+lessons = ["hydrogen-peroxide-decomposition", "butadiene-dimerization", "ammonia-decomposition"]

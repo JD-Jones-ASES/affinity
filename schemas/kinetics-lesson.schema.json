@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://affinity/schemas/kinetics-lesson.schema.json",
   "title": "Affinity kinetics lesson",
-  "description": "One verified first-order kinetics lesson (ADR-0049): the species ledger with the extent evolving in TIME. A first-order reactant A decays by the integrated rate law [A](t) = [A]₀·e^(−kt), with half-life t½ = ln2/k (independent of [A]₀ — the first-order signature). Honesty is layered (the three badges): the species accounting is machine-checked (regime-1), the rate constant k is sourced (regime-3), the rate law + decay is a disclosed model (regime-2, model-exact-then-rounded). A distinct, tight schema (like structure/comparison/equilibrium/prediction). The `subtype` is `first-order` for now (second-/zero-order can extend it). additionalProperties:false everywhere.",
+  "description": "One verified kinetics lesson (ADR-0049): the species ledger with the extent evolving in TIME. A reactant A decays by the integrated rate law for its order — zero ([A]=[A]₀−kt, t½=[A]₀/2k, the half-life shrinks), first ([A]=[A]₀e^(−kt), t½=ln2/k, constant — the signature), or second (1/[A]=1/[A]₀+kt, t½=1/k[A]₀, the half-life grows). The successive-half-life PROGRESSION (constant/doubling/halving) is the order's fingerprint. Honesty is layered (the three badges): the species accounting is machine-checked (regime-1), the rate constant k is sourced in its native units (regime-3), the rate law + order + decay is a disclosed model (regime-2, model-exact-then-rounded). A distinct, tight schema (like structure/comparison/equilibrium/prediction). additionalProperties:false everywhere.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,7 +14,7 @@
   },
   "properties": {
     "kind": { "const": "kinetics" },
-    "subtype": { "enum": ["first-order"], "$comment": "first-order for now; second-/zero-order would extend the enum" },
+    "subtype": { "enum": ["zero-order", "first-order", "second-order"], "$comment": "the reaction order in words; redundant with rate_law.order, kept for display/routing" },
     "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
     "title": { "type": "string", "minLength": 1 },
     "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
@@ -55,10 +55,10 @@
     },
     "rate_law": {
       "type": "object", "additionalProperties": false,
-      "description": "The rate law rate = k[A]ⁿ — a disclosed model (the order is empirical). k is the sourced datum.",
+      "description": "The rate law rate = k[A]ⁿ — a disclosed model (the order is empirical). k is the sourced datum, in native units (s⁻¹ / min⁻¹ / M⁻¹s⁻¹ / …).",
       "required": ["order", "statement_latex", "k_symbol", "k_value", "k_display", "k_unit", "k_unit_display", "source"],
       "properties": {
-        "order": { "const": 1 },
+        "order": { "enum": [0, 1, 2] },
         "statement_latex": { "type": "string", "minLength": 1 },
         "k_symbol": { "type": "string", "minLength": 1 },
         "k_value": { "$ref": "#/$defs/decimalString" },
@@ -80,15 +80,17 @@
     },
     "half_life": {
       "type": "object", "additionalProperties": false,
-      "description": "t½ = ln2/k. The gate re-checks k·t½ = ln2 (so t½ is independent of [A]₀).",
-      "required": ["symbol", "relation_latex", "seconds", "seconds_display", "hours_display", "k_times_thalf"],
+      "description": "The FIRST half-life t½ + its order-specific relation. The gate re-derives t½ from the order's formula (ln2/k, [A]₀/2k, or 1/k[A]₀) and checks the successive-half-life progression.",
+      "required": ["symbol", "relation_latex", "seconds", "seconds_display", "hours_display", "progression", "depends_on_concentration"],
       "properties": {
         "symbol": { "type": "string", "minLength": 1 },
         "relation_latex": { "type": "string", "minLength": 1 },
         "seconds": { "$ref": "#/$defs/decimalString" },
         "seconds_display": { "$ref": "#/$defs/decimalString" },
         "hours_display": { "$ref": "#/$defs/decimalString" },
-        "k_times_thalf": { "$ref": "#/$defs/decimalString", "$comment": "= ln 2 ≈ 0.693 — the machine-checked half-life relation" }
+        "progression": { "enum": ["constant", "doubles", "halves"], "$comment": "how each successive half-life compares to the previous — the order's fingerprint (order 1 constant, 2 doubles, 0 halves)" },
+        "depends_on_concentration": { "type": "boolean", "$comment": "false only for first order (t½ = ln2/k carries no [A]₀ — the signature)" },
+        "k_times_thalf": { "$ref": "#/$defs/decimalString", "$comment": "= ln 2 ≈ 0.693 — first-order only (the classic k·t½ = ln2 identity)" }
       }
     },
     "curve": {
@@ -118,19 +120,21 @@
     },
     "result": {
       "type": "object", "additionalProperties": false,
-      "description": "The half-life headline + the halving landmarks (1/2/3 half-lives → c₀/2, c₀/4, c₀/8) — each half-life the same t½, the first-order signature.",
+      "description": "The (first) half-life headline + the halving landmarks (1/2/3 half-lives → c₀/2, c₀/4, c₀/8). Each landmark carries the DURATION of that halving step (segment_half_life) — equal for order 1, doubling for 2, halving for 0. Zero order also reports its finite completion time.",
       "required": ["half_life_hours_display", "half_life_seconds_display", "landmarks"],
       "properties": {
         "half_life_hours_display": { "$ref": "#/$defs/decimalString" },
         "half_life_seconds_display": { "$ref": "#/$defs/decimalString" },
+        "completion_hours_display": { "$ref": "#/$defs/decimalString", "$comment": "zero order only — the finite time [A] reaches 0 (t = [A]₀/k)" },
         "landmarks": {
           "type": "array", "minItems": 3,
           "items": {
             "type": "object", "additionalProperties": false,
-            "required": ["half_lives", "t_hours_display", "concentration_M", "concentration_display", "percent_decomposed_display"],
+            "required": ["half_lives", "t_hours_display", "segment_half_life_hours_display", "concentration_M", "concentration_display", "percent_decomposed_display"],
             "properties": {
               "half_lives": { "type": "integer", "minimum": 1 },
-              "t_hours_display": { "$ref": "#/$defs/decimalString" },
+              "t_hours_display": { "$ref": "#/$defs/decimalString", "$comment": "cumulative time to reach c₀/2ⁿ" },
+              "segment_half_life_hours_display": { "$ref": "#/$defs/decimalString", "$comment": "the duration of THIS halving step (t(n) − t(n−1)) — the order's fingerprint" },
               "concentration_M": { "$ref": "#/$defs/decimalString" },
               "concentration_display": { "$ref": "#/$defs/decimalString" },
               "percent_decomposed_display": { "$ref": "#/$defs/decimalString" }
@@ -150,12 +154,12 @@
     "checks": {
       "type": "object", "additionalProperties": false,
       "$comment": "the machine-checked facts, SHOWN not asserted. All const true — the producer refuses to emit otherwise (ADR-0008), and the gate re-derives each independently.",
-      "required": ["reaction_balanced", "integrated_law", "half_life_relation", "half_life_constant"],
+      "required": ["reaction_balanced", "integrated_law", "half_life_relation", "half_life_progression"],
       "properties": {
         "reaction_balanced": { "const": true },
         "integrated_law": { "const": true },
         "half_life_relation": { "const": true },
-        "half_life_constant": { "const": true }
+        "half_life_progression": { "const": true }
       }
     },
     "provenance": {

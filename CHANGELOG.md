@@ -3,6 +3,33 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## Phase 2 — 2026-07-08 — kinetics: second- and zero-order decay — the contrast that makes "constant t½" mean something (ADR-0049, 2nd increment)
+
+The order sets the clock. First-order decay alone can't show *why* a constant half-life is special — so the tier grows two more
+orders, each with a visibly different half-life behavior, on **one generalized engine** (no new lesson kind).
+
+- **Lesson `kinetics/butadiene-dimerization`** — 2 C₄H₆ → C₈H₁₂, **second order**, k = 5.76×10⁻² M⁻¹ min⁻¹ (OpenStax §12.4). The
+  integrated law 1/[C₄H₆] = 1/[C₄H₆]₀ + kt gives **t½ = 1/(k[C₄H₆]₀) that GROWS** as the reactant thins out: 0.200 M halves in
+  1.45 h, then 2.89 h, then 5.79 h (each successive half ~2× the last). Misconception refuted: "a half-life is a half-life."
+- **Lesson `kinetics/ammonia-decomposition`** — 2 NH₃ → N₂ + 3 H₂ on a hot tungsten surface, **zero order**, k = 1.3×10⁻⁶ M s⁻¹
+  (OpenStax §12.4). The rate = k is constant (the surface is saturated), so [NH₃] = [NH₃]₀ − kt falls in a **straight line** to
+  **exactly zero at 2.14 h** (a real, finite completion — not an asymptote), and **t½ = [NH₃]₀/(2k) SHRINKS**: 1.07 → 0.534 →
+  0.267 h. Misconception refuted: "it must slow down as it runs low."
+- **Engine generalized to orders 0/1/2:** `chemkernel.kinetics` grows `concentration` / `half_life` / `time_to_reach` that dispatch
+  on order (the first-order functions become thin wrappers). The k **units encode the order** (M s⁻¹ / s⁻¹ / M⁻¹ time⁻¹) and the
+  **time base** (min → 60 s); **k is kept + shown in its sourced native units** — butadiene's per-minute value is stored verbatim
+  from OpenStax, not silently converted.
+- **One schema, widened:** `subtype` → {zero,first,second}-order, `order` → {0,1,2}; `half_life` gains `progression`
+  (constant/doubles/halves — the order's fingerprint) + `depends_on_concentration`; each landmark carries its **segment half-life**
+  (that halving step's duration); zero order reports a **finite completion**. The check `half_life_constant` → `half_life_progression`.
+- **Gate + player order-aware:** `kineticscheck.mjs` re-derives every point per order and checks the **progression ratios**
+  (~1 / ~2 / ~½) + the finite completion; `KineticsLesson.astro` narrates grows/shrinks/constant and draws the straight-to-zero line
+  for zero order. A new `integrated-rate-law` concept ties the orders together.
+- **Verification:** **411 producer tests** (+7); 7 gates green (**validate-solutions 3 kinetics / 21 ids**, validate-reference **79**
+  +1 concept, check-katex 895); **astro build = 43 pages** (+2). Kinetics gate **10-way tamper-tested** across both new orders;
+  browser-verified all three orders side by side — 6→6→6 h (constant) vs. 1.45→2.89→5.79 h (doubling) vs. 1.07→0.534→0.267 h
+  (halving).
+
 ## Phase 2 — 2026-07-08 — KINETICS TIER OPENED: the ledger in time — first-order decay (ADR-0049)
 
 The next model-bearing tier (owner-directed). Kinetics is the thesis's most literal time extension: the reaction extent ξ — static

@@ -1,0 +1,38 @@
+# Kinetics lesson, subtype `zero-order` (ADR-0049, 3rd increment) — the other half of the contrast. Ammonia
+# decomposes ZERO-order on a hot tungsten surface: the rate = k does not depend on [NH3] at all (the surface is
+# saturated), so [NH3] = [NH3]0 - kt falls in a straight line and hits EXACTLY zero at a finite time, and the
+# half-life t½ = [NH3]0/(2k) SHRINKS as the reactant depletes (each successive half takes ~½ as long). k is sourced
+# (data/rate-constants.toml, OpenStax §12.4, in M s⁻¹); the order + rate law are a disclosed model; the decay is
+# model-exact-then-rounded. TOML trap #4: every bare key precedes the [[assumptions]] / [misconception] headers.
+
+id = "ammonia-decomposition"
+title = "When the reaction never slows down: zero-order decomposition"
+slug = "ammonia-decomposition"
+topic = "kinetics"
+tags = ["kinetics", "zero-order", "half-life", "rate law", "catalysis"]
+
+# the reactant; its rate constant + order (zero order) are curated + machine-checked in data/rate-constants.toml
+reactant = "NH3"
+initial_molarity_M = "0.0100"
+
+scenario = "On a hot tungsten wire, ammonia breaks down: 2 NH3 → N2 + 3 H2. The surface is **saturated** with NH3, so speeding it up by adding more does nothing — the reaction is **zero order**: $\\text{rate} = k$, a *constant*, with $k = 1.3\\times10^{-6}\\ \\mathrm{M\\,s^{-1}}$. The amount left falls in a **straight line**, $[\\mathrm{NH_3}] = [\\mathrm{NH_3}]_0 - kt$, so unlike an exponential decay it reaches **exactly zero** at a finite time $t = [\\mathrm{NH_3}]_0/k$. Its **half-life** is $t_{1/2} = [\\mathrm{NH_3}]_0/(2k)$ — proportional to how much is present, so as the ammonia runs low the half-life **shrinks**: the last half disappears faster than the first. The species ledger again, extent marching in time — at a steady pace that never slackens."
+
+reference_links = ["integrated-rate-law", "half-life", "rate-law", "reaction-rate", "extent-of-reaction"]
+
+author = "Affinity"
+created = "2026-07-08"
+
+# modeling assumptions — disclosed (ADR-0003, the model-assumed badge). The ledger accounting is exact; the decay
+# rides on the empirical zero-order rate law + a constant k (valid while the surface stays saturated).
+[[assumptions]]
+claim = "The reaction is zero order in NH3 ($\\text{rate} = k$) — an experimentally determined rate law that holds while the tungsten surface is saturated, not read off the balanced equation. The order and rate constant $k$ are the sourced data; the integrated law and half-life follow exactly."
+kind = "model"
+
+[[assumptions]]
+claim = "The zero-order regime holds throughout the run modeled here — fixed temperature, the surface kept saturated — so the straight-line decay applies until the ammonia is nearly gone (at very low [NH3] the surface is no longer saturated and the true order changes)."
+kind = "model"
+
+# the canonical wrong move: assuming every reaction slows as the reactant runs low (false for zero order).
+[misconception]
+claim = "As the ammonia gets used up there is less of it, so the reaction must slow down and only taper off toward zero, never quite reaching it."
+refuted_by = "zero_order_constant_rate"

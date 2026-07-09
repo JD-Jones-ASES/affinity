@@ -1785,3 +1785,27 @@ check-katex 857; 41 pages; the gate 5-way tamper-tested; browser-verified. Lesso
 structure · comparison · equilibrium · prediction · kinetics). **Next in-tier:** second- and zero-order decay (a half-life that
 grows / shrinks — the contrast that makes "constant t½" meaningful), a kinetics **gym** (compute [A](t) / t½ / determine the order
 from data), and the **Arrhenius** temperature dependence of k. Then **electrochemistry** remains the last Phase-2 tier.
+
+**Update (2nd increment, same session) — second- and zero-order decay: the contrast that makes "constant t½" mean something.**
+First order alone can't teach *why* a constant half-life is special — you need the orders that behave differently. **Decision:**
+generalize `chemkernel.kinetics` to **orders 0, 1, 2** on one engine — `concentration` / `half_life` / `time_to_reach` dispatch on
+order (zero: $[A]_0-kt$, $t_{1/2}=[A]_0/2k$; first: $[A]_0e^{-kt}$, $\ln2/k$; second: $1/[A]_0+kt$, $1/k[A]_0$); the first-order
+functions become thin wrappers so existing call sites/tests are unchanged. The k **units encode the order** ($M\,s^{-1}$ /
+$s^{-1}$ / $M^{-1}\,s^{-1}$) and the **time base** (min → 60 s): k is kept + shown in its **sourced native units** — butadiene's is
+per *minute*, stored verbatim from OpenStax rather than silently converted (the honest choice; the engine reads the time base off
+the unit string). The `kinetics` schema stays **one shape** (no new lesson kind): the `subtype` enum widens to
+zero/first/second-order, `rate_law.order` to {0,1,2}; `half_life` gains `progression` (constant/doubles/halves — the order's
+fingerprint) + `depends_on_concentration`; each landmark gains its **segment half-life** (the duration of *that* halving step);
+zero order alone reports a **finite completion** ($[A]=0$ at $t=[A]_0/k$); the check `half_life_constant` → `half_life_progression`.
+The gate (`kineticscheck.mjs`) re-derives every point per order and checks the **progression ratios** (~1 / ~2 / ~½) + the finite
+completion; the player narrates order-aware (grows / shrinks / constant, and "runs out completely" for zero order). **Two lessons,
+both OpenStax §12.4 (web-sourced):** `kinetics/butadiene-dimerization` (2 C₄H₆ → C₈H₁₂, 2nd order, $k=5.76\times10^{-2}\
+M^{-1}min^{-1}$, 0.200 M → $t_{1/2}$ **grows** 1.45 → 2.89 → 5.79 h; misconception "a half-life is a half-life"), and
+`kinetics/ammonia-decomposition` (2 NH₃ → N₂ + 3 H₂ on hot tungsten, **zero** order, $k=1.3\times10^{-6}\ M\,s^{-1}$, 0.0100 M →
+$t_{1/2}$ **shrinks** 1.07 → 0.534 → 0.267 h, reaching **exactly 0 at 2.14 h**; misconception "it must slow as it runs low"). A new
+`integrated-rate-law` concept ties the three orders together. Honesty unchanged (three badges); the zero-order transcendental
+residual at completion is floored to an exact 0 (the model-exact boundary). **Consequences:** **411 producer tests** (+7);
+validate-solutions = **3 kinetics** (21 ids); validate-reference = **79** (+1 concept); check-katex 895; **43 pages** (+2); the
+kinetics gate **10-way tamper-tested** across both new orders; browser-verified all three orders side by side (6→6→6 constant vs.
+doubling vs. halving). **Next in-tier:** a kinetics **gym** (compute [A](t) / t½ / determine the order from data), then
+**Arrhenius**.

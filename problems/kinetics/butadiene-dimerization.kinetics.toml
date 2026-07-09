@@ -1,0 +1,37 @@
+# Kinetics lesson, subtype `second-order` (ADR-0049, 2nd increment) — the contrast that makes "constant half-life"
+# mean something. Butadiene dimerizes second-order in C4H6: 1/[C4H6] = 1/[C4H6]0 + kt, and t½ = 1/(k[C4H6]0) GROWS
+# as the reactant depletes (each successive half takes ~2× as long). k is sourced (data/rate-constants.toml,
+# OpenStax §12.4, in its native M⁻¹ min⁻¹); the order + rate law are a disclosed model; the decay is
+# model-exact-then-rounded. TOML trap #4: every bare key precedes the [[assumptions]] / [misconception] headers.
+
+id = "butadiene-dimerization"
+title = "When the half-life keeps growing: a second-order dimerization"
+slug = "butadiene-dimerization"
+topic = "kinetics"
+tags = ["kinetics", "second-order", "half-life", "rate law", "integrated rate law"]
+
+# the reactant; its rate constant + order (second order) are curated + machine-checked in data/rate-constants.toml
+reactant = "C4H6"
+initial_molarity_M = "0.200"
+
+scenario = "Two butadiene molecules snap together into a ring: 2 C4H6 → C8H12. The reaction is **second order** in butadiene — its rate depends on *two* C4H6 molecules colliding, $\\text{rate} = k[\\mathrm{C_4H_6}]^2$, with $k = 5.76\\times10^{-2}\\ \\mathrm{M^{-1}\\,min^{-1}}$. The amount left follows the **second-order integrated law** $\\frac{1}{[\\mathrm{C_4H_6}]} = \\frac{1}{[\\mathrm{C_4H_6}]_0} + kt$ (it is $1/[\\mathrm{C_4H_6}]$, not $[\\mathrm{C_4H_6}]$, that climbs in a straight line). Its **half-life** is $t_{1/2} = 1/(k[\\mathrm{C_4H_6}]_0)$ — and because $[\\mathrm{C_4H_6}]_0$ sits in the denominator, the half-life **grows** as the reactant thins out: the second half takes longer than the first. Same species ledger, extent marching in time — but a very different clock from first order."
+
+reference_links = ["integrated-rate-law", "half-life", "rate-law", "reaction-rate", "extent-of-reaction"]
+
+author = "Affinity"
+created = "2026-07-08"
+
+# modeling assumptions — disclosed (ADR-0003, the model-assumed badge). The ledger accounting is exact; the decay
+# rides on the empirical second-order rate law + a constant k.
+[[assumptions]]
+claim = "The reaction is second order in C4H6 ($\\text{rate} = k[\\mathrm{C_4H_6}]^2$) — an experimentally determined rate law, not read off the balanced equation. The order and rate constant $k$ are the sourced data; the integrated law and half-life follow exactly."
+kind = "model"
+
+[[assumptions]]
+claim = "The rate constant is constant over the run — fixed temperature, gas phase, unchanging conditions — so the integrated rate law and half-life hold throughout, and the reverse reaction is negligible."
+kind = "model"
+
+# the canonical wrong move: assuming a half-life is a fixed property of the reaction (true only for FIRST order).
+[misconception]
+claim = "The half-life is a fixed property of the reaction, so using up the second half takes the same time as the first — a half-life is a half-life."
+refuted_by = "second_order_half_life_grows"

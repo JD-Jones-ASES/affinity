@@ -1,12 +1,26 @@
 ---
-// The kinetics-lesson player (ADR-0049): the species ledger with the extent evolving in TIME. A first-order
-// reactant decays by the integrated rate law [A](t) = [A]₀·e^(−kt), with half-life t½ = ln2/k (constant — the
-// first-order signature). A fully STATIC Astro component; the decay curve is a build-time SVG of verified points.
-// Every value came from ChemKernel and was re-verified (kineticscheck.mjs).
+// The kinetics-lesson player (ADR-0049): the species ledger with the extent evolving in TIME. A reactant decays by
+// the integrated rate law for its ORDER — zero ([A]=[A]₀−kt, t½ shrinks, reaches 0), first ([A]=[A]₀·e^(−kt), t½
+// constant — the signature), or second (1/[A]=1/[A]₀+kt, t½ grows). A fully STATIC Astro component; the decay curve
+// is a build-time SVG of verified points. Every value came from ChemKernel and was re-verified (kineticscheck.mjs).
 const { lesson } = Astro.props;
 const rl = lesson.rate_law, hl = lesson.half_life, res = lesson.result;
 const pts = lesson.curve.points;
 const c0 = Number(lesson.integrated.initial_molarity_M);
+
+const order = rl.order;
+const orderWord = { 0: "zero", 1: "first", 2: "second" }[order];
+const reactant = lesson.reaction.reactantPretty;
+const t12 = res.half_life_hours_display;
+const comp = res.completion_hours_display;                 // set only for zero order (finite completion)
+const segs = res.landmarks.map((m) => m.segment_half_life_hours_display);
+const concs = res.landmarks.map((m) => m.concentration_display);
+// how the successive half-lives behave (the order's fingerprint) — drives the payoff cards + note.
+const progTitle = { constant: "constant half-life", doubles: "the half-life doubles", halves: "the half-life shrinks" }[hl.progression];
+const progSub = { constant: `each step the same ${t12} h`, doubles: "each half takes ~2× as long", halves: "each half takes ~½ as long" }[hl.progression];
+const relSub = order === 1 ? `k · t½ = ${hl.k_times_thalf} = ln 2 ✓`
+  : order === 2 ? "t½ ∝ 1/[A]₀ — grows as [A] falls ✓"
+  : "t½ ∝ [A]₀ — shrinks as [A] falls ✓";
 
 // the decay curve → SVG geometry, computed at BUILD time (the player plots verified points, computes no chemistry)
 const W = 640, H = 360, ml = 56, mr = 18, mt = 16, mb = 42;
@@ -15,13 +29,14 @@ const tmax = Math.max(...pts.map((p) => Number(p.t_hours_display)));
 const px = (t) => ml + (Number(t) / tmax) * pw;
 const py = (c) => mt + (1 - Number(c) / c0) * ph;
 const poly = pts.map((p) => `${px(p.t_hours_display).toFixed(1)},${py(p.concentration_M).toFixed(1)}`).join(" ");
-// evenly-spaced x gridlines (every t½) + the halving y gridlines (c0, c0/2, c0/4, c0/8)
+// evenly-spaced x gridlines (every first-t½) + the halving y gridlines (c0, c0/2, c0/4, c0/8)
 const tHalfHours = Number(hl.hours_display);
 const vLines = [];
 for (let n = 0; n * tHalfHours <= tmax + 1e-6; n++) vLines.push({ n, x: px(n * tHalfHours) });
 const marks = res.landmarks.map((lm) => ({
   n: lm.half_lives, x: px(lm.t_hours_display), y: py(lm.concentration_M),
-  c: lm.concentration_display, t: lm.t_hours_display, pct: lm.percent_decomposed_display,
+  c: lm.concentration_display, t: lm.t_hours_display, seg: lm.segment_half_life_hours_display,
+  pct: lm.percent_decomposed_display,
 }));
 const cGrid = [0, 0.25, 0.5, 0.75, 1].map((f) => ({ c: (f * c0).toPrecision(3), y: py(f * c0) }));
 ---
@@ -29,21 +44,21 @@ const cGrid = [0, 0.25, 0.5, 0.75, 1].map((f) => ({ c: (f * c0).toPrecision(3), 
 <section class="player">
   <header class="head">
     <div class="badges">
-      <span class="badge machine"><span class="dot"></span>Species accounting machine-checked — [A] = [A]₀·e<sup>−kt</sup>, t½ = ln2/k</span>
+      <span class="badge machine"><span class="dot"></span>Species accounting machine-checked — the integrated rate law + half-life</span>
       <span class="badge sourced"><span class="dot"></span>k data-sourced ({rl.source})</span>
       <span class="badge model"><span class="dot"></span>{lesson.assumptions.length} modeling assumption{lesson.assumptions.length === 1 ? "" : "s"} (disclosed)</span>
     </div>
     <p class="scenario" set:html={lesson.scenarioHtml} />
   </header>
 
-  <!-- the reaction + the rate law it follows (first order) + the sourced rate constant -->
+  <!-- the reaction + the rate law it follows + the sourced rate constant -->
   <div class="reaction">
     <div class="rxn" set:html={lesson.reaction.equationHtml} />
     <div class="ka">
       <span class="expr" set:html={rl.statementHtml} />
       <span class="eq">·</span>
       <span class="kaval">k = {rl.kSci} {rl.k_unit_display}</span>
-      <span class="kalabel">first order{lesson.reaction.conditions ? ` · ${lesson.reaction.conditions}` : ""}</span>
+      <span class="kalabel">{orderWord} order{lesson.reaction.conditions ? ` · ${lesson.reaction.conditions}` : ""}</span>
     </div>
   </div>
 
@@ -53,18 +68,23 @@ const cGrid = [0, 0.25, 0.5, 0.75, 1].map((f) => ({ c: (f * c0).toPrecision(3), 
       <span class="badge machine"><span class="dot"></span>Integrated rate law</span>
       <strong>One constant fixes the whole future — <span set:html={lesson.integrated.lawHtml} />.</strong>
     </div>
-    <p class="resid">Starting at <strong>{lesson.integrated.initial_molarity_display} M</strong>, the concentration decays smoothly.
-      The rate <span class="mono">= k[{lesson.reaction.reactantPretty}]</span> falls as the reactant depletes, so the curve flattens — but it never quite reaches zero.</p>
+    <p class="resid">Starting at <strong>{lesson.integrated.initial_molarity_display} M</strong>,
+      {order === 0
+        ? <Fragment> the concentration falls in a <strong>straight line</strong> — the rate <span class="mono">= k</span> is constant, independent of how much is left — until the reactant runs out <strong>completely</strong> at {comp} h.</Fragment>
+        : order === 2
+        ? <Fragment> the concentration drops fast, then crawls. The rate <span class="mono">= k[{reactant}]²</span> depends on two molecules meeting, so it collapses as the reactant thins out — the tail drags on and never quite reaches zero.</Fragment>
+        : <Fragment> the concentration decays smoothly. The rate <span class="mono">= k[{reactant}]</span> falls as the reactant depletes, so the curve flattens — but it never quite reaches zero.</Fragment>}
+    </p>
   </div>
 
   <!-- the decay curve (a build-time SVG of verified points) -->
   <div class="titration">
     <div class="proof-head">
       <span class="badge machine"><span class="dot"></span>The decay curve</span>
-      <strong>Every point is [A]₀·e<sup>−kt</sup> — the ledger marched forward in time.</strong>
+      <strong>Every point is the integrated rate law — the ledger marched forward in time.</strong>
     </div>
     <div class="tablewrap">
-      <svg viewBox={`0 0 ${W} ${H}`} class="curve" role="img" aria-label="First-order decay: concentration versus time">
+      <svg viewBox={`0 0 ${W} ${H}`} class="curve" role="img" aria-label={`${orderWord}-order decay: concentration versus time`}>
         {cGrid.map((g) => (
           <Fragment>
             <line x1={ml} y1={g.y} x2={W - mr} y2={g.y} class="grid" />
@@ -78,14 +98,14 @@ const cGrid = [0, 0.25, 0.5, 0.75, 1].map((f) => ({ c: (f * c0).toPrecision(3), 
           </Fragment>
         ))}
         <text x={(ml + W - mr) / 2} y={H - 6} class="axtitle" text-anchor="middle">hours</text>
-        <text x={15} y={(mt + H - mb) / 2} class="axtitle" text-anchor="middle" transform={`rotate(-90 15 ${(mt + H - mb) / 2})`}>[{lesson.reaction.reactantPretty}] (M)</text>
+        <text x={15} y={(mt + H - mb) / 2} class="axtitle" text-anchor="middle" transform={`rotate(-90 15 ${(mt + H - mb) / 2})`}>[{reactant}] (M)</text>
         <polyline points={poly} class="curveline" fill="none" />
         {marks.map((m) => (
           <Fragment>
             <line x1={m.x} y1={mt} x2={m.x} y2={m.y} class="dropline" />
             <line x1={ml} y1={m.y} x2={m.x} y2={m.y} class="dropline" />
             <circle cx={m.x} cy={m.y} r="4.5" class="mark" />
-            <text x={m.x + 8} y={m.y - 8} class="marklabel">{m.n}·t½</text>
+            <text x={m.x + 8} y={m.y - 8} class="marklabel">{m.n}×½</text>
           </Fragment>
         ))}
       </svg>
@@ -93,41 +113,51 @@ const cGrid = [0, 0.25, 0.5, 0.75, 1].map((f) => ({ c: (f * c0).toPrecision(3), 
     <div class="landmarks">
       {marks.map((m) => (
         <div class="lm">
-          <span class="lm-k">after {m.n} half-li{m.n === 1 ? "fe" : "ves"}</span>
+          <span class="lm-k">to halving #{m.n}</span>
           <span class="lm-v">{m.c} M</span>
-          <span class="lm-sub">{m.t} h · {m.pct}% gone</span>
+          <span class="lm-sub">step took {m.seg} h · {m.pct}% gone</span>
         </div>
       ))}
     </div>
   </div>
 
-  <!-- the reported result: the half-life -->
+  <!-- the reported result: the (first) half-life + how successive half-lives behave -->
   <div class="results">
     <div class="card headline">
-      <span class="k">half-life t½</span>
+      <span class="k">{order === 1 ? "half-life t½" : "first half-life t½"}</span>
       <span class="v big">{res.half_life_hours_display} h</span>
       <span class="sub">= {res.half_life_seconds_display} s</span>
     </div>
     <div class="card">
-      <span class="k">t½ = ln 2 / k</span>
+      <span class="k">t½ relation</span>
       <span class="v"><span set:html={hl.relationHtml} /></span>
-      <span class="sub">k · t½ = {hl.k_times_thalf} = ln 2 ✓</span>
+      <span class="sub">{relSub}</span>
     </div>
     <div class="card">
-      <span class="k">constant half-life</span>
-      <span class="v small">{marks.map((m) => `${m.c}`).join(" → ")}</span>
-      <span class="sub">each step the same {res.half_life_hours_display} h</span>
+      <span class="k">{progTitle}</span>
+      <span class="v small">{segs.join(" → ")} h</span>
+      <span class="sub">{progSub}</span>
     </div>
   </div>
 
-  <!-- the half-life-is-constant payoff (the first-order signature, SHOWN + machine-checked) -->
+  <!-- the half-life-progression payoff (the order's fingerprint, SHOWN + machine-checked) -->
   <p class="hhnote">
-    <span class="badge machine tiny"><span class="dot"></span>The first-order tell</span>
-    Because <span set:html={hl.relationHtml} /> has <strong>no concentration in it</strong>, every half-life is the
-    same <strong>{res.half_life_hours_display} h</strong>: {lesson.integrated.initial_molarity_display} M →
-    {marks.map((m, i) => (<Fragment>{i === 0 ? " " : " → "}{m.c} M</Fragment>))}. The reactant keeps halving on the
-    same clock — the machine checks c(n·t½) = c₀/2<sup>n</sup> at each landmark. That constancy is the classic test
-    for a first-order reaction.
+    <span class="badge machine tiny"><span class="dot"></span>The {orderWord}-order tell</span>
+    {order === 1
+      ? <Fragment>Because <span set:html={hl.relationHtml} /> has <strong>no concentration in it</strong>, every half-life is the
+        same <strong>{t12} h</strong>: {lesson.integrated.initial_molarity_display} M → {concs.join(" M → ")} M. The reactant keeps
+        halving on the same clock — the machine checks c(n·t½) = c₀/2<sup>n</sup> at each landmark. That constancy is the classic
+        test for a first-order reaction.</Fragment>
+      : order === 2
+      ? <Fragment>Because <span set:html={hl.relationHtml} /> has <strong>[{reactant}]₀ in the denominator</strong>, each half-life is
+        <strong> longer</strong> than the last ({segs.join(" → ")} h — roughly doubling): as the reactant thins out, collisions
+        between two {reactant} molecules get rarer, so the tail drags on. The machine checks each successive halving takes about
+        twice as long. A <em>constant</em> half-life would be the sign of a first-order reaction, not this.</Fragment>
+      : <Fragment>Because <span set:html={hl.relationHtml} /> is <strong>proportional to [{reactant}]₀</strong>, each half-life is
+        <strong> shorter</strong> than the last ({segs.join(" → ")} h — roughly halving): the rate never changes (rate = k, the
+        surface is saturated), so a fixed amount disappears every hour and the reactant runs out <strong>entirely at {comp} h</strong>.
+        The machine checks each successive halving takes about half as long — and that [{reactant}] hits exactly zero, not an
+        asymptote.</Fragment>}
   </p>
 
   <!-- the machine-checked facts, SHOWN not asserted -->
@@ -138,9 +168,9 @@ const cGrid = [0, 0.25, 0.5, 0.75, 1].map((f) => ({ c: (f * c0).toPrecision(3), 
     </div>
     <ul class="checks">
       <li><span class="tick">✓</span> The reaction conserves every element <span class="tier">[reaction balanced]</span></li>
-      <li><span class="tick">✓</span> Every curve point is [A]₀·e<sup>−kt</sup> — re-derived independently <span class="tier">[integrated law]</span></li>
-      <li><span class="tick">✓</span> k · t½ = ln 2, so t½ = ln2/k (no concentration) <span class="tier">[half-life relation]</span></li>
-      <li><span class="tick">✓</span> [A] at 1, 2, 3 half-lives = c₀/2, c₀/4, c₀/8 <span class="tier">[half-life constant]</span></li>
+      <li><span class="tick">✓</span> Every curve point matches the order-{order} integrated law — re-derived independently <span class="tier">[integrated law]</span></li>
+      <li><span class="tick">✓</span> The first t½ = {order === 1 ? "ln2/k" : order === 2 ? "1/k[A]₀" : "[A]₀/2k"} (order {order}) <span class="tier">[half-life relation]</span></li>
+      <li><span class="tick">✓</span> Successive half-lives {hl.progression === "constant" ? "stay equal" : hl.progression === "doubles" ? "double" : "halve"} — the order-{order} fingerprint <span class="tier">[half-life progression]</span></li>
     </ul>
   </div>
 
@@ -149,13 +179,23 @@ const cGrid = [0, 0.25, 0.5, 0.75, 1].map((f) => ({ c: (f * c0).toPrecision(3), 
     <div class="misconception">
       <div class="mis-claim"><span class="x">✗</span> Common misconception: “<span set:html={lesson.misconception.claimHtml} />”</div>
       <p class="mis-fix">
-        That is true for some reactions — but <strong>not first order</strong>. For a first-order reaction the
-        half-life <span set:html={hl.relationHtml} /> depends <strong>only on k</strong>, not on how much is left. So
-        the last half takes exactly as long as the first: {lesson.integrated.initial_molarity_display} M →
-        {marks.map((m, i) => (<Fragment>{i === 0 ? " " : " → "}{m.c} M</Fragment>))}, each drop the same
-        <strong> {res.half_life_hours_display} h</strong>. The <em>rate</em> does slow as [{lesson.reaction.reactantPretty}]
-        falls (rate = k[{lesson.reaction.reactantPretty}]), but the concentration and the time-to-halve fall together,
-        so the clock never changes. A shrinking half-life would be a sign of a <em>higher</em>-order reaction.
+        {order === 1
+          ? <Fragment>That is true for some reactions — but <strong>not first order</strong>. For a first-order reaction the
+            half-life <span set:html={hl.relationHtml} /> depends <strong>only on k</strong>, not on how much is left. So the last
+            half takes exactly as long as the first: {lesson.integrated.initial_molarity_display} M → {concs.join(" M → ")} M, each
+            drop the same <strong>{t12} h</strong>. The <em>rate</em> does slow as [{reactant}] falls (rate = k[{reactant}]), but
+            the concentration and the time-to-halve fall together, so the clock never changes. A shrinking half-life would signal a
+            <em> higher</em>-order reaction.</Fragment>
+          : order === 2
+          ? <Fragment>That would be true for a <strong>first-order</strong> reaction — but this one is <strong>second order</strong>.
+            Here <span set:html={hl.relationHtml} /> grows as [{reactant}]₀ falls, so each successive half takes <strong>longer</strong>,
+            not the same: {segs.join(" → ")} h. A second-order rate ∝ [{reactant}]² needs two molecules to meet; as they thin out the
+            reaction crawls, and the machine checks each halving takes about twice the last.</Fragment>
+          : <Fragment>Not for a <strong>zero-order</strong> reaction. The rate = k is <strong>constant</strong> — it does not depend
+            on [{reactant}] at all (the tungsten surface is saturated, so adding more changes nothing). A fixed amount disappears each
+            hour, so far from slowing, the reactant runs out <strong>completely at {comp} h</strong>. Because the drop is steady, each
+            successive half-life is <strong>shorter</strong>: {segs.join(" → ")} h — the machine checks the halving and the finite
+            finish.</Fragment>}
       </p>
     </div>
   )}
