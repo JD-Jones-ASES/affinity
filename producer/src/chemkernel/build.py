@@ -588,12 +588,15 @@ def build_comparison(path: Path, root: Path) -> tuple[dict, str]:
 
 def build_equilibrium(path: Path, root: Path) -> tuple[dict, str]:
     """An authored equilibrium lesson (ADR-0048): the ICE table = the species ledger with the extent solved from
-    mass action. Four subtypes, dispatched by the spec's keys: a **weak-acid** lesson (`acid` — the dissociation
+    mass action. Six subtypes, dispatched by the spec's keys: a **weak-acid** lesson (`acid` — the dissociation
     HA ⇌ H⁺ + A⁻ from acids-bases.toml + Kₐ from ionization-constants.toml → the pH), a **buffer** lesson (`acid`
     with `conjugate_base_molarity_M` — the same reaction but with A⁻ already present → the common-ion effect +
     Henderson–Hasselbalch), a **weak-base** lesson (`base` — B + H₂O ⇌ BH⁺ + OH⁻, K_b + the conjugate acid from
-    ionization-constants.toml, water excluded from Q, → pOH → pH via K_w), or a **solubility** lesson (`salt` —
-    the dissolution from solubility-products.toml → the molar solubility; the solid excluded from Q)."""
+    ionization-constants.toml, water excluded from Q, → pOH → pH via K_w), a **solubility** lesson (`salt` —
+    the dissolution from solubility-products.toml → the molar solubility; the solid excluded from Q, optionally with
+    a **common ion** pre-loaded to suppress it), a **polyprotic** lesson (a `salt`/`acid` with ≥2 protons — staged
+    Kₐ1≫Kₐ2≫Kₐ3, the solver run once per stage), or a **titration** lesson (a `titrant` key — a weak acid vs a strong
+    base, the ledger marched by region into a build-time (volume, pH) curve)."""
     spec = tomllib.loads(path.read_text(encoding="utf-8"))
     ctx = spec.get("id", path.stem)
     data = ChemData.load(root)
@@ -737,15 +740,17 @@ def build_gyms_main(argv: list[str] | None = None) -> int:
 
 
 def build_problems_main(argv: list[str] | None = None) -> int:
-    """Build every authored lesson under problems/ (ADR-0019/0045/0047/0048). Five lesson shapes, dispatched by
-    file extension: a **reaction** lesson `*.problem.toml` → `build_problem` (equations + species ledger over
-    extent + a reported product); a **structure** lesson `*.structure.toml` → `build_structure` (a single
-    molecule's Lewis electron ledger, stepped valence → shape → polarity); a **comparison** lesson
+    """Build every authored lesson under problems/ (ADR-0019/0045/0047/0048/0049/0050). Seven lesson shapes,
+    dispatched by file extension: a **reaction** lesson `*.problem.toml` → `build_problem` (equations + species
+    ledger over extent + a reported product); a **structure** lesson `*.structure.toml` → `build_structure` (a
+    single molecule's Lewis electron ledger, stepped valence → shape → polarity); a **comparison** lesson
     `*.comparison.toml` → `build_comparison` (several molecules vs. a property, the IMF-strength trend
     machine-verified); an **equilibrium** lesson `*.equilibrium.toml` → `build_equilibrium` (the ICE table =
-    the species ledger with the extent solved from mass action, ADR-0048); and a **prediction** lesson
-    `*.prediction.toml` → `build_prediction` (Q vs Kₛₚ — does a precipitate form?, ADR-0048). All write verified
-    derived JSON."""
+    the species ledger with the extent solved from mass action, ADR-0048); a **prediction** lesson
+    `*.prediction.toml` → `build_prediction` (Q vs Kₛₚ — does a precipitate form?, ADR-0048); a **kinetics** lesson
+    `*.kinetics.toml` → `build_kinetics` (the ledger in time, orders 0/1/2 with a decay curve, ADR-0049); and an
+    **electrochemistry** lesson `*.electrochemistry.toml` → `build_electrochemistry` (the electron ledger —
+    oxidation numbers → half-reactions → E°cell → ΔG = −nFE°, ADR-0050). All write verified derived JSON."""
     root = Path.cwd()
     reactions = sorted((root / "problems").glob("**/*.problem.toml"))
     structures = sorted((root / "problems").glob("**/*.structure.toml"))

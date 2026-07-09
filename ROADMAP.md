@@ -7,207 +7,60 @@ rationale in [`DECISIONS.md`](./DECISIONS.md).
 
 ## Status
 
-- **Now (2026-07-08): Phase 2 OPEN (owner-authorized).** Phase 1 is complete + owner-reviewed. Phase 2 (the
-  model-bearing tier) has landed its **gases + thermochemistry** tiers, its **bonding & structure** tier (engine + Atlas +
-  gym + 3 lessons + IMFs), and has **opened equilibrium & acid-base**, now with six subtypes + a gym + a Q-vs-Kₛₚ prediction
-  kind. Landed: the
-  **formula/equation sheet** (ADR-0039), **`gas_laws_v1` gym** (ADR-0040), **gas-stoichiometry lesson** (ADR-0041),
-  **calorimetry gym** (ADR-0042), **energy-ledger lesson** (ADR-0043), the **bonding tier** (ADR-0044), the **`structure`
-  lesson kind** (ADR-0045), **intermolecular forces** (ADR-0046), the **IMF comparison lesson** (ADR-0047 — a third lesson
-  shape), and the **equilibrium tier** (ADR-0048 — the reversible-extent solver + the `equilibrium` lesson kind, a
-  fourth shape, with **six subtypes**: weak-acid pH · buffer (common-ion + Henderson–Hasselbalch) · weak-base pH via Kw ·
-  Ksp solubility (incl. a **common-ion** variant) · **polyprotic** (staged Kₐ) · **titration** (a weak-acid/strong-base curve,
-  a build-time SVG) + the **`weak_acid_ph_v1` gym** (the tier's drill instrument) + the **`prediction` lesson kind** (Q vs Kₛₚ —
-  does a precipitate form?, a fifth lesson shape, both verdicts, ADR-0048 9th increment) + the **K/K_w/K_sp formula-sheet
-  entries** (dimensionless activity relations, 10th increment). **The equilibrium & acid-base tier is now feature-complete.** And
-  the **kinetics tier is OPEN** (ADR-0049 — the ledger in time: the `kinetics` lesson kind, a **sixth lesson shape**), now with
-  **all three orders** — first-order decay (`hydrogen-peroxide-decomposition`, t½=ln2/k constant), **second-order**
-  (`butadiene-dimerization`, t½=1/k[A]₀ grows) and **zero-order** (`ammonia-decomposition`, t½=[A]₀/2k shrinks, reaches 0 at a
-  finite time) on one order-general engine (ADR-0049 2nd increment) — the contrast that makes "constant t½" mean something — plus
-  the **`kinetics_v1` gym** ([A](t) / t½ / read-the-order, ADR-0049 3rd increment). And the **electrochemistry tier is OPEN**
-  (ADR-0050 — the electron ledger, a **seventh lesson shape**), opened on the **Daniell cell** (`electrochemistry/daniell-cell`,
-  Zn + Cu²⁺ → Zn²⁺ + Cu: oxidation numbers → half-reactions → the electron ledger (n=2) → E°cell=1.10 V → ΔG°=−nFE°=−212 kJ/mol,
-  spontaneous). **All Phase-2 tiers are now open.**
-  **Next inside Phase 2:** the rest of each tier (Arrhenius; the Nernst equation), then a **Phase-2 definition of done**.
-  Counters live in `AGENTS.md ## Current state`;
-  per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); scope blocks below are
-  the plan of record.
-- **Kinetics tier — OPEN, all three orders** (2026-07-08, ADR-0049): the thesis's time extension — *the species ledger with the
-  extent evolving in time* (dξ/dt = the rate). A new **`kinetics` lesson kind** (the **sixth lesson shape** — own
-  `kinetics-lesson.schema.json`, `*.kinetics.json`) with a build-time **decay-curve SVG** (reusing the titration-plot pattern), on
-  one **order-general engine** `chemkernel.kinetics` (Decimal exp/ln, model-exact-then-rounded; k kept in its sourced native units,
-  the unit encoding the order + time base). Triple-badged (species accounting machine-checked / k sourced / rate law + order
-  model-assumed — the order is *measured*, not the coefficient); the gate `kineticscheck.mjs` re-derives the balance + every curve
-  point + the order's t½ relation + the halving landmarks + the successive-half-life progression in Node. New data
-  `data/rate-constants.toml`; concepts `reaction-rate` / `rate-law` / `integrated-rate-law` / `half-life`. **Three lessons, one per
-  order — the contrast that makes "constant t½" mean something:** first-order `hydrogen-peroxide-decomposition` (2 H₂O₂ → 2 H₂O +
-  O₂, $k=3.21\times10^{-5}\,\mathrm{s^{-1}}$ → $t_{1/2}=\ln2/k=6.00$ h **constant**, the shrinking-t½ misconception refuted);
-  second-order `butadiene-dimerization` (2 C₄H₆ → C₈H₁₂, $k=5.76\times10^{-2}\,\mathrm{M^{-1}min^{-1}}$ → $t_{1/2}=1/k[\mathrm{A}]_0$
-  **grows** 1.45 → 2.89 → 5.79 h); zero-order `ammonia-decomposition` (2 NH₃ → N₂ + 3 H₂ on hot W, $k=1.3\times10^{-6}\,\mathrm{M\,s^{-1}}$
-  → $t_{1/2}=[\mathrm{A}]_0/2k$ **shrinks** 1.07 → 0.534 → 0.267 h, reaching **exactly 0 at 2.14 h**). All OpenStax §12.4.
-  The tier's **`kinetics_v1` gym** landed too (3rd increment): three kinds — apply the order's integrated law for [A](t), apply the
-  order's t½, and **read the order** off three successive half-lives (constant/doubling/halving); both badges, the gate re-deriving
-  each answer per order in pure Node with the same engine (`concAt`/`halfLife`/`timeToReach` exported from `kineticscheck.mjs`).
-  **Next in-tier:** the **Arrhenius** temperature dependence of k (k = A·e^(−Eₐ/RT) — a formula-sheet entry + a lesson).
-- **Electrochemistry tier — OPEN, the Daniell cell** (2026-07-09, ADR-0050): the last Phase-2 tier — the species ledger with
-  **electrons** as the tracked quantity (*electron bookkeeping plus free energy per charge*), the reaction extent measured in moles
-  of electrons **n**. A new **`chemkernel.redox`** engine: **`oxidation_states`** assigns each atom its oxidation number by the
-  first-course rule hierarchy + the sum-to-charge solve (machine-checked; **completes** the ADR-0035 free-element redox flag), and
-  **`build_electrochemistry_lesson`** turns two sourced metal-ion/metal couples into a galvanic cell — cathode (higher E°)/anode
-  roles, the two half-reactions, the **electron ledger** (n = lcm, halves scaled so electrons cancel + the overall reaction
-  balances), E°cell = E°(cathode) − E°(anode), and **ΔG° = −nFE°**. A new **`electrochemistry` lesson kind** (the **seventh lesson
-  shape** — own tight schema, `*.electrochemistry.json`). Opener **`electrochemistry/daniell-cell`** — Zn + Cu²⁺ → Zn²⁺ + Cu,
-  E°cell = 1.10 V, n = 2, ΔG° = −212 kJ/mol, spontaneous; the "direction is how you write it" misconception refuted by the
-  reduction potentials. Triple-badged (electron ledger + oxidation numbers machine-checked / E° sourced / cell model assumed); the
-  gate `electrochemistrycheck.mjs` re-derives the oxidation numbers + half-reaction balance + electron cancellation + E°cell + ΔG in
-  Node. New data `data/reduction-potentials.toml` (E°, OpenStax Appendix L — 7 couples) + the **Faraday constant** F (exact, 2019
-  SI). Six concepts (`redox`/`oxidation-number`/`half-reaction`/`electron-ledger`/`cell-potential`/`standard-reduction-potential`).
-  **Next in-tier:** the **Nernst** equation (E away from standard conditions), a `ΔG = −nFE`/Nernst formula-sheet entry, more cells
-  (concentration/electrolytic), a redox-balancing gym.
-- **Equilibrium & acid-base — OPENED, six subtypes + a gym + a prediction kind** (2026-07-08, ADR-0048): the thesis made literal — *the ICE
-  table is the species ledger with the extent solved from mass action* ($Q=K$), not driven to a limiting reagent. The
-  **reversible-extent solver** (`chemkernel.equilibrium.solve_equilibrium`) finds the extent by **bisection to high
-  precision** (exact Decimal, general beyond the quadratic); the root is model-exact-then-rounded, the machine-check the
-  residual $Q(\text{committed})=K$ + the gate's independent re-solve. A new **`equilibrium` lesson kind** (fourth shape,
-  own tight schema, `*.equilibrium.json`) with **three subtypes**: **weak-acid** → `equilibrium/acetic-acid-ph` (0.100 M
-  acetic acid, $K_a=1.8\times10^{-5}$ → pH 2.88; the weak-as-strong misconception refuted; $K_a$ from
-  `data/ionization-constants.toml` App H, dissociation DRY-sourced from acids-bases); **weak-base** → `equilibrium/ammonia-ph`
-  (0.100 M NH₃, $K_b=1.8\times10^{-5}$ → **pOH 2.88, pH 11.12** — the exact mirror of acetic acid; water is the **pure
-  solvent excluded from Q**, so the solver is reused unchanged; the **$K_w$ bridge** $[\mathrm{H^+}][\mathrm{OH^-}]=10^{-14}$
-  gives pH from pOH; $K_b$/$K_w$ from `data/ionization-constants.toml` App I/§14.1, the base's proton accounting
-  machine-checked on load); **buffer** → `equilibrium/acetate-buffer` (0.100 M acetic acid + 0.100 M acetate — the same
-  reaction with A⁻ **already present**, the solver's nonzero-initial-product case; the common ion suppresses ionization
-  **74×** → **pH 4.74 = p$K_a$**; **Henderson–Hasselbalch** pH = p$K_a$+log([A⁻]/[HA]) machine-checked as mass-action-logged;
-  the common-ion-oversight misconception refuted from a re-solve of the acid alone); and **solubility** →
-  `equilibrium/calcium-fluoride-solubility` (Ksp — a **pure solid excluded from Q**, so $K_{sp}=4s^3$, a **cubic**; molar
-  solubility $s=2.05\times10^{-4}$ M; the coefficient-forgetting misconception refuted; $K_{sp}$ from
-  `data/solubility-products.toml` App J, the ion composition machine-checked by charge crossover; quantifies the Phase-0
-  precipitation rules), with a **common-ion variant** → `equilibrium/calcium-fluoride-common-ion` (CaF₂ into 0.10 M F⁻ — a
-  nonzero initial product, the buffer's case on the cubic; solubility falls **59 400×** to $3.45\times10^{-9}$ M; the
-  fixed-solubility misconception refuted; a new `common-ion-effect` concept). A **polyprotic** subtype landed too →
-  `equilibrium/phosphoric-acid-ph` (0.100 M H₃PO₄ ionizing in stages Kₐ1≫Kₐ2≫Kₐ3 → **pH 1.62**; the solver run once per stage
-  on the previous stage's output, top-level ice = stage 1 + `result.later_stages`; the [H⁺]-tracks-stage-1 and [HPO₄²⁻]≈Kₐ2
-  payoffs fall out of the solve; two new ion-table anions + a `[polyprotic]` data table, composition machine-checked on load;
-  a `polyprotic-acid` concept). And a **titration** subtype → `equilibrium/acetic-acid-titration` (25.0 mL 0.100 M acetic acid
-  titrated with 0.100 M NaOH — the ledger *marched* by region: weak acid/buffer → the conjugate base's weak-base solve at
-  equivalence → excess base; the classic curve, initial pH 2.88, **pH = pKₐ = 4.74 at half-equivalence**, **basic at
-  equivalence (pH 8.72)**; the player draws a **build-time SVG** of the verified points — the tier's first plot; reuses acetic
-  acid's Kₐ + NaOH, no new data; a `titration` concept). Triple-badged; gate `equilibriumcheck.mjs` re-derives the spine
-  (weak-acid quadratic + buffer + weak-base + Ksp cubic + common-ion + polyprotic stages + the whole titration curve) in Node;
-  concepts `chemical-equilibrium`/`ph`/`solubility-product`/`water-autoionization`/`buffer`/`common-ion-effect`/`polyprotic-acid`/
-  `titration`; 37-way tamper-tested. The tier's **`weak_acid_ph_v1` gym** landed too — pH-of-a-weak-acid drills, the gate
-  re-solving the mass-action root in pure Node (reusing `solveEquilibrium` from `equilibriumcheck.mjs` — one solver, four call
-  sites). The **`prediction` lesson kind** landed too (9th increment): the *prediction* face on the Ksp machinery — mix two
-  solutions, dilute each ion into the combined volume, evaluate the **reaction quotient** $Q=[\text{cat}]^a[\text{an}]^b$ at the
-  mixed concentrations, and compare to $K_{sp}$ → *does a precipitate form?* A **snapshot, not a solve** (no ICE table, $Q\ne K$),
-  so a distinct compact kind (`*.prediction.json`, `build_prediction_lesson`, its own tight schema + static `PredictionLesson.astro`);
-  `equilibrium/calcium-fluoride-precipitation` — 40.0 mL 0.010 M Ca(NO₃)₂ + 60.0 mL 0.010 M NaF → $Q=1.44\times10^{-7}\gg
-  K_{sp}=3.45\times10^{-11}$ (≈4170×) → **precipitates** (the **third view of CaF₂** — dissolve/suppress/**predict**, no new
-  data); a `reaction-quotient` concept; the gate's `verifyPrediction` re-derives the dilution + $Q$ + verdict in Node. A second
-  prediction `equilibrium/magnesium-hydroxide-no-precipitate` shows the **other verdict** (dilute Mg(NO₃)₂ + NaOH → $Q < K_{sp}$
-  → stays clear; the 2nd Ksp salt), and the player was made verdict-general. The **K/K_w/K_sp formula-sheet entries landed** too
-  (10th increment — Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w as **dimensionless activity** relations, $a_X=[X]/c^\circ$ against the 1 M
-  standard state; they fit the monomial dimension engine unchanged; pH/pOH stay in the `ph` concept — owner-decided).
-  **The tier is now feature-complete; deferred (optional):** a titration slider interactive; a weak-base/buffer gym extension.
-- **IMF comparison lesson — LANDED** (2026-07-08, ADR-0047): the bonding capstone + a **third lesson shape** (`comparison`).
-  `bonding/boiling-points-and-imfs` lines up CH₄ ≪ NH₃ ≪ H₂O (equal-mass hydrides, so size is controlled) and the
-  machine-checked payoff is the trend itself: sorted by boiling point, the dominant-IMF rank is **non-decreasing** (the
-  builder refuses a non-monotonic corpus). Rows reuse the verified `molecule` Atlas data (no drift); the misconception is
-  the intramolecular-vs-intermolecular confusion. Own tight schema + builder + static player; the gate re-derives the
-  sort + monotonicity + no-drift. **Deferred:** more comparison axes (melting point, solubility); a "which IMF dominates?"
-  gym drill.
-- **Intermolecular forces — LANDED** (2026-07-08, ADR-0046): the bonding tier's last core topic, kept on-thesis by
-  anchoring it to the machine-verified structure. `structure.classify_imf` derives a neutral molecule's **dominant IMF**
-  (London dispersion / dipole–dipole / hydrogen bonding) from its polarity + an **exact H-on-N/O/F test** (the ranking is
-  the sourced rule, regime-3). Delivered as an optional **`intermolecular` block** on the `molecule` Atlas kind + a sourced
-  normal boiling point as evidence (`data/boiling-points.toml`) + a new **`intermolecular-forces` concept**. The classifier
-  gets CH₂O right (polar but H-on-C → not an H-bond donor). Gate re-derives it in pure Node (shared `structurecheck`);
-  6-way tamper-tested. **Deferred:** the IMF **comparison lesson** (a new multi-molecule lesson shape — the payoff).
-- **Bonding & structure lesson — LANDED** (2026-07-08, ADR-0045): `bonding/water-molecular-shape` — the tier's deep
-  vertical slice and the **first single-molecule lesson**. A new **`structure` lesson kind** (own tight
-  `schemas/structure-lesson.schema.json` + `build_structure_lesson`, `*.structure.json`) rather than a bent reaction
-  schema: the pivot is the Lewis **electron** ledger (no equations / species-ledger / reported product). The lesson names
-  a `molecule` Atlas entry and reuses its connectivity, re-deriving the ledger with the shared `compute_ledger`; four
-  fixed steps (valence/lewis/shape/polarity) carry authored prose under the three honesty badges; the "water is linear"
-  misconception is refuted from the verified geometry (lone pairs are domains → bent). The molecule electron-ledger
-  re-derivation was factored into a shared `structurecheck.mjs` (`verifyElectronLedger`) used by both the reference + the
-  solutions gate, which also cross-checks the embedded ledger against the Atlas (no drift). A fully static player. A
-  **second structure lesson** followed (2nd increment, same ADR): `bonding/carbon-dioxide-molecular-shape` — *why CO₂ is
-  linear* (polar bonds, nonpolar molecule — the marquee contrast; double bonds, no central lone pairs → linear → dipoles
-  cancel; a new `symmetric_geometry_cancels_dipoles` refutation branch), authored inside the contract (no new code).
-  Lessons #7–#8.
-- **Bonding & structure tier — OPEN** (2026-07-08, ADR-0044): the **Lewis electron-ledger engine** (`chemkernel.structure`,
-  `compute_ledger`) + the **`molecule` Atlas kind** + the **`lewis_structures_v1` gym** (+ the structure lesson, ADR-0045).
-  The electron ledger — valence total, octet/duet, formal charge, their conservation — is exact integer arithmetic,
-  **machine-checked** (the gate re-derives it all in pure Node); VSEPR geometry keys a sourced table (`data/vsepr.toml`) on
-  the machine-derived domain count; bond ΔEN reuses the sourced electronegativities; molecular polarity is authored +
-  disclosed (model-assumed, neutral molecules only). 6 molecules (H₂O/CO₂/NH₃/CH₄/CH₂O/NH₄⁺) + 2 concepts
-  (`lewis-structure`, `vsepr`); `/reference/molecules/`; the gym drills valence total / electron domains (free-entry) +
-  molecular geometry (categorical) off the shared engine (gym family #11). The Atlas's 5th reference surface. **Next
-  in-tier:** IMFs (build on molecular polarity); octet exceptions + resonance are corpus-depth deferrals.
-- **Energy-ledger lesson — LANDED** (2026-07-08, ADR-0043): `thermochemistry/methane-combustion-enthalpy` — the ledger
-  drives an **energy** (q=ΔH_rxn·ξ; CH₄ + 2 O₂ → CO₂ + 2 H₂O). ΔH_rxn is **Hess's law** over sourced ΔH_f°
-  (`data/formation-enthalpies.toml`, OpenStax Appendix G), exact Decimal arithmetic; `build.py` gains a fourth
-  reported-product shape (a **`result.energy`** headline, no product mass) and the **first fully molecular lesson** (no
-  ions → the ionic equations are omitted). Triple-badged (machine-checked ξ + data-sourced ΔH_f° + model-assumed Hess);
-  q exact (all inputs terminate), 3-sf display. `units.py` gains `kJ/mol`; check-ledger re-derives the Hess sum + q.
-  **Generated practice** landed too (2nd increment — 6 variants: free-entry heat q=ΔH_rxn·ξ + leftover, categorical
-  limiting; a `practice.energetics` constants block, check-parity re-derives with no interactive). Lesson #6.
-- **Calorimetry gym — LANDED** (2026-07-08, ADR-0042): `calorimetry_v1` (q=mcΔT, solve for any variable), the
-  thermochemistry opener. The `units.py` engine gained the deferred **energy** dimension (J, kJ, J/(g·K); kept
-  independent of pressure·volume), and specific heats are curated (`data/specific-heats.toml`, OpenStax Table 5.1).
-  The **first gym with both honesty badges** — data-sourced (the specific heats) + model-assumed (the calorimetry
-  model). Model-exact-then-rounded; the gate re-derives q=mcΔT. Gym family #10.
-- **Gas-stoichiometry lesson — LANDED** (2026-07-08, ADR-0041): the Phase-2 vertical slice — the extent ledger
-  drives a **gas volume** (Zn + 2 HCl → ZnCl₂ + H₂; the ledger fixes moles of H₂, PV=nRT fixes the volume). `build.py`
-  generalised to a third reported-product shape: a **weighed-mass given** (g→mol) + a **`result.gas` block** (volume
-  through the units engine from the sourced R, model-exact-then-rounded under the model-assumed badge; check-ledger
-  re-derives V=nRT/P). Lesson #5; the 22.4-L-at-STP misconception refuted with the verified RT/P.
-- **Gas-laws gym — LANDED** (2026-07-08, ADR-0040): `gas_laws_v1` (PV=nRT + combined gas law; solve for any
-  variable), the first **model-exact** gym. The `units.py` engine gained the deferred pressure/temperature
-  dimensions (ADR-0015) — answers are computed *through* it (dimensions certified) — and the first
-  **model-exact-then-rounded** numeric answer (3-sig-fig display; the gate re-derives PV=nRT numerically). Model
-  disclosed under the model-assumed badge; °C→K is an affine boundary conversion, and forgetting it is a named
-  diagnostic. Gym family #9.
-- **Phase 2 opener — formula/equation sheet — LANDED** (2026-07-08, ADR-0039): the `formula` Atlas kind
-  (`schemas/formula.schema.json`, `build_formula_entry`) — 8 relations (mole–mass, molarity, dilution,
-  Avogadro's-number, percent yield; ideal gas law, combined gas law, calorimetry), each with variables/units and
-  its **dimensional homogeneity machine-checked** (a native `chemkernel.dimension` SI-vector engine + a shared
-  `dimension.mjs` re-deriving it in pure Node); the gas constant R registered (`data/constants.toml`); model-exact
-  relations carry the model-assumed badge + disclosed assumptions. The Atlas now carries **all four brief-§10 kinds**.
-- **Phase 1 COMPLETE + owner-reviewed** (2026-07-08): items 1–6 + the Atlas breadth audit (session-map #8); the
-  Phase-1 definition-of-done was met (all four Atlas kinds bar the then-deferred formula sheet; every Phase-0/1
-  regime-map row covered; 4 lessons; gates green). The owner opened Phase 2.
-- **Atlas breadth audit (session-map #8) — LANDED** (2026-07-08, ADR-0038): the **species Atlas kind** (14
-  curated species — composition/charge/molar mass derived from the formula + re-summed in Node from the sourced
-  weights; 8-way tamper-tested); an `atomic-mass` concept filling the last empty regime-map row; and a
-  cross-link integrity fix — the 7 reaction families had lost their `related`/`lessons` to TOML trap #4 (now
-  restored + a producer guard). The formula/equation sheet is deferred to Phase 2 (mostly model-bearing).
-- **Item 6 — reaction families — LANDED** (2026-07-08, ADR-0035/0036/0037): the reaction classifier
-  (families + free-element redox) over two sourced datasets; the reaction-family Atlas kind (7 families / 21
-  engine-classified example reactions with net-ionic views); the `reaction_families_v1` gym (classify /
-  name-spectators); and the acid-base neutralization lesson — the first non-precipitation lesson, generalising
-  the interactive/practice emitters to a water product.
-- **Bootstrap — COMPLETE** (2026-07-05): docs-first founding — routing + close-out protocol, ADR-0001…0011,
-  architecture contract, regime map, SOURCES, licenses, private repo.
-- **Phase 0 — the vertical slice — COMPLETE** (2026-07-05, owner-reviewed): the whole emit → verify →
-  present pipeline on the calcium-carbonate precipitation lesson — ChemKernel engine (ADR-0012…0019), one
-  solution schema + the five-gate Node suite (ADR-0020/0023), the player with both parity-verified
-  interactives (ADR-0021/0022), practice tab, authoring guide, CI → live Pages (ADR-0010), and the Chemical
-  Atlas (Valence Table + concepts). All eight brief-§16 items met.
-- **Post-Phase-0 breadth** (2026-07-05): second lesson `calcium-phosphate-limiting` — first non-1:1
-  stoichiometry, limiting-by-capacity teaching; Atlas to 13 concepts.
-- **Phase 1 — the procedural core — OPEN (2026-07-05), filling depth-first:**
-  - **Item 1** — dimensional-analysis gym, the reusable generated-problem instrument (ADR-0024).
-  - **Item 2** — formula & nomenclature engine, ionic both directions + Stock system (ADR-0027).
-  - **Item 3** — balancing gym + conservation-matrix tally + the pure-JS formula parser (ADR-0028).
-  - **Item 4** — stoichiometry suite: 3 gym families + the percent-yield lesson + the Avogadro datum
-    (ADR-0029/0030).
-  - **Practice hardening** — numeric answers are free-entry with diagnostics, never gameable menus; gyms
-    and the lesson Practice tab both (ADR-0032, owner-caught).
-  - **Item 5** — the Valence-Table flagship: 5a sourced property data (ADR-0031); 5b the four modes
-    (lenses/trends/formula-builder/bonding) + the `periodic_trends_v1` gym + architecture Q4 resolved
-    (ADR-0033/0034).
+- **Now (2026-07-09): v1.0.0 RELEASED** — scope frozen (ADR-0053); Phase 2 complete. Counters live in
+  `AGENTS.md ## Current state`; per-increment detail in [`CHANGELOG.md`](./CHANGELOG.md) +
+  [`docs/sessions/`](./docs/sessions/); the deferred depth is the **v1.1 backlog** below. The scope blocks under
+  Phase 0/1/2 are the plan of record (they keep their deferred/open lists).
+
+**Landed — one line per roadmap item (rationale in the cited ADRs, per-increment detail in CHANGELOG):**
+
+- **v1.0.0 release** — scope freeze + the release contract (ADR-0053); the complete 118-element Valence Table
+  (ADR-0052); the pre-release QC sweep — chemistry/provenance + verification/navigability hardening (ADR-0051 +
+  packages A–D, session 2026-07-09).
+- **Electrochemistry tier** — the electron ledger on the Daniell cell (oxidation numbers → half-reactions → E°cell
+  → ΔG=−nFE°), the 7th lesson shape (ADR-0050).
+- **Kinetics tier** — the ledger in time, orders 0/1/2 (t½ constant/grows/shrinks) + the `kinetics_v1` gym, the 6th
+  lesson shape (ADR-0049).
+- **Equilibrium & acid–base tier** — the reversible-extent solver + the `equilibrium` lesson kind (6 subtypes:
+  weak-acid · buffer · weak-base · Ksp incl. common-ion · polyprotic · titration) + the `weak_acid_ph_v1` gym + the
+  `prediction` kind (Q vs Kₛₚ, both verdicts) + the K/K_w/K_sp formula entries (ADR-0048).
+- **Bonding & structure tier** — the Lewis electron-ledger engine + the `molecule` Atlas kind + the
+  `lewis_structures_v1` gym + the `structure` and `comparison` lesson shapes + intermolecular forces
+  (ADR-0044/0045/0046/0047).
+- **Gases + thermochemistry tier** — the formula/equation sheet (ADR-0039), the `gas_laws_v1` (ADR-0040) +
+  `calorimetry_v1` (ADR-0042) gyms, the gas-stoichiometry (ADR-0041) + energy-ledger/Hess (ADR-0043) lessons.
+- **Phase 1 — the procedural core** — dimensional-analysis gym (ADR-0024), the nomenclature engine (ADR-0027), the
+  balancing gym + JS parser (ADR-0028), the stoichiometry suite + percent-yield lesson + Avogadro datum
+  (ADR-0029/0030), the Valence Table flagship modes (ADR-0031/0033/0034), reaction families + the neutralization
+  lesson (ADR-0035/0036/0037), the species Atlas kind (ADR-0038); free-entry practice (ADR-0032).
+- **Phase 0 — the vertical slice** — the whole emit → verify → present pipeline on the calcium-carbonate
+  precipitation lesson: ChemKernel engine (ADR-0012–0019), the solution schema + Node gates (ADR-0020/0023), the
+  parity-verified player (ADR-0021/0022), the Atlas + Valence Table, CI → live Pages (ADR-0010); + a 2nd
+  limiting-reagent lesson.
+- **Bootstrap** — docs-first founding: routing + close-out protocol, ADR-0001…0011, the architecture contract, the
+  regime map, SOURCES, licenses, the private repo.
+
+## v1.1 backlog
+
+The v1.0.0 scope freeze (ADR-0053) deferred the following; none is a basic-chemistry gap.
+
+- **Kinetics depth:** the **Arrhenius** temperature dependence of k (k = A·e^(−Eₐ/RT)) — a formula-sheet entry + a lesson.
+- **Electrochemistry depth:** the **Nernst** equation (E away from standard conditions — the `galvanic` subtype
+  extends), a ΔG=−nFE/Nernst formula-sheet entry, more cells (concentration / electrolytic), and a **redox-balancing gym**.
+- **B7 / O3 — build-time KaTeX:** move the practice island's runtime KaTeX to build-time rendering (restoring
+  ADR-0001 site-wide), then add a **bundle-scan gate** so it can't regress.
+- **B8 — producer fail-loud guards:** the `extent.py` product-row nonnegative guard; `reaction.py` `dissociate()`
+  ambiguity refusal; `build.py` misnamed-lesson-file error; `structure.py` duplicate-bond guard; float rejection at
+  the spec boundary (ADR-0013). All latent (CI backstops committed output); each wants a refusal test.
+- **C7 / C8 — producer-side display polish:** `mass_g_display` 3-decimal → 3-sig-fig (ADR-0025); ionic-equation phase
+  labels; diagnostic spacing; the seeded answer-shuffle so the correct choice isn't always emitted first; gym anion naming.
+- **Bonding corpus-depth:** octet exceptions (BeH₂/BF₃/PCl₅/SF₆); resonance (CO₃²⁻/NO₃⁻); more structure lessons
+  (NH₃/CH₄); more comparison axes (melting point, solubility); a "which IMF dominates?" gym drill; a formal-charge gym drill.
+- **Smaller / optional:** endothermic / multi-step Hess-cycle lessons; the gas and titration lessons' **slider
+  interactives**; transition-metal + heavy covalent radii; ionic radii (per-ion, coordination-dependent); further
+  Valence-Table lenses (oxidation state / electron affinity / metallic character / density / abundance);
+  particle-count gym drills. Always in season inside settled contracts: Atlas breadth-fill, further lessons,
+  docs-only sessions.
 
 ---
 
@@ -384,7 +237,7 @@ but the product mass isn't the headline); the diprotic coefficient-story neutral
 2. ~~Item 2 — nomenclature data + engine + gym families (+ Atlas nomenclature concept)~~ (landed).
 3. ~~Item 3 — balancing gym + conservation-matrix view~~ (landed; ADR-0028 — + a reusable JS formula parser).
 4. ~~Item 4 — stoichiometry families + the percent-yield lesson (+ Avogadro datum)~~ (landed; ADR-0029/0030 — 3 gym families + the lesson + the datum; particle drills → Phase 2).
-5. ~~Item 5a — element-property data curation (SOURCES + data/ + oracle cross-check)~~ (landed; ADR-0031 — 23 elements + electronegativity/covalent-radius/first-ionization-energy, primary-sourced + mendeleev-checked).
+5. ~~Item 5a — element-property data curation (SOURCES + data/ + oracle cross-check)~~ (landed; ADR-0031 — 23 elements + electronegativity/covalent-radius/first-ionization-energy, primary-sourced + mendeleev-checked; completed to all **118 elements** at v1.0.0, ADR-0052).
 6. ~~Item 5b — Valence Table lenses + trend/bonding/practice modes~~ (landed; ADR-0033/0034 — four modes +
    the `periodic_trends_v1` gym + Q4 resolved).
 7. ~~Item 6 — reaction families (atlas kind + classifier + gym + the neutralization lesson)~~ (landed; ADR-0035/0036/0037 — classifier + 7-family Atlas + `reaction_families_v1` gym + the neutralization lesson).
@@ -505,8 +358,8 @@ the common-ion contrast; the `buffer` concept. The tier's **`weak_acid_ph_v1` gy
 pH-of-a-weak-acid free-entry drills, model-exact-then-rounded + data-sourced, the gate re-solving the mass-action root in pure
 Node (the same `solveEquilibrium` the lessons' gate uses — one solver, four call sites). The **common-ion solubility variant**
 landed too (6th increment): `equilibrium/calcium-fluoride-common-ion` — CaF₂ into 0.10 M F⁻ (a shared ion pre-loaded, the
-buffer's nonzero-initial-product case now on the **cubic** — the solver reused unchanged), dissolution suppressed **59 400×**
-to $3.45\times10^{-9}$ M; a variant of the `solubility` subtype (optional `common_ion`), the pure-water solubility re-solved
+buffer's nonzero-initial-product case now on the **cubic** — the solver reused unchanged), dissolution suppressed **53 900×**
+to $4.0\times10^{-9}$ M; a variant of the `solubility` subtype (optional `common_ion`), the pure-water solubility re-solved
 for the contrast; the `common-ion-effect` concept. The **polyprotic** subtype landed too (7th increment):
 `equilibrium/phosphoric-acid-ph` — 0.100 M H₃PO₄ ionizing in stages Kₐ1≫Kₐ2≫Kₐ3, the solver run **once per stage** on the
 previous stage's equilibrium (the successive treatment; top-level ice = stage 1, `result.later_stages` the rest) → **pH 1.62**;

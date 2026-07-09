@@ -105,8 +105,8 @@ def species_mass_g(row: LedgerRow, data) -> Fraction:
 
 
 def to_decimal(value, places: int = 6) -> Decimal:
-    """Render an exact amount/mass as a fixed-decimal-place `Decimal` for display (Q7 sig-fig policy is
-    still open; this is a display helper, not the stored value)."""
+    """Render an exact amount/mass as a fixed-decimal-place `Decimal` for display (the sig-fig display policy is
+    settled — ADR-0025; this is a display helper, not the stored value, which stays Fraction-exact)."""
     f = value if isinstance(value, Fraction) else _frac(value)
     quotient = Decimal(f.numerator) / Decimal(f.denominator)
     return quotient.quantize(Decimal(1).scaleb(-places))

@@ -54,12 +54,12 @@ trend machine-verified, the `comparison` lesson kind, ADR-0047; + 7 equilibrium 
 the extent solved from mass action Q=K, the `equilibrium` lesson kind with six subtypes, ADR-0048: the weak-acid pH of acetic
 acid + a buffer (acetic acid + acetate — the common-ion effect + Henderson–Hasselbalch, the solver's nonzero-initial-product
 case) + the weak-base pH of ammonia (water excluded from Q, pH via the Kw bridge) + the Ksp molar solubility of CaF₂ — a pure
-solid excluded from Q, a cubic — plus a common-ion variant (CaF₂ into 0.10 M F⁻, dissolution suppressed 59 400×) + the
+solid excluded from Q, a cubic — plus a common-ion variant (CaF₂ into 0.10 M F⁻, dissolution suppressed 53 900×) + the
 polyprotic staged pH of H₃PO₄ (Kₐ1≫Kₐ2≫Kₐ3, the solver run once per stage on the previous stage's output) + a titration curve
 (acetic acid vs NaOH — the ledger marched by region, a build-time SVG of verified points)
 + 2 prediction — Q vs Ksp: mix two solutions, compute the reaction quotient at the mixed concentrations, compare to Ksp →
 does a precipitate form? A **snapshot, not a solve**; the `prediction` lesson kind (ADR-0048 9th increment); CaF₂ from Ca(NO₃)₂
-+ NaF → Q ≈ 4170× Ksp → **precipitates**, and dilute Mg(OH)₂ from Mg(NO₃)₂ + NaOH → Q ≈ 45× below Ksp → **stays clear**, the
++ NaF → Q ≈ 3600× Ksp → **precipitates**, and dilute Mg(OH)₂ from Mg(NO₃)₂ + NaOH → Q ≈ 71× below Ksp → **stays clear**, the
 other verdict; + 3 kinetics — the ledger in TIME, the `kinetics` lesson kind over **orders 0/1/2** with a build-time decay curve,
 ADR-0049: first-order H₂O₂ (t½=ln2/k=6.00 h, **constant**) + second-order butadiene (t½=1/k[A]₀ **grows** 1.45→2.89→5.79 h) +
 zero-order NH₃ on hot W (t½=[A]₀/2k **shrinks** 1.07→0.534→0.267 h, reaches 0 at 2.14 h) — the successive-half-life contrast;
@@ -67,7 +67,7 @@ zero-order NH₃ on hot W (t½=[A]₀/2k **shrinks** 1.07→0.534→0.267 h, rea
 Zn²⁺ + Cu, oxidation numbers → half-reactions → the electron ledger (n=2) → E°cell=1.10 V → ΔG°=−nFE°=−212 kJ/mol, spontaneous)
 + 13 gyms (conversions + ionic nomenclature + balancing + mass
 stoichiometry + percent yield + limiting reagent + periodic trends + reaction families + gas laws + calorimetry +
-Lewis structures + weak-acid pH + kinetics; 130 drills — numeric families free-entry, ADR-0032), 1 Valence Table (23 elements; four modes — Explore lenses /
+Lewis structures + weak-acid pH + kinetics; 130 drills — numeric families free-entry, ADR-0032), 1 Valence Table (118 elements; four modes — Explore lenses /
 Trends / Formula builder / Bonding — over sourced properties + the 182-pair named crossover product + the
 `data/bonding.toml` ΔEN rule, ADR-0031/0033) + 43 concept entries (incl. `chemical-equilibrium` + `ph` + `solubility-product` + `water-autoionization` + `buffer` + `common-ion-effect` + `polyprotic-acid` + `titration` + `reaction-quotient`, ADR-0048; + `reaction-rate` + `rate-law` + `integrated-rate-law` + `half-life`, ADR-0049; + `redox` + `oxidation-number` + `half-reaction` + `electron-ledger` + `cell-potential` + `standard-reduction-potential`, ADR-0050) + 7 reaction families (21 engine-classified
 example reactions, ADR-0035) + 14 species entries (composition/charge/molar mass derived from the formula +
@@ -77,7 +77,7 @@ ADR-0046, ADR-0044) + 14 formula-sheet entries
 (dimensional homogeneity machine-checked, ADR-0039 — incl. Hess's law ΔH_rxn=Σν·ΔH_f°, ADR-0043; + Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w
 as **dimensionless activity** relations, ADR-0048) = **85 Atlas reference
 objects** (+6 electrochemistry concepts: redox/oxidation-number/half-reaction/electron-ledger/cell-potential/standard-reduction-potential, ADR-0050),
-427 producer tests + 7 Node gates + `astro build` (45 pages) + live CI/Pages green. Lesson practice mass/leftover/volume/heat questions are
+432 producer tests + 7 Node gates + `astro build` (47 pages) + live CI/Pages green. Lesson practice mass/leftover/volume/heat questions are
 free-entry too (ADR-0032); gas-stoichiometry (ADR-0041) + energy-ledger (ADR-0043) practice re-derive from reaction constants with no interactive block.**
 
 ## ChemKernel module map (brief §6)
@@ -96,7 +96,7 @@ free-entry too (ADR-0032); gas-stoichiometry (ADR-0041) + energy-ledger (ADR-004
 | `reaction.py` transforms | dissociation (formula → ions via the ion table), complete ionic, net ionic with spectator cancellation + conservation re-check; **reaction classification** (families + free-element redox, ADR-0035) | **built** (ADR-0018/0035) |
 | `reactivity.py` datasets | acid/base + gas-forming-intermediate tables (`data/acids-bases.toml`, `data/decomposition.toml`); composition machine-checked on load; injected into the classifier | **built** (ADR-0035) |
 | `solubility.py` classifier | sourced ruleset → soluble/insoluble verdict + governing rule id; `verify_phase` build check | **built** (ADR-0017) |
-| proofs | atom/charge conservation (in `balance.py` + `reaction.py`) and nonnegative extent (in `extent.py`) done; unit homogeneity of reference formulas (SymPy `dims.py`) with the Atlas | partly built |
+| proofs | atom/charge conservation (in `balance.py` + `reaction.py`), nonnegative extent (in `extent.py`), and dimensional homogeneity of the reference formulas (`chemkernel.dimension`, ADR-0039 — an SI-vector engine mirrored in Node) all done | **built** (ADR-0039) |
 | `build.py` orchestration | `build-problems` builds every lesson under `problems/`, dispatched by extension: `*.problem.toml` → `build_problem` (a **reaction** lesson — engine → `derived/<topic>/<slug>.solution.json`; **four reported-product shapes** — precipitate / water / **gas** (`[conditions]` → `result.gas` via PV=nRT, ADR-0041) / **energy** (`[energetics]` → `result.energy` q=ΔH_rxn·ξ via Hess's law, ADR-0043 — no product mass); weighed-`mass_g` → moles; a fully molecular reaction omits the ionic equations), `*.structure.toml` → `build_structure` (a **structure** lesson — a single molecule, ADR-0045, `…structure.json`), `*.comparison.toml` → `build_comparison` (a **comparison** lesson — several molecules vs. a property with the trend machine-verified, ADR-0047, `…comparison.json`), `*.equilibrium.toml` → `build_equilibrium` (an **equilibrium** lesson — the ICE table = the species ledger with the extent solved from mass action, ADR-0048, `…equilibrium.json`; **six subtypes** dispatched by `titrant`/proton-count/`salt`/`base`/`acid`), `*.prediction.toml` → `build_prediction` (a **prediction** lesson — Q vs Kₛₚ, a snapshot not a solve, ADR-0048 9th increment, `…prediction.json`), and `*.kinetics.toml` → `build_kinetics` (a **kinetics** lesson — decay of order 0/1/2, the ledger in time, ADR-0049, `…kinetics.json`) | **built** (ADR-0019, +gas ADR-0041, +energy ADR-0043, +structure ADR-0045, +comparison ADR-0047, +equilibrium/prediction ADR-0048, +kinetics ADR-0049) |
 | `interactive.py` | derives the optional interactive block: slider params + JS closed forms + engine-computed sample points; multiplicities from `dissociate`/`net_ionic`; single-precipitate double-displacement only, else omitted | **built** (ADR-0022) |
 | `practice.py` generator | deterministic seeded variants off the reaction → solver-verified answers + misconception distractors; reject-list (near-ties, no leftover, colliding displays); reuses `interactive` multiplicities — or, with no interactive, re-derives from reaction constants: **gas stoichiometry** (`generate_gas_practice`, ADR-0041 — volume via PV=nRT + leftover + limiting; 22.4-L + excess distractors) and **energy ledger** (`generate_energy_practice`, ADR-0043 — heat q=ΔH_rxn·ξ + leftover + limiting; naive-ΔH_rxn + excess distractors; both masses at full precision) | **built** (ADR-0022/0041/0043, three families) |

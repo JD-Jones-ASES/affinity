@@ -3,6 +3,50 @@
 Notable changes, newest first. Architecture rationale lives in [`DECISIONS.md`](./DECISIONS.md); the phase
 plan in [`ROADMAP.md`](./ROADMAP.md).
 
+## v1.0.0 — 2026-07-09 — RELEASE: scope freeze on the verified corpus (ADR-0052, ADR-0053)
+
+Affinity's first tagged release. Phase 2 is complete; scope is frozen (ADR-0053) and the corpus ships as it stands —
+a coherent beginning-chemistry course whose verification system is the product. `package.json` → **1.0.0**
+(`private: true` kept — the repo is private by design, ADR-0010, never npm-published; the version is for the tag).
+
+**What v1.0.0 contains:** **22 lessons** across **7 shapes** (reaction · structure · comparison · equilibrium ·
+prediction · kinetics · electrochemistry) · **13 gyms / 130 verified drills** · a complete **118-element Valence
+Table** with **182 machine-verified salts** · an **85-object Chemical Atlas** (43 concepts + 7 reaction families /
+21 example reactions + 14 species + 6 molecule structures + 14 formula-sheet entries + the valence table) · **7 Node
+gates** (check-katex 959 strings) + CI + live Pages — all green at **47 pages** · **432 producer tests**. The release
+contract — what is machine-checked (conservation, charge, units, schema validity, source resolution, numeric parity,
+the per-shape re-derivations, the 118-element oracle) vs what is sourced-not-proved (empirical table values) vs
+disclosed-not-discharged (model assumptions) — is stated on the `/verification` page and in ADR-0053.
+
+**Deliberately deferred to v1.1** (none a basic-chemistry gap): Arrhenius (kinetics) + Nernst (electrochemistry) +
+their formula-sheet entries + a redox-balancing gym; B7 build-time KaTeX in the practice island + a bundle-scan gate;
+B8 producer fail-loud guards; C7/C8 producer-side display polish; and the bonding corpus-depth options (octet
+exceptions, resonance, more structure/comparison lessons). Full list in ROADMAP's **v1.1 backlog**.
+
+**Shipped this session (toward the tag):**
+- **The complete periodic table (ADR-0052):** the Valence Table grew from 23 to **all 118 elements** and now renders
+  as a real **18-column** table with the **f-block detached**. A new `mass_number` field carries the longest-lived
+  isotope for the 34 elements with no standard atomic weight — **display provenance only, never arithmetic**; 84
+  carry the CIAAW abridged-2021 weight. Electronegativity ships for **71** (omitted, not guessed, for 10
+  compilation-disputed heavy metals + where the oracle can't confirm); first ionization energy for **Z ≤ 103**
+  (measured, not theoretical). La/Ac = group 3 d-block; Ce–Lu/Th–Lr group-less f-block. Schema relaxed exactly where
+  reality is (`group`/`atomic_weight` optional; `additionalProperties:false` kept); the oracle now cross-checks all
+  118. The `periodic_trends_v1` gym corpus legitimately grew from the EN/IE backfill.
+- **QC navigability + pedagogy polish (package C):** the verification page rewritten to cover all seven gates + the
+  per-shape re-derivations + what is *not* machine-proved; regime chips now speak the three-badge vocabulary; jargon
+  removed from learner prose; mobile table/grid overflow + dark-mode contrast fixed; favicon + 404 page added;
+  breadcrumbs humanized; data-driven electrochem/equilibrium prose.
+- **Scan-text gate breadth (B10, ADR-0053):** the provider-agnostic gate extended from 4 sibling-seeded patterns to
+  the full ADR-0004 policy — the major English-language boards/curricula, word-boundary-safe, short acronyms
+  uppercase-only, each literal split with a character class so the gate's own source stays clean.
+- **Public attribution page:** a new `/credits` page driven from `docs/SOURCES.md` — proper CC BY 4.0 credit to
+  OpenStax *Chemistry 2e* (with a "changes were made" note) plus every other shipped source (CIAAW/IUPAC, NIST,
+  Allred 1961, Cordero 2008, BIPM) — linked in the footer of every page. Build → **47 pages**.
+- **Release consistency (ADR-0053):** `package.json` 1.0.0; two new ADRs; the orientation docs (README as the public
+  face, `AGENTS.md ## Current state`, `ROADMAP.md ## Status`) compressed to their budgets and pointed at the v1.1
+  backlog; producer/doc docstring drift corrected (build.py "Five/Four" → seven/six shapes, gym.py 0.5%→3.5%,
+  equilibrium.py residual claim, extent.py Q7-closed, view.js orders-0/1/2, architecture.md proofs row).
+
 ## Phase 2 — 2026-07-09 — v1.0.0 QC: chemistry/provenance corrections (package A, ADR-0051) + verification hardening (package B)
 
 A pre-v1.0.0 quality-control sweep (15-dimension multi-agent review, `docs/sessions/2026-07-09.md`) then two implementation packages.

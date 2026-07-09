@@ -1913,3 +1913,98 @@ comfortably one-directional. A new completeness-refutation branch in `SolutionPl
 "both reactants fully consumed" misconception fail in the ledger (limiting → 0, excess keeps 0.5 mmol) instead of rendering the
 unrelated volume rebuttal. No schema, badge, or house-convention change. **Next:** work packages B (verification/gate hardening),
 C (navigability), D (doc compression), then the Phase-2 depth (Arrhenius, Nernst) before the v1.0.0 tag.
+
+## ADR-0052 — The complete periodic table: all 118 elements on the Valence Table (2026-07-09)
+
+**Context.** The Valence Table shipped 23 elements (H…Ca + Fe/Cu/Zn, ADR-0031) — enough for the depth lessons and ion
+sets, but a periodic table that stops at calcium reads as a stub, and the flagship's whole pitch is that it is a real
+database visualization. Completing it to all 118 elements raises questions the 23-element set never had to answer: many
+elements have **no standard atomic weight** (only a longest-lived-isotope mass number); electronegativity and ionization
+energy are **not confidently known or agreed** for parts of the heavy end; and the f-block breaks the tidy 18-column grid.
+A completion that fudged any of these would betray the honesty model. The owner authorized the completion as part of the
+pre-v1.0.0 polish (Wave 1 referenced this id in code comments — kept).
+
+**Decision.** (1) **Ship all 118 elements**, positions from `iupac-periodic-table`. (2) **`mass_number` representation**
+for the **34 elements with no CIAAW standard atomic weight** (Tc, Pm, Po, At, Rn, Fr, Ra, Ac, and every Z ≥ 93): a new
+optional `mass_number` field carries the IUPAC longest-lived-isotope bracket value as **display provenance only — it never
+enters arithmetic** (molar-mass math still requires a real `atomic_weight`, so a bracketed value can never silently
+contaminate a calculation). The remaining **84 carry the CIAAW abridged-2021 standard weight** with its abridged
+uncertainty. (3) **f-block convention** (matching the independent `mendeleev` oracle): **La and Ac are group 3, d-block**;
+**Ce–Lu and Th–Lr carry no group number and block `f`**. (4) **Electronegativity omit-on-disagreement policy**: EN ships
+for **71 of 118** — every element where the Allred revised-Pauling value and the independent `mendeleev` cross-check concur
+within 0.06. It is **omitted, not guessed**, for the **ten compilation-disputed heavy metals** (Tc, Lu, W, Pt, Au, Hg, Tl,
+Pb, Bi, U), where `mendeleev` cannot confirm (Pm, Eu, Tb, Yb, Np), and for Z ≥ 95 + the noble gases (undefined) — a gap is
+honest, a disputed value never ships. (5) **First ionization energy for Z ≤ 103 only** (NIST, 103 elements): the
+transactinides (Z ≥ 104) are **omitted because their ionization energies are theoretical estimates, not confident
+measurements** — measured, not modeled. Covalent radii stay at the 20 main-group Z ≤ 20 (Cordero) — transition/heavy radii
+are spin-state-dependent, deferred. (6) **Schema relaxation, contract kept**: `group` and `atomic_weight` become
+**optional** (a group-less f-block element; a weightless mass-number element), `mass_number` is added, and
+**`additionalProperties: false` stays** — the shape is relaxed exactly where reality is, not loosened. (7) **Oracle
+coverage**: the producer's oracle tests now cross-check **all 118** elements against `mendeleev` (weights, positions, and
+each optional property where present). (8) **Depth-vs-breadth policy, disclosed**: **16 elements carry curated ions** (the
+depth set the lessons and salt builder use — **182 named + machine-verified salts**); the breadth elements are honestly
+labeled *not yet in any lesson or ion set* rather than dressed up with invented chemistry.
+
+**Why on-thesis.** The honesty model is the product, and completeness is where a periodic table is most tempted to lie —
+inventing a weight for an unstable element, averaging a disputed electronegativity, extrapolating an ionization energy. The
+`mass_number`/`atomic_weight` split, the omit-on-disagreement EN policy, and the measured-only IE cutoff make each of those
+temptations a **visible, sourced gap** instead. The four modes are unchanged: the table got wider and more honest, not
+different.
+
+**Consequences.** The Valence Table renders as a **real 18-column periodic table with the f-block detached** into its two
+rows. The `periodic_trends_v1` gym corpus **legitimately grew** from the EN/IE backfill (more elements to compare/order —
+generated from the same emitted, oracle-checked data, so gym and table cannot disagree). The `ciaaw-2021-atomic-weights`,
+`iupac-periodic-table`, `nist-ionization-energies`, and `allred-1961-electronegativity` register rows were extended (all in
+`docs/SOURCES.md`). No lesson numeric changed (the depth set is unchanged); the Atlas object count is unchanged (the table
+is one object however many elements it holds). The producer test suite cross-checks the full 118 against the oracle.
+
+## ADR-0053 — v1.0.0: scope freeze, release, and the release contract (2026-07-09)
+
+**Context.** After the QC sweep (ADR-0051, `docs/sessions/2026-07-09.md`) and its fix packages A–D, the corpus is a
+coherent beginning-chemistry course: 22 lessons across seven shapes, 13 gyms, the completed 118-element Valence Table
+(ADR-0052), an 85-object Chemical Atlas, seven Node gates, all green. The open question was whether to close the Phase-2
+tiers (Arrhenius, Nernst) before tagging v1.0.0 (the earlier O4 recommendation) or to freeze scope and ship the verified
+corpus now. The owner **superseded O4**: scope-freeze, ship v1.0.0 on the current corpus, defer the tier-closers to v1.1.
+Rationale: external-review advice plus the owner's own read that **no basic-chemistry gap remains** — Arrhenius and Nernst
+are depth *past* the first course, not holes in it.
+
+**Decision.** (1) **Ship version 1.0.0** on the current verified corpus. `package.json` `0.0.0 → 1.0.0`; **`private: true`
+stays** (the repo is private by design, ADR-0010, and is **never npm-published** — the version is for the tag/release, not
+a registry). (2) **Supersede O4** — the tier-closing depth moves to **v1.1**: Arrhenius (kinetics) + a formula-sheet entry,
+Nernst (electrochemistry) + a ΔG=−nFE/Nernst formula entry, a redox-balancing gym, more cells. (3) **Supersede O3 (B7)**:
+moving the practice island's runtime KaTeX to build-time defers to v1.1; instead the stack contract is **softened honestly**
+— "**KaTeX rendered at build time for lesson/atlas prose; the interactive practice island currently ships runtime KaTeX
+(v1.1: move to build time + a bundle-scan gate)**." ADR-0001 is history and is **not rewritten**; this ADR records the
+disclosed exception. (4) **Defer B8** (producer fail-loud guards), **C7** (display-policy drift: `mass_g_display`
+3-decimal vs 3-sig-fig; ionic-equation phase labels), and **C8** (producer-side polish) to v1.1 — all latent or cosmetic,
+with CI backstopping the committed output. (5) **Broaden the scan-text blocklist** (B10) from the 4 sibling-seeded
+patterns to the ADR-0004 policy in full — the major English-language boards/curricula, word-boundary-safe, short acronyms
+uppercase-only (`scan-text.mjs`). (6) **Ship a public attribution page** (`/credits`) driven from `docs/SOURCES.md`, linked
+in every page's footer — proper CC BY 4.0 credit to OpenStax (with a "changes were made" note) plus every other shipped
+source; consistent with `LICENSE-content.md`.
+
+**The release contract — what v1.0.0 machine-checks, and what it does not.** The verification system proves, on every
+commit, in pure Node over the committed output: **atom + charge conservation** (balance re-derived, not asserted);
+**nonnegative reaction extent**; **unit / dimensional homogeneity** of the reference relations; **schema validity** (strict,
+`additionalProperties:false`); **every source id resolves** in the register; **numeric parity** between the browser's closed
+forms and the producer's high-precision values; the **per-shape re-derivations** (the ICE re-solve + residual, the decay
+curve + half-life progression, the electron ledger + E°cell + ΔG, the Lewis ledger, the IMF trend); and the **118-element
+oracle** cross-check. It does **not** prove — and does not claim to: the **empirical table values themselves** beyond their
+sourcing (a Kₐ, a boiling point, an E° is *sourced and labeled*, not derived); **pedagogical choices** (which misconception
+to target, what order to teach); and **model assumptions** (ideal gas, complete dissociation, activities ≈ molarities,
+standard conditions) — these are **disclosed under the model-assumed badge, not discharged**. And one honestly-disclosed
+implementation exception: the practice island ships **runtime KaTeX** (item 3 above). This is the boundary the badges draw,
+stated plainly on the public verification and credits pages.
+
+**Why on-thesis.** "Ship when the verification system covers the corpus, not when the corpus is exhaustive." v1.0.0 is not
+"chemistry is finished"; it is "everything shipped is checked, sourced, or disclosed, and the boundary between those three
+is stated." Freezing scope with the honesty boundary explicit is more on-thesis than padding the corpus past the point the
+gates cover.
+
+**Consequences.** `package.json` → 1.0.0 (private kept); a CHANGELOG v1.0.0 entry; a git tag + GitHub release (the
+orchestrator does the tag/release). The scan gate now enforces the full ADR-0004 policy. `/credits` brings the build to
+**47 pages**. The orientation docs (README as the public face, AGENTS `## Current state`, ROADMAP `## Status`) were
+compressed to their budgets and pointed at a **v1.1 backlog** (ROADMAP) carrying the full deferred list. All **7 gates
+green**, **47 pages**, **432 producer tests**. **Next (v1.1):** Arrhenius; Nernst + the ΔG/Nernst formula entry + a
+redox-balancing gym; B7 build-time KaTeX + a bundle-scan gate; B8 producer guards; C7/C8 producer polish; and the standing
+breadth options (octet exceptions/resonance, transition-metal radii, a titration slider) — detail in ROADMAP's v1.1 backlog.

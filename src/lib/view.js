@@ -437,7 +437,7 @@ export function renderPredictionLesson(lesson) {
   return s;
 }
 
-// Render a first-order kinetics lesson (ADR-0049): the ledger in time. The balanced reaction (→), the rate law,
+// Render a kinetics lesson (ADR-0049): the ledger in time, over orders 0/1/2. The balanced reaction (→), the rate law,
 // the integrated rate law, and the half-life relation render from the producer's upright LaTeX; the scenario /
 // assumptions / misconception get their formula tokens subscripted + inline $…$ rendered. The curve/landmarks are
 // numeric (used as-is by the build-time SVG).

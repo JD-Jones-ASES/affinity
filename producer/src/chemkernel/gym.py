@@ -602,7 +602,7 @@ def _numeric_response(answer, unit, wrongs):
     human eliminates a distractor like 0.55 % or a 1000×-too-large mass on sight, so the menu drills nothing.
     Instead the learner PRODUCES the number, and these named-mistake *values* diagnose what they typed: if the
     entry matches a mistake, the mistake is named. That turns the very values that made lazy distractors —
-    forgot ×100, skipped mL→L — into precise feedback. Drops any candidate within 0.5 % of the answer (so a
+    forgot ×100, skipped mL→L — into precise feedback. Drops any candidate within 3.5 % of the answer (so a
     correct entry is never mis-flagged as a mistake) and any duplicate display.
 
     Returns (display, diagnostics): the exact answer display + a list of {value, unit, misconception}."""

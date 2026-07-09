@@ -24,8 +24,9 @@ Honesty, layered not mixed (the three badges, ADR-0003): the ICE identity c_i = 
 (regime-1, machine-checked — the gate re-derives every row); K is a sourced empirical datum
 (`data/ionization-constants.toml`, regime-3); the equilibrium MODEL (a single dominant equilibrium; activities ≈
 molarities; water's own ionization neglected) is disclosed (regime-2, model-assumed); the solved position (x, the
-pH) is model-exact-then-rounded. The producer REFUSES to emit if the root is not bracketed or the residual is not
-tiny (ADR-0008), exactly as build.py refuses an unbalanced reaction.
+pH) is model-exact-then-rounded. The producer REFUSES to emit if the mass-action root is not bracketed on the
+physical interval, or if the solved extent leaves its physical bounds (ADR-0008), exactly as build.py refuses an
+unbalanced reaction; the residual itself is emitted for the gate's independent re-check, not gated by a threshold here.
 """
 
 from __future__ import annotations

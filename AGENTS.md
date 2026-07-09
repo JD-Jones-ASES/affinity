@@ -91,7 +91,9 @@ No session ends without this checklist. Small session → short sweep; long sess
 
 ## Tech stack (mirrors the sibling — ADR-0001)
 
-- **Astro** static output + **Svelte 5** islands; **KaTeX rendered at build time** (no client KaTeX).
+- **Astro** static output + **Svelte 5** islands; **KaTeX rendered at build time** for lesson/Atlas prose. (The
+  interactive practice island currently ships the runtime KaTeX bundle — a disclosed v1.0.0 exception; v1.1 moves it
+  to build time + adds a bundle-scan gate, ADR-0053.)
 - **Python 3.13+ ChemKernel producer** as a **uv** package under `producer/` — runs **locally, never in
   CI**. SymPy for symbolic checks; exact rational arithmetic for balancing and stoichiometry.
 - **JSON Schema draft 2020-12** contracts in `schemas/`, `additionalProperties: false`, validated by
@@ -191,111 +193,37 @@ at its URL even though the repo is private (private/access-controlled Pages need
 
 ## Current state
 
-**Phase 0 + Phase 1 COMPLETE (owner-reviewed). Phase 2 OPEN (2026-07-08, ADR-0039–0051)** — the model-bearing tier.
-Its **gases + thermochemistry** and **bonding & structure** tiers are complete (formula sheet + gyms + lessons + the Lewis-ledger
-engine/`molecule` Atlas kind + IMFs, ADR-0039–0047); **equilibrium & acid-base is FEATURE-COMPLETE** (ADR-0048 — the
-reversible-extent solver + **six `equilibrium` subtypes** (weak-acid pH · buffer · weak-base pH · Ksp solubility (+ common-ion) ·
-polyprotic · titration) + a gym + a Q-vs-Kₛₚ **`prediction`** kind (both verdicts) + the K/K_w/K_sp **formula-sheet** entries as
-dimensionless activity relations); and the **kinetics tier is OPEN** (ADR-0049 — the ledger in time: the `kinetics` lesson kind),
-now with **all three orders** on one order-general engine — first (t½ constant), second (t½ grows), zero (t½ shrinks, reaches 0) —
-the contrast that makes "constant t½" mean something (each a build-time decay curve), plus the **`kinetics_v1` gym**; and the
-**electrochemistry tier is OPEN** (ADR-0050 — the electron ledger: the Daniell cell, oxidation numbers → half-reactions → E°cell →
-ΔG=−nFE, a **seventh lesson shape**). **All Phase-2 tiers are open. Next:** the rest of each (Arrhenius, Nernst) + a Phase-2 DoD. History
-in [`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/); plan in [`ROADMAP.md`](./ROADMAP.md); modules in
-[`docs/architecture.md`](./docs/architecture.md) (§as-built). States only *what is*.
+**Phase 2 COMPLETE · v1.0.0 released** (2026-07-09, ADR-0053 — tagged `v1.0.0`, published as a GitHub release).
+All seven Phase-2 tiers landed (gases · thermochemistry · bonding & structure · equilibrium & acid–base ·
+kinetics · electrochemistry, ADR-0039–0051); the Valence Table completed to all 118 elements (ADR-0052); the
+pre-release QC sweep (ADR-0051) + scope freeze (ADR-0053) shipped. Deferred to v1.1: Arrhenius, Nernst, a
+redox-balancing gym, build-time KaTeX in the practice island — see `ROADMAP.md ## v1.1 backlog`. This block states
+*what is*; engine detail is in [`docs/architecture.md`](./docs/architecture.md) (§as-built) + the ADRs, history in
+[`CHANGELOG.md`](./CHANGELOG.md) + [`docs/sessions/`](./docs/sessions/).
 
-**Counters:** 22 lessons (2 precipitation + 1 percent-yield + 1 neutralization + 1 gas-stoichiometry + 1 energy-ledger +
-3 bonding (2 structure + 1 IMF comparison) + **7 equilibrium** (weak-acid pH + buffer + weak-base pH + Ksp solubility +
-common-ion Ksp + polyprotic + titration) + **2 prediction** (Q-vs-Ksp precipitation — CaF₂ forms, dilute Mg(OH)₂ stays clear),
-ADR-0048 + **3 kinetics** (first/second/zero-order decay — the ledger in time, t½ constant/grows/shrinks, ADR-0049) +
-**1 electrochemistry** (the Daniell cell — the electron ledger: oxidation numbers → half-reactions → E°cell → ΔG=−nFE, ADR-0050)) · 13 gyms / 130 verified problems (dimensional analysis · ionic
-nomenclature · balancing · mass stoichiometry · percent yield · limiting reagent · periodic trends · reaction families · gas
-laws · calorimetry · Lewis structures · weak-acid pH · **kinetics** ([A](t)/t½/read-the-order, ADR-0049)) · 1 Valence Table (23 elements; four modes; 182 named + machine-verified
-salts) · 43 concept entries (11 rule-sourced, 1 interpretive) + 7 reaction families (21 example reactions) + 14 species
-entries + 6 molecule structure entries (Lewis ledger + VSEPR + dominant IMF, ADR-0044/0046) + 14 formula-sheet entries
-(ADR-0039/0043/0048 — incl. Kₐ/K_b/K_w/K_sp + Kₐ·K_b=K_w as **dimensionless activity** relations) · 85 Atlas reference objects · 7 Node gates + CI + live Pages · 427 producer tests · astro build = 45 pages.
+**Counters:** 22 lessons (**7 shapes** — reaction · structure · comparison · equilibrium · prediction · kinetics ·
+electrochemistry) · 13 gyms / 130 verified problems · 1 Valence Table (**118 elements**, four modes, 16 ion-bearing,
+**182 named + machine-verified salts**) · **85 Atlas reference objects** = 43 concepts (11 rule-sourced, 1
+interpretive) + 7 reaction families (21 example reactions) + 14 species + 6 molecule structures + 14 formula-sheet
+entries + 1 valence table · 7 Node gates (check-katex 959 strings) + CI + live Pages · 432 producer tests · astro
+build = **47 pages**.
 
-**Standing facts a session should know:** the seven architecture open questions are all resolved; honesty = three badges
-(regime-4 → model-assumed badge + an "interpretive" marker, ADR-0033); numeric practice free-entry (diagnostics), categorical
-a menu (ADR-0032). Lessons come in **seven shapes** (each a tight schema; dispatched by extension in `build_problems_main`):
-a **reaction lesson** (`*.solution.json`, `build_problem`) with **four reported-product shapes** — precipitate /
-neutralization water (ADR-0037) / gas via PV=nRT (ADR-0041) / energy via Hess (`result.energy`, no product mass, ADR-0043);
-a **`structure` lesson** (`*.structure.json`, ADR-0045): a single molecule, no reaction, pivoting on the **Lewis electron
-ledger**, stepped valence→Lewis→VSEPR→polarity; a **`comparison` lesson** (`*.comparison.json`, ADR-0047): several
-molecules vs. a property, the trend machine-checked (rows reuse verified Atlas molecules; sorted by boiling point, the
-dominant-IMF rank must be **non-decreasing** — refuses a non-monotonic corpus); and an **`equilibrium` lesson**
-(`*.equilibrium.json`, ADR-0048): the **ICE table = the species ledger with the extent solved from mass action** ($Q=K$,
-not the limiting reagent) — `chemkernel.equilibrium.solve_equilibrium` finds the root by **bisection to high precision**
-(exact Decimal, general beyond the quadratic), the extent model-exact-then-rounded, the machine-check the **residual**
-$Q(\text{committed})=K$ + the gate's **independent re-solve** (shared `equilibriumcheck.mjs`); triple-badged (ICE
-machine-checked / $K$ sourced / position model-assumed). **Six subtypes** on one `solve_equilibrium` (one schema +
-`subtype`; dispatched `salt`/`base`/`acid`, + `conjugate_base_molarity_M` → buffer, ≥2 protons → polyprotic, `titrant` →
-titration; $K$ + composition sourced + machine-checked on load — detail in ADR-0048): **weak-acid** pH · **buffer** (common-ion
-+ Henderson–Hasselbalch, A⁻ pre-loaded) · **weak-base** (water excluded from $Q$ via `in_quotient`, pH via the $K_w$ bridge) ·
-**solubility** (Ksp cubic, solid excluded; optional **common-ion** suppression) · **polyprotic** (staged Kₐ1≫Kₐ2≫Kₐ3, the
-solver run once per stage — top-level ice = stage 1, `result.later_stages` the rest; [H⁺] tracks stage 1, mid-anion ≈ Kₐ2) ·
-**titration** (a weak-acid/strong-base curve — the ledger marched by region, top-level ice = the initial point + a `titration`
-block with the (volume, pH) curve; the player draws a **build-time SVG**; pH=pKₐ at half-eq, basic at equivalence). And a
-**`prediction` lesson** (`*.prediction.json`, ADR-0048 9th increment): a **Q-vs-Kₛₚ snapshot, not a solve** — mix two solutions,
-dilute each ion into the combined volume, compute the reaction quotient $Q=[\text{cat}]^a[\text{an}]^b$ and compare to $K_{sp}$
-→ *does a precipitate form?* (Q>Kₛₚ ⇒ yes); the dilution + $Q$ + verdict machine-checked (`verifyPrediction`), its own tight
-schema + static player; reuses the sourced Kₛₚ (no ICE table, $Q\ne K$ by design). And a **`kinetics` lesson** (`*.kinetics.json`,
-ADR-0049): the ledger with the extent **evolving in time**, one shape over **orders 0/1/2** (`subtype`+`order`; dispatched in
-`chemkernel.kinetics`, Decimal exp/ln, model-exact-then-rounded) — zero $[\mathrm{A}]_0-kt$ ($t_{1/2}=[\mathrm{A}]_0/2k$ shrinks,
-hits 0 at $[\mathrm{A}]_0/k$), first $[\mathrm{A}]_0e^{-kt}$ ($\ln2/k$ constant — the signature), second $1/[\mathrm{A}]_0+kt$
-($1/k[\mathrm{A}]_0$ grows); the successive-half-life **progression** (constant/doubles/halves) is the order's machine-checked
-fingerprint; a build-time decay-curve SVG; k sourced from `data/rate-constants.toml` in its **native units** (the unit encodes the
-order + time base, min→60 s), the rate law + order model-assumed (the order is measured, **not** the coefficient), the balance +
-every curve point + the t½ relation + landmark segments + progression machine-checked (`kineticscheck.mjs`). And an
-**`electrochemistry` lesson** (`*.electrochemistry.json`, ADR-0050): the ledger with **electrons** tracked (the extent = moles of
-electrons **n**) — a galvanic cell from two sourced metal-ion/metal couples (`chemkernel.redox`), stepping oxidation numbers
-(the rule hierarchy + the sum-to-charge solve, `oxidation_states`) → the two half-reactions → the electron ledger (n = lcm, halves
-scaled so electrons cancel + the overall balance) → E°cell = E°(cathode) − E°(anode) → **ΔG° = −nFE°** (F exact, E° sourced,
-model-exact-then-rounded); triple-badged (ledger + oxidation numbers machine-checked / E° sourced / cell model assumed), the whole
-spine re-derived in Node (`electrochemistrycheck.mjs`). E° from `data/reduction-potentials.toml` (Appendix L); F from `data/constants.toml`.
-`mass_g`→moles supported; a fully molecular reaction omits the ionic equations; **oxidation numbers now complete the free-element
-redox flag** (ADR-0035→0050 — full assignment, machine-checked).
-The Atlas carries all four brief-§10 kinds (lens, concepts, reactions, species ADR-0038, formula sheet ADR-0039 — machine-checked
-**dimensional homogeneity** via `chemkernel.dimension`, separate from Decimal `units.py` per ADR-0015) **plus a fifth structural
-surface**, the **`molecule` kind** (ADR-0044/0046): the Lewis electron ledger (valence total → octet → formal charge, exact
-integer accounting **machine-checked**) + sourced VSEPR geometry (`data/vsepr.toml`) + sourced bond ΔEN + disclosed polarity
-+ a **dominant IMF** (ADR-0046 — London-dispersion/dipole-dipole/hydrogen-bonding from the polarity + an *exact* H-on-N/O/F
-test; the ranking is the sourced rule, a sourced boiling point the evidence — neutral molecules only).
-**`compute_ledger` is one engine shared by the molecule Atlas builder, the `lewis_structures_v1` gym, AND the structure lesson**;
-a shared `scripts/validate/structurecheck.mjs` re-derives the ledger in pure Node for both the reference + solutions gates. Atlas
-ids are **kind-prefixed** where they'd collide (`formula-*`/`reaction-*`/`molecule-*`); species/concepts stay bare. `units.py`
-carries amount/mass/volume/pressure/temperature/energy dims. Regime-2 wears the model-assumed badge (gas/calorimetry
-model-exact-then-rounded, energy ledger EXACT); ledger values incl. mass-given moles stay Fraction-exact (ADR-0013). The producer
-never runs in CI — the seven Node gates re-verify committed `derived/` from scratch.
+**Standing facts a session should know:** honesty = three badges (regime-4 → model-assumed + an interpretive marker,
+ADR-0033); numeric practice is free-entry with diagnostics, categorical a menu (ADR-0032); the seven lesson shapes
+each carry a tight schema + an independent pure-Node re-deriver (detail in `docs/architecture.md` §as-built +
+ADR-0044–0050); `mass_number` (the 34 weightless elements) never enters arithmetic (ADR-0052); the producer never
+runs in CI — the seven Node gates re-verify committed `derived/` from scratch. The v1.0.0 release contract (proven vs
+sourced-not-proved vs disclosed) is ADR-0053 + the `/verification` and `/credits` pages.
 
 ## Where this might go next (paths for a future session)
 
-**Phase 2 is open** (ADR-0039–0051). The **gas + thermochemistry** and **bonding & structure** tiers are complete, and
-**equilibrium & acid-base is open** (ADR-0048 — the reversible-extent solver + the `equilibrium` lesson kind, a fourth
-shape, with **six subtypes**: weak-acid pH + buffer (common-ion + Henderson–Hasselbalch) + weak-base pH (via the $K_w$
-bridge, water excluded from Q) + Ksp solubility (the `in_quotient` pure-solid-excluded generalization on the **cubic**, incl.
-a **common-ion** suppression variant) + **polyprotic** (staged Kₐ1≫Kₐ2≫Kₐ3, the solver run once per stage) + **titration**
-(a weak-acid/strong-base curve — the ledger marched by region + a build-time SVG, ADR-0048 8th increment)), **plus a fifth
-lesson shape** — the **`prediction` kind** (Q-vs-$K_{sp}$ precipitation, a snapshot not a solve; ADR-0048 9th increment:
-`equilibrium/calcium-fluoride-precipitation`, a `reaction-quotient` concept, `verifyPrediction` in the gate). The **K/K_w/K_sp
-formula-sheet entries landed too** (ADR-0048 10th increment — Kₐ/K_b/K_w/K_sp + the conjugate Kₐ·K_b=K_w, as **dimensionless
-activity** relations: an activity $a_X=[X]/c^\circ$ against the 1 M standard state is dimensionless, so K is a monomial of
-dimensionless quantities and fits the existing dimension engine unchanged; pH/pOH — log relations — stay in the `ph` concept,
-per the owner's call). **The equilibrium & acid-base tier is now feature-complete** (six subtypes + gym + prediction kind, both
-verdicts + the K reference surface). Optional leftovers: a titration **slider interactive**; a weak-**base**/buffer/polyprotic
-**gym** extension. The **kinetics tier is now OPEN** (ADR-0049 — the ledger in time; the `kinetics` lesson kind, the 6th lesson
-shape; `chemkernel.kinetics` + `data/rate-constants.toml` + `kineticscheck.mjs` + a build-time decay curve), now with **all three
-orders** (first/second/zero — t½ constant/grows/shrinks — on one order-general engine, ADR-0049 2nd increment) + the **`kinetics_v1`
-gym** ([A](t) / t½ / read-the-order, ADR-0049 3rd increment). **Next in kinetics:** the **Arrhenius** temperature dependence
-of k. And the **electrochemistry tier is OPEN** (ADR-0050 — the electron ledger: the Daniell cell, oxidation numbers → half-reactions
-→ E°cell → ΔG=−nFE, the **7th lesson shape**; `chemkernel.redox` + `data/reduction-potentials.toml` + the Faraday constant +
-`electrochemistrycheck.mjs`; oxidation numbers **completed** the ADR-0035 free-element redox flag). **Next in electrochemistry:** the
-**Nernst** equation (E away from standard conditions — the `galvanic` subtype extends), a ΔG=−nFE/Nernst formula-sheet entry, more
-cells (concentration/electrolytic), a redox-balancing gym. **All Phase-2 tiers are now open — a Phase-2 definition of done can be
-firmed up.** Bonding corpus-depth deferrals: octet exceptions (BeH₂/BF₃/PCl₅/SF₆), resonance (CO₃²⁻/NO₃⁻), more structure
-lessons (NH₃/CH₄), more comparison axes, a "which IMF dominates?" gym drill. Smaller/optional: endothermic / multi-step
-Hess-cycle lessons; the gas lesson's **slider interactive**. Always in season inside settled contracts: Atlas breadth-fill,
-further lessons, docs-only sessions. **Opening the later Phase-2 tiers** proceeds inside the open phase.
+**Phase 2 is complete and v1.0.0 scope is frozen (ADR-0053).** The **v1.1 backlog** carries the deferred depth —
+Arrhenius (kinetics) + a formula-sheet entry, Nernst (electrochemistry) + a ΔG/Nernst formula entry, a
+redox-balancing gym and more cells, B7 build-time KaTeX in the practice island + a bundle-scan gate, the B8 producer
+fail-loud guards, the C7/C8 producer-side display polish, and the standing breadth options (octet
+exceptions/resonance, transition-metal covalent radii, more structure/comparison lessons, a titration slider). Full
+detail is in [`ROADMAP.md`](./ROADMAP.md)'s **v1.1 backlog** section; always in season inside settled contracts are
+Atlas breadth-fill, further lessons, and docs-only sessions.
 
 **Known traps (1 and 2 bit the sibling; 3–5 are local):** (1) In CI use `npm install`, not `npm ci` —
 the lockfile is Windows-generated and may omit Linux-only optional native deps. (2) Svelte islands nested

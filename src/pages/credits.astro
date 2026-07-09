@@ -1,0 +1,144 @@
+---
+import Base from "../layouts/Base.astro";
+import { withBase } from "../lib/withBase.js";
+
+// Public attribution page (v1.0.0). Hand-authored from docs/SOURCES.md — every source id that ships in
+// derived/ appears below, with proper credit and each source's own license/terms. CC BY 4.0 material
+// (OpenStax) carries the full title / author / source / license + a "changes were made" note; US-government
+// datasets are public domain; measured scientific values are facts (not copyrightable, Feist v. Rural), and
+// each still names where it was taken from. Kept consistent with LICENSE-content.md.
+
+const CC_BY = "https://creativecommons.org/licenses/by/4.0/";
+const CC_BY_SA = "https://creativecommons.org/licenses/by-sa/4.0/";
+
+// The featured attribution — OpenStax is the single largest content source and is CC BY 4.0.
+const openstax = {
+  title: "Chemistry 2e",
+  author: "OpenStax, Rice University",
+  url: "https://openstax.org/details/books/chemistry-2e",
+  license: "CC BY 4.0",
+  licenseUrl: CC_BY,
+  provides:
+    "Ion charges and the solubility rules; the ΔEN bond-class thresholds; the acid/base and gas-evolution " +
+    "reaction conventions and the oxidation-number rule hierarchy (§4.1–4.2); specific heat capacities " +
+    "(Table 5.1) and standard formation enthalpies (Appendix G); VSEPR electron-domain geometries (§7.6) and " +
+    "the intermolecular-forces boiling-point trend (§10.1); acid, base, and water ionization constants " +
+    "(Appendices H, I, §14.1) and solubility products (Appendix J); rate constants and reaction orders " +
+    "(§12.4); and standard reduction potentials (Appendix L).",
+};
+
+// The remaining shipped sources, in register order (docs/SOURCES.md).
+const sources = [
+  {
+    name: "IUPAC / CIAAW — Standard Atomic Weights",
+    provides: "Standard atomic weights for the 84 elements that have one (abridged 2021 values); a bracketed mass number stands in for the 34 that do not.",
+    terms: "Commission on Isotopic Abundances and Atomic Weights, Atomic Weights 2021 report. The values are scientific facts (not copyrightable); © CIAAW covers presentation only.",
+    url: "https://www.ciaaw.org/abridged-atomic-weights.htm",
+  },
+  {
+    name: "IUPAC — Periodic Table of the Elements",
+    provides: "Element positions (group / period / block) for all 118 elements on the Valence Table, and the longest-lived-isotope mass number for the elements with no standard atomic weight.",
+    terms: "International Union of Pure and Applied Chemistry. Definitional structural facts.",
+    url: "https://iupac.org/what-we-do/periodic-table-of-elements/",
+  },
+  {
+    name: "BIPM — SI Brochure (9th ed., 2019)",
+    provides: "The Avogadro, gas, and Faraday constants — each exact by the 2019 SI definitions.",
+    terms: "Bureau International des Poids et Mesures. Definitional constants.",
+    url: "https://www.bipm.org/en/publications/si-brochure",
+  },
+  {
+    name: "NIST — Atomic Spectra Database (ionization energies)",
+    provides: "First ionization energies for Z = 1–103 (converted from eV to kJ/mol).",
+    terms: "National Institute of Standards and Technology — US-government data, public domain. The values are scientific facts.",
+    url: "https://physics.nist.gov/PhysRefData/ASD/ionEnergy.html",
+  },
+  {
+    name: "NIST — Chemistry WebBook (SRD 69)",
+    provides: "Normal boiling / sublimation points (H₂O, NH₃, CH₄, CO₂) — the intermolecular-forces evidence.",
+    terms: "National Institute of Standards and Technology — US-government data, public domain. The values are scientific facts.",
+    url: "https://webbook.nist.gov/chemistry/",
+  },
+  {
+    name: "Cordero et al. (2008) — Covalent radii revisited",
+    provides: "Single-bond covalent radii for the main-group elements through Z = 20.",
+    terms: "Cordero, Gómez, Platero-Prats, Revés, Echeverría, Cremades, Barragán & Alvarez, Dalton Trans. 2008, 2832–2838 (doi:10.1039/b801115j). The radii are scientific facts.",
+    url: "https://doi.org/10.1039/b801115j",
+  },
+  {
+    name: "Allred (1961) — Electronegativity values from thermochemical data",
+    provides: "The two-decimal revised-Pauling electronegativities (71 elements where an independent cross-check concurs).",
+    terms: "A. L. Allred, J. Inorg. Nucl. Chem. 1961, 17 (3–4), 215–221 (doi:10.1016/0022-1902(61)80142-5). The values are scientific facts.",
+    url: "https://doi.org/10.1016/0022-1902(61)80142-5",
+  },
+];
+---
+
+<Base title="Sources & credits">
+  <h1>Sources &amp; credits</h1>
+  <p class="lede muted">
+    Affinity is built on published, openly-licensed science. Every empirical value it ships — atomic weights,
+    electronegativities, ionization energies, radii, thermodynamic and equilibrium data, reduction potentials —
+    is taken from one of the sources below and carries its source on the claim itself (the
+    <a href={withBase("/verification/")}>data / rule-sourced badge</a>). This page is the full public register;
+    the machine-readable one is <code>docs/SOURCES.md</code> in the repository.
+  </p>
+
+  <h2>Featured content source</h2>
+  <div class="feature card">
+    <div class="feature-head">
+      <a class="fname" href={openstax.url} rel="noopener" target="_blank">{openstax.title}</a>
+      <span class="lic"><a href={openstax.licenseUrl} rel="license noopener" target="_blank">{openstax.license}</a></span>
+    </div>
+    <p class="by">by <strong>{openstax.author}</strong></p>
+    <p class="what">{openstax.provides}</p>
+    <p class="changes faint">
+      This material is used under the Creative Commons Attribution 4.0 International License.
+      <strong>Changes were made</strong>: Affinity re-derives, re-formats, machine-verifies, and builds
+      original lessons and reference entries on top of these data and conventions. This derivative is not
+      endorsed by OpenStax or Rice University.
+    </p>
+  </div>
+
+  <h2>Data &amp; reference sources</h2>
+  <ul class="srclist">
+    {sources.map((s) => (
+      <li class="card">
+        <div class="srhead">
+          <a class="sname" href={s.url} rel="noopener" target="_blank">{s.name}</a>
+        </div>
+        <p class="what">{s.provides}</p>
+        <p class="terms faint">{s.terms}</p>
+      </li>
+    ))}
+  </ul>
+
+  <h2>Licensing</h2>
+  <p class="muted lic-note">
+    Affinity's own content — lesson prose, worked solutions, ledger walkthroughs, Chemical Atlas entries,
+    generated practice, and figures — is released under
+    <a href={CC_BY_SA} rel="license noopener" target="_blank">CC BY-SA 4.0</a>; the code (the ChemKernel
+    producer, the validation gates, and this site) under the <strong>MIT License</strong>. Empirical data is
+    sourced as registered above — facts are not copyrightable, and each dataset's own license or terms are
+    recorded with it.
+    OpenStax material (CC BY 4.0) is compatible with, and re-shared under, the site's CC BY-SA 4.0 terms.
+  </p>
+
+  <style>
+    h1 { font-size: 1.9rem; }
+    h2 { font-size: 1.3rem; margin-top: 2.2rem; }
+    .lede { max-width: 52rem; }
+    .feature { border-left: 3px solid var(--accent); }
+    .feature-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+    .fname { font-size: 1.15rem; font-weight: 700; }
+    .lic a { font-size: 0.85rem; font-weight: 600; }
+    .by { margin: 0.15rem 0 0.6rem; color: var(--ink-2); }
+    .what { margin: 0.4rem 0; font-size: 0.93rem; color: var(--ink-2); line-height: 1.6; }
+    .changes { margin: 0.7rem 0 0; font-size: 0.88rem; line-height: 1.6; }
+    .srclist { list-style: none; padding: 0; display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); }
+    .srhead { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+    .sname { font-weight: 600; font-size: 0.98rem; }
+    .terms { margin: 0.4rem 0 0; font-size: 0.82rem; line-height: 1.55; }
+    .lic-note { max-width: 52rem; font-size: 0.92rem; line-height: 1.7; }
+  </style>
+</Base>
