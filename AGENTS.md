@@ -187,9 +187,9 @@ contracts needs no permission; record it and go.
 **Live (2026-07-05).** `.github/workflows/deploy.yml`: push to `main` → GitHub Actions runs `npm install`
 (not `npm ci` — known trap #1) → the seven Node gates + `astro build` → GitHub Pages at base path `/affinity`
 (https://jd-jones-ases.github.io/affinity/). Producer never runs in CI; CI validates the committed `derived/`.
-The **repo stays private** (ADR-0010); the owner's GitHub Educator plan allows Pages from a private repo, so
-Pages was enabled without going public. Caveat: on non-Enterprise plans the deployed *site* is world-readable
-at its URL even though the repo is private (private/access-controlled Pages needs Enterprise Cloud).
+The **repo is public** (ADR-0054 — flipped at the v1.0.0 release, superseding ADR-0010's private-by-design
+clause; the MIT + CC BY-SA 4.0 licensing there still stands). `package.json` `private: true` means
+never-npm-published (ADR-0053), not repo visibility.
 
 ## Current state
 

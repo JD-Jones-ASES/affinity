@@ -2008,3 +2008,22 @@ compressed to their budgets and pointed at a **v1.1 backlog** (ROADMAP) carrying
 green**, **47 pages**, **432 producer tests**. **Next (v1.1):** Arrhenius; Nernst + the ΔG/Nernst formula entry + a
 redox-balancing gym; B7 build-time KaTeX + a bundle-scan gate; B8 producer guards; C7/C8 producer polish; and the standing
 breadth options (octet exceptions/resonance, transition-metal radii, a titration slider) — detail in ROADMAP's v1.1 backlog.
+
+## ADR-0054 — The repo is public (supersedes ADR-0010's visibility clause; licensing unchanged) (2026-07-10)
+
+**Context.** ADR-0010 created the repo private, with publishing reserved as a deliberate, owner-reviewed release event.
+At the v1.0.0 release the owner flipped the repo public on GitHub — out-of-band: no ADR recorded it, and the docs kept
+describing the private state (`AGENTS.md §Deploy`'s "repo stays private" text, the v1.0.0 CHANGELOG entry — true when
+written). The drift was found 2026-07-10 at the project's incorporation into the hub, whose lesson this confirms:
+visibility flips done out-of-band leave doc drift — record them as ADRs when they happen.
+
+**Decision.** Record the standing fact: `JD-Jones-ASES/affinity` is **public** (verified via `gh repo view`,
+2026-07-10), with Pages live at https://jd-jones-ases.github.io/affinity/ served from the public repo. This supersedes
+only ADR-0010's visibility clause; its licensing halves — `LICENSE` (MIT, code) + `LICENSE-content.md` (CC BY-SA 4.0,
+content) — stand unchanged. `package.json` `private: true` also stands: it means never-npm-published (ADR-0053), not
+repo visibility. `AGENTS.md §Deploy` is corrected to the public state; historical texts (ADR-0010, the v1.0.0
+CHANGELOG entry) stay as written, per ADR hygiene.
+
+**Consequences.** Docs and reality agree again. The ADR-0010 caveat about world-readable Pages on a private repo is
+moot — repo and site are both public, under the licenses above. Any future visibility change is an ADR-level, owner-gated
+event recorded at flip time.
